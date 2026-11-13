@@ -1,0 +1,206 @@
+name: Build, test and release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+# Least privilege: every job is read-only unless it says otherwise below.
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    name: Test, build and sign Android app
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Check the built app matches its sources
+        run: |
+          python3 build.py --check
+          node --check bundle-check.js
+          echo "Sources and bundle match; JavaScript parses"
+      - name: Run unit tests
+        run: node tests.js
+      - name: Build Android app
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          mkdir -p app/www
+          cp index.html manifest.webmanifest sw.js *.png app/www/
+          python3 - <<'PY'
+          import re,hashlib,base64,json,urllib.request
+          p='app/www/index.html';s=open(p,encoding='utf-8').read()
+          urls=sorted(set(re.findall(r"""https://cdn\.jsdelivr\.net/npm/[^"' )]+\.js(?=["'])""",s)))
+          c=re.search(r'https://cdn\.jsdelivr\.net/npm/cesium@[0-9.]+/Build/Cesium/',s)
+          if c: urls.append(c.group(0)+'Cesium.js')
+          m={}
+          for u in urls:
+              try:
+                  d=urllib.request.urlopen(u,timeout=90).read()
+                  m[u]='sha384-'+base64.b64encode(hashlib.sha384(d).digest()).decode();print('integrity pinned:',u)
+              except Exception as e:
+                  print('integrity skipped:',u,e)
+          k='var SRI={};/*SRI*/'
+          if k in s: open(p,'w',encoding='utf-8').write(s.replace(k,'var SRI='+json.dumps(m)+';'))
+          PY
+          cd app
+          npm init -y
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6 @capacitor/share@6
+          npm install @capacitor-community/speech-recognition@6 || echo "voice plugin skipped"
+          echo '{"appId":"com.ojosdedios.app","appName":"Ojos de Dios","webDir":"www"}' > capacitor.config.json
+          npx cap add android
+          R=android/app/src/main/res
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            cp ../icon-512.png $R/mipmap-$d/ic_launcher.png
+            cp ../icon-512.png $R/mipmap-$d/ic_launcher_round.png
+          done
+          if [ -f ../icon-adaptive-bg.png ]; then
+            mkdir -p $R/mipmap-anydpi-v26
+            printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@mipmap/ic_launcher_background"/><foreground android:drawable="@mipmap/ic_launcher_foreground"/></adaptive-icon>' > $R/mipmap-anydpi-v26/ic_launcher.xml
+            cp $R/mipmap-anydpi-v26/ic_launcher.xml $R/mipmap-anydpi-v26/ic_launcher_round.xml
+            for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+              cp ../icon-adaptive-bg.png $R/mipmap-$d/ic_launcher_background.png
+              cp ../icon-adaptive-fg.png $R/mipmap-$d/ic_launcher_foreground.png
+            done
+          else
+            rm -rf $R/mipmap-anydpi-v26
+            for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do cp ../icon-512.png $R/mipmap-$d/ic_launcher_foreground.png; done
+          fi
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          sed -i 's#</manifest>#    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n</manifest>#' app/src/main/AndroidManifest.xml
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" app/build.gradle
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            KS="$RUNNER_TEMP/ojos-release.keystore"
+            echo "$KEYSTORE_B64" | base64 -d > "$KS"
+            printf '%s\n' '' 'android {' '  signingConfigs { ojos { storeFile file(System.getenv("OJOS_KS")); storePassword System.getenv("OJOS_KS_PASS"); keyAlias "ojos"; keyPassword System.getenv("OJOS_KS_PASS") } }' '  buildTypes { release { signingConfig signingConfigs.ojos; minifyEnabled false } }' '}' >> app/build.gradle
+            OJOS_KS="$KS" OJOS_KS_PASS="$KEYSTORE_PASSWORD" ./gradlew assembleRelease --no-daemon -q
+            cp app/build/outputs/apk/release/app-release.apk ../../ojos-de-dios.apk
+            rm -f "$KS"
+            echo "Signed release build" > ../../build-type.txt
+          else
+            echo "::warning::Signing secrets are not set. Producing an UNSIGNED-FOR-RELEASE debug build."
+            ./gradlew assembleDebug --no-daemon -q
+            cp app/build/outputs/apk/debug/app-debug.apk ../../ojos-de-dios.apk
+            echo "Debug build (signing secrets not set)" > ../../build-type.txt
+          fi
+      - name: Checksum and release notes
+        run: |
+          sha256sum ojos-de-dios.apk > ojos-de-dios.apk.sha256
+          {
+            echo "**$(cat build-type.txt)**, version 1.${{ github.run_number }}"
+            echo
+            echo "Built from commit \`${{ github.sha }}\` by [this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+            echo
+            echo "SHA-256 of \`ojos-de-dios.apk\`:"
+            echo
+            echo "    $(cut -d' ' -f1 ojos-de-dios.apk.sha256)"
+            echo
+            echo "Verify provenance: \`gh attestation verify ojos-de-dios.apk --repo ${{ github.repository }}\`"
+          } > release-notes.md
+          cat release-notes.md
+      - name: Sign build provenance
+        continue-on-error: true
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ojos-de-dios.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: |
+            ojos-de-dios.apk
+            ojos-de-dios.apk.sha256
+            release-notes.md
+          if-no-files-found: error
+  ios:
+    name: Build iPhone app (unsigned)
+    runs-on: macos-latest
+    timeout-minutes: 45
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build iPhone app (unsigned)
+        run: |
+          mkdir -p app/www
+          cp index.html manifest.webmanifest sw.js *.png app/www/
+          cd app
+          npm init -y
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/ios@6 @capacitor/filesystem@6 @capacitor/share@6
+          npm install @capacitor-community/speech-recognition@6 || echo "voice plugin skipped"
+          echo '{"appId":"com.ojosdedios.app","appName":"Ojos de Dios","webDir":"www"}' > capacitor.config.json
+          npx cap add ios
+          P=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Shows your position on the map and along your route.'" $P || true
+          /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Lets you search and give commands by voice.'" $P || true
+          /usr/libexec/PlistBuddy -c "Add :NSSpeechRecognitionUsageDescription string 'Turns your spoken commands into text.'" $P || true
+          sips -z 1024 1024 ../icon-512.png --out ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png || true
+          npx cap sync ios
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr ../../../ojos-de-dios-iphone-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: ojos-de-dios-iphone-unsigned.ipa
+  codeql:
+    name: Security scan (CodeQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v4
+  release:
+    name: Publish release
+    needs: [android, ios]
+    if: ${{ always() && needs.android.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Ojos de Dios
+          body_path: dist/release-notes.md
+          files: |
+            dist/ojos-de-dios.apk
+            dist/ojos-de-dios.apk.sha256
+            dist/ojos-de-dios-iphone-unsigned.ipa
