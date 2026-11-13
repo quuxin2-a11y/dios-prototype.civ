@@ -1,0 +1,41 @@
+name: Build, test and release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+# Least privilege: every job is read-only unless it says otherwise below.
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    name: Test, build and sign Android app
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Check the built app matches its sources
+        run: |
+          python3 build.py --check
+          node --check bundle-check.js
+          echo "Sources and bundle match; JavaScript parses"
+      - name: Run unit tests
+        run: node tests.js
+      - name: Build Android app
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
