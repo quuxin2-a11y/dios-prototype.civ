@@ -63,6 +63,7 @@ jobs:
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6 @capacitor/share@6
           npm install @capacitor-community/speech-recognition@6 || echo "voice plugin skipped"
+          npm install @capacitor/local-notifications@6 || echo "notification plugin skipped"
           echo '{"appId":"com.ojosdedios.app","appName":"Ojos de Dios","webDir":"www"}' > capacitor.config.json
           npx cap add android
           R=android/app/src/main/res
@@ -149,6 +150,7 @@ jobs:
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/ios@6 @capacitor/filesystem@6 @capacitor/share@6
           npm install @capacitor-community/speech-recognition@6 || echo "voice plugin skipped"
+          npm install @capacitor/local-notifications@6 || echo "notification plugin skipped"
           echo '{"appId":"com.ojosdedios.app","appName":"Ojos de Dios","webDir":"www"}' > capacitor.config.json
           npx cap add ios
           P=ios/App/App/Info.plist
