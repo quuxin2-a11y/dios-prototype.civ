@@ -58,6 +58,24 @@ This project connects existing libraries and public data. It does not claim them
 | GDACS | Global disaster alerts | Free use with attribution |
 | OpenStreetMap Nominatim | Naming the area in view | ODbL; fair-use limits |
 | Bluesky public API | Live chatter: public posts | Bluesky terms; posts belong to their authors |
+| State open-data portals: Texas, Colorado, New York, Oregon, Connecticut | Records: business registration status, number, formation date | Public record |
+| Texas Comptroller public data API (optional, user's key) | Records: officers, directors and registered agent of Texas entities | Public record |
+| France: API Recherche d'entreprises (data.gouv.fr) | Records: company status, SIREN, officers | Licence Ouverte 2.0 |
+| Norway: Enhetsregisteret (Brønnøysund Register Centre) | Records: company status, number, roles | NLOD |
+| Finland: PRH / YTJ open data | Records: company status, business ID, address | CC BY 4.0 |
+| United Kingdom: Companies House API (optional, user's key) | Records: company status, owners with significant control, officers | Open Government Licence |
+| Wikidata query service | Country file: capital, population, leaders, languages, emergency numbers, currency | CC0 |
+| World Bank Open Data | Country file: economy and population indicators | CC BY 4.0 |
+| US Department of State travel advisories | Country file: advisory level | US Government work |
+| Frankfurter (European Central Bank rates) | Country file: exchange rate | Open data |
+| MeteoAlarm (EUMETNET, national weather services) | Emergency mode: official weather warnings in Europe | CC BY 4.0 |
+| GLEIF LEI register | Records: legal name, status, jurisdiction and addresses of organisations | CC0 |
+| Wikidata | Records: founding year, officers and parent of well-known organisations | CC0 |
+| OpenCorporates (optional, user's key) | Records: state company register entry and status | OpenCorporates terms |
+| US National Weather Service point alerts | Emergency mode: alerts for the user's position | US Government work |
+| Open-Meteo air quality | Emergency mode: air quality index | CC BY 4.0 |
+| OpenStreetMap via Overpass | Emergency mode: hospitals, shelters, assembly points, fire, police, fuel, water. Plans directory: indoor maps | ODbL |
+| OSRM demo server | Drive: alternative routes and routes without motorways | ODbL data |
 | Mastodon (mastodon.social public timelines) | Live chatter: public posts | Instance terms; posts belong to their authors |
 | X API (optional, user's token) | Live chatter: public posts | X developer terms |
 

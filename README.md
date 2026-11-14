@@ -23,6 +23,12 @@ It connects public feeds; it does not create them. Credit for the data belongs t
 - **Replay, map styles, text size, share card and a first-run guide.**
 - **Command mode and Command wall:** an operations-room layout of the same public data.
 - **Live chatter:** public posts from Bluesky and Mastodon (and X with your own token) about a topic, clearly marked unverified.
+- **Cockpit view:** the real world from a live aircraft, with the weather the forecast model reports at its position and height.
+- **State of Emergency mode:** a confirmed switch that turns the map red, follows your position and gathers official alerts, nearby hazards, safe places, cameras, routes and a rule-based analyzer on one screen.
+- **Drive route choices:** fastest, fewest cameras, back roads, or safest.
+- **Finder:** one search for flights, aircraft, ships, satellites and cameras, with every leg of a flight and its on-time status.
+- **Plans on record:** which buildings in view have a public indoor floor plan.
+- **Records:** property and organisation dossier from public registers. Private individuals are never named.
 - **Search by flight number or ship name, camera compare, one Settings screen.**
 - **Layer control:** hide any layer, hide them all at once, or hide the panel itself.
 - **Smart alerts, voice search, multi-camera wall, anonymous object detection** (object classes only).

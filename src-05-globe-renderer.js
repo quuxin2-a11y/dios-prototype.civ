@@ -23,17 +23,20 @@ function proj2(lon,lat){ // equirectangular for 2D mode
   x+=panX;y+=panY;return[ox+x,oy+y,1];
 }
 var panX=0,panY=0;
-function covered(){var w=$("wall"),sv=$("svfull");return T3.on||T4.on||(w&&w.style.display==="flex")||(sv&&sv.style.display==="flex")}
+var COVER=["newsp","flog","brief","cmp","ops","fnd","plans","rec","emgp","cty","chk"];
+var PERF_L=[[1,28,1.5,1.5,30],[1.25,18,2,2,45],[2,10,3,2,0]]; // [3D pixel scale, 3D tile detail error] for Smooth, Balanced, Sharp
+function perfSet(i){i=i==null?1:+i;SET.perf=i;setSave();try{if(T4.v){T4.v.resolutionScale=Math.min(window.devicePixelRatio||1,PERF_L[i][0]);T4.v.targetFrameRate=PERF_L[i][4]||undefined;PERF.moveCap=Math.min(PERF.moveCap,PERF_L[i][3]);T4.v.scene.requestRender&&T4.v.scene.requestRender()}if(T4.ts)T4.ts.maximumScreenSpaceError=PERF_L[i][1]}catch(e){}}
+function covered(){var w=$("wall"),sv=$("svfull");if(T3.on||T4.on||INS.on||(w&&w.style.display==="flex")||(sv&&sv.style.display==="flex"))return true;for(var i=0;i<COVER.length;i++){var e=$(COVER[i]);if(e&&e.style.display==="flex")return true}return false}
 function frame(now){
   requestAnimationFrame(frame);
   if(document.hidden||covered()){frame.last=now;return}
   var spinning=mode==="3d"&&spin&&!dragging&&now-lastInteract>2500&&!target;
   var active=!!target||dragging||now-lastInteract<700||spinning;
-  if(!active&&now-PERF.last<30)return; // idle: 30 fps is plenty for the pulses
+  if(!active&&now-PERF.last<(now-lastInteract>6000&&!(EMG.on&&EMG.pos)?50:30))return; // idle: 30 fps for the pulses, 20 fps once left alone
   var dt=now-(frame.last||now),t=(now-t0)/1000;
   // adaptive sharpness: if moving the globe is slow on this phone, render motion a little softer and sharpen when still
-  if(active){PERF.act=now;if(dt>0&&dt<200){PERF.ema=PERF.ema*0.9+dt*0.1;if(PERF.ema>21&&PERF.moveCap>1){if(++PERF.slow>20){PERF.moveCap=Math.max(1,PERF.moveCap-0.5);PERF.slow=0;PERF.ema=16}}else PERF.slow=0;if(PERF.ema<12.5&&PERF.moveCap<2){if(++PERF.fast>150){PERF.moveCap+=0.5;PERF.fast=0}}else PERF.fast=0}}
-  var want=active?PERF.moveCap:(now-PERF.act>450?3:PERF.cap);if(want!==PERF.cap){PERF.cap=want;resize()}
+  if(active){PERF.act=now;if(dt>0&&dt<200){PERF.ema=PERF.ema*0.9+dt*0.1;if(PERF.ema>21&&PERF.moveCap>1){if(++PERF.slow>20){PERF.moveCap=Math.max(1,PERF.moveCap-0.5);PERF.slow=0;PERF.ema=16}}else PERF.slow=0;if(PERF.ema<12.5&&PERF.moveCap<PERF_L[SET.perf==null?1:SET.perf][3]){if(++PERF.fast>150){PERF.moveCap+=0.5;PERF.fast=0}}else PERF.fast=0}}
+  var PL=PERF_L[SET.perf==null?1:SET.perf],want=active?Math.min(PERF.moveCap,PL[3]):(now-PERF.act>900?PL[2]:PERF.cap);if(want!==PERF.cap){PERF.cap=want;resize()}
   PERF.last=now;
   // motion
   var dtf=Math.min(30,Math.max(0.2,dt/16.67));
@@ -99,7 +102,7 @@ function camDot(x,y,z,lc){var st=STATS[lc.u],lr=st&&st.length&&Date.now()-st[st.
   screenPts.push([x,y,lc])}
 var VX=[],VY=[],VC=[],VNUM=0,VRECT=false,CGn=null,CGx,CGy,CGlo,CGla,CGm;
 function markers(t,P){
-  screenPts=[];drawPin(t,P);curP=P;if(WL)drawWorld(t,P);drawDrive(P);drawSvLink(P);
+  screenPts=[];drawPin(t,P);curP=P;if(WL)drawWorld(t,P);drawDrive(P);drawEmg(P);drawSvLink(P);
   var n=0,j,lc,x,y,z,fast=P===proj,c=pcu(),R=c.R,hw=W/2,cyy=c.cy,s0=c.s0,c0=c.c0,lon0=rot.lon,zmin=0,hyp=Math.sqrt(hw*hw+Math.pow(Math.max(cyy,H-cyy),2))+12;
   if(fast&&hyp<R)zmin=Math.sqrt(1-hyp*hyp/(R*R))-1e-9;
   for(j=0;j<visLive.length;j++){lc=visLive[j];

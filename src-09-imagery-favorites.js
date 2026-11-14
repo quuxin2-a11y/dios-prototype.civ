@@ -18,16 +18,16 @@ function iLat(y){return Math.atan(Math.sinh(Math.PI*(1-2*y)))/D}
 function glInit(){glTried=true;var c=$("gl");if(!c)return;try{gl=c.getContext("webgl",{alpha:true,antialias:false})||c.getContext("experimental-webgl")}catch(e){gl=null}if(!gl)return;
   var hp=gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER,gl.HIGH_FLOAT);hp=hp&&hp.precision>0?"highp":"mediump";
   var vs="attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}",
-  fs="precision "+hp+" float;uniform vec2 uC;uniform float uR;uniform vec2 uRot;uniform sampler2D uBase;uniform sampler2D uPatch;uniform vec4 uPB;uniform float uHasP;uniform vec3 uSun;uniform sampler2D uRad;uniform sampler2D uRadP;uniform vec4 uRB;uniform float uRadOn;uniform float uDim;const float PI=3.14159265;"+
+  fs="precision "+hp+" float;uniform vec2 uC;uniform float uR;uniform vec2 uRot;uniform sampler2D uBase;uniform sampler2D uPatch;uniform vec4 uPB;uniform float uHasP;uniform vec3 uSun;uniform sampler2D uRad;uniform sampler2D uRadP;uniform vec4 uRB;uniform float uRadOn;uniform float uDim;uniform float uEmg;const float PI=3.14159265;"+
    "void main(){vec2 p=(gl_FragCoord.xy-uC)/uR;float d=dot(p,p);if(d>1.0){discard;}float z=sqrt(1.0-d);float s0=sin(uRot.y),c0=cos(uRot.y);float sphi=clamp(p.y*c0+z*s0,-1.0,1.0);float phi=asin(sphi);float lam=uRot.x+atan(p.x,z*c0-p.y*s0);"+
-   "float mx=fract(lam/(2.0*PI)+0.5);float cl=clamp(phi,-1.4835,1.4835);float my=0.5-log(tan(PI/4.0+cl/2.0))/(2.0*PI);vec3 col=texture2D(uBase,vec2(mx,my)).rgb;if(uDim>0.5){float g=dot(col,vec3(0.3,0.59,0.11));col=mix(vec3(g),col,0.3)*vec3(0.5,0.6,0.76)+vec3(0.014,0.024,0.042);}"+
+   "float mx=fract(lam/(2.0*PI)+0.5);float cl=clamp(phi,-1.4835,1.4835);float my=0.5-log(tan(PI/4.0+cl/2.0))/(2.0*PI);vec3 col=texture2D(uBase,vec2(mx,my)).rgb;if(uDim>0.5){float g=dot(col,vec3(0.3,0.59,0.11));col=mix(vec3(g),col,0.3)*vec3(0.5,0.6,0.76)+vec3(0.014,0.024,0.042);}if(uEmg>0.5){float e=dot(col,vec3(0.3,0.59,0.11));col=vec3(e*1.08+0.035,e*0.2+0.004,e*0.17+0.004);}"+
    "if(uHasP>0.5){vec2 uv=(vec2(mx,my)-uPB.xy)/(uPB.zw-uPB.xy);if(uv.x>0.0&&uv.x<1.0&&uv.y>0.0&&uv.y<1.0){col=texture2D(uPatch,uv).rgb;}}"+
    "float sh=1.0;if(uSun.z>0.5){float ca=sphi*sin(uSun.y)+cos(phi)*cos(uSun.y)*cos(lam-uSun.x);sh=mix(0.34,1.0,smoothstep(-0.15,0.12,ca));}"+
    "col*=sh*(0.6+0.4*z);if(uRadOn>0.5){vec4 r=texture2D(uRad,vec2(mx,my));if(uRadOn>1.5){vec2 u2=(vec2(mx,my)-uRB.xy)/(uRB.zw-uRB.xy);if(u2.x>0.0&&u2.x<1.0&&u2.y>0.0&&u2.y<1.0){vec4 r2=texture2D(uRadP,u2);if(r2.a>0.03){r=r2;}}}col=mix(col,r.rgb,clamp(r.a,0.0,1.0)*0.82);}gl_FragColor=vec4(col,1.0);}";
   function sh(ty,src){var o=gl.createShader(ty);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o}
   try{glP=gl.createProgram();gl.attachShader(glP,sh(gl.VERTEX_SHADER,vs));gl.attachShader(glP,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(glP);if(!gl.getProgramParameter(glP,gl.LINK_STATUS))throw new Error("link");
     gl.useProgram(glP);var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);var al=gl.getAttribLocation(glP,"a");gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
-    ["uC","uR","uRot","uBase","uPatch","uPB","uHasP","uSun","uRad","uRadP","uRB","uRadOn","uDim"].forEach(function(n){glU[n]=gl.getUniformLocation(glP,n)});
+    ["uC","uR","uRot","uBase","uPatch","uPB","uHasP","uSun","uRad","uRadP","uRB","uRadOn","uDim","uEmg"].forEach(function(n){glU[n]=gl.getUniformLocation(glP,n)});
     function mk(){var tx=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tx);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([8,24,40,255]));return tx}
     texBase=mk();texPatch=mk();texRad=mk();texRadP=mk();var mxs=Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));baseCv=document.createElement("canvas");baseCv.width=baseCv.height=mxs;var bg=baseCv.getContext("2d");bg.fillStyle="#08182a";bg.fillRect(0,0,mxs,mxs);
   }catch(e){gl=null}}
@@ -59,7 +59,7 @@ function satDraw(R,cx,cy){
   gl.uniform2f(glU.uC,cx*DPR,(H-cy)*DPR);gl.uniform1f(glU.uR,R*DPR);gl.uniform2f(glU.uRot,rot.lon*D,rot.lat*D);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texBase);gl.uniform1i(glU.uBase,0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,texPatch);gl.uniform1i(glU.uPatch,1);
   if(useP){var n=Math.pow(2,patchA.z);gl.uniform4f(glU.uPB,patchA.x0/n,patchA.y0/n,(patchA.x0+patchA.nx)/n,(patchA.y0+patchA.ny)/n)}
-  gl.uniform1f(glU.uHasP,useP?1:0);gl.uniform1f(glU.uDim,ST?1:0);gl.uniform3f(glU.uSun,SUN.lon*D,SUN.lat*D,WL.night&&zt<9&&!ST?1:0);radGL(useP?patchA:null,now);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);glShown=true;
+  gl.uniform1f(glU.uHasP,useP?1:0);gl.uniform1f(glU.uDim,ST?1:0);gl.uniform1f(glU.uEmg,EMG.on?1:0);gl.uniform3f(glU.uSun,SUN.lon*D,SUN.lat*D,WL.night&&zt<9&&!ST?1:0);radGL(useP?patchA:null,now);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);glShown=true;
   // close range: draw sharp tiles directly (down to street level)
   if(zt>=11){var z=zt,dLa=(H/2)/R/D,dLo=(W/2)/R/D/Math.max(0.15,Math.cos(rot.lat*D)),cyo=(cy-H/2)/R/D;
     for(;;){var nn=Math.pow(2,z),x0=Math.floor(mX(rot.lon-dLo)*nn),x1=Math.floor(mX(rot.lon+dLo)*nn),y0=Math.floor(mY(rot.lat+dLa+cyo)*nn),y1=Math.floor(mY(rot.lat-dLa+cyo)*nn);if((x1-x0+1)*(y1-y0+1)>48&&z>11){z--;continue}break}
