@@ -29,7 +29,7 @@ It connects public feeds; it does not create them. Credit for the data belongs t
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The built app: one self-contained file the phone loads. **Generated, do not edit.** |
+| `index.html` | The built app: one self-contained file the phone loads, assembled from the `src-` files by `build.py`. Make changes in the `src-` files, then rebuild. |
 | `src-template.html` | Page markup and styles. |
 | `src-01-…` to `src-11-….js` | The app logic, split by area (renderer, camera networks, drive, layers, and so on). |
 | `src-data-*.json` | Bundled data: place names, coastline dots, fallback portal list. |
