@@ -24,7 +24,7 @@ This project connects existing libraries and public data. It does not claim them
 | Source | Used for | Terms |
 | --- | --- | --- |
 | Google Maps Platform (Map Tiles API, Street View, Routes) | Photoreal 3D cities, Street View, routing | Google Maps Platform Terms; user's own key; paid beyond free tier |
-| Esri World Imagery | Globe imagery | Esri Master Agreement; attribution required; commercial use needs a licence |
+| Esri World Imagery, World Transportation and World Boundaries and Places | Globe imagery, road and label overlays | Esri Master Agreement; attribution required; commercial use needs a licence |
 | OpenStreetMap, Nominatim, Overpass | Place search, building outlines | ODbL; attribution required; fair-use limits |
 | OpenFreeMap | Building shapes in the standard 3D view | OpenStreetMap data, ODbL |
 | Terrain tiles on AWS | Terrain in the standard 3D view | Open data; attribution required |

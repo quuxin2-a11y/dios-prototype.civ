@@ -3,7 +3,7 @@
 var fs=require("fs"),path=require("path"),assert=require("assert");
 var src=fs.readdirSync(__dirname).filter(function(f){return /^src-\d+.*\.js$/.test(f)}).sort().map(function(f){return fs.readFileSync(path.join(__dirname,f),"utf8")}).join("");
 function grab(name){var i=src.indexOf("function "+name+"(");if(i<0)throw new Error("function not found: "+name);var j=src.indexOf("{",i),d=0;for(;j<src.length;j++){var c=src[j];if(c==="{")d++;else if(c==="}"){d--;if(d===0)break}}return src.slice(i,j+1)}
-var code="var VEH={car:1,truck:1,bus:1},TRK={};"+["iou","nms","trackUpd","twinH","insEar","insIn","insFmt"].map(grab).join("\n")+"\nreturn{iou:iou,nms:nms,trackUpd:trackUpd,twinH:twinH,insEar:insEar,insIn:insIn,insFmt:insFmt};";
+var code="var VEH={car:1,truck:1,bus:1},TRK={};"+["iou","nms","trackUpd","twinH","insEar","insIn","insFmt","planeCls","shipCls"].map(grab).join("\n")+"\nreturn{iou:iou,nms:nms,trackUpd:trackUpd,twinH:twinH,insEar:insEar,insIn:insIn,insFmt:insFmt,planeCls:planeCls,shipCls:shipCls};";
 var F=new Function(code)(),n=0;
 function test(name,fn){fn();n++;console.log("ok  "+name)}
 function near(a,b,e){assert.ok(Math.abs(a-b)<(e||1e-6),a+" vs "+b)}
@@ -18,4 +18,6 @@ test("ground mapping: things lower in the picture are nearer the camera",functio
 test("footprint triangulation: an L-shaped building is fully covered",function(){var L=[[0,0],[4,0],[4,2],[2,2],[2,4],[0,4]],t=F.insEar(L),area=0;t.forEach(function(k){area+=Math.abs((k[1][0]-k[0][0])*(k[2][1]-k[0][1])-(k[2][0]-k[0][0])*(k[1][1]-k[0][1]))/2});assert.strictEqual(t.length,4);near(area,12,1e-9)});
 test("point in footprint",function(){var L=[[0,0],[4,0],[4,2],[2,2],[2,4],[0,4]];assert.strictEqual(F.insIn(L,1,1),true);assert.strictEqual(F.insIn(L,3,3),false)});
 test("scale ruler: metres down to nanometres",function(){assert.strictEqual(F.insFmt(48.2),"≈ 48.2 m");assert.strictEqual(F.insFmt(0.104),"≈ 10.4 cm");assert.strictEqual(F.insFmt(3.49e-6),"≈ 3.49 µm");assert.strictEqual(F.insFmt(1.86e-9),"≈ 1.86 nm")});
+test("model choice: aircraft category and fallback",function(){assert.strictEqual(F.planeCls({cat:8}),"heli");assert.strictEqual(F.planeCls({cat:6}),"wide");assert.strictEqual(F.planeCls({cat:0,v:55,alt:900}),"prop");assert.strictEqual(F.planeCls({cat:0,v:230,alt:11000}),"plane")});
+test("model choice: ship type codes",function(){assert.strictEqual(F.shipCls({st:69}),"cruise");assert.strictEqual(F.shipCls({st:80}),"tanker");assert.strictEqual(F.shipCls({st:52}),"tug");assert.strictEqual(F.shipCls({st:70}),"ship");assert.strictEqual(F.shipCls({}),"ship")});
 console.log("\n"+n+" tests passed");

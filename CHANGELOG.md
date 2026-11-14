@@ -2,6 +2,14 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v43
+- Photoreal 3D picks a model by type: airliner, wide-body, propeller plane or helicopter for aircraft (from the ADS-B emitter category, with a speed-and-height fallback), and container ship, tanker, cruise ship or tug for vessels (from the AIS ship type).
+- Propellers and helicopter rotors turn.
+- Aircraft and satellites leave a fading trail.
+- Aircraft carry a light colour tint keyed to the airline code in the callsign (plain colours, no liveries or logos).
+- New **Static view** button (top row and Layers rail): the whole world goes dark and muted, roads and place names stay bright, every camera is its own marker, and the interface drops away to the logo. Works at every zoom, from the full globe to street level. Tap the logo to exit.
+- Ship names and types are filled in from Fintraffic's open vessel list and AISStream static reports.
+
 ## v42
 - New **Photoreal 3D** view: real textured 3D cities, terrain and globe (Google Photorealistic 3D Tiles through CesiumJS). Needs the Google key with *Map Tiles API* enabled; falls back to the standard 3D view if Google refuses the key.
 - Selected camera in Photoreal 3D: floating live screen above its location, pole to the ground, dashed footprint and sight lines.

@@ -117,7 +117,7 @@ function liveReport(){if(repBusy)return;repBusy=true;var btn=$("repBtn"),say=fun
   var res={},done=0,ix=0;function next(){if(ix>=jobs.length)return Promise.resolve();var j=jobs[ix++];return probeCam(j.c).then(function(r){(res[j.src]||(res[j.src]=[])).push({r:r,c:j.c});done++;say("Testing cameras… "+done+" of "+jobs.length);return next()})}
   say(EMBED_OK&&jobs.length?"Testing cameras… 0 of "+jobs.length:"Building report…");
   (EMBED_OK?Promise.all([0,1,2,3,4,5].map(next)):Promise.resolve()).then(function(){var L=[],hr="------------------------------------------------------------------------------------------------";
-    L.push("OJOS DE DIOS  -  LIVE REPORT  (v42)");L.push("Made "+new Date().toString());L.push("Diagnostic report: what worked on this device and what did not.");L.push(hr);
+    L.push("OJOS DE DIOS  -  LIVE REPORT  (v43)");L.push("Made "+new Date().toString());L.push("Diagnostic report: what worked on this device and what did not.");L.push(hr);
     diagText().split("\n").slice(1).forEach(function(x){L.push(x)});L.push("KEYS SAVED (names only): "+(Object.keys(KEYS).join(", ")||"none")+"   GPS: "+(navigator.geolocation?"available":"none")+"   DRIVE: "+(DRV.R?"route "+Math.round(DRV.R.len)+" m by "+DRV.R.src+", "+DRV.cams.length+" cams":"not used")+"   STREET VIEW JS API: "+(GM_BAD?"refused":window.google&&google.maps?"loaded":"not tried"));L.push(hr);
     L.push("CAMERA NETWORKS  (listed = cameras the network gave us; test = 3 real cameras opened just now)");L.push("");
     SOURCES.forEach(function(s){var st=LIVESTAT[s.name],lock=s.keyName&&!KEYS[s.keyName],t=res[s.name]||[],okN=t.filter(function(x){return x.r.ok}).length;
@@ -150,6 +150,7 @@ sheetSet(SHH,false);
 document.addEventListener("click",function(e){var b=e.target.closest("[data-sh]");if(!b)return;var k=b.getAttribute("data-sh");if(k==="hide"){document.body.classList.remove("sheet");setTimeout(resize,40)}else if(k==="size"){sheetSet(SHH>66?50:SHH>40?84:50,true)}else if(k==="open"){document.body.classList.add("sheet");setTimeout(resize,40)}});
 setInterval(function(){var pk=$("peek");if(!pk)return;var open=document.body.classList.contains("sheet"),nm=selected&&selected.n?selected.n:DRV.R?"Drive: "+DRV.R.b.name:"";pk.style.display=!open&&nm&&W<1000?"flex":"none";if(nm)$("peekt").textContent=nm},600);
 if(ls("ojos-clean")===true)document.body.classList.add("clean");
+if(ls("ojos-static")===true)setTimeout(function(){staticSet(true)},400);
 if(ls("ojos-view")==="3d"&&EMBED_OK)setTimeout(t3Open,1200);
 if(ls("ojos-view")==="real"&&EMBED_OK&&KEYS.gmaps)setTimeout(t4Open,1200);
 if(WL.dots){spin=false;var bd0=$("bDots");if(bd0)bd0.classList.add("on")}
