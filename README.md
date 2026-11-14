@@ -4,7 +4,7 @@
 
 A live globe of publicly published cameras and open world data, for Android (APK), with a web version.
 
-**Designed and directed by Mark Joseph. The code was written with Claude (Anthropic) to his direction.**
+**Designed and built by Mark Joseph.**
 It connects public feeds; it does not create them. Credit for the data belongs to the agencies listed below.
 
 ## What it does
