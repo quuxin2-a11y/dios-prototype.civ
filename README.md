@@ -15,7 +15,7 @@ It connects public feeds; it does not create them. Credit for the data belongs t
 - **Street View:** opens at the nearest street to a camera and shows the distance and direction back to it.
 - **World layers:** aircraft, satellites, ships, weather radar, earthquakes, fires and storms, day and night.
 - **Photoreal 3D:** real textured 3D cities with live aircraft, ships, satellites and flight paths.
-- **Inspect:** a guided zoom from a whole aircraft, ship, satellite or building down to a single atom (illustrative models).
+- **Inspect:** a guided zoom from a whole aircraft, ship, satellite or building down to a single atom. Buildings use the public record (real outline, mapped parts, facts, and an indoor plan where one exists); everything else is labelled as typical or generic on screen.
 - **Smart alerts, voice search, multi-camera wall, anonymous object detection** (object classes only).
 - **Live report:** one tap tests every network and exports a PDF.
 

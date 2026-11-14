@@ -2,6 +2,12 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v44
+- **Static 3D view**: the Static button now opens the tilted photoreal city with the interface stripped back (needs the Google key). The dark flat version is still there as DARK on the Layers rail.
+- Photoreal 3D: `CAM-` name tags on the cameras nearest the view, a landmark and city bar, visual presets (scan lines, night vision, mono), and camera points and tags placed at ground height.
+- **Inspect, buildings**: rebuilt around the public record. Real shape from OpenStreetMap building parts where mapped, a facts panel (use, floors, height, year, architect, operator, address, facade, roof), a real indoor floor plan where one has been mapped, and a REAL 3D button that orbits the actual building in Photoreal 3D. The invented column grid, core and joint stages are gone; the two material stages that remain are labelled typical.
+- **Inspect, aircraft**: shows the real register entry (type, maker, registration, operator) from adsbdb. The 3D model remains a generic airliner and says so.
+
 ## v43
 - Photoreal 3D picks a model by type: airliner, wide-body, propeller plane or helicopter for aircraft (from the ADS-B emitter category, with a speed-and-height fallback), and container ship, tanker, cruise ship or tug for vessels (from the AIS ship type).
 - Propellers and helicopter rotors turn.

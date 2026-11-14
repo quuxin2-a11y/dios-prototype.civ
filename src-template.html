@@ -607,6 +607,21 @@ body.real #lfrail{right:8px}
 #bStatic.on{background:#3fe0d0!important;color:#031014!important}
 body.static #brandov:after{content:"STATIC VIEW · TAP TO EXIT";position:absolute;left:0;top:100%;margin-top:6px;font:600 8.5px ui-monospace,Menlo,monospace;letter-spacing:.22em;color:#c8ff5a;white-space:nowrap}
 body.static .stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,#0000 55%,#02060bb0 100%);z-index:2}
+/* photoreal extras */
+#t4places{position:absolute;left:8px;right:8px;bottom:26px;z-index:2;background:#061019e0;border:1px solid #2a8f8866;border-radius:12px;padding:7px 8px;display:flex;flex-direction:column;gap:6px;backdrop-filter:blur(6px)}
+#t4places>div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;align-items:center}#t4places>div::-webkit-scrollbar{display:none}
+#t4places button{flex:none;height:30px;padding:0 10px;border-radius:7px;border:1px solid #ffffff26;background:#0c1620;color:#d7e6ee;font:600 10.5px ui-monospace,Menlo,monospace;letter-spacing:.06em;white-space:nowrap}
+#t4places .r2 button{color:#8fb3c2}#t4places button.on{border-color:#3fe0d0;color:#3fe0d0;background:#0a2a2e}
+#t4places .r3 span{font-size:8.5px;letter-spacing:.2em;color:#ffffff80;flex:none}#t4places .r3 button{height:26px;font-size:9.5px}
+body.real #t4bar{bottom:176px}
+#real.fx-crt #czmap canvas{filter:contrast(1.12) saturate(0.82) brightness(0.94)}
+#real.fx-nv #czmap canvas{filter:grayscale(1) brightness(1.15) contrast(1.25) sepia(1) hue-rotate(62deg) saturate(2.4)}
+#real.fx-mono #czmap canvas{filter:grayscale(1) contrast(1.2) brightness(0.9)}
+#real.fx-crt:after,#real.fx-nv:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(#0000 0,#0000 2px,#00000038 2px,#00000038 3px),radial-gradient(ellipse at center,#0000 52%,#000000a6 100%)}
+#real.fx-crt:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 3px 0 12px #ff004416,inset -3px 0 12px #00e1ff1c}
+/* inspect facts */
+#insfacts{position:absolute;left:16px;top:calc(40px + env(safe-area-inset-top));z-index:1;max-width:66%;font-size:9.5px;line-height:1.55;background:#0a0e13cc;border:1px solid #ffffff22;padding:8px 10px;display:none}
+#insfacts div{display:flex;gap:10px}#insfacts span{color:#c8ff5a;letter-spacing:.14em;flex:none;min-width:86px}#insfacts b{color:#fff;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 </style>
 </head>
 <body>
@@ -651,7 +666,7 @@ body.static .stage:after{content:"";position:absolute;inset:0;pointer-events:non
   <div class="stage">
     <div id="map"></div>
     <div class="hud">
-      <button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bStatic">◼ Static view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
+      <button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
       <button id="bSpin" class="on">Auto-rotate</button><button id="bReset">Reset</button><button data-sv="here">◉ Street View</button><button id="bWeb">⬡ Build Web</button><button id="bSun">☀ Chase the Sun</button><button id="bWall" class="on">▦ Multi-View (0)</button><button data-h="fav">★ Favorites</button><button data-h="rand">⤮ Random camera</button><button data-h="quake">◎ Strongest quake</button>
     </div>
     <form class="scanbar" id="addrForm"><input id="addr" type="search" placeholder="Search any place" autocomplete="off"><button>Search</button><button type="button" class="x" id="micBtn" aria-label="Voice"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3"/></svg></button><button type="button" class="x" id="addrClear">✕</button></form>
