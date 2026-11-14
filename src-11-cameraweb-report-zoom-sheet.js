@@ -117,7 +117,7 @@ function liveReport(){if(repBusy)return;repBusy=true;var btn=$("repBtn"),say=fun
   var res={},done=0,ix=0;function next(){if(ix>=jobs.length)return Promise.resolve();var j=jobs[ix++];return probeCam(j.c).then(function(r){(res[j.src]||(res[j.src]=[])).push({r:r,c:j.c});done++;say("Testing cameras… "+done+" of "+jobs.length);return next()})}
   say(EMBED_OK&&jobs.length?"Testing cameras… 0 of "+jobs.length:"Building report…");
   (EMBED_OK?Promise.all([0,1,2,3,4,5].map(next)):Promise.resolve()).then(function(){var L=[],hr="------------------------------------------------------------------------------------------------";
-    L.push("OJOS DE DIOS  -  LIVE REPORT  (v44)");L.push("Made "+new Date().toString());L.push("Diagnostic report: what worked on this device and what did not.");L.push(hr);
+    L.push("OJOS DE DIOS  -  LIVE REPORT  (v48)");L.push("Made "+new Date().toString());L.push("Diagnostic report: what worked on this device and what did not.");L.push(hr);
     diagText().split("\n").slice(1).forEach(function(x){L.push(x)});L.push("KEYS SAVED (names only): "+(Object.keys(KEYS).join(", ")||"none")+"   GPS: "+(navigator.geolocation?"available":"none")+"   DRIVE: "+(DRV.R?"route "+Math.round(DRV.R.len)+" m by "+DRV.R.src+", "+DRV.cams.length+" cams":"not used")+"   STREET VIEW JS API: "+(GM_BAD?"refused":window.google&&google.maps?"loaded":"not tried"));L.push(hr);
     L.push("CAMERA NETWORKS  (listed = cameras the network gave us; test = 3 real cameras opened just now)");L.push("");
     SOURCES.forEach(function(s){var st=LIVESTAT[s.name],lock=s.keyName&&!KEYS[s.keyName],t=res[s.name]||[],okN=t.filter(function(x){return x.r.ok}).length;

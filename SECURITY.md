@@ -25,7 +25,7 @@ Every feed is treated as untrusted input. Feed text goes through one HTML-escapi
 
 ## Android permissions
 
-Internet; location (only for the Drive module and "near me", asked at the moment of use); microphone (only for voice search, asked at the moment of use). Nothing else. Nothing runs in the background.
+Internet; notifications (only if you turn on background notifications in the Briefing); location (only for the Drive module and "near me", asked at the moment of use); microphone (only for voice search, asked at the moment of use). Nothing else. Nothing runs in the background.
 
 ## Known limits, stated plainly
 

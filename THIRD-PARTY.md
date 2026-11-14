@@ -17,14 +17,15 @@ This project connects existing libraries and public data. It does not claim them
 | Tool | Licence |
 | --- | --- |
 | [Capacitor](https://github.com/ionic-team/capacitor) 6 and its Filesystem and Share plugins | MIT |
+| [Capacitor Local Notifications](https://github.com/ionic-team/capacitor-plugins) | MIT |
 | [capacitor-community/speech-recognition](https://github.com/capacitor-community/speech-recognition) | MIT |
 
 ## Maps and imagery
 
 | Source | Used for | Terms |
 | --- | --- | --- |
-| Google Maps Platform (Map Tiles API, Street View, Routes) | Photoreal 3D cities, Street View, routing | Google Maps Platform Terms; user's own key; paid beyond free tier |
-| Esri World Imagery, World Transportation and World Boundaries and Places | Globe imagery, road and label overlays | Esri Master Agreement; attribution required; commercial use needs a licence |
+| Google Maps Platform (Map Tiles API, Street View, Routes) | Photoreal 3D cities, Street View, routing | Google Maps Platform Terms; user's own key |
+| Esri World Imagery, World Street Map, Light and Dark Gray Canvas, World Transportation and World Boundaries and Places | Globe imagery and map styles, road and label overlays | Esri terms of use; attribution required |
 | OpenStreetMap, Nominatim, Overpass | Place search, building outlines | ODbL; attribution required; fair-use limits |
 | OpenFreeMap | Building shapes in the standard 3D view | OpenStreetMap data, ODbL |
 | Terrain tiles on AWS | Terrain in the standard 3D view | Open data; attribution required |
@@ -34,22 +35,39 @@ This project connects existing libraries and public data. It does not claim them
 
 | Source | Used for | Terms |
 | --- | --- | --- |
-| OpenSky Network | Live aircraft and flown tracks | Research and non-commercial use; commercial use needs a licence |
-| adsbdb | Flight origin and destination | Free public API |
+| OpenSky Network | Live aircraft and flown tracks | OpenSky Network terms of use |
+| adsbdb | Flight origin and destination, aircraft register | Free public API |
+| AeroDataBox (optional, user's key) | An aircraft's scheduled flights and delays | AeroDataBox terms |
 | CelesTrak | Satellite orbital elements | Free public data |
 | Digitraffic (Fintraffic) | Ships, Finnish cameras | CC BY 4.0 |
 | AISStream | Ships (optional, user's key) | Provider terms |
 | RainViewer | Weather radar | Free API; attribution required |
-| Open-Meteo | Weather | CC BY 4.0; non-commercial free tier |
+| Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |
 | USGS | Earthquakes, volcano cameras | US public domain |
 | NASA EONET | Fires, storms and other events | US public domain |
 | NOAA NDBC | Ocean buoy cameras | US public domain |
 
+## News and alerts
+
+| Source | Used for | Terms |
+| --- | --- | --- |
+| GDELT Project | Headlines by area | Open data; attribution |
+| Google News RSS | Headlines (fallback and top stories) | Google terms; headlines link to the publisher |
+| FAA NAS Status | US ground stops and airport closures | US public domain |
+| US National Weather Service | Extreme weather and civil alerts | US public domain |
+| GDACS | Global disaster alerts | Free use with attribution |
+| OpenStreetMap Nominatim | Naming the area in view | ODbL; fair-use limits |
+| Bluesky public API | Live chatter: public posts | Bluesky terms; posts belong to their authors |
+| Mastodon (mastodon.social public timelines) | Live chatter: public posts | Instance terms; posts belong to their authors |
+| X API (optional, user's token) | Live chatter: public posts | X developer terms |
+
+Headlines are shown with their source and open at the publisher. The app does not copy or summarise article text.
+
 ## Cameras
 
-Windy Webcams (user's key; free tier restricts commercial use), the OpenTrafficCamMap community list, and public feeds published by: Caltrans, TxDOT and DriveTexas, NYC DOT, WSDOT, Oregon DOT, Ohio (OHGO), the state and provincial 511 systems (Georgia, Louisiana, Wisconsin, Arizona, Nevada, Alaska, Idaho, Utah, Florida, Connecticut, New England, Pennsylvania, New York, South Carolina, Alabama, Arkansas, North Carolina, Ontario, Alberta, Saskatchewan, Manitoba, New Brunswick, Nova Scotia, Prince Edward Island, Newfoundland and Labrador, Yukon), the Castle Rock state systems (Minnesota, Nebraska, Indiana, Kansas, Colorado, Massachusetts, South Dakota, Kentucky, Illinois, Iowa), DriveBC, Transport for London, Fintraffic, Hong Kong Transport Department, LTA Singapore, Transport for NSW, Queensland, NZ Transport Agency, Spain DGT, Taiwan Freeway Bureau, US National Park Service, USGS and ALERTCalifornia.
+Windy Webcams (user's key; Windy terms and attribution apply), the OpenTrafficCamMap community list, and public feeds published by: Caltrans, TxDOT and DriveTexas, NYC DOT, WSDOT, Oregon DOT, Ohio (OHGO), the state and provincial 511 systems (Georgia, Louisiana, Wisconsin, Arizona, Nevada, Alaska, Idaho, Utah, Florida, Connecticut, New England, Pennsylvania, New York, South Carolina, Alabama, Arkansas, North Carolina, Ontario, Alberta, Saskatchewan, Manitoba, New Brunswick, Nova Scotia, Prince Edward Island, Newfoundland and Labrador, Yukon), the Castle Rock state systems (Minnesota, Nebraska, Indiana, Kansas, Colorado, Massachusetts, South Dakota, Kentucky, Illinois, Iowa), DriveBC, Transport for London, Fintraffic, Hong Kong Transport Department, LTA Singapore, Transport for NSW, Queensland, NZ Transport Agency, Spain DGT, Taiwan Freeway Bureau, US National Park Service, USGS and ALERTCalifornia.
 
-Each camera shows its source in the app. Agencies publish these for public viewing; reuse terms differ by agency and should be checked before commercial use.
+Each camera shows its source in the app. Agencies publish these for public viewing; reuse terms differ by agency.
 
 ## Original to this project
 

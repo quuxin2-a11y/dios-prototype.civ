@@ -13,7 +13,7 @@ setInterval(function(){if(!WL.ship){if(AIS.ws){try{AIS.ws.close()}catch(e){}}ret
 setInterval(function(){if(WL.ship&&EMBED_OK&&!document.hidden)loadShips()},10*60000);
 // ---- weather radar (RainViewer, newest frame, max zoom 7, gently rate-limited)
 var RAD={path:"",host:"",tiles:{},q:[],busy:0,n:0,bad:0,cv:null,dirty:false,up:0,P:null,time:0};
-function loadRadar(){getJSON("https://api.rainviewer.com/public/weather-maps.json",20000).then(function(j){var p=j&&j.radar&&j.radar.past;if(!p||!p.length)throw 0;var f=p[p.length-1];WSTAT.radar="ok";RAD.time=f.time;
+function loadRadar(){getJSON("https://api.rainviewer.com/public/weather-maps.json",20000).then(function(j){var p=j&&j.radar&&j.radar.past;if(!p||!p.length)throw 0;RAD.past=p;var f=p[p.length-1];WSTAT.radar="ok";RAD.time=f.time;
   if(f.path!==RAD.path){RAD.path=f.path;RAD.host=j.host||"https://tilecache.rainviewer.com";RAD.tiles={};RAD.q=[];RAD.n=0;RAD.bad=0;RAD.P=null;if(RAD.cv){RAD.cv.getContext("2d").clearRect(0,0,RAD.cv.width,RAD.cv.height);RAD.dirty=true}
     var cx=Math.floor(mX(rot.lon)*8),cy=Math.floor(mY(rot.lat)*8),ord=[];for(var y=0;y<8;y++)for(var x=0;x<8;x++)ord.push([x,y,Math.abs(x-cx)+Math.abs(y-cy)]);ord.sort(function(a,b){return a[2]-b[2]});
     ord.forEach(function(o){radTile(3,o[0],o[1],function(img){if(!RAD.cv)return;var cs=RAD.cv.width/8;try{RAD.cv.getContext("2d").drawImage(img,o[0]*cs,o[1]*cs,cs,cs);RAD.dirty=true}catch(e){}})})}wstat()}).catch(function(){WSTAT.radar="x";wstat()})}

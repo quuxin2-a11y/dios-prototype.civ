@@ -6,7 +6,11 @@
 - **Location** is used only on the device, only when you use Drive or "near me", to place you on the map and find cameras along your route. If you choose Google routing, your start and destination go to Google under your own key; otherwise to the public OSRM router.
 - **Microphone** is used only while you hold voice search. Speech recognition is done by the phone's own service.
 - **API keys, favourites and settings** stay in the app's storage on your device. Uninstalling the app removes them.
+- **Live chatter** shows public posts exactly as their authors published them, with their public handle and a link to the original. The topic you type is sent to Bluesky and Mastodon (and X if you add a token) as a search. The app does not build profiles of the people posting and stores none of it.
+- **Saved places, watchlist and settings** are stored on the device only. Notifications are created on the device; there is no push server.
 - **The diagnostic report** is created only when you ask, contains feed status and key names (never key values), and goes only where you send it.
+
+- **News desk.** To find headlines, the app sends the coordinates of the map view to OpenStreetMap's Nominatim to get a place name, then sends that place name to GDELT and Google News. Nothing about you is attached. Dismissed broadcasts are remembered on the device only.
 
 Requests for cameras, map tiles and world data go directly from your device to the agency or provider that publishes them. Those providers see your IP address, as any website does.
 

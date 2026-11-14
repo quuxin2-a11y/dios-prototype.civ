@@ -4,7 +4,7 @@
 
 A live globe of publicly published cameras and open world data, for Android (APK), with a web version.
 
-**Designed and built by Mark Joseph.**
+**Designed and directed by Mark Joseph. The code was written with Claude (Anthropic) to his direction.**
 It connects public feeds; it does not create them. Credit for the data belongs to the agencies listed below.
 
 ## What it does
@@ -16,6 +16,15 @@ It connects public feeds; it does not create them. Credit for the data belongs t
 - **World layers:** aircraft, satellites, ships, weather radar, earthquakes, fires and storms, day and night.
 - **Photoreal 3D:** real textured 3D cities with live aircraft, ships, satellites and flight paths.
 - **Inspect:** a guided zoom from a whole aircraft, ship, satellite or building down to a single atom. Buildings use the public record (real outline, mapped parts, facts, and an indoor plan where one exists); everything else is labelled as typical or generic on screen.
+- **News desk:** the latest headlines for whatever area you are looking at, for its country and for the world, each linking to the original article.
+- **Broadcast:** one bar across every view when something nationwide or worldwide is happening, such as widespread flight ground stops, a tsunami warning or a magnitude 7 earthquake. It is driven by official feeds (FAA, US National Weather Service, GDACS, USGS), and by news only when at least three separate outlets report the same event.
+- **Flight log:** for any aircraft, where it has flown recently, whether it is on course right now, and (with an optional key) what it is scheduled to fly next and whether it is on time.
+- **Briefing and watchlist:** saved places with weather, cameras and headlines; watched aircraft and ships with status changes announced.
+- **Replay, map styles, text size, share card and a first-run guide.**
+- **Command mode and Command wall:** an operations-room layout of the same public data.
+- **Live chatter:** public posts from Bluesky and Mastodon (and X with your own token) about a topic, clearly marked unverified.
+- **Search by flight number or ship name, camera compare, one Settings screen.**
+- **Layer control:** hide any layer, hide them all at once, or hide the panel itself.
 - **Smart alerts, voice search, multi-camera wall, anonymous object detection** (object classes only).
 - **Live report:** one tap tests every network and exports a PDF.
 
@@ -29,7 +38,7 @@ It connects public feeds; it does not create them. Credit for the data belongs t
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The built app: one self-contained file the phone loads, assembled from the `src-` files by `build.py`. Make changes in the `src-` files, then rebuild. |
+| `index.html` | The built app: one self-contained file the phone loads. **Generated, do not edit.** |
 | `src-template.html` | Page markup and styles. |
 | `src-01-…` to `src-11-….js` | The app logic, split by area (renderer, camera networks, drive, layers, and so on). |
 | `src-data-*.json` | Bundled data: place names, coastline dots, fallback portal list. |
@@ -49,7 +58,11 @@ The Android app is a Capacitor wrapper so requests go out natively (many agencie
 - **Existing libraries, used as intended and credited:** orbit maths is [satellite.js](https://github.com/shashwatak/satellite-js); object detection is [TensorFlow.js COCO-SSD](https://github.com/tensorflow/tfjs-models); video is [hls.js](https://github.com/video-dev/hls.js); the 3D city views are [CesiumJS](https://github.com/CesiumGS/cesium) and [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js).
 - **Data:** none of it is ours. Every feed belongs to the agency that publishes it.
 
-The full list, with licences and terms, is in [THIRD-PARTY.md](THIRD-PARTY.md). Some sources restrict commercial use (notably Esri imagery, Google Maps Platform and Windy). Check each before selling the app.
+The full list, with each source's licence and terms, is in [THIRD-PARTY.md](THIRD-PARTY.md).
+
+## Web version
+
+The same app runs in a browser at `https://quuxin2-a11y.github.io/dios-prototype.civ/` once GitHub Pages is switched on for this repository (Settings → Pages → Deploy from a branch → `main`, `/ (root)`). Browsers block some agency feeds that the installed app can reach, so the Android app shows more.
 
 ## Build and install
 

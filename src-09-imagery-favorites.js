@@ -8,7 +8,7 @@ function tile(kind,z,x,y){var k=kind+z+"/"+x+"/"+y,t=TILES[k];if(t){t.at=perform
   t=TILES[k]={img:new Image(),ok:false,bad:false,at:performance.now()};TN++;t.img.crossOrigin="anonymous";
   t.img.onload=function(){t.ok=true;tileDirty=true};
   t.img.onerror=function(){if(kind==="i"&&!t.retry){t.retry=1;if(++clarFail>2)SRC_I=1;t.img.src=IMG_SRC[1]+z+"/"+y+"/"+x}else{t.bad=true;tileDirty=true}};
-  t.img.src=(kind==="i"?IMG_SRC[SRC_I]:kind==="r"?ROAD_SRC:LBL_SRC)+z+"/"+y+"/"+x;
+  t.img.src=(kind==="i"?(IMG_ALT||IMG_SRC[SRC_I]):kind==="r"?ROAD_SRC:LBL_SRC)+z+"/"+y+"/"+x;
   if(TN>420){var ks=Object.keys(TILES).filter(function(q){return q.indexOf("i3/")!==0}).sort(function(a,b){return TILES[a].at-TILES[b].at}).slice(0,140);ks.forEach(function(q){TILES[q].img.onload=TILES[q].img.onerror=null;TILES[q].img.src="";delete TILES[q];TN--})}
   return t}
 function mX(lon){return(lon+180)/360}
