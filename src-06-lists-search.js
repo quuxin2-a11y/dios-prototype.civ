@@ -101,28 +101,25 @@ $("csv").onclick=function(){
 $("typeSel").innerHTML=Object.keys(L).map(function(k){return'<option value="'+k+'">'+lab(k)+'</option>'}).join("");
 var dlg=$("dlg"),form=$("form");
 function closeD(){dlg.close?dlg.close():dlg.removeAttribute("open")}
-$("addBtn").onclick=function(){$("msg").style.color="";$("msg").textContent=api?"Saved feeds become part of this page for everyone who opens it.":"Saving isn't available in this view — the feed will show until you leave.";dlg.showModal?dlg.showModal():dlg.setAttribute("open","")};
+$("addBtn").onclick=function(){$("msg").style.color="";$("msg").textContent="Feeds you add are saved on this device.";dlg.showModal?dlg.showModal():dlg.setAttribute("open","")};
 $("cancel").onclick=closeD;
 form.addEventListener("submit",function(e){
   e.preventDefault();var f=new FormData(form),url=String(f.get("url")).trim();
   if(!/^https?:\/\//i.test(url)){$("msg").style.color="#ff5d8f";$("msg").textContent="URL must start with http(s)://";return}
   var country=String(f.get("country")).trim();
   var cam={n:String(f.get("name")).trim(),c:country,r:String(f.get("region")||"").trim()||country,t:String(f.get("type")),lat:+f.get("lat"),lon:+f.get("lon"),u:url,d:String(f.get("note")||"").trim(),user:true};
-  $("msg").textContent=api?"Saving…":"";
+  $("msg").textContent="Saving…";
   saveCam(cam,function(err){if(err){$("msg").style.color="#ff5d8f";$("msg").textContent=err}else{closeD();form.reset()}});
 });
+function userCams(){return cams.filter(function(c){return c.user})}
 function saveCam(cam,cb){
-  cams.push(cam);render();
-  if(!api){select(cam);cb(null);return}
-  var head='<script id="cam-data" type="application/json">',s=SRC.indexOf(head),en=SRC.indexOf("<\/script>",s);
-  var out=SRC.slice(0,s)+head+JSON.stringify(cams).replace(/</g,"\\u003c")+SRC.slice(en);
-  api.publish(out).then(function(){cb(null)}).catch(function(err){var m=(err&&(err.code||err.message))||"error";cams.splice(cams.indexOf(cam),1);render();
-    cb(m==="conflict"?"Another save landed first — please try again.":(m==="not_granted"||m==="not_writer")?"View-only copy: browsing works, saving doesn't.":"Couldn't save ("+m+").")});
+  cams.push(cam);render();select(cam);
+  idbSet("userCams",userCams()).then(function(){cb(null)},function(){cb(null)});
 }
+idbGet("userCams").then(function(a){if(Array.isArray(a)&&a.length){a.forEach(function(c){if(c&&isFinite(c.lat)&&isFinite(c.lon))cams.push(c)});render()}}).catch(function(){});
 
 
 // ---------- address scan ----------
-var sampler=null;
 function hav(a,b,c,d){var R=6371,x=(c-a)*D,y=(d-b)*D,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*D)*Math.cos(c*D)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h))}
 function fmtD(km){var mi=km*0.621371;return mi<10?mi.toFixed(1)+" mi":Math.round(mi).toLocaleString()+" mi"}
 function norm(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
@@ -140,14 +137,9 @@ function scan(q){
   setTab("info");$("detail").innerHTML='<h4>AREA SCAN</h4><p class="mono" style="color:#36f1b5">LOCATING “'+esc(q)+'”…</p>';
   function fallback(){
     if(loc){showArea(loc,q);return}
-    if(!sampler){var lc=null,nq=norm(q);GAZ.forEach(function(g){if(!lc&&nq.indexOf(norm(g[0]))>=0)lc=g});
-      if(lc){showArea({name:lc[0],lat:lc[1],lon:lc[2],src:"nearest major city in your text"},q);return}
-      $("detail").innerHTML='<h4>AREA SCAN</h4><p>Couldn\'t find “'+esc(q)+'”. Check the spelling, add a city or state, or enter coordinates like <span class="mono">41.88, -87.63</span>.</p>';return}
-  var prompt="You are a geocoder. Give the approximate latitude and longitude of this address or place: \""+q.replace(/"/g,"'")+"\". Reply with ONLY a JSON object: {\"found\":true,\"name\":\"short display name (city, region, country)\",\"lat\":number,\"lon\":number}. If you cannot place it, reply {\"found\":false}.";
-  sampler.json(prompt,{modelTier:"quick"}).then(function(r){
-    if(r&&r.found&&isFinite(r.lat)&&isFinite(r.lon))showArea({name:r.name||q,lat:+r.lat,lon:+r.lon,src:"AI lookup (approximate)"},q);
-    else $("detail").innerHTML='<h4>AREA SCAN</h4><p>Couldn\'t place “'+esc(q)+'”. Try adding city and country, or enter coordinates.</p>';
-  }).catch(function(e){$("detail").innerHTML='<h4>AREA SCAN</h4><p>Lookup unavailable ('+esc((e&&e.code)||"error")+'). Try a major city name or coordinates.</p>'});
+    var lc=null,nq=norm(q);GAZ.forEach(function(g){if(!lc&&nq.indexOf(norm(g[0]))>=0)lc=g});
+    if(lc){showArea({name:lc[0],lat:lc[1],lon:lc[2],src:"nearest major city in your text"},q);return}
+    $("detail").innerHTML='<h4>AREA SCAN</h4><p>Couldn\'t find “'+esc(q)+'”. Check the spelling, add a city or state, or enter coordinates like <span class="mono">41.88, -87.63</span>.</p>';
   }
   if(!EMBED_OK){fallback();return}
   // real address / city / state / country lookup (OpenStreetMap)
@@ -157,7 +149,6 @@ function scan(q){
 }
 var areaCams=[];
 document.addEventListener("click",function(e){if(!e.target.closest("[data-area]"))return;areaCams.slice(0,9).forEach(function(c){addWall(c,false)});openWall()});
-var suggestions=[];
 function showArea(loc,q){
   setTab("info");pin=loc;selected=null;spin=false;setButtons();
   var B=loc.bbox,span=B?Math.max(B.n-B.s,(B.e-B.w)*Math.cos(loc.lat*D)):0;
@@ -171,27 +162,12 @@ function showArea(loc,q){
   var dirs=cams.filter(function(c){return c.t==="directory"});
   var h='<h4>AREA SCAN</h4><span class="tag mono" style="color:#ff5d8f;border-color:#ff5d8f">PIN DROPPED</span><h3>'+esc(loc.name)+'</h3>'+
    '<div class="kv"><span>COORDS</span><b>'+loc.lat.toFixed(4)+', '+loc.lon.toFixed(4)+'</b><span>LOCATED BY</span><b>'+esc(loc.src)+'</b><span>'+(B?"IN THIS AREA":"WITHIN 25 MI")+'</span><b>'+close.toLocaleString()+' live camera'+(close===1?"":"s")+'</b></div>'+'<div class="acts">'+(liveNear.length?'<button class="open" data-area="1">▦ WATCH THESE ON MULTI-VIEW</button>':'')+'<button class="ghost" data-sv="'+loc.lat+','+loc.lon+'">◉ Street View</button></div>'+
-   '<h4 style="margin-top:12px">'+(B?(all.length>60?"FIRST 60 OF "+all.length.toLocaleString()+" CAMERAS IN THIS AREA":"CAMERAS IN THIS AREA")+" — TAP TO WATCH":"NEAREST LIVE CAMERAS — TAP TO WATCH")+'</h4>'+(liveNear.length?liveNear.map(function(n){return'<div class="nr" '+(n.c.live?'data-l="'+LIVE.indexOf(n.c)+'"':'data-i="'+cams.indexOf(n.c)+'"')+'><i style="background:'+(n.c.live?(n.c.v?"#ff3b6b":"#ffd36b"):col(n.c.t))+'"></i><span class="nn">'+(n.c.live?(n.c.v?'<b style="color:#ff3b6b">▶ VIDEO</b> ':'<b style="color:#ffd36b">● LIVE</b> '):'')+esc(n.c.n)+'</span><span class="mono nd">'+fmtD(n.d)+'</span></div>'}).join(""):'<p class="note2">'+(EMBED_OK?(B?'No loaded camera network covers this area yet. More networks are added with each update.':'No live camera networks loaded yet. Check Live networks under Layers.'):'Live cameras load only in the installed app / GitHub link.')+'</p>')+
-   (sampler?'<h4 style="margin-top:12px">MORE PUBLIC SOURCES FOR THIS AREA <span style="color:#ff5d8f">· AI-SUGGESTED, UNVERIFIED</span></h4><div id="sugg" class="mono" style="font-size:12px;color:#36f1b5">SCANNING…</div>':'');
+   '<h4 style="margin-top:12px">'+(B?(all.length>60?"FIRST 60 OF "+all.length.toLocaleString()+" CAMERAS IN THIS AREA":"CAMERAS IN THIS AREA")+" — TAP TO WATCH":"NEAREST LIVE CAMERAS — TAP TO WATCH")+'</h4>'+(liveNear.length?liveNear.map(function(n){return'<div class="nr" '+(n.c.live?'data-l="'+LIVE.indexOf(n.c)+'"':'data-i="'+cams.indexOf(n.c)+'"')+'><i style="background:'+(n.c.live?(n.c.v?"#ff3b6b":"#ffd36b"):col(n.c.t))+'"></i><span class="nn">'+(n.c.live?(n.c.v?'<b style="color:#ff3b6b">▶ VIDEO</b> ':'<b style="color:#ffd36b">● LIVE</b> '):'')+esc(n.c.n)+'</span><span class="mono nd">'+fmtD(n.d)+'</span></div>'}).join(""):'<p class="note2">'+(EMBED_OK?(B?'No loaded camera network covers this area yet. More networks are added with each update.':'No live camera networks loaded yet. Check Live networks under Layers.'):'Live cameras load only in the installed app / GitHub link.')+'</p>');
   $("detail").innerHTML=h.replace('</h3>','</h3><div class="wx mono" id="wx"></div>');$("detail").scrollTop=0;wx(loc.lat,loc.lon);rememberScan(q||loc.name);
-  
-  if(sampler)suggest(loc);
-}
-function suggest(loc){
-  var have=cams.map(function(c){return c.u}).join(" ");
-  var prompt="List up to 6 publicly published live camera sources that cover the area around "+loc.name+" (lat "+loc.lat.toFixed(3)+", lon "+loc.lon.toFixed(3)+"). Only include cameras their owners publish on purpose for the public: government/DOT/511 traffic camera pages, city or tourism webcams, airport/aviation weather cams, park, volcano, wildfire or beach cams, university or broadcaster webcams. Never include unsecured private cameras, home or business security cams, or sites that aggregate them. Only give DIRECT media URLs that play without a web page: a still image (.jpg/.png) that refreshes, an HLS .m3u8 stream, or a YouTube live video URL. Never give web page URLs. Only give URLs you are highly confident exist. Skip any already in this list: "+have.slice(0,1500)+". Reply with ONLY a JSON array of objects: {\"name\":string,\"url\":string,\"type\":one of traffic|hazard|aviation|landmark|nature|ocean,\"lat\":number,\"lon\":number,\"why\":string under 15 words}.";
-  sampler.json(prompt,{modelTier:"default"}).then(function(arr){
-    var el=$("sugg");if(!el)return;
-    suggestions=(Array.isArray(arr)?arr:[]).filter(function(x){return x&&/^https:\/\//i.test(x.url)&&/(\.(jpe?g|png|m3u8)(\?|$)|youtube\.com|youtu\.be)/i.test(x.url)&&isFinite(x.lat)&&isFinite(x.lon)}).slice(0,6);
-    if(!suggestions.length){el.textContent="No further sources suggested.";return}
-    el.innerHTML=suggestions.map(function(x,i){return'<div class="sg"><b>'+esc(x.name)+'</b><span>'+esc(x.why||"")+'</span><div><button data-s="'+i+'">+ Add to index</button></div></div>'}).join("")+'<div style="color:#6a7f95;margin-top:6px;font-family:Inter,sans-serif">Check each link opens before adding.</div>';
-  }).catch(function(e){var el=$("sugg");if(el)el.textContent=(e&&e.code)==="not_granted"?"Access not granted.":"Suggestions unavailable right now."});
+
 }
 $("detail").addEventListener("click",function(e){
   var r=e.target.closest(".nr");if(r){select(r.dataset.l?LIVE[+r.dataset.l]:cams[+r.dataset.i]);return}
-  var b=e.target.closest("button[data-s]");if(b){var x=suggestions[+b.dataset.s];if(!x)return;b.disabled=true;b.textContent="Saving…";
-    var cam={n:String(x.name).slice(0,80),c:(pin&&pin.name.split(",").pop().trim())||"",r:(pin&&pin.name.split(",")[0])||"",t:L[x.type]?x.type:"landmark",lat:+x.lat,lon:+x.lon,u:x.url,d:String(x.why||"").slice(0,160),user:true};
-    saveCam(cam,function(err){b.textContent=err?"Failed":"Added ✓";if(err)b.title=err})}
 });
 $("addrForm").addEventListener("submit",function(e){e.preventDefault();$("addr").blur();scan($("addr").value)});
 $("addrClear").onclick=function(){pin=null;$("addr").value="";$("bReset").onclick()};

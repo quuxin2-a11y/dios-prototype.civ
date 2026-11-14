@@ -107,7 +107,7 @@ var cams=[];try{cams=JSON.parse(document.getElementById("cam-data").textContent)
 var GAZ=[];try{GAZ=JSON.parse(document.getElementById("gaz").textContent)}catch(e){}
 var DOTS=[];try{DOTS=JSON.parse(document.getElementById("land-dots").textContent)}catch(e){}
 var on={};Object.keys(L).forEach(function(k){on[k]=true});
-var LIVE=[],LIVESTAT={},pin=null,region="",selected=null,mode="3d",spin=true,api=null,visible=cams.slice();
+var LIVE=[],LIVESTAT={},pin=null,region="",selected=null,mode="3d",spin=true,visible=cams.slice();
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
 function col(t){return(L[t]||["","#cccccc"])[1]}
