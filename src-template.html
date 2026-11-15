@@ -846,7 +846,16 @@ body.sheet~#emgpill{display:none!important}
 .ckpg span{display:block;font:500 8.5px ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#7f97a4}
 .ckpg b{font:600 14px ui-monospace,Menlo,monospace;color:#eaf6f6}
 #ckphud i{display:block;margin-top:7px;font-style:normal;font-size:7.5px;letter-spacing:.08em;color:#8fa3ae;text-align:center;line-height:1.5}
-html.ckp #t4places,html.ckp .hud,html.ckp #sheet,html.ckp .tabs,html.ckp #cmdbar,html.ckp #cmdtk,html.ckp #emgpill{display:none!important}
+/* in the cockpit nothing else is on screen: the 3D view fills the phone and only the cockpit controls sit on top */
+html.ckp #real{position:fixed!important;inset:0!important;z-index:8500!important;display:block!important}
+html.ckp #real>*:not(#czmap){display:none!important}
+html.ckp .top,html.ckp .scanbar,html.ckp .hud,html.ckp .mtabs,html.ckp #peek,html.ckp #lfrail,html.ckp #irail,html.ckp #t4bar,html.ckp #t4places,html.ckp #brandov,html.ckp #bcast,html.ckp #cmdbar,html.ckp #cmdtk,html.ckp #emgpill,html.ckp .grid .rail,html.ckp .grid .side,html.ckp #ftiles,html.ckp #insfacts{display:none!important}
+html.ckp body.sheet.sheet .grid .side,html.ckp body.sheet.sheet .grid .rail,html.ckp body.clean.sheet.sheet .grid .side,html.ckp body .grid .side,html.ckp body .grid .rail,html.ckp body .side,html.ckp body .rail{display:none!important}
+html.ckp body.sheet.sheet .grid .stage,html.ckp body .grid .stage{bottom:0!important}
+html.ckp body.cmd{transform:none!important}
+html.ckp #czmap .cesium-viewer-bottom{bottom:auto!important;top:calc(60px + env(safe-area-inset-top));left:14px;right:auto}
+.ckpn{display:flex;align-items:center;justify-content:center;gap:12px}
+.ckpn button{pointer-events:auto;width:34px;height:34px;border-radius:50%;border:1px solid #ffffff3a;background:#0a0e13;color:#fff;font-size:15px;padding:0}
 
 /* v50 speed pass: no live blur over the 3D canvas, instant press feedback, cheaper long lists */
 *,*:before,*:after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
