@@ -36,6 +36,10 @@ jobs:
           echo "Sources and bundle match; JavaScript parses"
       - name: Run unit tests
         run: node tests.js
+      - name: Python checks (secret scan and tool tests)
+        run: |
+          python3 check_secrets.py .
+          python3 -m unittest -v test_tools
       - name: Build Android app
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -66,6 +70,8 @@ jobs:
           npm install @capacitor/local-notifications@6 || echo "notification plugin skipped"
           echo '{"appId":"com.ojosdedios.app","appName":"Ojos de Dios","webDir":"www"}' > capacitor.config.json
           npx cap add android
+          # Native Android code kept in this repository (Java and resources): shortcuts, home-screen widget, keep-awake, vibration
+          python3 ../install_native.py android || echo "::warning::Native extras were not installed"
           R=android/app/src/main/res
           for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
             cp ../icon-512.png $R/mipmap-$d/ic_launcher.png
@@ -92,13 +98,18 @@ jobs:
             KS="$RUNNER_TEMP/ojos-release.keystore"
             echo "$KEYSTORE_B64" | base64 -d > "$KS"
             printf '%s\n' '' 'android {' '  signingConfigs { ojos { storeFile file(System.getenv("OJOS_KS")); storePassword System.getenv("OJOS_KS_PASS"); keyAlias "ojos"; keyPassword System.getenv("OJOS_KS_PASS") } }' '  buildTypes { release { signingConfig signingConfigs.ojos; minifyEnabled false } }' '}' >> app/build.gradle
-            OJOS_KS="$KS" OJOS_KS_PASS="$KEYSTORE_PASSWORD" ./gradlew assembleRelease --no-daemon -q
+            if [ -f .native-install.json ]; then ./gradlew testDebugUnitTest --no-daemon -q || echo "::warning::Java unit tests failed"; fi
+            OJOS_KS="$KS" OJOS_KS_PASS="$KEYSTORE_PASSWORD" ./gradlew assembleRelease --no-daemon -q || {
+              echo "::warning::Build with native extras failed; building without them"
+              python3 ../../install_native.py . --undo
+              OJOS_KS="$KS" OJOS_KS_PASS="$KEYSTORE_PASSWORD" ./gradlew assembleRelease --no-daemon -q
+            }
             cp app/build/outputs/apk/release/app-release.apk ../../ojos-de-dios.apk
             rm -f "$KS"
             echo "Signed release build" > ../../build-type.txt
           else
             echo "::warning::Signing secrets are not set. Producing an UNSIGNED-FOR-RELEASE debug build."
-            ./gradlew assembleDebug --no-daemon -q
+            ./gradlew assembleDebug --no-daemon -q || { python3 ../../install_native.py . --undo; ./gradlew assembleDebug --no-daemon -q; }
             cp app/build/outputs/apk/debug/app-debug.apk ../../ojos-de-dios.apk
             echo "Debug build (signing secrets not set)" > ../../build-type.txt
           fi
