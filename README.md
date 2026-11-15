@@ -95,10 +95,10 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 | Path | Language | Purpose |
 |---|---|---|
-| `src-01-start.js` … `src-11-*.js` | JavaScript | Application source, split by subsystem (renderer, networks, drive, layers, panels) |
+| `src-01-start.js` … `src-25-*.js` | JavaScript | Application source in 25 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit). Formatted with Prettier (`.prettierrc.json`) |
 | `src-template.html` | HTML | Document structure |
 | `src-styles.css` | CSS | Design system and component styles |
-| `src-data-*.json` | JSON | Bundled gazetteer, coastline points and fallback portal list |
+| `src-data-*.json` | JSON | Bundled gazetteer, coastline points, fallback portal list and the generated 3D models |
 | `MainActivity.java` | Java | Activity: plugin registration, launcher shortcuts, intent routing |
 | `OjosNativePlugin.java` | Java | Capacitor plugin: launch actions, emergency state, keep-awake, vibration |
 | `EmergencyWidget.java` | Java | `AppWidgetProvider` for the home-screen Emergency widget |
@@ -107,7 +107,7 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 | `build.py` | Python | Assembles `index.html`; `--check` verifies it matches the sources |
 | `install_native.py` | Python | Installs / uninstalls the native sources into the generated Android project |
 | `check_secrets.py` | Python | Fails CI on committed credentials or key files |
-| `make_models.py` | Python | Generates the glTF models embedded in the app (NumPy) |
+| `make_models.py` | Python | Generates the glTF models (NumPy) into `src-data-models.json` |
 | `test_tools.py` | Python | `unittest` suite for the Python tooling |
 | `tests.js` | JavaScript | Unit tests for the application logic, run against the real sources |
 | `sw.js`, `manifest.webmanifest` | JavaScript, JSON | Service worker and web-app manifest |

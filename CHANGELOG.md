@@ -8,6 +8,8 @@ Commit messages in this repository were made from a phone upload and are not des
 - **Vessel ids and camera headings are kept in `Map`s** instead of plain objects, so an identifier from a live feed can never be read as an object property such as `__proto__`.
 - **CI:** CodeQL now scans JavaScript, Python and Java (no build needed), skipping the generated source fragments; runners are pinned to `ubuntu-24.04` and `macos-15-intel`. A final job keeps the ten newest finished workflow runs and deletes older ones.
 - `SECURITY.md` wording on the shared keys corrected.
+- **Readable source:** the application code is now formatted with Prettier (one statement per line, `.prettierrc.json` included) and split into 25 modules by subsystem instead of 11.
+- **3D models moved out of the code** into `src-data-models.json`, which `make_models.py` now writes directly and `build.py` embeds.
 
 ## v52
 - **Native Android layer (Java):** a Capacitor plugin, a home-screen Emergency widget that turns red while emergency mode is on, long-press app shortcuts (Emergency, Finder, Briefing), keep-screen-awake in emergency mode, and vibration for the SOS signal. Covered by JUnit tests.

@@ -3,12 +3,12 @@
 
 Builds each model (airliner, regional jet, wide-body, turboprop, helicopter with animated rotor, cargo ship,
 tanker, cruise ship, tug, satellite, car, truck, bus) from simple geometry with NumPy, writes it as a
-binary glTF (.glb), and writes models.js: a `var MDL={...}` table of base64 data URIs that the app embeds
+binary glTF (.glb), and writes src-data-models.json: base64 data URIs that build.py embeds in the app
 so the models load offline and without a CDN.
 
 Usage::
 
-    python3 make_models.py      # writes *.glb and models.js in the current directory
+    python3 make_models.py      # writes *.glb and src-data-models.json in the current directory
 
 Requires NumPy.
 """
@@ -193,5 +193,7 @@ tg=Mesh();hullmesh(tg,30,5,2.6,2.4,hexc('#1f2f44'),hexc('#55606c'))
 tg.box(-3.2,3.2,2.6,5.6,-3,6,W);tg.box(-2.6,2.6,5.6,8,0,5,W);tg.box(-2.65,2.65,6.3,7.4,4.9,5.05,GL);tg.box(-.8,.8,5.6,9.6,-2.4,-.9,hexc('#b8452f'));tg.box(-4.4,4.4,2.6,3.2,-14,-13.4,DG)
 print('tug',glb_parts('tug.glb',tg,rough=0.75,metal=0.05))
 b64=lambda f:base64.b64encode(open(f,'rb').read()).decode()
-js='var MDL={plane:"data:model/gltf-binary;base64,%s",ship:"data:model/gltf-binary;base64,%s",sat:"data:model/gltf-binary;base64,%s",car:"data:model/gltf-binary;base64,%s",truck:"data:model/gltf-binary;base64,%s",bus:"data:model/gltf-binary;base64,%s",wide:"data:model/gltf-binary;base64,%s",prop:"data:model/gltf-binary;base64,%s",heli:"data:model/gltf-binary;base64,%s",tanker:"data:model/gltf-binary;base64,%s",cruise:"data:model/gltf-binary;base64,%s",tug:"data:model/gltf-binary;base64,%s"};\n'%tuple(b64(n+'.glb') for n in ('plane','ship','sat','car','truck','bus','wide','prop','heli','tanker','cruise','tug'))
-open('models.js','w').write(js);print(len(js))
+names=('plane','ship','sat','car','truck','bus','wide','prop','heli','tanker','cruise','tug')
+models={n:'data:model/gltf-binary;base64,'+b64(n+'.glb') for n in names}
+with open('src-data-models.json','w') as f:json.dump(models,f,indent=1)
+print('wrote src-data-models.json (%d models)'%len(models))
