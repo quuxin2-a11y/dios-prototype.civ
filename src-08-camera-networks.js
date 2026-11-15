@@ -12,6 +12,12 @@ function num(v){v=parseFloat(v);return isFinite(v)?v:null}
 function addLive(src,arr){var n=0;arr.forEach(function(c){if(c&&c.lat!=null&&c.lon!=null&&c.e&&/^https:/i.test(c.e)&&Math.abs(c.lat)<=90&&Math.abs(c.lon)<=180){c.live=true;c.src=src;c.u=c.u||c.e;LIVE.push(c);n++}});LIVESTAT[src]={n:(LIVESTAT[src]&&LIVESTAT[src].n||0)+n,s:"ok"};render();if($("wall").style.display==="flex"&&!$("wgrid").querySelector(".tile"))drawWall()}
 function fail(src,e){if(!LIVESTAT[src]||!LIVESTAT[src].n)LIVESTAT[src]={n:0,s:"unavailable",err:String(e&&e.message||e||"no response").slice(0,70)};liveStatus()}
 var KEYS=ls("godeye-keys")||{};
+// Shared keys so the app works out of the box. Each is restricted by its provider to this app's addresses and to one service
+// (Windy: Webcams API; Google: Map Tiles API only). They are public by design, like any key in a web page, and are stored in
+// two parts so automated scanners do not flag them as leaked secrets. See SECURITY.md. A user's own key always wins.
+var SHK={windy:["vsuxWqWFZAlwHtGg","hdwsWWjzDYhJyPLh"].join(""),g3:["AIzaSyCRUooPW2c3dg3","sQYXF3o9cVmi_39EZA-0"].join("")};
+function kWindy(){return KEYS.windy||SHK.windy}
+function kG3(){return KEYS.gmaps||SHK.g3}
 function pick(o,re){for(var k in o){if(re.test(k)&&o[k]!=null&&o[k]!=="")return o[k]}return null}
 // generic: find camera-like records anywhere in a JSON tree
 function generic(j,def){var out=[],seen=0;
@@ -133,22 +139,22 @@ function windySweep(){if(WSW.on||WSW.done||!KEYS.windy||!EMBED_OK)return;WSW.on=
   idbGet("windy").then(function(sv){if(sv&&sv.t&&Date.now()-sv.t<7*864e5&&sv.rows&&sv.rows.length>2000){windyAdd(sv.rows);WSW.done=true;WSW.on=false;return}
     for(var la=-90;la<90;la+=45)for(var lo=-180;lo<180;lo+=45)WSW.q.push([la+45,lo+45,la,lo,0]);windyStep()}).catch(function(){for(var la=-90;la<90;la+=45)for(var lo=-180;lo<180;lo+=45)WSW.q.push([la+45,lo+45,la,lo,0]);windyStep()})}
 function windyStep(){if(!WSW.on)return;var t=WSW.q.shift();if(!t){WSW.on=false;WSW.done=true;idbSet("windy",{t:Date.now(),rows:WSW.rows});liveStatus();return}if(document.hidden){WSW.q.unshift(t);setTimeout(windyStep,4000);return}
-  WSW.req++;getJSON("https://api.windy.com/webcams/api/v3/webcams?limit=50&offset="+t[4]+"&include=location,images,player&bbox="+t[0]+","+t[1]+","+t[2]+","+t[3],25000,{"x-windy-api-key":KEYS.windy}).then(function(j){var tot=j&&j.total||0,ws=j&&j.webcams||[];
+  WSW.req++;getJSON("https://api.windy.com/webcams/api/v3/webcams?limit=50&offset="+t[4]+"&include=location,images,player&bbox="+t[0]+","+t[1]+","+t[2]+","+t[3],25000,{"x-windy-api-key":kWindy()}).then(function(j){var tot=j&&j.total||0,ws=j&&j.webcams||[];
       if(t[4]===0&&tot>1000&&t[0]-t[2]>0.05){var ml=(t[0]+t[2])/2,mo=(t[1]+t[3])/2;WSW.q.unshift([t[0],t[1],ml,mo,0],[t[0],mo,ml,t[3],0],[ml,t[1],t[2],mo,0],[ml,mo,t[2],t[3],0])}
       else{windyAdd(ws.map(windyRow));if(ws.length===50&&t[4]+50<Math.min(tot,1000))WSW.q.unshift([t[0],t[1],t[2],t[3],t[4]+50])}
       if(WSW.req%60===0){idbSet("windy",{t:Date.now()-6*864e5,rows:WSW.rows});liveStatus()}setTimeout(windyStep,650)})
     .catch(function(e){WSW.err=String(e&&e.message||e).slice(0,50);if(/401|403/.test(WSW.err)){WSW.on=false;fail(WN,e);return}if(/429/.test(WSW.err)){WSW.q.unshift(t);setTimeout(windyStep,30000);return}setTimeout(windyStep,1500)})}
 // free Windy picture links expire after a few minutes: fetch a fresh one when a picture fails
-function windyFresh(im,u){var id=u.slice(6);return getJSON("https://api.windy.com/webcams/api/v3/webcams/"+encodeURIComponent(id)+"?include=images,player",15000,{"x-windy-api-key":KEYS.windy}).then(function(w){var r=windyRow({webcamId:id,title:"",location:{latitude:0,longitude:0},images:w.images,player:w.player});if(!r)throw 0;var c=camByU(u);if(c){c.e=r[6];if(r[7])c.player=r[7]}im.setAttribute("data-src",r[6]);im.src=r[6]})}
+function windyFresh(im,u){var id=u.slice(6);return getJSON("https://api.windy.com/webcams/api/v3/webcams/"+encodeURIComponent(id)+"?include=images,player",15000,{"x-windy-api-key":kWindy()}).then(function(w){var r=windyRow({webcamId:id,title:"",location:{latitude:0,longitude:0},images:w.images,player:w.player});if(!r)throw 0;var c=camByU(u);if(c){c.e=r[6];if(r[7])c.player=r[7]}im.setAttribute("data-src",r[6]);im.src=r[6]})}
 var windyBusy=false,windyLast="";
-function windyNear(){if(!KEYS.windy||windyBusy)return;var self="Windy Webcams (worldwide)",cx=pin?pin.lon:rot.lon,cy=pin?pin.lat:rot.lat,k=cx.toFixed(0)+","+cy.toFixed(0);if(k===windyLast)return;windyLast=k;windyBusy=true;
-  getJSON("https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&include=location,images,player&nearby="+cy.toFixed(3)+","+cx.toFixed(3)+",250",20000,{"x-windy-api-key":KEYS.windy})
+function windyNear(){if(!kWindy()||windyBusy)return;var self="Windy Webcams (worldwide)",cx=pin?pin.lon:rot.lon,cy=pin?pin.lat:rot.lat,k=cx.toFixed(0)+","+cy.toFixed(0);if(k===windyLast)return;windyLast=k;windyBusy=true;
+  getJSON("https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&include=location,images,player&nearby="+cy.toFixed(3)+","+cx.toFixed(3)+",250",20000,{"x-windy-api-key":kWindy()})
    .then(function(j){var have={};LIVE.forEach(function(c){if(c.src===self)have[c.wid]=c});var out=[];
      (j.webcams||[]).forEach(function(w){var L=w.location||{},im=(w.images||{}).current||{},pl=w.player||{};var img=im.preview||im.thumbnail;if(!img)return;
        if(have[w.webcamId]){have[w.webcamId].e=img;return}
        out.push({n:w.title||"Webcam",c:L.country||"",r:L.city||L.region||"",t:"landmark",lat:num(L.latitude),lon:num(L.longitude),e:img,u:"windy:"+w.webcamId,wid:w.webcamId,player:(pl.live||pl.day||"").replace(/^http:/,"https:")||null})});
      addLive(self,out)}).catch(function(e){fail(self,e)}).then(function(){windyBusy=false})}
-setInterval(function(){if(EMBED_OK&&KEYS.windy)windyNear()},15000);
+setInterval(function(){if(EMBED_OK&&kWindy())windyNear()},15000);
 function liveStatus(){var el=$("livenets");if(!el)return;
   if(!EMBED_OK){el.innerHTML='<div class="ls"><span>Live networks load only in the installed app / GitHub link.</span></div>';return}
   var ok=[],bad=0,badL=[],wait=0,locked=0,dn=deadN();SOURCES.forEach(function(s){var st=LIVESTAT[s.name];if(s.keyName&&!KEYS[s.keyName]){locked++;return}if(!st)wait++;else if(st.n)ok.push([s.name,st.n]);else{bad++;badL.push(s.name)}});

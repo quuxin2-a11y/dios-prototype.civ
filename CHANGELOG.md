@@ -2,6 +2,9 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v51
+- **Works without setup**: the app now includes a shared Windy webcams key, so everyone sees webcams around wherever they are looking without adding a key. With the shared key the app loads cameras near the view; the whole-world preload still needs a personal key. A shared Google key, limited to the Map Tiles service, turns on Photoreal 3D, Static 3D and Cockpit view for everyone; Street View and Google routing still need a personal key. A key entered in Settings always takes precedence.
+
 ## v50
 - **Cockpit view**: on any live aircraft, see the real world in 3D from its position, height and heading, moving with it. The weather is simulated from the forecast model for that exact position and height: in cloud, a cloud deck below, overcast above, rain, snow, night, haze, plus outside air temperature and wind aloft. Drag to look around. Needs the Google Maps key, like Photoreal 3D.
 - **Speed pass**: live blur effects are gone (they were redrawn over the map on every frame), buttons respond the instant they are pressed, the globe no longer changes resolution each time it is touched, it idles at a lower frame rate once left alone, Photoreal 3D is capped at 45 frames a second on Balanced, and long lists only lay out what is on screen. Settings → Speed still offers Smooth, Balanced and Sharp.

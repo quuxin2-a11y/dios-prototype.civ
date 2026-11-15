@@ -13,6 +13,7 @@
 - **Family check-in** stores the names and numbers you enter on the phone only. The app opens your own messaging app with a ready text; you send it.
 - **Offline pack** stores map tiles and the last situation on the phone.
 - **System check** records app errors on the phone. The report is shared only when you tap share, and holds no location, key values or searches.
+- **Shared keys.** When you have not entered your own key, requests for webcams near the area you are viewing go to Windy, and requests for 3D map tiles go to Google, using the app's shared keys. Those providers see the request and the area, as they would with your own key. Nothing about you is attached.
 - **Finder** sends the flight number or registration you type to adsbdb and, if you added a key, AeroDataBox.
 - **Saved places, watchlist and settings** are stored on the device only. Notifications are created on the device; there is no push server.
 - **The diagnostic report** is created only when you ask, contains feed status and key names (never key values), and goes only where you send it.
