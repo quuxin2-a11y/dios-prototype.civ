@@ -17,6 +17,7 @@ var KEYS=ls("godeye-keys")||{};
 // two parts so automated scanners do not flag them as leaked secrets. See SECURITY.md. A user's own key always wins.
 var SHK={windy:["vsuxWqWFZAlwHtGg","hdwsWWjzDYhJyPLh"].join(""),g3:["AIzaSyCRUooPW2c3dg3","sQYXF3o9cVmi_39EZA-0"].join("")};
 function kWindy(){return KEYS.windy||SHK.windy}
+function keyOf(k){return KEYS[k]||(k==="windy"?SHK.windy:"")}
 function kG3(){return KEYS.gmaps||SHK.g3}
 function pick(o,re){for(var k in o){if(re.test(k)&&o[k]!=null&&o[k]!=="")return o[k]}return null}
 // generic: find camera-like records anywhere in a JSON tree
@@ -135,14 +136,14 @@ function idbSet(k,v){return idb().then(function(db){return new Promise(function(
 var WSW={on:false,q:[],rows:[],seen:{},req:0,done:false,err:""},WN="Windy Webcams (worldwide)";
 function windyRow(w){var L=w.location||{},im=w.images&&w.images.current||{},pl=w.player||{},img=(im.preview||im.thumbnail||im.icon||"").replace(/^http:/,"https:");if(!img||L.latitude==null)return null;return[w.webcamId,w.title||"Webcam",num(L.latitude),num(L.longitude),L.country||"",L.city||L.region||"",img,(pl.live||pl.day||"").replace(/^http:/,"https:")]}
 function windyAdd(rows){var out=[];rows.forEach(function(r){if(!r||WSW.seen[r[0]])return;WSW.seen[r[0]]=1;WSW.rows.push(r);out.push({n:r[1],c:r[4],r:r[5],t:"landmark",lat:r[2],lon:r[3],e:r[6],u:"windy:"+r[0],wid:r[0],player:r[7]||null})});if(out.length)addLive(WN,out)}
-function windySweep(){if(WSW.on||WSW.done||!KEYS.windy||!EMBED_OK)return;WSW.on=true;
-  idbGet("windy").then(function(sv){if(sv&&sv.t&&Date.now()-sv.t<7*864e5&&sv.rows&&sv.rows.length>2000){windyAdd(sv.rows);WSW.done=true;WSW.on=false;return}
+function windySweep(){if(WSW.on||WSW.done||!kWindy()||!EMBED_OK)return;WSW.on=true;
+  idbGet("windy").then(function(sv){if(sv&&sv.t&&Date.now()-sv.t<(KEYS.windy?7:30)*864e5&&sv.rows&&sv.rows.length>2000){windyAdd(sv.rows);WSW.done=true;WSW.on=false;return}
     for(var la=-90;la<90;la+=45)for(var lo=-180;lo<180;lo+=45)WSW.q.push([la+45,lo+45,la,lo,0]);windyStep()}).catch(function(){for(var la=-90;la<90;la+=45)for(var lo=-180;lo<180;lo+=45)WSW.q.push([la+45,lo+45,la,lo,0]);windyStep()})}
 function windyStep(){if(!WSW.on)return;var t=WSW.q.shift();if(!t){WSW.on=false;WSW.done=true;idbSet("windy",{t:Date.now(),rows:WSW.rows});liveStatus();return}if(document.hidden){WSW.q.unshift(t);setTimeout(windyStep,4000);return}
   WSW.req++;getJSON("https://api.windy.com/webcams/api/v3/webcams?limit=50&offset="+t[4]+"&include=location,images,player&bbox="+t[0]+","+t[1]+","+t[2]+","+t[3],25000,{"x-windy-api-key":kWindy()}).then(function(j){var tot=j&&j.total||0,ws=j&&j.webcams||[];
       if(t[4]===0&&tot>1000&&t[0]-t[2]>0.05){var ml=(t[0]+t[2])/2,mo=(t[1]+t[3])/2;WSW.q.unshift([t[0],t[1],ml,mo,0],[t[0],mo,ml,t[3],0],[ml,t[1],t[2],mo,0],[ml,mo,t[2],t[3],0])}
       else{windyAdd(ws.map(windyRow));if(ws.length===50&&t[4]+50<Math.min(tot,1000))WSW.q.unshift([t[0],t[1],t[2],t[3],t[4]+50])}
-      if(WSW.req%60===0){idbSet("windy",{t:Date.now()-6*864e5,rows:WSW.rows});liveStatus()}setTimeout(windyStep,650)})
+      if(WSW.req%60===0){idbSet("windy",{t:Date.now()-(KEYS.windy?6:29)*864e5,rows:WSW.rows});liveStatus()}setTimeout(windyStep,KEYS.windy?650:1100)})
     .catch(function(e){WSW.err=String(e&&e.message||e).slice(0,50);if(/401|403/.test(WSW.err)){WSW.on=false;fail(WN,e);return}if(/429/.test(WSW.err)){WSW.q.unshift(t);setTimeout(windyStep,30000);return}setTimeout(windyStep,1500)})}
 // free Windy picture links expire after a few minutes: fetch a fresh one when a picture fails
 function windyFresh(im,u){var id=u.slice(6);return getJSON("https://api.windy.com/webcams/api/v3/webcams/"+encodeURIComponent(id)+"?include=images,player",15000,{"x-windy-api-key":kWindy()}).then(function(w){var r=windyRow({webcamId:id,title:"",location:{latitude:0,longitude:0},images:w.images,player:w.player});if(!r)throw 0;var c=camByU(u);if(c){c.e=r[6];if(r[7])c.player=r[7]}im.setAttribute("data-src",r[6]);im.src=r[6]})}
@@ -157,7 +158,7 @@ function windyNear(){if(!kWindy()||windyBusy)return;var self="Windy Webcams (wor
 setInterval(function(){if(EMBED_OK&&kWindy())windyNear()},15000);
 function liveStatus(){var el=$("livenets");if(!el)return;
   if(!EMBED_OK){el.innerHTML='<div class="ls"><span>Live networks load only in the installed app / GitHub link.</span></div>';return}
-  var ok=[],bad=0,badL=[],wait=0,locked=0,dn=deadN();SOURCES.forEach(function(s){var st=LIVESTAT[s.name];if(s.keyName&&!KEYS[s.keyName]){locked++;return}if(!st)wait++;else if(st.n)ok.push([s.name,st.n]);else{bad++;badL.push(s.name)}});
+  var ok=[],bad=0,badL=[],wait=0,locked=0,dn=deadN();SOURCES.forEach(function(s){var st=LIVESTAT[s.name];if(s.keyName&&!keyOf(s.keyName)){locked++;return}if(!st)wait++;else if(st.n)ok.push([s.name,st.n]);else{bad++;badL.push(s.name)}});
   ok.sort(function(a,b){return b[1]-a[1]});
   el.innerHTML=ok.map(function(o){return'<div class="ls"><span>'+esc(o[0])+'</span><span class="mono" style="color:#ffd36b">'+o[1].toLocaleString()+'</span></div>'}).join("")+
    (wait?'<div class="ls"><span>Connecting to '+wait+' more…</span></div>':'')+(bad?'<div class="ls"><span style="color:#ff8a8a">'+bad+' network'+(bad>1?"s":"")+' did not answer</span><span class="mono" style="color:#8b97a4">see report</span></div>':'')+
@@ -174,5 +175,5 @@ document.addEventListener("click",function(e){
     var dl=$("keysDlg");dl.close?dl.close():dl.removeAttribute("open");SOURCES.forEach(function(s){var kn=s.keyName||s.optKey;if(kn&&KEYS[kn]&&!(LIVESTAT[s.name]&&LIVESTAT[s.name].n)){delete LIVESTAT[s.name];windyLast="";try{s.load()}catch(e){}}});liveStatus();if(WL.ship){if(AIS.ws){try{AIS.ws.close()}catch(e){}}else aisConnect()}}
   var rm=e.target.closest&&e.target.closest("[data-rm]");if(rm){delete KEYS[rm.getAttribute("data-rm")];ls("godeye-keys",KEYS);openKeys();return}
   if(e.target.id==="keysCancel"){var dl2=$("keysDlg");dl2.close?dl2.close():dl2.removeAttribute("open")}});
-if(EMBED_OK)SOURCES.forEach(function(s){if(s.keyName&&!KEYS[s.keyName])return;try{s.load()}catch(e){fail(s.name,e)}});
+if(EMBED_OK)SOURCES.forEach(function(s){if(s.keyName&&!keyOf(s.keyName))return;try{s.load()}catch(e){fail(s.name,e)}});
 

@@ -3,7 +3,8 @@
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
 ## v51
-- **Works without setup**: the app now includes a shared Windy webcams key, so everyone sees webcams around wherever they are looking without adding a key. With the shared key the app loads cameras near the view; the whole-world preload still needs a personal key. A shared Google key, limited to the Map Tiles service, turns on Photoreal 3D, Static 3D and Cockpit view for everyone; Street View and Google routing still need a personal key. A key entered in Settings always takes precedence.
+- **Aircraft in the web version**: when the main aircraft service does not answer, as happens in browsers, the app now loads aircraft for the area in view from two community ADS-B networks and refreshes as you move. Finder also looks a flight up by callsign there, so it is found wherever it is.
+- **Works without setup**: the app now includes a shared Windy webcams key, so everyone sees webcams around wherever they are looking without adding a key. Cameras near the view appear first, and the whole-world list loads in the background over about half an hour, then is kept on the device for 30 days. A shared Google key, limited to the Map Tiles service, turns on Photoreal 3D, Static 3D and Cockpit view for everyone; Street View and Google routing still need a personal key. A key entered in Settings always takes precedence.
 
 ## v50
 - **Cockpit view**: on any live aircraft, see the real world in 3D from its position, height and heading, moving with it. The weather is simulated from the forecast model for that exact position and height: in cloud, a cloud deck below, overcast above, rain, snow, night, haze, plus outside air temperature and wind aloft. Drag to look around. Needs the Google Maps key, like Photoreal 3D.

@@ -69,6 +69,7 @@ This project connects existing libraries and public data. It does not claim them
 | US Department of State travel advisories | Country file: advisory level | US Government work |
 | Frankfurter (European Central Bank rates) | Country file: exchange rate | Open data |
 | MeteoAlarm (EUMETNET, national weather services) | Emergency mode: official weather warnings in Europe | CC BY 4.0 |
+| adsb.lol · adsb.fi (community ADS-B networks) | Aircraft positions for the area in view when OpenSky does not answer; flight lookup by callsign | ODbL / open data |
 | GLEIF LEI register | Records: legal name, status, jurisdiction and addresses of organisations | CC0 |
 | Wikidata | Records: founding year, officers and parent of well-known organisations | CC0 |
 | OpenCorporates (optional, user's key) | Records: state company register entry and status | OpenCorporates terms |

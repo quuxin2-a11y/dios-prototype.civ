@@ -120,7 +120,7 @@ function liveReport(){if(repBusy)return;repBusy=true;var btn=$("repBtn"),say=fun
     L.push("OJOS DE DIOS  -  LIVE REPORT  (v51)");L.push("Made "+new Date().toString());L.push("Diagnostic report: what worked on this device and what did not.");L.push(hr);
     diagText().split("\n").slice(1).forEach(function(x){L.push(x)});L.push("KEYS SAVED (names only): "+(Object.keys(KEYS).join(", ")||"none")+"   GPS: "+(navigator.geolocation?"available":"none")+"   DRIVE: "+(DRV.R?"route "+Math.round(DRV.R.len)+" m by "+DRV.R.src+", "+DRV.cams.length+" cams":"not used")+"   STREET VIEW JS API: "+(GM_BAD?"refused":window.google&&google.maps?"loaded":"not tried"));L.push(hr);
     L.push("CAMERA NETWORKS  (listed = cameras the network gave us; test = 3 real cameras opened just now)");L.push("");
-    SOURCES.forEach(function(s){var st=LIVESTAT[s.name],lock=s.keyName&&!KEYS[s.keyName],t=res[s.name]||[],okN=t.filter(function(x){return x.r.ok}).length;
+    SOURCES.forEach(function(s){var st=LIVESTAT[s.name],lock=s.keyName&&!keyOf(s.keyName),t=res[s.name]||[],okN=t.filter(function(x){return x.r.ok}).length;
       L.push((lock?"NEEDS KEY ":!st?"NO REPLY  ":st.n?(t.length&&!okN?"LISTS-ONLY":"WORKING   "):"FAILED    ")+" "+s.name+(st&&st.n?"   listed "+st.n+(t.length?"   test "+okN+"/"+t.length+" images loaded":""):"")+(st&&!st.n?"   reason: "+(st.err||st.s||"?"):""));
       t.forEach(function(x){if(!x.r.ok)L.push("              x "+x.r.why+" ("+x.r.ms+" ms)  "+x.c.e.replace(/^https?:\/\//,"").split("?")[0].slice(0,84))})});
     L.push(hr);L.push("WHAT EACH SERVER SENT BACK  (the shape of the data, so the reader for it can be fixed)");L.push("");Object.keys(RESP).sort().forEach(function(k){L.push(k);L.push("    "+RESP[k])});
