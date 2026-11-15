@@ -40,3 +40,9 @@ Internet; notifications (only if you turn on background notifications in the Bri
 ## What the app will not do
 
 No licence-plate reading, no face or person identification, no tracking of individuals, no private cameras. See PRIVACY.md.
+
+## Automated checks
+
+- `check_secrets.py` runs on every push and fails the build if a credential (Google, GitHub, AWS or Slack token, private key) or a key or certificate file is committed.
+- `test_tools.py` tests the scanner and the native installer; `tests.js` and `OjosNativePluginTest.java` test the application and native code.
+- CodeQL scans the code on every push.

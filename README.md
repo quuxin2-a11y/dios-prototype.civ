@@ -1,117 +1,200 @@
 # Ojos de Dios
 
+[![Build, test and release](https://github.com/quuxin2-a11y/dios-prototype.civ/actions/workflows/apk.yml/badge.svg)](https://github.com/quuxin2-a11y/dios-prototype.civ/actions/workflows/apk.yml)
+[![Latest release](https://img.shields.io/github/v/release/quuxin2-a11y/dios-prototype.civ?label=release)](https://github.com/quuxin2-a11y/dios-prototype.civ/releases/latest)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Web-0f8f84)
+![License](https://img.shields.io/badge/license-source--available-lightgrey)
+
 **Eyes open. Always.**
 
-A live globe of publicly published cameras and open world data, for Android (APK), with a web version.
+Ojos de Dios is a situational-awareness app for Android and the web. It puts publicly published cameras, official warnings, aircraft, ships, satellites, 3D cities and public records on one interactive globe, and adds a State of Emergency mode that turns that data into clear next steps for the person holding the phone.
 
-**Designed and directed by Mark Joseph. The code was written with Claude (Anthropic) to his direction.**
-It connects public feeds; it does not create them. Credit for the data belongs to the agencies listed below.
+It runs entirely on the device: no accounts, no backend, no tracking.
 
+**[Download for Android](https://github.com/quuxin2-a11y/dios-prototype.civ/releases/latest)** · **[Open the web version](https://quuxin2-a11y.github.io/dios-prototype.civ/)** · **[Interactive feature guide](https://quuxin2-a11y.github.io/dios-prototype.civ/guide.html)**
 
-## Ways to use it
+---
 
-**[See everything it does, with walkthroughs →](https://quuxin2-a11y.github.io/dios-prototype.civ/guide.html)**
+## Contents
 
-| | Android app | Web version (iPhone, iPad, computer) |
+- [Features](#features)
+- [Platforms](#platforms)
+- [Architecture](#architecture)
+- [Project layout](#project-layout)
+- [Building from source](#building-from-source)
+- [Testing](#testing)
+- [Continuous integration](#continuous-integration)
+- [Security and privacy](#security-and-privacy)
+- [Data sources](#data-sources)
+- [Out of scope by design](#out-of-scope-by-design)
+- [Known limitations](#known-limitations)
+- [License](#license)
+
+## Features
+
+**Emergency response**
+- **State of Emergency mode:** live position, official alerts for that exact point (US National Weather Service; 38 European national services via MeteoAlarm), nearby hazards, weather and air quality, and a one-tap call to the local emergency number.
+- **Analyzer:** a rule-based assessment (no model, no guessing) that restates the official instruction, gives a threat level and the direction away from the hazard, and ranks the nearest hospitals, shelters and assembly points with its reasons.
+- **Routing:** fastest, fewest cameras, back roads, or safest (scored against every reported hazard).
+- **Family check-in, SOS signal (screen, tone and vibration) and an offline map pack.**
+
+**Air, sea and orbit**
+- **Finder:** flight number, callsign, tail number, ship name or MMSI, satellite or camera.
+- **Flight log:** an aircraft's recent flights, schedule, delay and whether it is on course.
+- **Cockpit view:** the real 3D world from a live aircraft's position and heading, with forecast-model weather at its altitude.
+- Live aircraft, AIS vessels and satellites propagated from orbital elements; a watchlist with status alerts.
+
+**Cameras and 3D**
+- 100,000+ public traffic, weather and city cameras on one globe, playing in-app; multi-view, compare and camera webs.
+- Photoreal 3D cities (Google 3D Tiles), a key-free 3D terrain map, and Inspect for buildings and aircraft from the public record.
+
+**Information**
+- Area, national and world news; official alert feeds; a nationwide broadcast banner; a daily briefing.
+- **Records:** property and organisation dossiers read directly from state and national business registers.
+- **Country file:** travel advisory, leadership, emergency numbers, currency and World Bank indicators.
+
+**Native Android**
+- Home-screen **Emergency widget** that turns red while emergency mode is on.
+- Long-press **app shortcuts** (Emergency, Finder, Briefing), keep-screen-awake and haptic SOS.
+
+See the [interactive guide](https://quuxin2-a11y.github.io/dios-prototype.civ/guide.html) for every feature with walkthroughs.
+
+## Platforms
+
+| | Android app | Web (iPhone, iPad, desktop) |
+|---|:---:|:---:|
+| Emergency mode, routing, check-in, offline pack | ✓ | ✓ |
+| Public cameras, Photoreal 3D, news, records, country file | ✓ | ✓ |
+| Live aircraft, flight log, cockpit view | ✓ | — |
+| Background alerts, widget, shortcuts, voice | ✓ | — |
+
+Flight-position providers do not send CORS headers, so browsers cannot read them; the Android build makes those requests natively. The app is not yet listed on Google Play or the App Store.
+
+## Architecture
+
+```
+            ┌────────────────────────────── Android (Capacitor 6) ──────────────────────────────┐
+            │  MainActivity.java ── OjosNativePlugin.java ── EmergencyWidget.java                │
+            │        │  shortcuts, widget, keep-awake, haptics           (Java, API 22+)        │
+            │        ▼                                                                           │
+            │  WebView ─ index.html ◄── build.py ◄── src-template.html + src-styles.css          │
+            │                                       + src-NN-*.js + src-data-*.json              │
+            └────────────────────────────────────────────────────────────────────────────────────┘
+                     │ HTTPS (native HTTP on Android, fetch on the web)
+                     ▼
+     Public sources: transport-agency cameras · NWS · MeteoAlarm · USGS · NASA EONET · GDACS · OpenSky
+                     AIS · CelesTrak · OpenStreetMap · Open-Meteo · state and national registers · World Bank
+```
+
+- **Client-only.** All logic runs on the device. User keys, saved places and contacts are kept in local storage and never transmitted except to the provider each key belongs to.
+- **Rendering.** A custom Canvas 2D / WebGL globe for the default view; CesiumJS for photoreal 3D; MapLibre GL for the terrain map; a small WebGL renderer for Inspect.
+- **Single-file bundle.** `build.py` assembles the sources into `index.html` so the same artifact ships in the APK and on GitHub Pages; CI fails if the committed bundle drifts from its sources.
+- **Native layer.** `install_native.py` layers the Java sources and Android resources in this repo onto the Capacitor project generated in CI, and can roll them back.
+
+## Project layout
+
+| Path | Language | Purpose |
 |---|---|---|
-| Where | [Latest release](https://github.com/quuxin2-a11y/dios-prototype.civ/releases/latest), the `.apk` file | [quuxin2-a11y.github.io/dios-prototype.civ](https://quuxin2-a11y.github.io/dios-prototype.civ/) |
-| Cameras, alerts, Emergency mode, routes, records, country file, news | Yes | Yes |
-| Photoreal 3D | Yes | Yes |
-| Live aircraft and Cockpit view | Yes | No: flight services do not allow browsers to read their data |
-| Notifications while closed | Yes | No |
+| `src-01-start.js` … `src-11-*.js` | JavaScript | Application source, split by subsystem (renderer, networks, drive, layers, panels) |
+| `src-template.html` | HTML | Document structure |
+| `src-styles.css` | CSS | Design system and component styles |
+| `src-data-*.json` | JSON | Bundled gazetteer, coastline points and fallback portal list |
+| `MainActivity.java` | Java | Activity: plugin registration, launcher shortcuts, intent routing |
+| `OjosNativePlugin.java` | Java | Capacitor plugin: launch actions, emergency state, keep-awake, vibration |
+| `EmergencyWidget.java` | Java | `AppWidgetProvider` for the home-screen Emergency widget |
+| `OjosNativePluginTest.java` | Java | JUnit tests for launch-action routing |
+| `res-<type>--<name>.xml` | XML | Android resources (widget layout, provider info, drawables) |
+| `build.py` | Python | Assembles `index.html`; `--check` verifies it matches the sources |
+| `install_native.py` | Python | Installs / uninstalls the native sources into the generated Android project |
+| `check_secrets.py` | Python | Fails CI on committed credentials or key files |
+| `make_models.py` | Python | Generates the glTF models embedded in the app (NumPy) |
+| `test_tools.py` | Python | `unittest` suite for the Python tooling |
+| `tests.js` | JavaScript | Unit tests for the application logic, run against the real sources |
+| `sw.js`, `manifest.webmanifest` | JavaScript, JSON | Service worker and web-app manifest |
+| `index.html` | HTML | **Build output** of `build.py` (excluded from language statistics) |
+| `guide.html`, `get.html` | HTML | Feature guide and download page |
+| `.github/workflows/apk.yml` | YAML | CI: checks, tests, Android build, signing, release |
 
-The app is not yet in the Play Store or App Store.
+## Building from source
 
-## What it does
+**Requirements:** Python 3.10+, Node.js 20, JDK 17, Android SDK (API 34).
 
-- **Cameras:** about 39,000 public traffic, weather, wildfire, park and ocean cameras from 40+ agencies, on one globe. Tap one and it plays inside the app.
-- **Live video** where the agency offers a stream (for example TxDOT and Caltrans); fast-refreshing pictures everywhere else.
-- **Drive:** enter a start and a destination and see every camera along the route in driving order, with turn-by-turn tracking.
-- **Street View:** opens at the nearest street to a camera and shows the distance and direction back to it.
-- **World layers:** aircraft, satellites, ships, weather radar, earthquakes, fires and storms, day and night.
-- **Photoreal 3D:** real textured 3D cities with live aircraft, ships, satellites and flight paths.
-- **Inspect:** a guided zoom from a whole aircraft, ship, satellite or building down to a single atom. Buildings use the public record (real outline, mapped parts, facts, and an indoor plan where one exists); everything else is labelled as typical or generic on screen.
-- **News desk:** the latest headlines for whatever area you are looking at, for its country and for the world, each linking to the original article.
-- **Broadcast:** one bar across every view when something nationwide or worldwide is happening, such as widespread flight ground stops, a tsunami warning or a magnitude 7 earthquake. It is driven by official feeds (FAA, US National Weather Service, GDACS, USGS), and by news only when at least three separate outlets report the same event.
-- **Flight log:** for any aircraft, where it has flown recently, whether it is on course right now, and (with an optional key) what it is scheduled to fly next and whether it is on time.
-- **Briefing and watchlist:** saved places with weather, cameras and headlines; watched aircraft and ships with status changes announced.
-- **Replay, map styles, text size, share card and a first-run guide.**
-- **Command mode and Command wall:** an operations-room layout of the same public data.
-- **Live chatter:** public posts from Bluesky and Mastodon (and X with your own token) about a topic, clearly marked unverified.
-- **Cockpit view:** the real world from a live aircraft, with the weather the forecast model reports at its position and height.
-- **State of Emergency mode:** a confirmed switch that turns the map red, follows your position and gathers official alerts, nearby hazards, safe places, cameras, routes and a rule-based analyzer on one screen.
-- **Drive route choices:** fastest, fewest cameras, back roads, or safest.
-- **Finder:** one search for flights, aircraft, ships, satellites and cameras, with every leg of a flight and its on-time status.
-- **Plans on record:** which buildings in view have a public indoor floor plan.
-- **Records:** property and organisation dossier from public registers. Private individuals are never named.
-- **Search by flight number or ship name, camera compare, one Settings screen.**
-- **Layer control:** hide any layer, hide them all at once, or hide the panel itself.
-- **Smart alerts, voice search, multi-camera wall, anonymous object detection** (object classes only).
-- **Live report:** one tap tests every network and exports a PDF.
+```bash
+# 1. Assemble the web bundle and verify it
+python3 build.py
+python3 build.py --check
 
-## What it deliberately does not do
+# 2. Run the test suites
+node tests.js
+python3 -m unittest -v test_tools
+python3 check_secrets.py .
 
-- No licence-plate reading, no vehicle or person identification, no tracking of individuals.
-- No private cameras. Only feeds that agencies publish for the public.
-- Property records show organisations and public bodies only; private owners' names are not shown.
+# 3. Generate and build the Android project
+mkdir -p app/www && cp index.html manifest.webmanifest sw.js *.png app/www/
+cd app
+npm init -y
+npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 \
+            @capacitor/filesystem@6 @capacitor/share@6 @capacitor/local-notifications@6
+echo '{"appId":"com.ojosdedios.app","appName":"Ojos de Dios","webDir":"www"}' > capacitor.config.json
+npx cap add android
+python3 ../install_native.py android
+npx cap sync android
+cd android && ./gradlew testDebugUnitTest assembleDebug
+```
 
-## How it is built
-
-| File | What it is |
-| --- | --- |
-| `index.html` | The built app: one self-contained file the phone loads. **Generated, do not edit.** |
-| `src-template.html` | Page markup and styles. |
-| `src-01-…` to `src-11-….js` | The app logic, split by area (renderer, camera networks, drive, layers, and so on). |
-| `src-data-*.json` | Bundled data: place names, coastline dots, fallback portal list. |
-| `build.py` | Joins the sources into `index.html`. `python3 build.py --check` verifies they match. |
-| `.github/workflows/apk.yml` | Tests, builds, signs and publishes the Android APK (and an unsigned iPhone file) on every push. |
-| `get.html` | Download page. |
-| `tests.js` | Unit tests, run on every build. |
-| `SECURITY.md` | Security model, how to report a problem, known limits. |
-| `PRIVACY.md` | What the app does and does not do with data. |
-| `THIRD-PARTY.md` | Every library and data source, with its licence or terms. |
-
-The Android app is a Capacitor wrapper so requests go out natively (many agencies block browser requests).
-
-### What is original and what is not
-
-- **Written for this project:** the globe renderer (canvas and WebGL), the camera-network connectors, clustering, the Drive module, the vehicle tracker, the ground-mapping maths, the Inspect renderer and its models, and the build pipeline.
-- **Existing libraries, used as intended and credited:** orbit maths is [satellite.js](https://github.com/shashwatak/satellite-js); object detection is [TensorFlow.js COCO-SSD](https://github.com/tensorflow/tfjs-models); video is [hls.js](https://github.com/video-dev/hls.js); the 3D city views are [CesiumJS](https://github.com/CesiumGS/cesium) and [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js).
-- **Data:** none of it is ours. Every feed belongs to the agency that publishes it.
-
-The full list, with each source's licence and terms, is in [THIRD-PARTY.md](THIRD-PARTY.md).
-
-## Web version
-
-The same app runs in a browser at `https://quuxin2-a11y.github.io/dios-prototype.civ/` once GitHub Pages is switched on for this repository (Settings → Pages → Deploy from a branch → `main`, `/ (root)`). Browsers block some agency feeds that the installed app can reach, so the Android app shows more.
-
-## Build and install
-
-1. Push to `main`. GitHub Actions runs the tests, then builds the APK in about five minutes.
-2. Download `ojos-de-dios.apk` from the latest release. The release notes carry its SHA-256 so you can check the file you downloaded is the file that was built.
-3. With the `KEYSTORE_B64` and `KEYSTORE_PASSWORD` repository secrets set, the APK is a release build signed with the project's private key. Without them the workflow says so and produces a debug build.
-
-API keys are entered inside the app and stay on the device. None are stored in this repository.
-
-## Security
-
-- Signing key and its password live only in GitHub encrypted secrets, never in the repository.
-- The workflow runs with read-only permissions; only the publishing job can write a release.
-- Every pinned third-party script is loaded with a Subresource Integrity hash computed at build time, so an altered CDN file is refused.
-- Each release carries a SHA-256 checksum and a signed build-provenance attestation, and the code is scanned by CodeQL on every push.
-
-Details, the threat model and the known limits are in [SECURITY.md](SECURITY.md). Privacy is in [PRIVACY.md](PRIVACY.md).
+The debug APK is written to `app/android/app/build/outputs/apk/debug/`. Release builds are produced and signed only in CI.
 
 ## Testing
 
-- CI rebuilds the app from the sources and stops the build if `index.html` is out of date or the JavaScript does not parse.
-- The in-app live report tests three real cameras from every network on the device.
-- `tests.js` holds unit tests for the detection, tracking, ground-mapping and geometry code. They run against the real source files on every build (`node tests.js`), and a failing test stops the APK from being built.
+| Suite | Command | Covers |
+|---|---|---|
+| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model (32 tests) |
+| Python | `python3 -m unittest -v test_tools` | Secret scanner, native installer (install, idempotence, rollback) |
+| Java | `./gradlew testDebugUnitTest` | Launch-action routing in the native plugin |
+| Bundle | `python3 build.py --check` | Committed `index.html` matches its sources |
+| On device | Settings → Testing → System check | Reachability of every public source; local error log with a shareable report |
 
-## Known limits
+## Continuous integration
 
-- Feeds change without notice; the live report shows which are down.
-- iPhone: the workflow produces an unsigned `.ipa`, which needs an Apple Developer account or a sideloading tool to install.
-- Alerts and tracking run only while the app is open.
+Every push to `main` runs [`apk.yml`](.github/workflows/apk.yml):
 
-© 2026 Mark Joseph. All rights reserved. See [LICENSE](LICENSE).
+1. Verify the bundle matches its sources and parses.
+2. Run the JavaScript and Python test suites and the secret scan.
+3. Generate the Capacitor project, install the native Java sources, pin third-party scripts with Subresource Integrity hashes.
+4. Run the Java unit tests, then build and sign the release APK (falling back to the web-only build if the native layer fails to compile).
+5. Publish the APK with its SHA-256 checksum and a signed build-provenance attestation.
+6. Scan the code with CodeQL.
+
+Workflows run with read-only permissions by default; only the release job can write.
+
+## Security and privacy
+
+- Release signing key and password exist only as encrypted repository secrets.
+- `check_secrets.py` blocks any commit containing a credential or key file.
+- Two provider keys ship with the app so it works without setup. Each is restricted by its provider to this app's origins and to a single read-only service; they are documented in [SECURITY.md](SECURITY.md).
+- No analytics, no accounts, no server. Details in [PRIVACY.md](PRIVACY.md).
+
+Report a vulnerability as described in [SECURITY.md](SECURITY.md).
+
+## Data sources
+
+All data belongs to the agencies and projects that publish it. Libraries used: [CesiumJS](https://github.com/CesiumGS/cesium), [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js), [satellite.js](https://github.com/shashwatak/satellite-js), [hls.js](https://github.com/video-dev/hls.js), [TensorFlow.js COCO-SSD](https://github.com/tensorflow/tfjs-models) and [Capacitor](https://github.com/ionic-team/capacitor). Every source and library, with its licence or terms, is listed in [THIRD-PARTY.md](THIRD-PARTY.md).
+
+## Out of scope by design
+
+- No licence-plate reading, vehicle identification or tracking of individuals.
+- No private or covert sources: only feeds that agencies publish for the public.
+- Records show organisations and public bodies only; private individuals are never named.
+
+## Known limitations
+
+- Public feeds change without notice; the in-app System check shows which are down.
+- The web build cannot show live aircraft (see [Platforms](#platforms)).
+- Background alerts require the app to be running in the background.
+- The iOS build is unsigned and needs an Apple Developer account to install.
+
+## License
+
+**Source-available. All rights reserved.** You may read the code and build it for personal evaluation; any other use requires written permission. See [LICENSE](LICENSE).
+
+© 2026 Mark Joseph

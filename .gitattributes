@@ -1,1 +1,10 @@
-index.html -linguist-detectable
+# Normalise line endings
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+
+# Language statistics: count source files, not build output or documentation.
+index.html linguist-generated=true
+guide.html linguist-documentation=true
+get.html linguist-documentation=true
+src-data-*.json linguist-generated=true

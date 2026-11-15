@@ -2,6 +2,12 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v52
+- **Native Android layer (Java):** a Capacitor plugin, a home-screen Emergency widget that turns red while emergency mode is on, long-press app shortcuts (Emergency, Finder, Briefing), keep-screen-awake in emergency mode, and vibration for the SOS signal. Covered by JUnit tests.
+- **Build tooling (Python):** `install_native.py` installs and rolls back the native sources in CI; `check_secrets.py` blocks committed credentials; `make_models.py` generates the embedded 3D models; `test_tools.py` tests the tooling.
+- **Styles moved to `src-styles.css`**, separate from the document template.
+- **README rewritten** with architecture, project layout, build-from-source instructions and test matrix.
+
 ## v51
 - **Interactive guide** (`guide.html`): every feature with how to open it and what it does, five step-by-step walkthroughs with app screens, a switch between the Android app and the web version that marks what each can do, search, and answers to common questions.
 - **Aircraft are Android-only, and the app says so**: live aircraft services do not allow web browsers to read their data, so the web version now shows "Android app only" for aircraft instead of "offline", and Finder explains it. When the main aircraft service does not answer on Android, the app falls back to two community ADS-B networks for the area in view, and Finder looks a flight up by callsign there.
