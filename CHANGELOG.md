@@ -2,6 +2,13 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v53
+- **Security hardening (code scanning):** toast messages are now built node by node, allowing only bold text and line breaks; layer status text and dossier labels are escaped; coordinates written into buttons are forced to numbers; colours are checked against a hex pattern.
+- **Media addresses are validated** before reaching an image or video element: only https, http, blob and inline PNG/JPEG/GIF/WebP images are accepted.
+- **Vessel ids and camera headings are kept in `Map`s** instead of plain objects, so an identifier from a live feed can never be read as an object property such as `__proto__`.
+- **CI:** CodeQL now scans JavaScript, Python and Java (no build needed), skipping the generated source fragments; runners are pinned to `ubuntu-24.04` and `macos-15-intel`. A final job keeps the ten newest finished workflow runs and deletes older ones.
+- `SECURITY.md` wording on the shared keys corrected.
+
 ## v52
 - **Native Android layer (Java):** a Capacitor plugin, a home-screen Emergency widget that turns red while emergency mode is on, long-press app shortcuts (Emergency, Finder, Briefing), keep-screen-awake in emergency mode, and vibration for the SOS signal. Covered by JUnit tests.
 - **Build tooling (Python):** `install_native.py` installs and rolls back the native sources in CI; `check_secrets.py` blocks committed credentials; `make_models.py` generates the embedded 3D models; `test_tools.py` tests the tooling.

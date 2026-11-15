@@ -112,6 +112,10 @@ var LIVE=[],LIVESTAT={},pin=null,region="",selected=null,mode="3d",spin=true,api
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
 function col(t){return(L[t]||["","#cccccc"])[1]}
+// Only web, blob and inline-image addresses are ever handed to <img>/<video>.
+function safeUrl(u){u=String(u==null?"":u).trim();if(/^data:image\/(png|jpe?g|gif|webp);/i.test(u))return u;try{var x=new URL(u,location.href);return x.protocol==="https:"||x.protocol==="http:"||x.protocol==="blob:"?x.href:""}catch(e){return""}}
+// Keys that arrive from outside (vessel ids, camera URLs) are kept in Maps, never as object properties.
+function okColor(c){return/^#[0-9a-f]{3,8}$/i.test(String(c))?c:"#cccccc"}
 function lab(t){return(L[t]||[t])[0]}
 function tickClock(){var d=new Date();$("utc").textContent=d.toISOString().substr(11,8);$("loc").textContent=d.toTimeString().substr(0,8)}
 setInterval(tickClock,1000);tickClock();$("ver").textContent="v"+cams.length;

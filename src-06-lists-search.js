@@ -35,7 +35,7 @@ function playVideo(btn){
   btn.textContent="Connecting…";btn.disabled=true;if(im)im.style.visibility="hidden";box.insertBefore(v,box.firstChild);
   function go(){try{var p=v.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
   function kill(){if(hls){try{hls.destroy()}catch(e){}hls=null}}
-  function native(){kill();sys=true;setTimeout(function(){sys=false},1500);v.src=isHls?url:url+(url.indexOf("?")<0?"?":"&")+"_t="+Date.now();v.load();go()}
+  function native(){kill();var su=safeUrl(url);if(!su)return;sys=true;setTimeout(function(){sys=false},1500);v.src=isHls?su:su+(su.indexOf("?")<0?"?":"&")+"_t="+Date.now();v.load();go()}
   function viaHls(){hls=new Hls({enableWorker:true,liveDurationInfinity:true,capLevelToPlayerSize:false,manifestLoadingMaxRetry:8,levelLoadingMaxRetry:8,fragLoadingMaxRetry:8});hls.loadSource(url);hls.attachMedia(v);
     hls.on(Hls.Events.MANIFEST_PARSED,function(){try{if(hls.levels&&hls.levels.length>1)hls.nextLevel=hls.levels.length-1}catch(e){}go()});
     hls.on(Hls.Events.ERROR,function(ev,d){if(!d||!d.fatal||dead)return;if(!ok){native();return}
@@ -66,7 +66,7 @@ function liveDossier(c){
   clearInterval(dossTimer);dossTimer=setInterval(function(){var im=document.querySelector("#detail img.snap");if(im&&!document.hidden){snapRefresh(im);var ts=$("camts");if(ts)ts.textContent="UPDATED "+new Date().toLocaleTimeString()}},isJ(c.e)?2500:6000);
 }
 function wireMedia(root){
-  Array.prototype.forEach.call(root.querySelectorAll("video"),function(v){v.addEventListener("error",function(){var im=v.getAttribute("data-img");if(im){var i=document.createElement("img");i.className=v.className+" snap";i.src=im;i.setAttribute("data-src",im);v.replaceWith(i)}})});
+  Array.prototype.forEach.call(root.querySelectorAll("video"),function(v){v.addEventListener("error",function(){var im=safeUrl(v.getAttribute("data-img"));if(im){var i=document.createElement("img");i.className=v.className+" snap";i.src=im;i.setAttribute("data-src",im);v.replaceWith(i)}})});
   Array.prototype.forEach.call(root.querySelectorAll("img.snap"),function(im){im.addEventListener("error",function(){if(im.dataset.failed)return;im.dataset.failed=1;markDead(im.getAttribute("data-u"));var d=document.createElement("div");d.className="lockbox";d.innerHTML="<b>CAMERA OFFLINE</b><span>This camera isn't sending an image right now. Try again later.</span>";im.replaceWith(d)})});
 }
 function select(c){
@@ -170,7 +170,7 @@ function showArea(loc,q){
   var within=cams.filter(function(c){return c.c!=="Global"&&c.c!=="Orbit"&&hav(loc.lat,loc.lon,c.lat,c.lon)<=500}).length;
   var dirs=cams.filter(function(c){return c.t==="directory"});
   var h='<h4>AREA SCAN</h4><span class="tag mono" style="color:#ff5d8f;border-color:#ff5d8f">PIN DROPPED</span><h3>'+esc(loc.name)+'</h3>'+
-   '<div class="kv"><span>COORDS</span><b>'+loc.lat.toFixed(4)+', '+loc.lon.toFixed(4)+'</b><span>LOCATED BY</span><b>'+esc(loc.src)+'</b><span>'+(B?"IN THIS AREA":"WITHIN 25 MI")+'</span><b>'+close.toLocaleString()+' live camera'+(close===1?"":"s")+'</b></div>'+'<div class="acts">'+(liveNear.length?'<button class="open" data-area="1">▦ WATCH THESE ON MULTI-VIEW</button>':'')+'<button class="ghost" data-sv="'+loc.lat+','+loc.lon+'">◉ Street View</button></div>'+
+   '<div class="kv"><span>COORDS</span><b>'+loc.lat.toFixed(4)+', '+loc.lon.toFixed(4)+'</b><span>LOCATED BY</span><b>'+esc(loc.src)+'</b><span>'+(B?"IN THIS AREA":"WITHIN 25 MI")+'</span><b>'+close.toLocaleString()+' live camera'+(close===1?"":"s")+'</b></div>'+'<div class="acts">'+(liveNear.length?'<button class="open" data-area="1">▦ WATCH THESE ON MULTI-VIEW</button>':'')+'<button class="ghost" data-sv="'+(+loc.lat)+','+(+loc.lon)+'">◉ Street View</button></div>'+
    '<h4 style="margin-top:12px">'+(B?(all.length>60?"FIRST 60 OF "+all.length.toLocaleString()+" CAMERAS IN THIS AREA":"CAMERAS IN THIS AREA")+" — TAP TO WATCH":"NEAREST LIVE CAMERAS — TAP TO WATCH")+'</h4>'+(liveNear.length?liveNear.map(function(n){return'<div class="nr" '+(n.c.live?'data-l="'+LIVE.indexOf(n.c)+'"':'data-i="'+cams.indexOf(n.c)+'"')+'><i style="background:'+(n.c.live?(n.c.v?"#ff3b6b":"#ffd36b"):col(n.c.t))+'"></i><span class="nn">'+(n.c.live?(n.c.v?'<b style="color:#ff3b6b">▶ VIDEO</b> ':'<b style="color:#ffd36b">● LIVE</b> '):'')+esc(n.c.n)+'</span><span class="mono nd">'+fmtD(n.d)+'</span></div>'}).join(""):'<p class="note2">'+(EMBED_OK?(B?'No loaded camera network covers this area yet. More networks are added with each update.':'No live camera networks loaded yet. Check Live networks under Layers.'):'Live cameras load only in the installed app / GitHub link.')+'</p>')+
    (sampler?'<h4 style="margin-top:12px">MORE PUBLIC SOURCES FOR THIS AREA <span style="color:#ff5d8f">· AI-SUGGESTED, UNVERIFIED</span></h4><div id="sugg" class="mono" style="font-size:12px;color:#36f1b5">SCANNING…</div>':'');
   $("detail").innerHTML=h.replace('</h3>','</h3><div class="wx mono" id="wx"></div>');$("detail").scrollTop=0;wx(loc.lat,loc.lon);rememberScan(q||loc.name);

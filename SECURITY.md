@@ -14,11 +14,11 @@ A client-only app. There is no server, no account system and no database belongi
 | --- | --- |
 | Release signing key | Stored only as GitHub encrypted secrets (`KEYSTORE_B64`, `KEYSTORE_PASSWORD`). Never committed. EC P-256, PKCS12. Written to the runner's temp disk for the build and discarded with the runner. |
 | User's API keys (Google, Windy and others) | Typed into the app by the user, stored only in that device's app storage, masked in the interface, never written to logs or to the diagnostic report (which lists key names only), never sent anywhere except the service the key belongs to. |
-| Shared keys built into the app | Two provider keys are included so the app works without setup: a Windy key limited to the Webcams API and a Google key limited to the Map Tiles API. Both are restricted by the provider to this app's addresses (`quuxin2-a11y.github.io` and the Android app's `localhost`). Like any key in a web page they can be read by anyone, so they are treated as public: they unlock one read-only service each, carry no account access, and usage is capped at the provider. They are stored in two parts so automated scanners do not report a key that is public by design. A user's own key, if entered, is used instead. |
+| Shared keys built into the app | Two provider keys are included so the app works without setup: a Windy key limited to the Webcams API and a Google key limited to the Map Tiles API. Both are restricted by the provider to this app's addresses (`quuxin2-a11y.github.io` and the Android app's `localhost`). Like any key in a web page they can be read by anyone, so they are treated as public: they unlock one read-only service each, carry no account access, and can be rotated at any time without an app update reaching users first. A user's own key, if entered, is used instead. |
 | Build pipeline | Workflow default permission is `contents: read`. Only the final publishing job has `contents: write`. No third-party action receives the signing key. |
 | Third-party code at run time | Libraries are pinned to exact versions. At build time the workflow downloads each one, computes its SHA-384 and bakes it into the app, and the app loads them with Subresource Integrity, so a file altered on the CDN is refused by the WebView. |
 | What users download | Every release lists the APK's SHA-256 and carries a signed build-provenance attestation linking the file to the commit and workflow run that produced it (`gh attestation verify ojos-de-dios.apk --repo OWNER/REPO`). |
-| Source | CodeQL scans the JavaScript on every push. Unit tests and a source/bundle consistency check gate the build. |
+| Source | CodeQL scans the JavaScript, Python and Java on every push. Text from outside sources is escaped before display, media addresses are limited to https, blob and inline images, and identifiers from feeds are kept in `Map`s rather than object properties. Unit tests and a source/bundle consistency check gate the build. |
 
 ## Handling of outside data
 
@@ -45,4 +45,4 @@ No licence-plate reading, no face or person identification, no tracking of indiv
 
 - `check_secrets.py` runs on every push and fails the build if a credential (Google, GitHub, AWS or Slack token, private key) or a key or certificate file is committed.
 - `test_tools.py` tests the scanner and the native installer; `tests.js` and `OjosNativePluginTest.java` test the application and native code.
-- CodeQL scans the code on every push.
+- CodeQL scans the JavaScript, Python and Java on every push.
