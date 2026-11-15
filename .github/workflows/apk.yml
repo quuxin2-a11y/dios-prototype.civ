@@ -12,7 +12,7 @@ concurrency:
 jobs:
   android:
     name: Test, build and sign Android app
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
       contents: read
@@ -143,7 +143,7 @@ jobs:
           if-no-files-found: error
   ios:
     name: Build iPhone app (unsigned)
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     timeout-minutes: 45
     continue-on-error: true
     steps:
@@ -180,26 +180,39 @@ jobs:
           name: ios
           path: ojos-de-dios-iphone-unsigned.ipa
   codeql:
-    name: Security scan (CodeQL)
-    runs-on: ubuntu-latest
+    name: Security scan (${{ matrix.language }})
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     continue-on-error: true
     permissions:
       contents: read
       security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python, java-kotlin]
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - uses: github/codeql-action/init@v4
         with:
-          languages: javascript-typescript
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config: |
+            paths-ignore:
+              - "src-*.js"
+              - guide.html
+              - get.html
+              - bundle-check.js
       - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
   release:
     name: Publish release
     needs: [android, ios]
     if: ${{ always() && needs.android.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: write
@@ -217,3 +230,20 @@ jobs:
             dist/ojos-de-dios.apk
             dist/ojos-de-dios.apk.sha256
             dist/ojos-de-dios-iphone-unsigned.ipa
+  tidy:
+    name: Tidy old runs
+    needs: [release]
+    if: ${{ always() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: write
+    steps:
+      - name: Keep the 10 newest finished runs, delete the rest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api --paginate "repos/$REPO/actions/runs?status=completed&per_page=100" --jq '.workflow_runs[].id' \
+            | tail -n +11 \
+            | while read -r id; do gh api -X DELETE "repos/$REPO/actions/runs/$id" --silent || true; done
