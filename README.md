@@ -7,6 +7,21 @@ A live globe of publicly published cameras and open world data, for Android (APK
 **Designed and directed by Mark Joseph. The code was written with Claude (Anthropic) to his direction.**
 It connects public feeds; it does not create them. Credit for the data belongs to the agencies listed below.
 
+
+## Ways to use it
+
+**[See everything it does, with walkthroughs →](https://quuxin2-a11y.github.io/dios-prototype.civ/guide.html)**
+
+| | Android app | Web version (iPhone, iPad, computer) |
+|---|---|---|
+| Where | [Latest release](https://github.com/quuxin2-a11y/dios-prototype.civ/releases/latest), the `.apk` file | [quuxin2-a11y.github.io/dios-prototype.civ](https://quuxin2-a11y.github.io/dios-prototype.civ/) |
+| Cameras, alerts, Emergency mode, routes, records, country file, news | Yes | Yes |
+| Photoreal 3D | Yes | Yes |
+| Live aircraft and Cockpit view | Yes | No: flight services do not allow browsers to read their data |
+| Notifications while closed | Yes | No |
+
+The app is not yet in the Play Store or App Store.
+
 ## What it does
 
 - **Cameras:** about 39,000 public traffic, weather, wildfire, park and ocean cameras from 40+ agencies, on one globe. Tap one and it plays inside the app.

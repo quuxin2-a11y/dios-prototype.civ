@@ -3,7 +3,8 @@
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
 ## v51
-- **Aircraft in the web version**: when the main aircraft service does not answer, as happens in browsers, the app now loads aircraft for the area in view from two community ADS-B networks and refreshes as you move. Finder also looks a flight up by callsign there, so it is found wherever it is.
+- **Interactive guide** (`guide.html`): every feature with how to open it and what it does, five step-by-step walkthroughs with app screens, a switch between the Android app and the web version that marks what each can do, search, and answers to common questions.
+- **Aircraft are Android-only, and the app says so**: live aircraft services do not allow web browsers to read their data, so the web version now shows "Android app only" for aircraft instead of "offline", and Finder explains it. When the main aircraft service does not answer on Android, the app falls back to two community ADS-B networks for the area in view, and Finder looks a flight up by callsign there.
 - **Works without setup**: the app now includes a shared Windy webcams key, so everyone sees webcams around wherever they are looking without adding a key. Cameras near the view appear first, and the whole-world list loads in the background over about half an hour, then is kept on the device for 30 days. A shared Google key, limited to the Map Tiles service, turns on Photoreal 3D, Static 3D and Cockpit view for everyone; Street View and Google routing still need a personal key. A key entered in Settings always takes precedence.
 
 ## v50
