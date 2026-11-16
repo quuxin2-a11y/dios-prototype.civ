@@ -152,6 +152,9 @@ jobs:
           if-no-files-found: error
   ios:
     name: Build iPhone app (unsigned)
+    # macOS runners are scarce, so the iPhone build runs only when started by hand
+    # (Actions -> Build, test and release -> Run workflow). iPhone users use the web version.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: macos-15
     timeout-minutes: 45
     continue-on-error: true
