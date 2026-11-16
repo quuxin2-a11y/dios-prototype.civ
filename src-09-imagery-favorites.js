@@ -2,7 +2,7 @@
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 32. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 33. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -52,7 +52,7 @@ function tile(kind, z, x, y) {
     tileDirty = true;
   };
   t.img.onerror = function () {
-    if (kind === "i" && !t.retry) {
+    if (kind === "i" && !t.retry && typeof IMG_ALT !== "function") {
       t.retry = 1;
       if (++clarFail > 2) SRC_I = 1;
       t.img.src = IMG_SRC[1] + z + "/" + y + "/" + x;
@@ -61,13 +61,9 @@ function tile(kind, z, x, y) {
       tileDirty = true;
     }
   };
-  t.img.src =
-    (kind === "i" ? IMG_ALT || IMG_SRC[SRC_I] : kind === "r" ? ROAD_SRC : LBL_SRC) +
-    z +
-    "/" +
-    y +
-    "/" +
-    x;
+  var base = kind === "i" ? IMG_ALT || IMG_SRC[SRC_I] : kind === "r" ? ROAD_SRC : LBL_SRC;
+  // A style may give a function for servers whose tile paths differ from z/y/x.
+  t.img.src = typeof base === "function" ? base(z, x, y) : base + z + "/" + y + "/" + x;
   if (TN > 420) {
     var ks = Object.keys(TILES)
       .filter(function (q) {
@@ -238,11 +234,13 @@ function baseTick() {
     }
   }
 }
+// Deepest zoom the current imagery source serves.
+var IMG_MAXZ = 19;
 function tileZ(R) {
   return Math.max(
     3,
     Math.min(
-      19,
+      IMG_MAXZ,
       Math.round(
         Math.log(
           (2 * Math.PI * R * Math.min(DPR, 2) * Math.max(0.25, Math.cos(rot.lat * D))) / 256

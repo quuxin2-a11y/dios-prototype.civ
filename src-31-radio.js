@@ -4,7 +4,7 @@
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
  * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
- * Module 31 of 32. Modules share one scope: build.py concatenates them in order
+ * Module 31 of 33. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

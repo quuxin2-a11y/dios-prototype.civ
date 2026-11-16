@@ -30,7 +30,7 @@ function grab(name) {
 }
 // Constants the functions under test expect from their modules.
 var CONSTANTS =
-  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var location={href:"https://localhost/"};var FD_TYPES={DR:"Major disaster",EM:"Emergency",FM:"Fire management"};var IO_SIGNALS={bgp:"Routing (BGP)","ping-slash24":"Active probing"};var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
+  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var location={href:"https://localhost/"};var FD_TYPES={DR:"Major disaster",EM:"Emergency",FM:"Fire management"};var IO_SIGNALS={bgp:"Routing (BGP)","ping-slash24":"Active probing"};var EO_GIBS="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/";var AQ_BANDS=[[50,"Good","#39d98a"],[100,"Moderate","#ffd84a"],[150,"Unhealthy for sensitive groups","#ff9a2e"],[200,"Unhealthy","#ff4d5e"],[300,"Very unhealthy","#b04dff"],[Infinity,"Hazardous","#8b1a3a"]];var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
 // Functions taken from the shipped modules.
 var NAMES = [
   "iou",
@@ -104,7 +104,13 @@ var NAMES = [
   "seaTime",
   "rbItems",
   "nwrParse",
-  "liveAtcUrl"
+  "liveAtcUrl",
+  "eoUrl",
+  "hmsTime",
+  "firesParse",
+  "fireColor",
+  "aqBand",
+  "aqGrid"
 ];
 var code =
   CONSTANTS +
@@ -984,6 +990,40 @@ test("radio: only https streams are kept, and weather radio sites merge their co
   assert.strictEqual(nw[0].wfo, "Austin/San Antonio, TX");
   assert.strictEqual(F.liveAtcUrl("kaus"), "https://www.liveatc.net/search/?icao=KAUS");
   assert.strictEqual(F.liveAtcUrl("?"), "");
+});
+
+test("earth: NASA tile paths, HMS times and merged fire detections", function () {
+  var u = F.eoUrl({ layer: "VIIRS_Black_Marble", ext: "png" }, "2016-01-01", 8);
+  assert.strictEqual(
+    u(3, 2, 5),
+    "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_Black_Marble/default/2016-01-01/GoogleMapsCompatible_Level8/3/5/2.png"
+  );
+  assert.strictEqual(F.hmsTime("2026319", "1300UTC"), Date.UTC(2026, 10, 15, 13, 0));
+  assert.strictEqual(F.hmsTime("2026001", "0301"), Date.UTC(2026, 0, 1, 3, 1));
+  assert.strictEqual(F.hmsTime("bad", "0000"), null);
+  var txt =
+    "Lon,        Lat, YearDay, Time,       Satellite,           Method, Ecosystem,        FRP\n" +
+    " -78.191852,  37.723536, 2026319, 0301,       GOES-EAST,         ANALYSIS,        24,   -999.000\n" +
+    " -78.192000,  37.724000, 2026319, 0306,       GOES-WEST,             NGFS,        24,     150.5\n" +
+    "-107.984440,  50.253056, 2026319, 0301,       GOES-EAST,             NGFS,        94,     11.600\n";
+  var f = F.firesParse(txt);
+  assert.strictEqual(f.length, 2);
+  assert.strictEqual(f[0].n, 2);
+  assert.strictEqual(f[0].frp, 150.5);
+  assert.deepStrictEqual(f[0].sats, ["GOES-EAST", "GOES-WEST"]);
+  assert.strictEqual(f[0].last, Date.UTC(2026, 10, 15, 3, 6));
+  assert.strictEqual(f[1].frp, 11.6);
+  assert.strictEqual(F.fireColor(150), "#ff2e4d");
+});
+
+test("earth: air quality bands and the sampling grid", function () {
+  assert.strictEqual(F.aqBand(42)[1], "Good");
+  assert.strictEqual(F.aqBand(101)[1], "Unhealthy for sensitive groups");
+  assert.strictEqual(F.aqBand(450)[1], "Hazardous");
+  var g = F.aqGrid({ s: 0, n: 6, w: 10, e: 16 }, 3);
+  assert.strictEqual(g.length, 9);
+  assert.deepStrictEqual(g[0], [1, 11]);
+  assert.deepStrictEqual(g[8], [5, 15]);
 });
 
 console.log("\n" + n + " tests passed");

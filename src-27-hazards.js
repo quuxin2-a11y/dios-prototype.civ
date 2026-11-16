@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 32. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 33. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -188,7 +188,7 @@ function drawInfoLayers(t, P) {
     for (var i = 0; i < d.items.length; i++) {
       var e = d.items[i];
       if (!focusHas(e.lat, e.lon)) continue;
-      if (e.rings && km < 4000) {
+      if (e.rings && km < (d.ringKm || 4000)) {
         ctx.lineWidth = 1.2;
         ilPoly(P, e.rings, e.fill || "rgba(255,80,40,.22)", okColor(e.color));
       }
@@ -197,6 +197,10 @@ function drawInfoLayers(t, P) {
       if (p[2] <= 0 || p[0] < -20 || p[0] > W + 20 || p[1] < -20 || p[1] > H + 20) continue;
       var c = okColor(e.color),
         s = e.size || 5;
+      if (e.noMark) {
+        screenPts.push([p[0], p[1], e]);
+        continue;
+      }
       ctx.fillStyle = "rgba(2,8,14,.85)";
       ctx.beginPath();
       ctx.moveTo(p[0], p[1] - s - 1.5);

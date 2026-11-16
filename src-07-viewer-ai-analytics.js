@@ -2,7 +2,7 @@
  * @file Viewer wall and on-device object detection.
  * Multi-camera wall, embeds, and the optional in-browser detection model with per-camera counts.
  *
- * Module 7 of 32. Modules share one scope: build.py concatenates them in order
+ * Module 7 of 33. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

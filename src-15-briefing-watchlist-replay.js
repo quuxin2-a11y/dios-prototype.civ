@@ -2,7 +2,7 @@
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 32. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 33. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33,7 +33,17 @@ function styleSet(k, quiet) {
   if (!STYLES[k]) k = "sat";
   SET.style = k;
   setSave();
-  IMG_ALT = STYLES[k][1];
+  if (typeof earthKey === "function" && earthKey()) {
+    if (!quiet) brDraw();
+    return;
+  }
+  imgSource(STYLES[k][1], 19, k === "light" || k === "street" ? "#cfd6da" : "#08182a");
+  if (!quiet) brDraw();
+}
+// Switch the globe's imagery to another tile source and reload it.
+function imgSource(src, maxZ, fill) {
+  IMG_ALT = src;
+  IMG_MAXZ = maxZ || 19;
   try {
     TILES = {};
     TN = 0;
@@ -42,7 +52,7 @@ function styleSet(k, quiet) {
     patchP = null;
     if (baseCv) {
       var g = baseCv.getContext("2d");
-      g.fillStyle = k === "light" || k === "street" ? "#cfd6da" : "#08182a";
+      g.fillStyle = fill || "#08182a";
       g.fillRect(0, 0, baseCv.width, baseCv.height);
       baseTick.dirty = true;
     }
@@ -50,7 +60,6 @@ function styleSet(k, quiet) {
     lastView = "";
     lastInteract = performance.now();
   } catch (e) {}
-  if (!quiet) brDraw();
 }
 function railSet(on) {
   SET.rail = !!on;
@@ -545,7 +554,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 58 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 59 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;

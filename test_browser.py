@@ -8,6 +8,7 @@ Run:
     python3 -m unittest -v test_browser
 """
 
+import base64
 import functools
 import http.server
 import json
@@ -169,6 +170,18 @@ SAMPLES = {
         'FREQ[0] = "162.400";\nCALLSIGN[0] = "WXK27";\nLAT[0] = "30.32";\nLON[0] = "-97.77";\n'
         'STATUS[0] = "NORMAL";\nWFO[0] = "Austin/San Antonio|TX";\n'
     ),
+    "hms_smoke": (
+        '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Folder>'
+        "<Placemark><description><![CDATA[<div>Start Time: 2026319 1300UTC<br>End Time: "
+        "2026319 1600UTC<br>Density: Heavy<br>Satellite: GOES-WEST</div>]]></description>"
+        "<Polygon><outerBoundaryIs><LinearRing><coordinates>-120,40,0 -118,40,0 -118,42,0 "
+        "-120,42,0 -120,40,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>"
+        "</Folder></Document></kml>"
+    ),
+    "hms_fire": (
+        "Lon, Lat, YearDay, Time, Satellite, Method, Ecosystem, FRP\n"
+        "-119.5, 41.0, 2026319, 0301, GOES-WEST, NGFS, 24, 55.0\n"
+    ),
     "dx9v-zd7x": [
         {
             "traffic_report_id": "T1",
@@ -181,6 +194,12 @@ SAMPLES = {
         }
     ],
 }
+
+
+# A 1x1 PNG stands in for satellite tiles.
+PNG_1PX = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+)
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -233,6 +252,12 @@ class AppInBrowser(unittest.TestCase):
                 content_type=(
                     "text/plain" if isinstance(body, str) else "application/json"
                 ),
+                headers={"access-control-allow-origin": "*"},
+            )
+        elif url.startswith("https://gibs.earthdata.nasa.gov/"):
+            route.fulfill(
+                body=PNG_1PX,
+                content_type="image/png",
                 headers={"access-control-allow-origin": "*"},
             )
         elif url.startswith("https://api-v3.mbta.com/vehicles"):
@@ -363,6 +388,38 @@ class AppInBrowser(unittest.TestCase):
             }""",
             timeout=20000,
         )
+        self.assertEqual(self.errors, [])
+
+    def test_smoke_and_fire_layers_load(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({smoke: true, firehot: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            """() => {
+                const t = (document.getElementById('wlayers') || {}).textContent || '';
+                return /Wildfire smoke\\s*1/.test(t) && /Fire detections\\s*1/.test(t);
+            }""",
+            timeout=20000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_nasa_views_are_exclusive(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({eo_today: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS)
+        self.page.evaluate(
+            "() => { const b = document.createElement('button'); b.dataset.wl = 'eo_lights';"
+            " document.body.appendChild(b); b.click(); b.remove(); }"
+        )
+        self.page.wait_for_timeout(1500)
+        saved = self.page.evaluate(
+            "() => JSON.parse(localStorage.getItem('ojos-layers'))"
+        )
+        self.assertTrue(saved.get("eo_lights"))
+        self.assertFalse(saved.get("eo_today"))
         self.assertEqual(self.errors, [])
 
     def test_focus_mode_adds_and_clears_a_state(self):

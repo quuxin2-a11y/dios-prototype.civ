@@ -77,6 +77,9 @@ This project connects existing libraries and public data. It does not claim them
 | Radio Browser | Internet radio station directory | Public domain directory; streams belong to each station |
 | National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
 | LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
+| NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe | NASA open data; no restrictions, attribution requested |
+| NOAA Hazard Mapping System | Smoke plumes and fire detections | US public domain |
+| Open-Meteo air quality (Copernicus CAMS) | Modelled air quality | CC BY 4.0 |
 | us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |

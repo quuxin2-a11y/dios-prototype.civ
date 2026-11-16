@@ -2,6 +2,16 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v59
+- **Earth layers** (`src-32-earth.js`):
+  - NASA satellite views that replace the globe imagery while on: yesterday's true-colour Earth (VIIRS), last night's lights (VIIRS Day/Night Band, useful for spotting power outages), and the Black Marble city lights. Only one view is on at a time; turning it off restores the chosen map style.
+  - Wildfire smoke plumes by density (NOAA Hazard Mapping System), drawn as outlines at any zoom.
+  - Fire detections from today's satellite passes, with repeats merged and fire power shown (NOAA HMS).
+  - Air quality on a grid across the view: US AQI, PM2.5, PM10, ozone and nitrogen dioxide (Open-Meteo, modelled by Copernicus CAMS).
+- The globe can now use tile servers with their own path layout and a lower maximum zoom.
+- Info layers can draw areas without a centre marker, at any zoom a layer chooses.
+- Tests: 50 JavaScript tests and 16 browser tests.
+
 ## v58
 - **Infrastructure layers** (`src-30-infrastructure.js`): hospitals (with emergency room and beds where listed), fire stations and police stations from OpenStreetMap; open emergency shelters with capacity, occupancy and pet policy (FEMA); internet outages by country over the last 24 hours (IODA, Georgia Tech); federal disaster declarations from the last 90 days, drawn as county and state outlines (OpenFEMA); and Seattle Fire Department 911 dispatches.
 - **Radio layers** (`src-31-radio.js`): internet radio stations near the map view that publish their location, playable in the details card (Radio Browser; secure streams only); and every NOAA Weather Radio transmitter with frequency, call sign, status, power, programming office and counties covered.
