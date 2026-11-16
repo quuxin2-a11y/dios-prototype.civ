@@ -69,8 +69,16 @@ MBTA_SAMPLE = {
             "id": "22",
             "attributes": {"short_name": "22", "type": 3, "color": "FFC72C"},
         },
-        {"type": "route", "id": "Green-D", "attributes": {"long_name": "Green Line D", "type": 0}},
-        {"type": "stop", "id": "1216", "attributes": {"name": "Talbot Ave @ Washington St"}},
+        {
+            "type": "route",
+            "id": "Green-D",
+            "attributes": {"long_name": "Green Line D", "type": 0},
+        },
+        {
+            "type": "stop",
+            "id": "1216",
+            "attributes": {"name": "Talbot Ave @ Washington St"},
+        },
         {"type": "stop", "id": "70178", "attributes": {"name": "Fenway"}},
     ],
 }
@@ -81,7 +89,9 @@ def _topology(obj_name, features):
     arcs, geoms = [], []
     for name, ring in features:
         arcs.append(ring)
-        geoms.append({"type": "Polygon", "arcs": [[len(arcs) - 1]], "properties": {"name": name}})
+        geoms.append(
+            {"type": "Polygon", "arcs": [[len(arcs) - 1]], "properties": {"name": name}}
+        )
     return {
         "type": "Topology",
         "objects": {obj_name: {"type": "GeometryCollection", "geometries": geoms}},
@@ -93,10 +103,22 @@ def _topology(obj_name, features):
 SAMPLES = {
     "us-atlas": _topology(
         "states",
-        [("Texas", [[-106.6, 31.9], [-93.5, 31.9], [-93.5, 26], [-97.1, 26], [-106.6, 31.9]])],
+        [
+            (
+                "Texas",
+                [
+                    [-106.6, 31.9],
+                    [-93.5, 31.9],
+                    [-93.5, 26],
+                    [-97.1, 26],
+                    [-106.6, 31.9],
+                ],
+            )
+        ],
     ),
     "world-atlas": _topology(
-        "countries", [("Japan", [[129, 31], [146, 31], [146, 45], [129, 45], [129, 31]])]
+        "countries",
+        [("Japan", [[129, 31], [146, 31], [146, 45], [129, 45], [129, 31]])],
     ),
     "CurrentStorms.json": {
         "activeStorms": [
@@ -115,6 +137,35 @@ SAMPLES = {
         ]
     },
     "noaa-planetary-k-index": [{"time_tag": "2026-11-16T09:00:00", "Kp": 5.33}],
+    "bwtnew": [
+        {
+            "port_number": "250401",
+            "border": "Mexican Border",
+            "port_name": "San Ysidro",
+            "crossing_name": "San Ysidro",
+            "port_status": "Open",
+            "date": "11/16/2026",
+            "time": "10:00:00",
+            "passenger_vehicle_lanes": {
+                "standard_lanes": {
+                    "operational_status": "delay",
+                    "delay_minutes": "55",
+                    "lanes_open": "20",
+                }
+            },
+        }
+    ],
+    "dx9v-zd7x": [
+        {
+            "traffic_report_id": "T1",
+            "issue_reported": "COLLISION",
+            "latitude": "30.27",
+            "longitude": "-97.74",
+            "address": "Congress Ave & 6th St",
+            "published_date": "2026-11-16T17:00:00.000Z",
+            "agency": "AUSTIN PD",
+        }
+    ],
 }
 
 
@@ -192,9 +243,11 @@ class AppInBrowser(unittest.TestCase):
         self.assertGreater(size[1], 0)
 
     def test_bundled_data_is_embedded(self):
-        counts = self.page.evaluate("""() => ['gaz', 'cam-data', 'models', 'land-dots'].map(
+        counts = self.page.evaluate(
+            """() => ['gaz', 'cam-data', 'models', 'land-dots'].map(
                 id => JSON.parse(document.getElementById(id).textContent)
-            ).map(d => Array.isArray(d) ? d.length : Object.keys(d).length)""")
+            ).map(d => Array.isArray(d) ? d.length : Object.keys(d).length)"""
+        )
         for n in counts:
             self.assertGreater(n, 0)
 
@@ -255,12 +308,39 @@ class AppInBrowser(unittest.TestCase):
         )
         self.assertEqual(self.errors, [])
 
+    def test_border_wait_times_place_ports_from_the_bundled_table(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({border: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => /Border wait times\\s*1/.test((document.getElementById('wlayers') || {}).textContent)",
+            timeout=20000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_traffic_incidents_load_near_a_covered_city(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({traffic: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS)
+        self.page.fill("#addr", "Austin")
+        self.page.press("#addr", "Enter")
+        # Info layers refresh on a 15-second cycle.
+        self.page.wait_for_function(
+            "() => /Traffic incidents & work zones\\s*1/.test((document.getElementById('wlayers') || {}).textContent)",
+            timeout=25000,
+        )
+        self.assertEqual(self.errors, [])
+
     def test_focus_mode_adds_and_clears_a_state(self):
         self.page.click("#bFocus")
         self.page.fill("#focQ", "TX")
         self.page.press("#focQ", "Enter")
         self.page.wait_for_function(
-            "() => document.getElementById('focus').textContent.includes('Texas')", timeout=10000
+            "() => document.getElementById('focus').textContent.includes('Texas')",
+            timeout=10000,
         )
         self.assertIn("1 area", self.page.inner_text("#focus"))
         self.page.click("[data-fo=clear]")

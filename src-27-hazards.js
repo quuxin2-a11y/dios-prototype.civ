@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 29. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 30. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -150,6 +150,25 @@ function ilPoly(P, rings, fill, stroke) {
   }
 }
 
+function ilLine(P, pts, color) {
+  ctx.beginPath();
+  var started = false;
+  for (var i = 0; i < pts.length; i++) {
+    var p = P(pts[i][0], pts[i][1]);
+    if (p[2] <= 0) {
+      started = false;
+      continue;
+    }
+    if (!started) {
+      ctx.moveTo(p[0], p[1]);
+      started = true;
+    } else ctx.lineTo(p[0], p[1]);
+  }
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+}
+
 function drawInfoLayers(t, P) {
   if (!IL_ORDER) return;
   var km = viewKm(),
@@ -173,6 +192,7 @@ function drawInfoLayers(t, P) {
         ctx.lineWidth = 1.2;
         ilPoly(P, e.rings, "rgba(255,80,40,.22)", okColor(e.color));
       }
+      if (e.line && e.line.length > 1 && km < 300) ilLine(P, e.line, okColor(e.color));
       var p = P(e.lon, e.lat);
       if (p[2] <= 0 || p[0] < -20 || p[0] > W + 20 || p[1] < -20 || p[1] > H + 20) continue;
       var c = okColor(e.color),

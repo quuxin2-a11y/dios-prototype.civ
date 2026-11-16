@@ -2,7 +2,7 @@
  * @file Shared setup.
  * Snapshot of the page source and the camera category table (label and colour per type).
  *
- * Module 1 of 29. Modules share one scope: build.py concatenates them in order
+ * Module 1 of 30. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

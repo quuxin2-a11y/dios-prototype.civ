@@ -47,6 +47,14 @@ This project connects existing libraries and public data. It does not claim them
 | King County Metro GTFS-Realtime (Seattle) | Live bus positions | King County open data terms |
 | CapMetro GTFS-Realtime via data.texas.gov (Austin) | Live bus and rail positions | Texas Open Data Portal terms |
 | HSL GTFS-Realtime (Helsinki) | Live bus, tram, metro and train positions | CC BY 4.0 |
+| Metro Transit GTFS-Realtime (Minneapolis–St Paul) | Live bus and rail positions | Metro Transit open data terms |
+| RTD GTFS-Realtime (Denver) | Live bus and rail positions | RTD open data terms |
+| Calgary Transit GTFS-Realtime (City of Calgary) | Live bus and train positions | Open Government Licence – City of Calgary |
+| ETS GTFS-Realtime (City of Edmonton) | Live bus and LRT positions | City of Edmonton Open Data Terms of Use |
+| Halifax Transit GTFS-Realtime | Live bus and ferry positions | Halifax open data terms |
+| Translink GTFS-Realtime (South East Queensland) | Live bus, train, tram and ferry positions | CC BY 4.0 |
+| OVapi GTFS-Realtime (Netherlands) | Live public transport positions | OVapi terms |
+| Entur GTFS-Realtime (Norway) | Live public transport positions | NLOD |
 | Amtraker (public Amtrak data) | Live Amtrak trains | Community API over Amtrak's public train status |
 | National Hurricane Center (NOAA) | Active hurricanes and tropical storms | US public domain |
 | NOAA National Water Prediction Service | River levels, flood categories and forecasts | US public domain |
@@ -54,6 +62,12 @@ This project connects existing libraries and public data. It does not claim them
 | US Tsunami Warning Centers (tsunami.gov) | Tsunami warnings, advisories, watches and statements | US public domain |
 | National Interagency Fire Center (WFIGS) | Current wildfire perimeters | US public domain |
 | NOAA Space Weather Prediction Center | Planetary K-index and aurora forecast | US public domain |
+| CityBikes | Bike-share docks and available bikes | CityBikes API terms; data from each operator |
+| MobilityData GBFS systems list and operators' public GBFS feeds | Available shared scooters and e-bikes | Systems list CC BY 4.0; feeds under each operator's terms |
+| City of Austin open data | Traffic incidents and work zones (WZDx) | City of Austin open data terms |
+| City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
+| U.S. Customs and Border Protection | Land border wait times | US public domain |
+| Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
 | us-atlas and world-atlas (TopoJSON) | State and country outlines for Focus mode | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |

@@ -3,7 +3,7 @@
  * AIS vessel positions over WebSocket and REST, radar tiles drawn on the globe, and spoken
  * prompts and voice commands.
  *
- * Module 3 of 29. Modules share one scope: build.py concatenates them in order
+ * Module 3 of 30. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

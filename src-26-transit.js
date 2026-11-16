@@ -4,7 +4,7 @@
  * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
  * for areas near the map view.
  *
- * Module 26 of 29. Modules share one scope: build.py concatenates them in order
+ * Module 26 of 30. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -87,6 +87,78 @@ var TR_FEEDS = [
     box: { s: 59.9, w: 24.3, n: 60.6, e: 25.6 },
     src: "HSL GTFS-Realtime",
     url: "https://realtime.hsl.fi/realtime/vehicle-positions/v2/hsl",
+    load: trGtfsRt
+  },
+  {
+    id: "metrotransit",
+    name: "Metro Transit",
+    city: "Minneapolis–St Paul, MN",
+    box: { s: 44.6, w: -93.8, n: 45.4, e: -92.8 },
+    src: "Metro Transit GTFS-Realtime",
+    url: "https://svc.metrotransit.org/mtgtfs/vehiclepositions.pb",
+    load: trGtfsRt
+  },
+  {
+    id: "rtd",
+    name: "RTD",
+    city: "Denver, CO",
+    box: { s: 39.4, w: -105.4, n: 40.3, e: -104.6 },
+    src: "RTD GTFS-Realtime",
+    url: "https://open-data.rtd-denver.com/files/gtfs-rt/rtd/VehiclePosition.pb",
+    load: trGtfsRt
+  },
+  {
+    id: "calgary",
+    name: "Calgary Transit",
+    city: "Calgary, AB",
+    box: { s: 50.8, w: -114.4, n: 51.3, e: -113.8 },
+    src: "Calgary Transit GTFS-Realtime (City of Calgary)",
+    url: "https://data.calgary.ca/download/am7c-qe3u/application%2Foctet-stream",
+    load: trGtfsRt
+  },
+  {
+    id: "ets",
+    name: "Edmonton Transit",
+    city: "Edmonton, AB",
+    box: { s: 53.3, w: -113.8, n: 53.8, e: -113.2 },
+    src: "ETS GTFS-Realtime (City of Edmonton)",
+    url: "https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/Vehicle/VehiclePositions.pb",
+    load: trGtfsRt
+  },
+  {
+    id: "halifax",
+    name: "Halifax Transit",
+    city: "Halifax, NS",
+    box: { s: 44.5, w: -63.9, n: 44.9, e: -63.3 },
+    src: "Halifax Transit GTFS-Realtime",
+    url: "https://gtfs.halifax.ca/realtime/Vehicle/VehiclePositions.pb",
+    load: trGtfsRt
+  },
+  {
+    id: "translink",
+    name: "Translink",
+    city: "South East Queensland, Australia",
+    box: { s: -28.3, w: 152.6, n: -26.3, e: 153.6 },
+    src: "Translink SEQ GTFS-Realtime",
+    url: "https://gtfsrt.api.translink.com.au/api/realtime/SEQ/VehiclePositions",
+    load: trGtfsRt
+  },
+  {
+    id: "ovapi",
+    name: "OVapi",
+    city: "Netherlands",
+    box: { s: 50.7, w: 3.3, n: 53.6, e: 7.3 },
+    src: "OVapi GTFS-Realtime (Netherlands)",
+    url: "https://gtfs.ovapi.nl/nl/vehiclePositions.pb",
+    load: trGtfsRt
+  },
+  {
+    id: "entur",
+    name: "Entur",
+    city: "Norway",
+    box: { s: 57.9, w: 4.5, n: 71.2, e: 31.2 },
+    src: "Entur GTFS-Realtime (Norway)",
+    url: "https://api.entur.io/realtime/v1/gtfs-rt/vehicle-positions",
     load: trGtfsRt
   },
   {

@@ -2,7 +2,7 @@
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 29. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 30. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

@@ -30,7 +30,7 @@ function grab(name) {
 }
 // Constants the functions under test expect from their modules.
 var CONSTANTS =
-  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];';
+  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
 // Functions taken from the shipped modules.
 var NAMES = [
   "iou",
@@ -80,7 +80,20 @@ var NAMES = [
   "topoFeatures",
   "ringsBox",
   "focCircle",
-  "pointInRings"
+  "pointInRings",
+  "num",
+  "ilItem",
+  "gdCentre",
+  "gdInBox",
+  "gdNearest",
+  "gdCsv",
+  "scSystems",
+  "scFeedUrl",
+  "tfWords",
+  "tfColor",
+  "bwLane",
+  "bwColor",
+  "bwItems"
 ];
 var code =
   CONSTANTS +
@@ -704,4 +717,136 @@ test("focus: an outline crossing the antimeridian stays continuous, and city cir
     b = F.ringsBox([c]);
   assert.ok(Math.abs((b.n - b.s) * 110.57 - 70) < 1);
 });
+test("ground: CSV parsing handles quotes, commas inside fields and CRLF", function () {
+  var r = F.gdCsv('a,b,c\r\n"x, y",2,"say ""hi"""\n\nlast,,\n');
+  assert.deepStrictEqual(r, [
+    ["a", "b", "c"],
+    ["x, y", "2", 'say "hi"'],
+    ["last", "", ""]
+  ]);
+});
+
+test("ground: scooter systems keep open feeds in known cities only", function () {
+  var rows = F.gdCsv(
+    "Country Code,Name,Location,System ID,URL,Auto-Discovery URL,Supported Versions,Authentication Info URL,Authentication Type,Authentication Parameter Name\n" +
+      "BE,Dott Brussels,Brussels,dott-brussels,https://ridedott.com,https://gbfs.example/brussels/gbfs.json,2.3,,,\n" +
+      'US,Lime Denver,"Denver, CO",lime-den,https://li.me,https://gbfs.example/den/gbfs.json,2.2,https://auth.example,api_key,key\n' +
+      'US,Bird Denver,"Denver, CO",bird-den,https://bird.co,https://gbfs.example/bird-den/gbfs.json,2.3,,,\n' +
+      "US,City Bikes,Denver,cb,https://x,https://gbfs.example/cb.json,2.3,,,\n" +
+      "FR,Voi Lyon,Lyon,voi-lyon,https://voi.com,https://gbfs.example/lyon.json,2.3,,,\n"
+  );
+  var s = F.scSystems(rows);
+  assert.deepStrictEqual(
+    s.map(function (x) {
+      return x.name + "@" + x.city;
+    }),
+    ["Dott Brussels@Brussels", "Bird Denver@Denver"]
+  );
+  assert.strictEqual(s[1].lat, 39.739);
+});
+
+test("ground: GBFS discovery finds the vehicle feed in v2 and v3 layouts", function () {
+  var v2 = {
+    data: {
+      en: {
+        feeds: [
+          { name: "system_information", url: "https://a/si" },
+          { name: "free_bike_status", url: "https://a/fbs" }
+        ]
+      }
+    }
+  };
+  var v3 = { data: { feeds: [{ name: "vehicle_status", url: "https://a/vs" }] } };
+  assert.strictEqual(F.scFeedUrl(v2), "https://a/fbs");
+  assert.strictEqual(F.scFeedUrl(v3), "https://a/vs");
+  assert.strictEqual(
+    F.scFeedUrl({ data: { en: { feeds: [{ name: "free_bike_status", url: "http://a" }] } } }),
+    null
+  );
+  assert.strictEqual(F.scFeedUrl(null), null);
+});
+
+test("ground: nearest networks are chosen from the area centre", function () {
+  var b = { s: 39, n: 41, w: -106, e: -104 },
+    pts = [
+      [50, 4],
+      [40, -105.1],
+      [40.5, -104.2]
+    ];
+  assert.deepStrictEqual(
+    F.gdNearest(pts, b, 2, function (p) {
+      return p;
+    }),
+    [
+      [40, -105.1],
+      [40.5, -104.2]
+    ]
+  );
+  assert.strictEqual(F.gdInBox(b, 41.2, -105, 0.3), true);
+  assert.strictEqual(F.gdInBox(b, 41.5, -105, 0.3), false);
+});
+
+test("ground: traffic wording and colours", function () {
+  assert.strictEqual(F.tfWords("TRFC HAZD/ DEBRIS"), "Trfc hazd/ debris");
+  assert.strictEqual(F.tfWords("some-lanes-closed"), "Some lanes closed");
+  assert.strictEqual(F.tfColor("COLLISION"), "#ff4d5e");
+  assert.strictEqual(F.tfColor("TRFC HAZD/ DEBRIS"), "#ffb02e");
+});
+
+test("ground: border lanes read CBP statuses and ports group their crossings", function () {
+  assert.strictEqual(F.bwLane({ operational_status: "N/A", delay_minutes: "" }), null);
+  assert.strictEqual(F.bwLane({ operational_status: "Update Pending" }), null);
+  assert.deepStrictEqual(F.bwLane({ operational_status: "Lanes Closed" }), {
+    min: null,
+    open: 0,
+    text: "Closed"
+  });
+  assert.strictEqual(
+    F.bwLane({ operational_status: "no delay", delay_minutes: "0", lanes_open: "4" }).text,
+    "No delay · 4 open"
+  );
+  assert.strictEqual(
+    F.bwLane({ operational_status: "delay", delay_minutes: "35", lanes_open: "2" }).min,
+    35
+  );
+  var lane = function (m) {
+    return {
+      operational_status: m ? "delay" : "no delay",
+      delay_minutes: String(m),
+      lanes_open: "3"
+    };
+  };
+  var list = [
+    {
+      port_number: "090101",
+      port_name: "Buffalo/Niagara Falls",
+      crossing_name: "Peace Bridge",
+      border: "Canadian Border",
+      port_status: "Open",
+      passenger_vehicle_lanes: { standard_lanes: lane(10) }
+    },
+    {
+      port_number: "090104",
+      port_name: "Buffalo/Niagara Falls",
+      crossing_name: "Rainbow Bridge",
+      border: "Canadian Border",
+      port_status: "Open",
+      passenger_vehicle_lanes: { standard_lanes: lane(50) }
+    },
+    { port_number: "999901", port_name: "Nowhere", crossing_name: "X", port_status: "Open" }
+  ];
+  var items = F.bwItems({ key: "border", label: "Border", color: "#fff" }, list, {
+    "0901": ["0901", "Buffalo Niagara Falls", 43.1, -79.06]
+  });
+  assert.strictEqual(items.length, 1);
+  assert.strictEqual(items[0].label, "BUFFALO NIAGARA FALLS 50m");
+  assert.strictEqual(items[0].color, F.bwColor(50));
+  assert.strictEqual(items[0].big, true);
+  assert.ok(
+    items[0].rows.some(function (r) {
+      return r[0] === "RAINBOW BRIDGE · CARS" && r[1] === "50 min · 3 open";
+    })
+  );
+});
+
 console.log("\n" + n + " tests passed");

@@ -43,8 +43,9 @@ It runs entirely on the device: no accounts, no backend, no tracking.
 - **Flight log:** an aircraft's recent flights, schedule, delay and whether it is on course.
 - **Cockpit view:** the real 3D world from a live aircraft's position and heading, with forecast-model weather at its altitude.
 - Live aircraft, AIS vessels and satellites propagated from orbital elements; a watchlist with status alerts.
-- Live public transit: buses, trains, trams, subways and ferries from operators' open data (MBTA, SEPTA, TTC, King County Metro, CapMetro, HSL, Amtrak), including GTFS-Realtime feeds decoded on the device.
+- Live public transit: buses, trains, trams, subways and ferries from operators' open data (MBTA, SEPTA, TTC, King County Metro, CapMetro, Metro Transit, RTD, Calgary Transit, Edmonton Transit, Halifax Transit, Translink in South East Queensland, the Netherlands, Norway, HSL and Amtrak), including GTFS-Realtime feeds decoded on the device.
 - Emergency data: hurricanes and tropical storms, river flood gauges, tides, tsunami messages, wildfire perimeters, and space weather with the aurora forecast.
+- Ground data: bike-share docks worldwide, shared scooters and e-bikes where operators publish open feeds, traffic incidents and work zones from city open data, and US land border wait times.
 - Focus mode: pick states, countries or city areas; they are lit and raised while the rest of the world dims, and cameras and data outside them pause.
 
 **Cameras and 3D**
@@ -92,17 +93,17 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 - **Client-only.** All logic runs on the device. User keys, saved places and contacts are kept in local storage and never transmitted except to the provider each key belongs to.
 - **Rendering.** A custom Canvas 2D / WebGL globe for the default view; CesiumJS for photoreal 3D; MapLibre GL for the terrain map; a small WebGL renderer for Inspect.
-- **Modules and bundle.** The application is 29 modules (`src-NN-*.js`), each a self-contained, syntax-checked and Prettier-formatted script with a header describing its responsibility. They share one scope: `build.py` concatenates them in order inside a single closure and resolves the `/*@include*/` markers in `src-template.html` (styles, modules and bundled JSON data) to produce `index.html`. The same file ships in the APK and on GitHub Pages, and CI fails if the committed bundle drifts from its sources.
+- **Modules and bundle.** The application is 30 modules (`src-NN-*.js`), each a self-contained, syntax-checked and Prettier-formatted script with a header describing its responsibility. They share one scope: `build.py` concatenates them in order inside a single closure and resolves the `/*@include*/` markers in `src-template.html` (styles, modules and bundled JSON data) to produce `index.html`. The same file ships in the APK and on GitHub Pages, and CI fails if the committed bundle drifts from its sources.
 - **Native layer.** `install_native.py` layers the Java sources and Android resources in this repo onto the Capacitor project generated in CI, and can roll them back.
 
 ## Project layout
 
 | Path | Language | Purpose |
 |---|---|---|
-| `src-01-start.js` … `src-28-focus.js`, `src-99-start.js` | JavaScript | Application source in 29 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, start-up). Formatted with Prettier (`.prettierrc.json`) |
+| `src-01-start.js` … `src-29-ground.js`, `src-99-start.js` | JavaScript | Application source in 30 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, start-up). Formatted with Prettier (`.prettierrc.json`) |
 | `src-template.html` | HTML | Document structure, with `/*@include*/` markers filled in by `build.py` |
 | `src-styles.css` | CSS | Design system and component styles |
-| `src-data-*.json` | JSON | Bundled gazetteer, coastline points, fallback portal list and the generated 3D models |
+| `src-data-*.json` | JSON | Bundled gazetteer, border port locations, coastline points, fallback portal list and the generated 3D models |
 | `MainActivity.java` | Java | Activity: plugin registration, launcher shortcuts, intent routing |
 | `OjosNativePlugin.java` | Java | Capacitor plugin: launch actions, emergency state, keep-awake, vibration |
 | `EmergencyWidget.java` | Java | `AppWidgetProvider` for the home-screen Emergency widget |
@@ -154,8 +155,8 @@ The debug APK is written to `app/android/app/build/outputs/apk/debug/`. Release 
 
 | Suite | Command | Covers |
 |---|---|---|
-| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model, GTFS-Realtime decoding, hurricane and space-weather scales, TopoJSON outlines (38 tests) |
-| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, the Emergency mode confirmation, the transit layer, the emergency data layers and Focus mode, with sample data from each source (11 tests) |
+| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model, GTFS-Realtime decoding, hurricane and space-weather scales, TopoJSON outlines, GBFS and border-wait parsing (44 tests) |
+| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, the Emergency mode confirmation, the transit layer, the emergency data layers, border wait times, traffic incidents and Focus mode, with sample data from each source (13 tests) |
 | Python | `python3 -m unittest -v test_tools` | Secret scanner, native installer (install, idempotence, rollback) |
 | Java | `./gradlew testDebugUnitTest` | Launch-action routing in the native plugin |
 | Sources | `node --check`, `eslint`, `prettier --check`, `python3 build.py --check` | Every module parses on its own and passes ESLint's recommended rules (`eslint.config.mjs`, including undefined-name checks across modules), formatting is consistent, and the committed `index.html` matches its sources |
