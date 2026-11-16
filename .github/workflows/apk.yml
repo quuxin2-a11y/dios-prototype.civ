@@ -152,7 +152,7 @@ jobs:
           if-no-files-found: error
   ios:
     name: Build iPhone app (unsigned)
-    runs-on: macos-15-intel
+    runs-on: macos-15
     timeout-minutes: 45
     continue-on-error: true
     steps:
