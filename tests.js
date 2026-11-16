@@ -127,7 +127,18 @@ var NAMES = [
   "wbFmt",
   "econColor",
   "econItems",
-  "ago"
+  "ago",
+  "plantOutput",
+  "volItems",
+  "droughtItems",
+  "ringsBox",
+  "tempColor",
+  "tempText",
+  "wdPlacesQuery",
+  "wdPoint",
+  "wdItems",
+  "wbItems",
+  "wbNum"
 ];
 // Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
 function grabVar(name) {
@@ -143,6 +154,8 @@ function grabVar(name) {
   return src.slice(i + 1, j) + ";\n";
 }
 var TABLES = [
+  "VOL_CODES",
+  "DM_CATS",
   "CT_ALIASES",
   "INAT_COLORS",
   "USGS_PARAMS",
@@ -1289,6 +1302,124 @@ test("economy: World Bank indicators merge per country", function () {
     ["GDP GROWTH", "—"]
   ]);
   assert.strictEqual(F.wbFmt(-1.25, "pct"), "-1.2%");
+});
+
+test("energy and geology: plant output, volcano alerts joined by number", function () {
+  assert.strictEqual(F.plantOutput("1200 MW"), "1.20 GW");
+  assert.strictEqual(F.plantOutput("850 kW"), "0.9 MW");
+  assert.strictEqual(F.plantOutput("yes"), "—");
+  var feats = [
+    {
+      properties: {
+        Volcano_Number: 311120,
+        Volcano_Name: "Great Sitkin",
+        Last_Eruption_Year: 2026,
+        Country: "United States",
+        Elevation: 1740
+      },
+      geometry: { coordinates: [-176.11, 52.08] }
+    },
+    {
+      properties: { Volcano_Number: 1, Volcano_Name: "Old", Last_Eruption_Year: -5000 },
+      geometry: { coordinates: [10, 10] }
+    },
+    { properties: { Volcano_Number: 2 }, geometry: null }
+  ];
+  var it = F.volItems(IL_D, feats, [
+    {
+      vnum: "311120",
+      color_code: "ORANGE",
+      alert_level: "WATCH",
+      notice_url: "https://volcanoes.usgs.gov/hans-public/notice/x"
+    }
+  ]);
+  assert.strictEqual(it.length, 2);
+  assert.strictEqual(it[0].label, "GREAT SITKIN ORANGE");
+  assert.strictEqual(it[0].color, "#ff9a2e");
+  assert.strictEqual(it[0].links.length, 2);
+  assert.ok(
+    it[1].rows.some(function (r) {
+      return r[0] === "LAST ERUPTION" && r[1] === "5000 BCE";
+    })
+  );
+});
+
+test("climate: drought parts become separate areas; temperatures read in both units", function () {
+  var sq = function (x, y, s) {
+    return [
+      [
+        [x, y],
+        [x + s, y],
+        [x + s, y + s],
+        [x, y + s],
+        [x, y]
+      ]
+    ];
+  };
+  var gj = {
+    features: [
+      {
+        properties: { DM: 2, CatagoricalPerct: 25.37 },
+        geometry: {
+          type: "MultiPolygon",
+          coordinates: [sq(-100, 35, 2), sq(-90, 40, 1), sq(-80, 30, 0.05)]
+        }
+      },
+      { properties: { DM: 9 }, geometry: { type: "Polygon", coordinates: sq(0, 0, 1) } }
+    ]
+  };
+  var it = F.droughtItems(IL_D, gj);
+  assert.strictEqual(it.length, 2);
+  assert.strictEqual(it[0].lat, 36);
+  assert.strictEqual(it[0].tag, "D2 · SEVERE DROUGHT");
+  assert.strictEqual(F.tempText(20), "20°C / 68°F");
+  assert.strictEqual(F.tempColor(-15), "#9f7aff");
+});
+
+test("area facts: Wikidata query, points and World Bank country rows", function () {
+  var q = F.wdPlacesQuery({ s: 30.1, n: 30.5, w: -98, e: -97.5 });
+  assert.ok(q.indexOf("Point(-98.000 30.100)") > 0 && q.indexOf("Point(-97.500 30.500)") > 0);
+  assert.deepStrictEqual(F.wdPoint("Point(-97.743 30.267)"), [30.267, -97.743]);
+  var it = F.wdItems(IL_D, {
+    results: {
+      bindings: [
+        {
+          place: { value: "http://www.wikidata.org/entity/Q16559" },
+          placeLabel: { value: "Austin" },
+          pop: { value: "961855" },
+          coord: { value: "Point(-97.743 30.267)" },
+          area: { value: "828.946" },
+          founded: { value: "+1839-12-27T00:00:00Z" }
+        },
+        {
+          place: { value: "http://www.wikidata.org/entity/Q1" },
+          placeLabel: { value: "No point" },
+          pop: { value: "5000" }
+        }
+      ]
+    }
+  });
+  assert.strictEqual(it.length, 1);
+  assert.strictEqual(it[0].label, "AUSTIN");
+  assert.ok(
+    it[0].rows.some(function (r) {
+      return r[0] === "FOUNDED" && r[1] === "1839";
+    })
+  );
+  assert.strictEqual(F.wbNum(331900000, "big"), "331.9 million");
+  var ix = F.wbIndex(WB_ROWS);
+  var w = F.wbItems(IL_D, [[{}, [{ countryiso3code: "KEN", value: 48.5, date: "2022" }]]], ix, {
+    key: "farming",
+    ind: [["AG.LND.AGRI.ZS", "FARMLAND", "pct"]],
+    colorOf: function () {
+      return "#000000";
+    },
+    tagOf: function (v) {
+      return v + "% farmland";
+    }
+  });
+  assert.strictEqual(w.length, 1);
+  assert.deepStrictEqual(w[0].rows[0], ["FARMLAND", "48.5% (2022)"]);
 });
 
 console.log("\n" + n + " tests passed");

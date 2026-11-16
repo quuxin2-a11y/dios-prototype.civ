@@ -7059,3 +7059,10 @@ button:active {
 #cmp {
   contain: layout paint style;
 }
+.wlg {
+  margin: 12px 8px 4px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim, #7d93a8);
+}

@@ -68,7 +68,7 @@ This project connects existing libraries and public data. It does not claim them
 | City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
 | U.S. Customs and Border Protection | Land border wait times | US public domain |
 | Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
-| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks and ferry terminals | ODbL |
+| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, museums, historic sites, World Heritage sites and farm shops | ODbL |
 | FEMA National Shelter System | Open emergency shelters | US public domain |
 | IODA (Georgia Tech) | Internet outages by country | IODA terms of use; attribution required |
 | OpenFEMA | Disaster declarations | US public domain; OpenFEMA terms |
@@ -81,12 +81,17 @@ This project connects existing libraries and public data. It does not claim them
 | NOAA Hazard Mapping System | Smoke plumes and fire detections | US public domain |
 | Open-Meteo air quality (Copernicus CAMS) | Modelled air quality | CC BY 4.0 |
 | WHO Disease Outbreak News | Outbreak reports | WHO terms of use |
-| World Bank Open Data | Country positions and economic indicators | CC BY 4.0 |
+| World Bank Open Data | Country positions, economic, country-fact and farming indicators | CC BY 4.0 |
 | iNaturalist | Wildlife observations and photos | Observations CC licences chosen by each observer; photo licences vary |
 | USGS Water Services | River and lake levels | US public domain |
 | FAA National Airspace System status | Airport delays and closures | US public domain |
 | aviationweather.gov (NOAA/NWS) | Airport positions | US public domain |
 | US Department of State travel advisories | Advisory levels | US public domain |
+| Smithsonian Global Volcanism Program | Volcanoes of the world | Smithsonian terms; attribution required |
+| USGS Volcano Hazards Program (HANS) | US volcano alert levels | US public domain |
+| U.S. Drought Monitor (NDMC, USDA, NOAA) | Drought areas | Free to use with credit to the U.S. Drought Monitor |
+| Open-Meteo weather forecast API | Temperature grid | CC BY 4.0 |
+| Wikidata | Place population and facts | CC0 |
 | us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |

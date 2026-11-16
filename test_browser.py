@@ -221,6 +221,34 @@ SAMPLES = {
             }
         ],
     ],
+    "Smithsonian_VOTW_Holocene_Volcanoes": {
+        "features": [
+            {
+                "properties": {
+                    "Volcano_Number": 311120,
+                    "Volcano_Name": "Great Sitkin",
+                    "Last_Eruption_Year": 2026,
+                },
+                "geometry": {"type": "Point", "coordinates": [-176.11, 52.08]},
+            }
+        ]
+    },
+    "getElevatedVolcanoes": [
+        {"vnum": "311120", "color_code": "ORANGE", "alert_level": "WATCH"}
+    ],
+    "USDM_current": {
+        "features": [
+            {
+                "properties": {"DM": 2},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [[-100, 35], [-98, 35], [-98, 37], [-100, 37], [-100, 35]]
+                    ],
+                },
+            }
+        ]
+    },
     "dx9v-zd7x": [
         {
             "traffic_report_id": "T1",
@@ -470,6 +498,20 @@ class AppInBrowser(unittest.TestCase):
             """() => {
                 const t = (document.getElementById('wlayers') || {}).textContent || '';
                 return /Airport delays \\(US\\)\\s*1/.test(t) && /Disease outbreaks\\s*1/.test(t);
+            }""",
+            timeout=20000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_volcanoes_and_drought_load(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({volcano: true, drought: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            """() => {
+                const t = (document.getElementById('wlayers') || {}).textContent || '';
+                return /Volcanoes\\s*1/.test(t) && /Drought \\(US\\)\\s*1/.test(t);
             }""",
             timeout=20000,
         )

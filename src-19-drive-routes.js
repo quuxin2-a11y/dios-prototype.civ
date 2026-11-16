@@ -2,7 +2,7 @@
  * @file Route choices.
  * Alternative routes from OSRM, scored against reported hazards and camera coverage.
  *
- * Module 19 of 35. Modules share one scope: build.py concatenates them in order
+ * Module 19 of 36. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

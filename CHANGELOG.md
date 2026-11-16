@@ -2,6 +2,17 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v61
+- **Energy, geology, climate, culture, area facts and farming** (`src-35-energy-geology-culture.js`):
+  - Power plants coloured by energy source with output, and fuel stations (OpenStreetMap).
+  - Every Holocene volcano (Smithsonian Global Volcanism Program), with US volcanoes at elevated alert highlighted by aviation colour code and linked to the latest USGS notice.
+  - The current US Drought Monitor map, drawn as areas by category, and live temperatures on a grid across the view in °C and °F (Open-Meteo).
+  - Museums, historic sites and UNESCO World Heritage sites (OpenStreetMap).
+  - Population, area, density, elevation and founding year for places in view (Wikidata), and population, life expectancy, urbanisation, internet use and electricity access by country (World Bank).
+  - Farmland, cereal yield, irrigation and farming's share of the economy and jobs by country (World Bank), and farm shops (OpenStreetMap).
+- The Layers list is now grouped under headings by pack.
+- Tests: 58 JavaScript tests and 18 browser tests.
+
 ## v60
 - **Health, public places and nature** (`src-33-health-places-nature.js`):
   - Disease outbreak news from the last 90 days, placed on each named country (WHO).

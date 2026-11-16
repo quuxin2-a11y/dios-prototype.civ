@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 35. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 36. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13,6 +13,28 @@
 // and draws at, and a load function that resolves to items {n, lat, lon, color, tag, rows}.
 var IL = {},
   IL_ORDER = [];
+
+// Section headings in the Layers list, by layer key.
+var WL_GROUP = {};
+[
+  ["Transit", "transit"],
+  ["Emergency", "storm flood tide tsunami fireperim space"],
+  ["Ground", "bikes scooters traffic border"],
+  ["Infrastructure", "hospitals firestations police shelters outages fema sea911"],
+  ["Radio", "radio nwr"],
+  ["Earth", "eo_today eo_dnb eo_lights smoke firehot airq"],
+  ["Health and public places", "outbreaks pharmacy library toilets evcharge wifi parks"],
+  ["Nature", "natpark wildlife water"],
+  ["Travel and economy", "airdelay advisory ferry economy"],
+  ["Energy and geology", "powerplant fuel volcano"],
+  ["Climate", "drought tempnow"],
+  ["Culture and area facts", "museum historic unesco places countryfacts"],
+  ["Farming", "farming farmshop"]
+].forEach(function (g) {
+  g[1].split(" ").forEach(function (k) {
+    WL_GROUP[k] = g[0];
+  });
+});
 
 function ilDef(d) {
   d.items = [];

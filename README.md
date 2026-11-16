@@ -52,6 +52,8 @@ It runs entirely on the device: no accounts, no backend, no tracking.
 - Health and public places: disease outbreak news by country, pharmacies, libraries, public toilets, EV chargers, free Wi-Fi and parks.
 - Nature: national parks, recent wildlife sightings with photos, and live river and lake levels.
 - Travel and economy: US airport delays and closures, State Department travel advisories, ferry terminals, and economic indicators by country.
+- Energy, geology and climate: power plants, fuel stations, volcanoes with current US alert levels, the US Drought Monitor and live temperatures.
+- Culture, area facts and farming: museums, historic sites, UNESCO World Heritage sites, population and facts for places and countries, farming indicators by country and farm shops.
 - Focus mode: pick states, countries or city areas; they are lit and raised while the rest of the world dims, and cameras and data outside them pause.
 
 **Cameras and 3D**
@@ -99,14 +101,14 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 - **Client-only.** All logic runs on the device. User keys, saved places and contacts are kept in local storage and never transmitted except to the provider each key belongs to.
 - **Rendering.** A custom Canvas 2D / WebGL globe for the default view; CesiumJS for photoreal 3D; MapLibre GL for the terrain map; a small WebGL renderer for Inspect.
-- **Modules and bundle.** The application is 35 modules (`src-NN-*.js`), each a self-contained, syntax-checked and Prettier-formatted script with a header describing its responsibility. They share one scope: `build.py` concatenates them in order inside a single closure and resolves the `/*@include*/` markers in `src-template.html` (styles, modules and bundled JSON data) to produce `index.html`. The same file ships in the APK and on GitHub Pages, and CI fails if the committed bundle drifts from its sources.
+- **Modules and bundle.** The application is 36 modules (`src-NN-*.js`), each a self-contained, syntax-checked and Prettier-formatted script with a header describing its responsibility. They share one scope: `build.py` concatenates them in order inside a single closure and resolves the `/*@include*/` markers in `src-template.html` (styles, modules and bundled JSON data) to produce `index.html`. The same file ships in the APK and on GitHub Pages, and CI fails if the committed bundle drifts from its sources.
 - **Native layer.** `install_native.py` layers the Java sources and Android resources in this repo onto the Capacitor project generated in CI, and can roll them back.
 
 ## Project layout
 
 | Path | Language | Purpose |
 |---|---|---|
-| `src-01-start.js` … `src-34-travel-economy.js`, `src-99-start.js` | JavaScript | Application source in 35 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, start-up). Formatted with Prettier (`.prettierrc.json`) |
+| `src-01-start.js` … `src-35-energy-geology-culture.js`, `src-99-start.js` | JavaScript | Application source in 36 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, start-up). Formatted with Prettier (`.prettierrc.json`) |
 | `src-template.html` | HTML | Document structure, with `/*@include*/` markers filled in by `build.py` |
 | `src-styles.css` | CSS | Design system and component styles |
 | `src-data-*.json` | JSON | Bundled gazetteer, border port locations, country centre points, coastline points, fallback portal list and the generated 3D models |
@@ -161,8 +163,8 @@ The debug APK is written to `app/android/app/build/outputs/apk/debug/`. Release 
 
 | Suite | Command | Covers |
 |---|---|---|
-| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model, GTFS-Realtime decoding, hurricane and space-weather scales, TopoJSON outlines, GBFS and border-wait parsing, outage and disaster-declaration mapping, weather radio parsing, fire detections, air quality, outbreak and advisory placement, water gauges and economic indicators (55 tests) |
-| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, the Emergency mode confirmation, the transit layer, the emergency data layers, border wait times, traffic incidents, internet outages, weather radio, smoke and fire, NASA views, airport delays, outbreaks and Focus mode, with sample data from each source (17 tests) |
+| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model, GTFS-Realtime decoding, hurricane and space-weather scales, TopoJSON outlines, GBFS and border-wait parsing, outage and disaster-declaration mapping, weather radio parsing, fire detections, air quality, outbreak and advisory placement, water gauges, economic indicators, volcano alerts, drought areas and place facts (58 tests) |
+| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, the Emergency mode confirmation, the transit layer, the emergency data layers, border wait times, traffic incidents, internet outages, weather radio, smoke and fire, NASA views, airport delays, outbreaks, volcanoes, drought and Focus mode, with sample data from each source (18 tests) |
 | Python | `python3 -m unittest -v test_tools` | Secret scanner, native installer (install, idempotence, rollback) |
 | Java | `./gradlew testDebugUnitTest` | Launch-action routing in the native plugin |
 | Sources | `node --check`, `eslint`, `prettier --check`, `python3 build.py --check` | Every module parses on its own and passes ESLint's recommended rules (`eslint.config.mjs`, including undefined-name checks across modules), formatting is consistent, and the committed `index.html` matches its sources |

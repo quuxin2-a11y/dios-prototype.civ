@@ -3,7 +3,7 @@
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 35. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 36. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -975,7 +975,11 @@ var WLDEF = [
 function wstat() {
   var el = $("wlayers");
   if (!el) return;
+  var lastGroup = null;
   el.innerHTML = WLDEF.map(function (w) {
+    var grp = (typeof WL_GROUP === "object" && WL_GROUP && WL_GROUP[w[0]]) || "Map and live",
+      head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
+    lastGroup = grp;
     var n = w[3] ? w[3]() : null,
       st = WSTAT[w[0]];
     var txt =
@@ -1026,6 +1030,7 @@ function wstat() {
                             ? "…"
                             : "";
     return (
+      head +
       '<button class="cat' +
       (WL[w[0]] ? "" : " off") +
       '" data-wl="' +

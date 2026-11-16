@@ -3,7 +3,7 @@
  * Links between nearby cameras, field-of-view footprints and ranges, chase mode and the rewind
  * strip.
  *
- * Module 24 of 35. Modules share one scope: build.py concatenates them in order
+ * Module 24 of 36. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
