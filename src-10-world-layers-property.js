@@ -3,7 +3,7 @@
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 30. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 32. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -424,6 +424,38 @@ function sceneToast(e) {
     }
   );
 }
+// Playable audio and outside links for info items, and air traffic audio links for aircraft.
+function entExtras(e) {
+  var links = [];
+  if (e.kind === "info" && e.links) links = e.links.slice();
+  if (e.kind === "plane" && e.route && e.route.o && typeof liveAtcUrl === "function") {
+    [e.route.o.code, e.route.d.code].forEach(function (c) {
+      var u = liveAtcUrl(c);
+      if (u) links.push(["Air traffic audio near " + c + " · LiveATC", u]);
+    });
+  }
+  var au = e.kind === "info" && e.audio ? safeUrl(e.audio) : "";
+  return (
+    (/^https:\/\//.test(au)
+      ? '<div class="acts"><audio controls preload="none" style="width:100%" src="' +
+        esc(au) +
+        '"></audio></div>'
+      : "") +
+    links
+      .map(function (l) {
+        var u = safeUrl(l[1]);
+        return /^https?:\/\//.test(u)
+          ? '<div class="acts"><a class="open" target="_blank" rel="noopener" href="' +
+              esc(u) +
+              '">↗ ' +
+              esc(l[0]).toUpperCase() +
+              "</a></div>"
+          : "";
+      })
+      .join("")
+  );
+}
+
 function entDossier(e) {
   if (e.kind === "parcel") {
     propDossier(e);
@@ -546,7 +578,7 @@ function entDossier(e) {
     ", " +
     (+e.lon).toFixed(3) +
     '</b></div><div class="wx mono" id="wx"></div>' +
-    "" +
+    entExtras(e) +
     (e.kind === "plane" || e.kind === "ship"
       ? '<div class="acts"><button class="open" data-wt="1">' +
         (watchHas(e)

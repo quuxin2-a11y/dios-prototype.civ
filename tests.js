@@ -30,7 +30,7 @@ function grab(name) {
 }
 // Constants the functions under test expect from their modules.
 var CONSTANTS =
-  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
+  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var location={href:"https://localhost/"};var FD_TYPES={DR:"Major disaster",EM:"Emergency",FM:"Fire management"};var IO_SIGNALS={bgp:"Routing (BGP)","ping-slash24":"Active probing"};var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
 // Functions taken from the shipped modules.
 var NAMES = [
   "iou",
@@ -93,7 +93,18 @@ var NAMES = [
   "tfColor",
   "bwLane",
   "bwColor",
-  "bwItems"
+  "bwItems",
+  "safeUrl",
+  "ilWhen",
+  "osmAddress",
+  "ioLevel",
+  "ioItems",
+  "fdItems",
+  "usDst",
+  "seaTime",
+  "rbItems",
+  "nwrParse",
+  "liveAtcUrl"
 ];
 var code =
   CONSTANTS +
@@ -847,6 +858,132 @@ test("ground: border lanes read CBP statuses and ports group their crossings", f
       return r[0] === "RAINBOW BRIDGE · CARS" && r[1] === "50 min · 3 open";
     })
   );
+});
+
+var IL_D = { key: "x", label: "X", color: "#ffffff" };
+
+test("infrastructure: addresses, outage levels and countries placed from the bundled table", function () {
+  assert.strictEqual(
+    F.osmAddress({
+      "addr:housenumber": "1500",
+      "addr:street": "Red River St",
+      "addr:city": "Austin"
+    }),
+    "1500 Red River St, Austin"
+  );
+  assert.strictEqual(F.osmAddress({}), "—");
+  assert.strictEqual(F.ioLevel(2e6)[0], "Severe");
+  assert.strictEqual(F.ioLevel(50000)[0], "Major");
+  assert.strictEqual(F.ioLevel(0)[0], "Minor");
+  var items = F.ioItems(
+    IL_D,
+    [
+      {
+        entity: { code: "KG", name: "Kyrgyzstan" },
+        scores: { "ping-slash24.median": 549449, overall: 549449 },
+        event_cnt: 2
+      },
+      { entity: { code: "ZZ", name: "Nowhere" }, scores: { overall: 10 } }
+    ],
+    { KG: [41.204, 74.766] }
+  );
+  assert.strictEqual(items.length, 1);
+  assert.strictEqual(items[0].lat, 41.204);
+  assert.ok(
+    items[0].rows.some(function (r) {
+      return r[0] === "SEEN IN" && r[1] === "Active probing";
+    })
+  );
+});
+
+test("infrastructure: disaster declarations map to county or state outlines", function () {
+  var box = { s: 29, n: 31, w: -86, e: -84 },
+    shapes = {
+      12037: { name: "Franklin", rings: [[[0, 0]]], box: box },
+      12: { name: "Florida", rings: [[[0, 0]]], box: box }
+    };
+  var rows = [
+    {
+      disasterNumber: 4955,
+      declarationType: "DR",
+      declarationTitle: "HURRICANE ISAIAS",
+      designatedArea: "Franklin (County)",
+      fipsStateCode: "12",
+      fipsCountyCode: "037",
+      declarationDate: "2026-10-27T00:00:00.000Z",
+      incidentBeginDate: "2026-10-06T00:00:00.000Z"
+    },
+    {
+      disasterNumber: 4955,
+      declarationType: "DR",
+      declarationTitle: "HURRICANE ISAIAS",
+      designatedArea: "Franklin (County)",
+      fipsStateCode: "12",
+      fipsCountyCode: "037"
+    },
+    {
+      disasterNumber: 3700,
+      declarationType: "EM",
+      declarationTitle: "HURRICANE ISAIAS",
+      designatedArea: "Statewide",
+      fipsStateCode: "12",
+      fipsCountyCode: "000"
+    },
+    { disasterNumber: 1, declarationType: "DR", fipsStateCode: "99", fipsCountyCode: "001" }
+  ];
+  var it = F.fdItems(IL_D, rows, shapes);
+  assert.strictEqual(it.length, 2);
+  assert.strictEqual(it[0].n, "Hurricane isaias");
+  assert.strictEqual(it[0].lat, 30);
+  assert.strictEqual(it[1].tag, "EMERGENCY · FEMA 3700");
+});
+
+test("infrastructure: Seattle local times convert to UTC across daylight saving", function () {
+  assert.strictEqual(F.seaTime("2026-07-01T12:00:00.000"), Date.UTC(2026, 6, 1, 19, 0));
+  assert.strictEqual(F.seaTime("2026-12-01T12:00:00.000"), Date.UTC(2026, 11, 1, 20, 0));
+  assert.strictEqual(F.usDst(2026, 2, 8, 3), true);
+  assert.strictEqual(F.usDst(2026, 2, 7, 12), false);
+  assert.strictEqual(F.usDst(2026, 10, 1, 1), true);
+  assert.strictEqual(F.usDst(2026, 10, 1, 3), false);
+  assert.strictEqual(F.seaTime("bad"), null);
+});
+
+test("radio: only https streams are kept, and weather radio sites merge their counties", function () {
+  var st = F.rbItems(IL_D, [
+    {
+      stationuuid: "a",
+      name: "KUT",
+      url_resolved: "https://stream.example/kut",
+      geo_lat: 30.28,
+      geo_long: -97.74,
+      tags: "news,npr",
+      codec: "MP3",
+      bitrate: 128
+    },
+    { stationuuid: "a", name: "KUT again", url_resolved: "https://stream.example/kut" },
+    {
+      stationuuid: "b",
+      name: "Plain",
+      url_resolved: "http://stream.example/x",
+      geo_lat: 1,
+      geo_long: 1
+    },
+    { stationuuid: "c", name: "Bad", url_resolved: "javascript:alert(1)", geo_lat: 1, geo_long: 1 }
+  ]);
+  assert.strictEqual(st.length, 1);
+  assert.strictEqual(st[0].audio, "https://stream.example/kut");
+  assert.strictEqual(st[0].tag, "RADIO · MP3 128K");
+  var js =
+    'ST[0] = "TX";\nCOUNTY[0] = "Travis";\nCOUNTY[1] = "Hays";\nCOUNTY[2] = "Nowhere";\n' +
+    'SITENAME[0] = "Austin";\nSITESTATE[0] = "TX";\nFREQ[0] = "162.400";\nFREQ[1] = "162.400";\n' +
+    'CALLSIGN[0] = "WXK27";\nCALLSIGN[1] = "WXK27";\nCALLSIGN[2] = "";\nLAT[0] = "30.32";\nLAT[1] = "30.32";\n' +
+    'LON[0] = "-97.77";\nLON[1] = "-97.77";\nSTATUS[0] = "NORMAL";\nWFO[0] = "Austin/San Antonio|TX";\n';
+  var nw = F.nwrParse(js);
+  assert.strictEqual(nw.length, 1);
+  assert.deepStrictEqual(nw[0].counties, ["Travis", "Hays"]);
+  assert.strictEqual(nw[0].wfo, "Austin/San Antonio, TX");
+  assert.strictEqual(F.liveAtcUrl("kaus"), "https://www.liveatc.net/search/?icao=KAUS");
+  assert.strictEqual(F.liveAtcUrl("?"), "");
 });
 
 console.log("\n" + n + " tests passed");

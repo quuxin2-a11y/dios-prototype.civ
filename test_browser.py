@@ -155,6 +155,20 @@ SAMPLES = {
             },
         }
     ],
+    "outages/summary": {
+        "data": [
+            {
+                "scores": {"bgp.median": 2500000, "overall": 2500000},
+                "event_cnt": 3,
+                "entity": {"code": "KG", "name": "Kyrgyzstan", "type": "country"},
+            }
+        ]
+    },
+    "nwr/JS/CCL.js": (
+        'ST[0] = "TX";\nCOUNTY[0] = "Travis";\nSITENAME[0] = "Austin";\nSITESTATE[0] = "TX";\n'
+        'FREQ[0] = "162.400";\nCALLSIGN[0] = "WXK27";\nLAT[0] = "30.32";\nLON[0] = "-97.77";\n'
+        'STATUS[0] = "NORMAL";\nWFO[0] = "Austin/San Antonio|TX";\n'
+    ),
     "dx9v-zd7x": [
         {
             "traffic_report_id": "T1",
@@ -213,9 +227,12 @@ class AppInBrowser(unittest.TestCase):
             route.continue_()
         elif any(k in url for k in SAMPLES):
             key = next(k for k in SAMPLES if k in url)
+            body = SAMPLES[key]
             route.fulfill(
-                body=json.dumps(SAMPLES[key]),
-                content_type="application/json",
+                body=body if isinstance(body, str) else json.dumps(body),
+                content_type=(
+                    "text/plain" if isinstance(body, str) else "application/json"
+                ),
                 headers={"access-control-allow-origin": "*"},
             )
         elif url.startswith("https://api-v3.mbta.com/vehicles"):
@@ -244,7 +261,7 @@ class AppInBrowser(unittest.TestCase):
 
     def test_bundled_data_is_embedded(self):
         counts = self.page.evaluate(
-            """() => ['gaz', 'cam-data', 'models', 'land-dots'].map(
+            """() => ['gaz', 'cam-data', 'models', 'land-dots', 'ports', 'countries'].map(
                 id => JSON.parse(document.getElementById(id).textContent)
             ).map(d => Array.isArray(d) ? d.length : Object.keys(d).length)"""
         )
@@ -331,6 +348,20 @@ class AppInBrowser(unittest.TestCase):
         self.page.wait_for_function(
             "() => /Traffic incidents & work zones\\s*1/.test((document.getElementById('wlayers') || {}).textContent)",
             timeout=25000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_internet_outages_and_weather_radio_load(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({outages: true, nwr: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            """() => {
+                const t = (document.getElementById('wlayers') || {}).textContent || '';
+                return /Internet outages\\s*1/.test(t) && /NOAA Weather Radio\\s*1/.test(t);
+            }""",
+            timeout=20000,
         )
         self.assertEqual(self.errors, [])
 

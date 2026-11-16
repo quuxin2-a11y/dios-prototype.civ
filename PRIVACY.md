@@ -20,6 +20,8 @@
 
 - **News desk.** To find headlines, the app sends the coordinates of the map view to OpenStreetMap's Nominatim to get a place name, then sends that place name to GDELT and Google News. Nothing about you is attached. Dismissed broadcasts are remembered on the device only.
 
+- **Data layers** (transit, emergency, ground, infrastructure and radio) send only the area being viewed or focused to the agency or directory that publishes the data. Playing a radio station connects your phone directly to that station's stream server.
+
 Requests for cameras, map tiles and world data go directly from your device to the agency or provider that publishes them. Those providers see your IP address, as any website does.
 
 ## Data about other people
@@ -30,4 +32,6 @@ Requests for cameras, map tiles and world data go directly from your device to t
 - **Vehicle tags are throwaway counters.** A tag like `VEH-04127` is a number assigned for the current viewing so a box can be followed across frames. It is not derived from the vehicle, is not stored, and resets when the view closes.
 - **Nothing is recorded.** The app does not save video or images from cameras.
 - **Property layer** shows organisations and public bodies only; private owners' names are not shown.
+- **Shared scooters** are shown without their vehicle IDs, which operators rotate so trips cannot be followed.
+- **Seattle fire and EMS calls** are shown exactly as the City of Seattle publishes them: call type and block-level address, with no names or patient details.
 - **Aircraft and ships** come from open transponder data (ADS-B and AIS) that the craft broadcast publicly.

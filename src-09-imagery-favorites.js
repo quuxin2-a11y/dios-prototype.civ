@@ -2,7 +2,7 @@
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 30. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 32. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

@@ -3,7 +3,7 @@
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 30. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 32. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

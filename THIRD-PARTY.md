@@ -68,7 +68,16 @@ This project connects existing libraries and public data. It does not claim them
 | City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
 | U.S. Customs and Border Protection | Land border wait times | US public domain |
 | Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
-| us-atlas and world-atlas (TopoJSON) | State and country outlines for Focus mode | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
+| OpenStreetMap via Overpass | Hospitals, fire stations and police stations | ODbL |
+| FEMA National Shelter System | Open emergency shelters | US public domain |
+| IODA (Georgia Tech) | Internet outages by country | IODA terms of use; attribution required |
+| OpenFEMA | Disaster declarations | US public domain; OpenFEMA terms |
+| City of Seattle open data | Seattle Fire Department 911 dispatches | City of Seattle open data terms |
+| Google DSPL canonical countries | Country centre points (bundled) | Apache License 2.0 |
+| Radio Browser | Internet radio station directory | Public domain directory; streams belong to each station |
+| National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
+| LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
+| us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |
 | USGS | Earthquakes, volcano cameras | US public domain |
