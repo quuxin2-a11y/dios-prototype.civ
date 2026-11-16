@@ -2,6 +2,10 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v62
+- Fixed a start-up crash for anyone who had chosen a map style other than Satellite: the style was restored before the NASA views module had loaded, which stopped the app (introduced in v59).
+- New browser test that starts the app with saved settings from earlier versions and every layer switched on.
+
 ## v61
 - **Energy, geology, climate, culture, area facts and farming** (`src-35-energy-geology-culture.js`):
   - Power plants coloured by energy source with output, and fuel stations (OpenStreetMap).

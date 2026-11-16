@@ -240,7 +240,7 @@ function tileZ(R) {
   return Math.max(
     3,
     Math.min(
-      IMG_MAXZ,
+      IMG_MAXZ || 19,
       Math.round(
         Math.log(
           (2 * Math.PI * R * Math.min(DPR, 2) * Math.max(0.25, Math.cos(rot.lat * D))) / 256

@@ -95,9 +95,10 @@ function eoProbe(v) {
   return next();
 }
 
-// Called by styleSet so a chosen map style does not override a NASA view.
+// Called by styleSet so a chosen map style does not override a NASA view. styleSet also runs
+// at start-up, before this module has loaded, so EO may not exist yet.
 function earthKey() {
-  return EO.cur;
+  return typeof EO === "object" && EO ? EO.cur : null;
 }
 
 function eoApply(k) {

@@ -517,6 +517,30 @@ class AppInBrowser(unittest.TestCase):
         )
         self.assertEqual(self.errors, [])
 
+    def test_starts_with_saved_settings_from_earlier_versions(self):
+        # A returning user: a non-default map style and every layer switched on.
+        self.page.add_init_script(
+            """localStorage.setItem('ojos-set', JSON.stringify({style: 'dark'}));
+            localStorage.setItem('ojos-layers', JSON.stringify(new Proxy({}, {})));"""
+        )
+        self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS)
+        all_on = self.page.evaluate(
+            "() => Array.from(document.querySelectorAll('#wlayers [data-wl]')).map(b => b.dataset.wl)"
+        )
+        self.assertGreater(len(all_on), 50)
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify(Object.fromEntries(%s.map(k => [k, true]))))"
+            % json.dumps(all_on)
+        )
+        self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS * 2)
+        self.assertEqual(self.errors, [])
+        rendered = self.page.evaluate(
+            "() => document.querySelectorAll('#wlayers [data-wl]').length"
+        )
+        self.assertEqual(rendered, len(all_on))
+
     def test_focus_mode_adds_and_clears_a_state(self):
         self.page.click("#bFocus")
         self.page.fill("#focQ", "TX")
