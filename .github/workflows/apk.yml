@@ -36,7 +36,7 @@ jobs:
         run: |
           for f in src-[0-9][0-9]-*.js; do node --check "$f"; done
           npx --yes eslint@10.1.0 "src-[0-9][0-9]-*.js"
-          npx --yes prettier@3.8.1 --check "src-[0-9][0-9]-*.js" src-styles.css
+          npx --yes prettier@3.8.1 --check "src-[0-9][0-9]-*.js" src-styles.css tests.js eslint.config.mjs
           python3 build.py --check
       - name: Run unit tests
         run: node tests.js
