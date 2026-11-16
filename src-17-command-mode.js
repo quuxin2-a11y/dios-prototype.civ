@@ -2,7 +2,7 @@
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -54,6 +54,8 @@ function cmdTick() {
       (WL.air ? PLANES.length.toLocaleString() : "—") +
       "</span><span>SEA " +
       (WL.ship ? SHIPS.length.toLocaleString() : "—") +
+      "</span><span>TRN " +
+      (WL.transit ? TRANSIT.length.toLocaleString() : "—") +
       "</span><span>ORB " +
       (WL.sat ? SATS.length.toLocaleString() : "—") +
       "</span><span>ALR " +

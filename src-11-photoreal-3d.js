@@ -3,7 +3,7 @@
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -283,6 +283,15 @@ function t4Models() {
     near(SHIPS, 60, 3).forEach(function (q) {
       var cls = shipCls(q);
       put("s" + q.id, q, cls, 0, q.cog != null && q.cog < 360 ? q.cog : 0, PXS[cls], true);
+    });
+  if (WL.transit)
+    near(TRANSIT, 80, 0.25).forEach(function (q) {
+      put("r" + q.id, q, "bus", 0, q.hdg || 0, 30, true, {
+        tint: q.color,
+        trail: 12,
+        step: 40,
+        tc: q.color
+      });
     });
   if (WL.sat)
     near(SATS, 50, 70).forEach(function (q) {
@@ -579,6 +588,7 @@ function t4BarDraw() {
       ["_tags", "TAGS", T4.tags !== false],
       ["_air", "FLIGHTS", !!WL.air],
       ["_ship", "SHIPS", !!WL.ship],
+      ["_transit", "TRANSIT", !!WL.transit],
       ["_sat", "SATELLITES", !!WL.sat],
       ["_twin", "VEHICLES", T4.twin !== false]
     ]
@@ -755,7 +765,7 @@ document.addEventListener("click", function (e) {
       ls("ojos-t4tags", T4.tags);
     } else if (f === "_twin") {
       T4.twin = T4.twin === false;
-    } else if (f === "_air" || f === "_ship" || f === "_sat") {
+    } else if (f === "_air" || f === "_ship" || f === "_transit" || f === "_sat") {
       var lk = f.slice(1);
       setLayer(lk, !WL[lk]);
       T4MT = 0;

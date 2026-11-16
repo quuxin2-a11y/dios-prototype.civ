@@ -2,6 +2,19 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v56
+- **Emergency data layers:** active hurricanes and tropical storms (National Hurricane Center) with category, winds, pressure and movement; river gauges with flood category and forecast (NOAA); tide stations with the current water level and the next high and low tide (NOAA); tsunami warnings, advisories and statements from the last 72 hours (tsunami.gov); current wildfire perimeters with size and containment (NIFC); and space weather with the planetary K-index and aurora forecast (NOAA SWPC).
+- **Focus mode:** pick US states, countries or city areas. They light up with a raised, glowing edge while the rest of the world dims; cameras, aircraft, ships, transit and data layers outside pause and cannot be tapped, and area-based layers load only for the focus. The choice is remembered between visits.
+- **Info layer framework** (`src-27-hazards.js`): one loader, drawer and details card for public data layers, so later data packs plug in the same way.
+- Tests: 38 JavaScript tests (hurricane and storm scales, TopoJSON decoding including the antimeridian) and 11 browser tests (emergency layers and Focus mode with sample data).
+
+## v55
+- **Public transit layer.** Live buses, trains, trams, subways and ferries for Boston (MBTA), Philadelphia (SEPTA), Toronto (TTC), Seattle (King County Metro), Austin (CapMetro), Helsinki (HSL) and Amtrak across the US. Vehicles appear as coloured markers with route labels when zoomed in; tapping one shows route, status and next stop, speed, heading, seats where published, schedule adherence and the time of the last report. Shown in Photoreal 3D as well.
+- **GTFS-Realtime support.** A small protobuf reader decodes operators' VehiclePosition feeds on the device, with tests against a hand-encoded feed.
+- Feeds load only for cities near the map view and refresh every 30 seconds while the layer is on.
+- **Start-up module.** Application start-up now runs in its own last module (`src-99-start.js`), so every module's state exists before the first render.
+- Tests: 35 JavaScript and 9 browser tests; `tests.js` is now Prettier-formatted.
+
 ## v54
 - **Self-contained modules.** Each of the 25 `src-NN-*.js` files is now a complete script that parses and is checked on its own, with a header describing what it does. Behaviour is unchanged.
 - **Simpler build.** `build.py` now fills `/*@include*/` markers in `src-template.html` (styles, modules, bundled data) instead of patching markup, and embeds all JSON data compactly.

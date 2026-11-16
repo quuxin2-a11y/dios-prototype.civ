@@ -7119,7 +7119,7 @@ button:active {
   <div class="stage" id="stage">
     <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="ftiles"></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
     <div class="hud">
-      <button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
+      <button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bFocus">◎ Focus</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
       <button id="bSpin" class="on">Auto-rotate</button><button id="bReset">Reset</button><button data-sv="here">◉ Street View</button><button id="bWeb">⬡ Build Web</button><button id="bSun">☀ Chase the Sun</button><button id="bWall" class="on">▦ Multi-View (0)</button><button data-h="fav">★ Favorites</button><button data-h="rand">⤮ Random camera</button><button data-h="quake">◎ Strongest quake</button><button id="bSet">⚙ Settings</button>
     </div>
     <form class="scanbar" id="addrForm"><input id="addr" type="search" placeholder="Search any place" autocomplete="off"><button>Search</button><button type="button" class="x" id="micBtn" aria-label="Voice"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3"/></svg></button><button type="button" class="x" id="addrClear">✕</button></form>
@@ -7173,7 +7173,7 @@ button:active {
  * @file Shared setup.
  * Snapshot of the page source and the camera category table (label and colour per type).
  *
- * Module 1 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 1 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7193,7 +7193,7 @@ var visLive = [];
  * Tracks dead and live feeds, builds the copyable diagnostics text, refreshes still images, and
  * reads TxDOT camera snapshots.
  *
- * Module 2 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 2 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7288,7 +7288,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v54 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v56 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -7690,7 +7690,7 @@ function txParse(j, d) {
  * AIS vessel positions over WebSocket and REST, radar tiles drawn on the globe, and spoken
  * prompts and voice commands.
  *
- * Module 3 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 3 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -8553,7 +8553,7 @@ document.addEventListener("change", function (e) {
  * Street View embed with a live guide, position helpers, and the turn-by-turn drive HUD with
  * cameras along the route.
  *
- * Module 4 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 4 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -9781,7 +9781,7 @@ $("ver").textContent = "v" + cams.length;
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -10530,6 +10530,7 @@ function markers(t, P) {
     ctx.drawImage(spr(color, sm ? "s" : "c"), p[0] - 14, p[1] - 14, 28, 28);
     screenPts.push([p[0], p[1], cc]);
   }
+  drawFocus(P);
   if (selected) {
     var s = P(selected.lon, selected.lat);
     if (s[2] > 0) {
@@ -10694,7 +10695,7 @@ function showTip(c, e) {
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -10704,6 +10705,7 @@ function filtered() {
   return cams.filter(function (c) {
     if (!on[c.t]) return false;
     if (region && c.c !== region) return false;
+    if (!focusHas(c.lat, c.lon)) return false;
     if (
       q &&
       (c.n + " " + c.c + " " + c.r + " " + lab(c.t) + " " + (c.d || "")).toLowerCase().indexOf(q) <
@@ -10719,6 +10721,7 @@ function filteredLive() {
     if (!on[c.t]) return false;
     if (DEAD[c.u] && !SHOWDEAD && FAV.indexOf(c.u) < 0) return false;
     if (region && c.c !== region) return false;
+    if (!focusHas(c.lat, c.lon)) return false;
     if (q && (c.n + " " + c.c + " " + c.r + " " + c.src).toLowerCase().indexOf(q) < 0) return false;
     return true;
   });
@@ -11879,7 +11882,7 @@ $("addrClear").onclick = function () {
  * @file Viewer wall and on-device object detection.
  * Multi-camera wall, embeds, and the optional in-browser detection model with per-camera counts.
  *
- * Module 7 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 7 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13011,7 +13014,7 @@ setInterval(function () {
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -14698,7 +14701,7 @@ if (EMBED_OK)
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15336,7 +15339,7 @@ document.addEventListener("click", function (e) {
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15419,6 +15422,8 @@ function drawWorld(t, P) {
   drawFootprint(t, P);
   drawRoute(t, P);
   drawWeb(t, P);
+  drawTransit(t, P);
+  drawInfoLayers(t, P);
   if (WL.ship && SHIPS.length) {
     ctx.fillStyle = "#d9c8ff";
     ctx.strokeStyle = "rgba(2,8,14,.8)";
@@ -15426,6 +15431,7 @@ function drawWorld(t, P) {
     var big = zoom > 40;
     for (i = 0; i < SHIPS.length; i++) {
       e = SHIPS[i];
+      if (!focusHas(e.lat, e.lon)) continue;
       p = P(e.lon, e.lat);
       if (p[2] <= 0 || p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H) continue;
       if (big && e.cog != null && e.cog < 360) {
@@ -15450,6 +15456,7 @@ function drawWorld(t, P) {
     ctx.globalAlpha = 0.85;
     for (i = 0; i < PLANES.length; i++) {
       e = PLANES[i];
+      if (!focusHas(e.lat, e.lon)) continue;
       p = P(e.lon, e.lat);
       if (p[2] <= 0 || p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H) continue;
       ctx.fillRect(p[0] - 1.2, p[1] - 1.2, 2.4, 2.4);
@@ -15830,6 +15837,14 @@ function entDossier(e) {
       ["LAST REPORT", ago(e.at)],
       ["SOURCE", e.src]
     ];
+  } else if (e.kind === "info") {
+    tag = e.tag;
+    col2 = e.color;
+    rows = ilRows(e);
+  } else if (e.kind === "transit") {
+    tag = trTag(e);
+    col2 = e.color;
+    rows = trRows(e);
   } else if (e.kind === "quake") {
     tag = "EARTHQUAKE";
     col2 = "#ff5533";
@@ -15891,11 +15906,13 @@ function entDossier(e) {
     '</button></div><p class="note2">Eyes on Scene finds the live cameras nearest this ' +
     (e.kind === "plane"
       ? "aircraft"
-      : e.kind === "ship"
-        ? "vessel"
-        : e.kind === "sat"
-          ? "satellite's ground point"
-          : "event") +
+      : e.kind === "transit"
+        ? "vehicle"
+        : e.kind === "ship"
+          ? "vessel"
+          : e.kind === "sat"
+            ? "satellite's ground point"
+            : "event") +
     ".</p>";
   wx(e.lat, e.lon);
 }
@@ -16260,48 +16277,52 @@ function wstat() {
     var n = w[3] ? w[3]() : null,
       st = WSTAT[w[0]];
     var txt =
-      w[0] === "air" && !nativeHttp() && st === "x"
-        ? "ANDROID APP ONLY"
-        : w[0] === "radar"
-          ? !EMBED_OK
-            ? "APP"
-            : !WL.radar
-              ? ""
-              : !gl || !WL.img
-                ? "NEEDS IMAGERY"
-                : RAD.shown
-                  ? "LIVE · " + ago(RAD.time * 1000)
-                  : st === "x"
-                    ? "OFFLINE"
-                    : "LOADING…"
-          : w[0] === "ship" && WL.ship && EMBED_OK && n
-            ? n.toLocaleString() +
-              (KEYS.ais
-                ? AIS.state === "live"
-                  ? " · WORLD"
-                  : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
-                : " · FINLAND ONLY")
-            : w[0] === "img"
+      w[0] === "transit"
+        ? trStatus()
+        : ilStatus(w[0]) != null
+          ? ilStatus(w[0])
+          : w[0] === "air" && !nativeHttp() && st === "x"
+            ? "ANDROID APP ONLY"
+            : w[0] === "radar"
               ? !EMBED_OK
                 ? "APP"
-                : satOK()
-                  ? "LIVE"
-                  : glTried && !gl
-                    ? "NOT SUPPORTED"
-                    : WL.img
-                      ? "LOADING…"
-                      : ""
-              : n == null
-                ? ""
-                : !EMBED_OK
-                  ? "APP"
-                  : n
-                    ? n.toLocaleString()
-                    : st === "x"
-                      ? "OFFLINE"
-                      : WL[w[0]]
-                        ? "…"
-                        : "";
+                : !WL.radar
+                  ? ""
+                  : !gl || !WL.img
+                    ? "NEEDS IMAGERY"
+                    : RAD.shown
+                      ? "LIVE · " + ago(RAD.time * 1000)
+                      : st === "x"
+                        ? "OFFLINE"
+                        : "LOADING…"
+              : w[0] === "ship" && WL.ship && EMBED_OK && n
+                ? n.toLocaleString() +
+                  (KEYS.ais
+                    ? AIS.state === "live"
+                      ? " · WORLD"
+                      : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
+                    : " · FINLAND ONLY")
+                : w[0] === "img"
+                  ? !EMBED_OK
+                    ? "APP"
+                    : satOK()
+                      ? "LIVE"
+                      : glTried && !gl
+                        ? "NOT SUPPORTED"
+                        : WL.img
+                          ? "LOADING…"
+                          : ""
+                  : n == null
+                    ? ""
+                    : !EMBED_OK
+                      ? "APP"
+                      : n
+                        ? n.toLocaleString()
+                        : st === "x"
+                          ? "OFFLINE"
+                          : WL[w[0]]
+                            ? "…"
+                            : "";
     return (
       '<button class="cat' +
       (WL[w[0]] ? "" : " off") +
@@ -16328,7 +16349,8 @@ function wstat() {
       quake: "◎",
       event: "🔥",
       night: "◐",
-      tiles: "▣"
+      tiles: "▣",
+      transit: "🚌"
     },
     ir = $("irail");
   if (ir)
@@ -16342,7 +16364,7 @@ function wstat() {
         '" title="' +
         w[1] +
         '">' +
-        IC[w[0]] +
+        (IC[w[0]] || (IL && IL[w[0]] && IL[w[0]].icon) || "•") +
         (n ? "<small>" + (n > 999 ? Math.round(n / 100) / 10 + "k" : n) + "</small>" : "") +
         "</button>"
       );
@@ -17813,6 +17835,14 @@ function lfDraw() {
       row("_video", "▶", "#c8f2ff", vid, "live video", false) +
       row("air", "✈", "#ffe27a", WL.air ? cnt("air") : "off", "flights", !!WL.air) +
       row("ship", "⛴", "#d9c8ff", WL.ship ? cnt("ship") : "off", "ships", !!WL.ship) +
+      row(
+        "transit",
+        "🚌",
+        "#ffd84a",
+        WL.transit ? cnt("transit") : "off",
+        "transit",
+        !!WL.transit
+      ) +
       row("sat", "✦", "#b4ffb0", WL.sat ? cnt("sat") : "off", "satellites", !!WL.sat) +
       row("quake", "◎", "#ff5533", WL.quake ? cnt("quake") : "off", "earthquakes", !!WL.quake) +
       row("event", "▲", "#ff8a1f", WL.event ? cnt("event") : "off", "fires · storms", !!WL.event) +
@@ -17864,7 +17894,7 @@ document.addEventListener("click", function (e) {
     return;
   }
   if (k === "_hideall") {
-    var keys = ["dots", "air", "ship", "sat", "quake", "event", "radar"];
+    var keys = ["dots", "air", "ship", "transit", "sat", "quake", "event", "radar"];
     if (LF.saved) {
       LF.saved.forEach(function (x) {
         setLayer(x, true);
@@ -17926,7 +17956,7 @@ document.addEventListener("click", function (e) {
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -18206,6 +18236,15 @@ function t4Models() {
     near(SHIPS, 60, 3).forEach(function (q) {
       var cls = shipCls(q);
       put("s" + q.id, q, cls, 0, q.cog != null && q.cog < 360 ? q.cog : 0, PXS[cls], true);
+    });
+  if (WL.transit)
+    near(TRANSIT, 80, 0.25).forEach(function (q) {
+      put("r" + q.id, q, "bus", 0, q.hdg || 0, 30, true, {
+        tint: q.color,
+        trail: 12,
+        step: 40,
+        tc: q.color
+      });
     });
   if (WL.sat)
     near(SATS, 50, 70).forEach(function (q) {
@@ -18502,6 +18541,7 @@ function t4BarDraw() {
       ["_tags", "TAGS", T4.tags !== false],
       ["_air", "FLIGHTS", !!WL.air],
       ["_ship", "SHIPS", !!WL.ship],
+      ["_transit", "TRANSIT", !!WL.transit],
       ["_sat", "SATELLITES", !!WL.sat],
       ["_twin", "VEHICLES", T4.twin !== false]
     ]
@@ -18678,7 +18718,7 @@ document.addEventListener("click", function (e) {
       ls("ojos-t4tags", T4.tags);
     } else if (f === "_twin") {
       T4.twin = T4.twin === false;
-    } else if (f === "_air" || f === "_ship" || f === "_sat") {
+    } else if (f === "_air" || f === "_ship" || f === "_transit" || f === "_sat") {
       var lk = f.slice(1);
       setLayer(lk, !WL[lk]);
       T4MT = 0;
@@ -19256,7 +19296,7 @@ document.addEventListener("click", function (e) {
  * A continuous zoom from the 3D city into procedurally drawn cutaways of buildings and aircraft,
  * with labelled facts.
  *
- * Module 12 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 12 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -21494,7 +21534,7 @@ document.addEventListener("click", function (e) {
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
  * map, and the ticker.
  *
- * Module 13 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 13 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22163,7 +22203,7 @@ setInterval(function () {
  * @file Flight log.
  * Progress, schedule and recent history for a selected aircraft.
  *
- * Module 14 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 14 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22587,7 +22627,7 @@ setInterval(function () {
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -23729,7 +23769,7 @@ setTimeout(function () {
  * Look up a flight or ship by any identifier, side-by-side comparison, and public posts about a
  * place.
  *
- * Module 16 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 16 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24201,7 +24241,7 @@ setInterval(function () {
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24253,6 +24293,8 @@ function cmdTick() {
       (WL.air ? PLANES.length.toLocaleString() : "—") +
       "</span><span>SEA " +
       (WL.ship ? SHIPS.length.toLocaleString() : "—") +
+      "</span><span>TRN " +
+      (WL.transit ? TRANSIT.length.toLocaleString() : "—") +
       "</span><span>ORB " +
       (WL.sat ? SATS.length.toLocaleString() : "—") +
       "</span><span>ALR " +
@@ -24568,7 +24610,7 @@ document.addEventListener("click", function (e) {
  * Flight and vessel finder, the plans directory, and organisation lookups in state and national
  * registers.
  *
- * Module 18 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 18 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26508,7 +26550,7 @@ document.addEventListener("click", function (e) {
  * @file Route choices.
  * Alternative routes from OSRM, scored against reported hazards and camera coverage.
  *
- * Module 19 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 19 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26771,7 +26813,7 @@ document.addEventListener("click", function (e) {
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -27904,7 +27946,7 @@ setInterval(function () {
  * @file Country file.
  * Travel advisory, emergency numbers, leadership, economy and currency for any country.
  *
- * Module 21 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 21 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28302,7 +28344,7 @@ document.addEventListener("click", function (e) {
  * MeteoAlarm warnings, offline tile packs, check-in messages, the error log and the source health
  * check.
  *
- * Module 22 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 22 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28773,7 +28815,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v54 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v56 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -28864,7 +28906,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v54 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v56 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -28916,7 +28958,7 @@ try {
  * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
  * vibration, shortcuts).
  *
- * Module 23 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 23 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29488,7 +29530,7 @@ setTimeout(function () {
  * Links between nearby cameras, field-of-view footprints and ranges, chase mode and the rewind
  * strip.
  *
- * Module 24 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 24 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30202,11 +30244,11 @@ document.addEventListener("click", function (e) {
 });
 setTab("info", window.innerWidth < 1000);
 /**
- * @file Home, reports and start-up.
- * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and application
- * start-up.
+ * @file Home, reports and views.
+ * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
+ * settings restored at start-up.
  *
- * Module 25 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30501,7 +30543,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v54)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v56)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -30814,6 +30856,1829 @@ if (WL.dots) {
   var bd0 = $("bDots");
   if (bd0) bd0.classList.add("on");
 }
+/**
+ * @file Public transit.
+ * Live positions of buses, trains, trams, subways and ferries from transit agencies' open data:
+ * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
+ * for areas near the map view.
+ *
+ * Module 26 of 29. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// ---------- Public transit ----------
+// Every source here is published by the operator (or a public mirror of it) for anyone to use,
+// without a key. Positions describe vehicles, never passengers.
+var TRANSIT = [],
+  TR = { fly: {}, last: {}, byFeed: {}, err: {}, inView: [] },
+  TR_REFRESH_MS = 30000,
+  TR_MAX = 6000;
+
+var TR_MODES = {
+  tram: ["Tram", "#ffb547"],
+  subway: ["Subway", "#ff5d8f"],
+  rail: ["Train", "#c58bff"],
+  bus: ["Bus", "#ffd84a"],
+  ferry: ["Ferry", "#4cc3ff"],
+  transit: ["Transit vehicle", "#9fe870"]
+};
+
+var TR_OCC = [
+  "Empty",
+  "Many seats available",
+  "Few seats available",
+  "Standing room only",
+  "Crowded",
+  "Full",
+  "Not taking passengers"
+];
+
+var TR_STATUS = ["Arriving at", "Stopped at", "Heading to"];
+
+var TR_FEEDS = [
+  {
+    id: "mbta",
+    name: "MBTA",
+    city: "Boston, MA",
+    box: { s: 41.2, w: -72.2, n: 43.1, e: -69.8 },
+    src: "MBTA V3 API",
+    load: trMbta
+  },
+  {
+    id: "septa",
+    name: "SEPTA",
+    city: "Philadelphia, PA",
+    box: { s: 39.6, w: -76.1, n: 40.6, e: -74.5 },
+    src: "SEPTA TransitView",
+    load: trSepta
+  },
+  {
+    id: "ttc",
+    name: "TTC",
+    city: "Toronto, ON",
+    box: { s: 43.5, w: -79.8, n: 43.95, e: -79.0 },
+    src: "TTC via Umo public feed",
+    load: trTtc
+  },
+  {
+    id: "kcm",
+    name: "King County Metro",
+    city: "Seattle, WA",
+    box: { s: 47.1, w: -122.6, n: 47.9, e: -121.6 },
+    src: "King County Metro GTFS-Realtime",
+    url: "https://s3.amazonaws.com/kcm-alerts-realtime-prod/vehiclepositions.pb",
+    load: trGtfsRt
+  },
+  {
+    id: "capmetro",
+    name: "CapMetro",
+    city: "Austin, TX",
+    box: { s: 29.9, w: -98.1, n: 30.7, e: -97.3 },
+    src: "CapMetro GTFS-Realtime (data.texas.gov)",
+    url: "https://data.texas.gov/download/eiei-9rpf/application%2Foctet-stream",
+    load: trGtfsRt
+  },
+  {
+    id: "hsl",
+    name: "HSL",
+    city: "Helsinki, Finland",
+    box: { s: 59.9, w: 24.3, n: 60.6, e: 25.6 },
+    src: "HSL GTFS-Realtime",
+    url: "https://realtime.hsl.fi/realtime/vehicle-positions/v2/hsl",
+    load: trGtfsRt
+  },
+  {
+    id: "amtrak",
+    name: "Amtrak",
+    city: "United States",
+    box: { s: 24, w: -125, n: 50, e: -66 },
+    wide: true,
+    src: "Amtraker (public Amtrak data)",
+    load: trAmtrak
+  }
+];
+
+function trMode(k) {
+  return TR_MODES[k] || TR_MODES.transit;
+}
+
+function trVehicle(feed, o) {
+  var m = trMode(o.mode);
+  o.kind = "transit";
+  o.id = feed.id + ":" + o.veh;
+  o.agency = o.agency || feed.name;
+  o.city = feed.city;
+  o.src = feed.src;
+  o.color = o.color || m[1];
+  o.n = o.n || (o.route ? "Route " + o.route : m[0] + " " + o.veh);
+  return o;
+}
+
+function trValid(o) {
+  return (
+    o &&
+    typeof o.lat === "number" &&
+    typeof o.lon === "number" &&
+    isFinite(o.lat) &&
+    isFinite(o.lon) &&
+    Math.abs(o.lat) <= 90 &&
+    Math.abs(o.lon) <= 180 &&
+    (o.lat !== 0 || o.lon !== 0)
+  );
+}
+
+function trCompass(c) {
+  var i = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"].indexOf(String(c || "").toUpperCase());
+  return i < 0 ? null : i * 45;
+}
+
+function trTime(v) {
+  var t = typeof v === "number" ? v * 1000 : Date.parse(v);
+  return isFinite(t) ? t : Date.now();
+}
+
+// ----- operators with JSON APIs -----
+function trMbta(feed) {
+  return getJSON(
+    "https://api-v3.mbta.com/vehicles?include=route,stop&fields[stop]=name&fields[route]=short_name,long_name,type,color",
+    20000
+  ).then(function (j) {
+    var inc = {};
+    (j.included || []).forEach(function (x) {
+      inc[x.type + ":" + x.id] = x.attributes || {};
+    });
+    var MODE = ["tram", "subway", "rail", "bus", "ferry"];
+    return (j.data || []).map(function (v) {
+      var a = v.attributes || {},
+        rel = v.relationships || {},
+        rid = rel.route && rel.route.data ? rel.route.data.id : "",
+        sid = rel.stop && rel.stop.data ? rel.stop.data.id : "",
+        r = inc["route:" + rid] || {},
+        s = inc["stop:" + sid] || {},
+        st = TR_STATUS[["INCOMING_AT", "STOPPED_AT", "IN_TRANSIT_TO"].indexOf(a.current_status)];
+      return trVehicle(feed, {
+        veh: a.label || v.id,
+        route: r.short_name || r.long_name || rid,
+        mode: MODE[r.type] || "bus",
+        color: r.color && /^[0-9a-f]{6}$/i.test(r.color) ? "#" + r.color : null,
+        lat: a.latitude,
+        lon: a.longitude,
+        hdg: a.bearing,
+        spd: a.speed != null ? a.speed * 3.6 : null,
+        status: st && s.name ? st + " " + s.name : st || null,
+        occ: a.occupancy_status ? trWords(a.occupancy_status) : null,
+        at: trTime(a.updated_at)
+      });
+    });
+  });
+}
+
+function trSepta(feed) {
+  var TROLLEY = { 10: 1, 11: 1, 13: 1, 15: 1, 34: 1, 36: 1, 101: 1, 102: 1 };
+  return getJSON("https://www3.septa.org/api/TransitViewAll/index.php", 20000).then(function (j) {
+    var out = [],
+      routes = (j.routes && j.routes[0]) || {};
+    Object.keys(routes).forEach(function (rid) {
+      (routes[rid] || []).forEach(function (v) {
+        var late = num(v.late);
+        out.push(
+          trVehicle(feed, {
+            veh: String(v.VehicleID || v.label),
+            route: String(v.route_id || rid),
+            mode: TROLLEY[rid] ? "tram" : "bus",
+            lat: num(v.lat),
+            lon: num(v.lng),
+            hdg: num(v.heading),
+            dest: v.destination ? v.Direction + " to " + v.destination : v.Direction,
+            status: v.next_stop_name ? "Heading to " + v.next_stop_name : null,
+            late: late,
+            occ: v.estimated_seat_availability ? trWords(v.estimated_seat_availability) : null,
+            at: trTime(num(v.timestamp))
+          })
+        );
+      });
+    });
+    return out;
+  });
+}
+
+function trTtc(feed) {
+  return getJSON(
+    "https://retro.umoiq.com/service/publicJSONFeed?command=vehicleLocations&a=ttc&t=0",
+    20000
+  ).then(function (j) {
+    var list = j.vehicle ? [].concat(j.vehicle) : [];
+    return list.map(function (v) {
+      var r = String(v.routeTag || ""),
+        h = num(v.heading);
+      return trVehicle(feed, {
+        veh: String(v.id),
+        route: r,
+        mode: /^5\d\d$/.test(r) ? "tram" : "bus",
+        lat: num(v.lat),
+        lon: num(v.lon),
+        hdg: h != null && h >= 0 ? h : null,
+        spd: num(v.speedKmHr),
+        at: Date.now() - (num(v.secsSinceReport) || 0) * 1000
+      });
+    });
+  });
+}
+
+function trAmtrak(feed) {
+  return getJSON("https://api-v3.amtraker.com/v3/trains", 25000).then(function (j) {
+    var out = [];
+    Object.keys(j || {}).forEach(function (k) {
+      (j[k] || []).forEach(function (t) {
+        if (t.trainState && t.trainState !== "Active") return;
+        out.push(
+          trVehicle(feed, {
+            veh: String(t.trainID || t.trainNum),
+            n: (t.routeName || "Train") + " " + (t.trainNum || ""),
+            route: t.routeName,
+            agency: t.provider || feed.name,
+            mode: "rail",
+            color: t.iconColor && /^#[0-9a-f]{6}$/i.test(t.iconColor) ? t.iconColor : null,
+            lat: num(t.lat),
+            lon: num(t.lon),
+            hdg: trCompass(t.heading),
+            spd: t.velocity != null ? num(t.velocity) * 1.609 : null,
+            status: t.eventName ? "Last reported near " + t.eventName : null,
+            dest: t.origName && t.destName ? t.origName + " to " + t.destName : t.destName,
+            timely: t.trainTimely || null,
+            at: trTime(t.lastValTS || t.updatedAt)
+          })
+        );
+      });
+    });
+    return out;
+  });
+}
+
+function trWords(s) {
+  s = String(s).toLowerCase().replace(/_/g, " ");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ----- GTFS-Realtime (protobuf) -----
+// A minimal reader for the VehiclePosition part of the GTFS-Realtime schema:
+// https://gtfs.org/documentation/realtime/proto/
+function pbVarint(b, p) {
+  var x = 0,
+    m = 1,
+    c;
+  do {
+    if (p >= b.length) throw new Error("protobuf: truncated varint");
+    c = b[p++];
+    x += (c & 127) * m;
+    m *= 128;
+  } while (c & 128);
+  return [x, p];
+}
+
+// Returns [field, wireType, value] triples for one message. Length-delimited values are
+// returned as [start, end] byte ranges; 32-bit values as their byte offset.
+function pbFields(b, s, e) {
+  var out = [],
+    p = s,
+    r,
+    key,
+    wt,
+    v;
+  while (p < e) {
+    r = pbVarint(b, p);
+    key = r[0];
+    p = r[1];
+    wt = key % 8;
+    if (wt === 0) {
+      r = pbVarint(b, p);
+      v = r[0];
+      p = r[1];
+    } else if (wt === 1) {
+      v = p;
+      p += 8;
+    } else if (wt === 2) {
+      r = pbVarint(b, p);
+      v = [r[1], r[1] + r[0]];
+      p = r[1] + r[0];
+    } else if (wt === 5) {
+      v = p;
+      p += 4;
+    } else throw new Error("protobuf: unsupported wire type " + wt);
+    if (p > e) throw new Error("protobuf: field runs past the message");
+    out.push([Math.floor(key / 8), wt, v]);
+  }
+  return out;
+}
+
+function pbMsg(b, range) {
+  var o = {};
+  pbFields(b, range[0], range[1]).forEach(function (f) {
+    (o[f[0]] = o[f[0]] || []).push(f);
+  });
+  return o;
+}
+
+function pbStr(b, f) {
+  if (!f || f[1] !== 2) return "";
+  return new TextDecoder().decode(b.subarray(f[2][0], f[2][1]));
+}
+
+function pbF32(b, f) {
+  if (!f || f[1] !== 5) return null;
+  return new DataView(b.buffer, b.byteOffset + f[2], 4).getFloat32(0, true);
+}
+
+function pbNum(f) {
+  return f && f[1] === 0 ? f[2] : null;
+}
+
+function pbFirst(m, k) {
+  return m[k] ? m[k][0] : null;
+}
+
+// FeedMessage.entity(2) -> FeedEntity.vehicle(4) -> VehiclePosition
+function gtfsRtVehicles(b) {
+  var feedMsg = pbMsg(b, [0, b.length]),
+    out = [];
+  (feedMsg[2] || []).forEach(function (ent) {
+    if (ent[1] !== 2) return;
+    var em = pbMsg(b, ent[2]),
+      vf = pbFirst(em, 4);
+    if (!vf || vf[1] !== 2) return;
+    var vp = pbMsg(b, vf[2]),
+      posF = pbFirst(vp, 2);
+    if (!posF || posF[1] !== 2) return;
+    var pos = pbMsg(b, posF[2]),
+      trip = pbFirst(vp, 1) ? pbMsg(b, pbFirst(vp, 1)[2]) : {},
+      desc = pbFirst(vp, 8) ? pbMsg(b, pbFirst(vp, 8)[2]) : {},
+      ts = pbNum(pbFirst(vp, 5)),
+      st = pbNum(pbFirst(vp, 4)),
+      occ = pbNum(pbFirst(vp, 9)),
+      speed = pbF32(b, pbFirst(pos, 5)),
+      stop = pbStr(b, pbFirst(vp, 7));
+    out.push({
+      lat: pbF32(b, pbFirst(pos, 1)),
+      lon: pbF32(b, pbFirst(pos, 2)),
+      hdg: pbF32(b, pbFirst(pos, 3)),
+      spd: speed != null ? speed * 3.6 : null,
+      route: pbStr(b, pbFirst(trip, 5)),
+      veh: pbStr(b, pbFirst(desc, 2)) || pbStr(b, pbFirst(desc, 1)) || pbStr(b, pbFirst(em, 1)),
+      status: st != null && TR_STATUS[st] && stop ? TR_STATUS[st] + " stop " + stop : null,
+      occ: occ != null && TR_OCC[occ] ? TR_OCC[occ] : null,
+      at: ts ? ts * 1000 : Date.now()
+    });
+  });
+  return out;
+}
+
+// Binary GET: native HTTP on Android (no browser CORS limits), fetch on the web.
+function netBin(url, ms) {
+  var web = function () {
+    var ac = window.AbortController ? new AbortController() : null,
+      tm = setTimeout(function () {
+        if (ac) ac.abort();
+      }, ms || 20000);
+    return fetch(url, { signal: ac && ac.signal, mode: "cors", credentials: "omit" }).then(
+      function (r) {
+        clearTimeout(tm);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.arrayBuffer().then(function (x) {
+          return new Uint8Array(x);
+        });
+      }
+    );
+  };
+  var n = nativeHttp();
+  if (!n) return web();
+  return n
+    .get({
+      url: url,
+      responseType: "arraybuffer",
+      connectTimeout: ms || 20000,
+      readTimeout: ms || 20000
+    })
+    .then(function (r) {
+      if (!r || r.status >= 400) throw new Error("HTTP " + (r && r.status));
+      var d = r.data;
+      if (d instanceof ArrayBuffer) return new Uint8Array(d);
+      // Capacitor returns binary bodies base64-encoded.
+      var s = atob(String(d)),
+        u = new Uint8Array(s.length);
+      for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+      return u;
+    })
+    .catch(web);
+}
+
+function trGtfsRt(feed) {
+  return netBin(feed.url, 20000).then(function (b) {
+    return gtfsRtVehicles(b).map(function (v) {
+      v.mode = "transit";
+      v.n = feed.name + (v.route ? " · route " + v.route : "");
+      v.routeIsId = true;
+      return trVehicle(feed, v);
+    });
+  });
+}
+
+// ----- loading -----
+function trFeedsInView() {
+  if (typeof radius !== "function") return [];
+  var b = viewBox(0.4),
+    km = viewKm();
+  var fb = focusBox();
+  return TR_FEEDS.filter(function (f) {
+    var x = f.box;
+    if (fb) return x.s < fb.n && x.n > fb.s && x.w < fb.e && x.e > fb.w;
+    if (km > (f.wide ? 9000 : 2500)) return false;
+    return x.s < b.n && x.n > b.s && x.w < b.e && x.e > b.w;
+  });
+}
+
+function trRebuild() {
+  var all = [];
+  TR.inView.forEach(function (f) {
+    var a = TR.byFeed[f.id];
+    if (a) all = all.concat(a);
+  });
+  TRANSIT = all.length > TR_MAX ? all.slice(0, TR_MAX) : all;
+}
+
+function trTick(force) {
+  if (!WL.transit || !EMBED_OK || (document.hidden && !force)) return;
+  TR.inView = trFeedsInView();
+  trRebuild();
+  var now = Date.now();
+  TR.inView.forEach(function (f) {
+    if (TR.fly[f.id]) return;
+    if (!force && now - (TR.last[f.id] || 0) < TR_REFRESH_MS) return;
+    TR.last[f.id] = now;
+    TR.fly[f.id] = true;
+    f.load(f)
+      .then(function (list) {
+        TR.byFeed[f.id] = list.filter(trValid);
+        TR.err[f.id] = false;
+        WSTAT.transit = "ok";
+      })
+      .catch(function () {
+        TR.err[f.id] = true;
+        if (!TRANSIT.length) WSTAT.transit = "x";
+      })
+      .then(function () {
+        TR.fly[f.id] = false;
+        trRebuild();
+        wstat();
+      });
+  });
+  wstat();
+}
+
+function trLoad() {
+  TR.last = {};
+  trTick(true);
+}
+
+function trStatus() {
+  if (!WL.transit) return "";
+  if (!EMBED_OK) return "APP";
+  if (!TR.inView.length) return "ZOOM TO A COVERED CITY";
+  if (TRANSIT.length)
+    return (
+      TRANSIT.length.toLocaleString() +
+      " · " +
+      TR.inView
+        .filter(function (f) {
+          return (TR.byFeed[f.id] || []).length;
+        })
+        .map(function (f) {
+          return f.name;
+        })
+        .join(", ")
+    );
+  var failed = TR.inView.every(function (f) {
+    return TR.err[f.id];
+  });
+  if (failed) return nativeHttp() ? "OFFLINE" : "ANDROID APP ONLY";
+  return "LOADING…";
+}
+
+// ----- drawing on the globe and map -----
+function drawTransit(t, P) {
+  if (!WL.transit || !TRANSIT.length) return;
+  var km = viewKm(),
+    boxes = km < 120,
+    labels = km < 45,
+    shown = 0;
+  ctx.save();
+  ctx.font = "600 9.5px 'JetBrains Mono',monospace";
+  ctx.textBaseline = "middle";
+  for (var i = 0; i < TRANSIT.length; i++) {
+    var e = TRANSIT[i];
+    if (!focusHas(e.lat, e.lon)) continue;
+    var p = P(e.lon, e.lat);
+    if (p[2] <= 0 || p[0] < -20 || p[0] > W + 20 || p[1] < -20 || p[1] > H + 20) continue;
+    var c = okColor(e.color);
+    if (!boxes) {
+      ctx.fillStyle = c;
+      ctx.fillRect(p[0] - 1.5, p[1] - 1.5, 3, 3);
+    } else {
+      if (e.hdg != null && isFinite(e.hdg)) {
+        var a = e.hdg * D;
+        ctx.strokeStyle = c;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(p[0] + Math.sin(a) * 6, p[1] - Math.cos(a) * 6);
+        ctx.lineTo(p[0] + Math.sin(a) * 12, p[1] - Math.cos(a) * 12);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(2,8,14,.85)";
+      ctx.fillRect(p[0] - 6, p[1] - 4.5, 12, 9);
+      ctx.fillStyle = c;
+      ctx.fillRect(p[0] - 5, p[1] - 3.5, 10, 7);
+      if (labels && shown < 300) {
+        var txt = String(e.routeIsId ? e.veh : e.route || e.veh || "").slice(0, 14),
+          tw = ctx.measureText(txt).width;
+        ctx.fillStyle = "rgba(2,8,14,.8)";
+        ctx.fillRect(p[0] + 9, p[1] - 7, tw + 8, 14);
+        ctx.strokeStyle = c;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(p[0] + 9, p[1] - 7, tw + 8, 14);
+        ctx.fillStyle = c;
+        ctx.fillText(txt, p[0] + 13, p[1]);
+        shown++;
+      }
+    }
+    screenPts.push([p[0], p[1], e]);
+  }
+  ctx.restore();
+}
+
+// ----- dossier -----
+function trTag(e) {
+  return (trMode(e.mode)[0] + " · " + e.agency + " · live").toUpperCase();
+}
+
+function trRows(e) {
+  var rows = [[e.routeIsId ? "ROUTE ID" : "ROUTE", e.route || "—"]];
+  rows.push(["TYPE", trMode(e.mode)[0]]);
+  rows.push(["OPERATOR", e.agency + " · " + e.city]);
+  if (e.dest) rows.push(["SERVICE", e.dest]);
+  rows.push(["STATUS", e.status || (e.spd > 2 ? "Moving" : e.spd != null ? "Stopped" : "—")]);
+  if (e.timely) rows.push(["ON TIME", e.timely]);
+  if (e.late != null)
+    rows.push([
+      "SCHEDULE",
+      e.late > 0 ? e.late + " min late" : e.late < 0 ? -e.late + " min early" : "On time"
+    ]);
+  rows.push([
+    "SPEED",
+    e.spd != null ? Math.round(e.spd) + " km/h · " + Math.round(e.spd / 1.609) + " mph" : "—"
+  ]);
+  rows.push(["HEADING", e.hdg != null && isFinite(e.hdg) ? Math.round(e.hdg) + "°" : "—"]);
+  if (e.occ) rows.push(["SEATS", e.occ]);
+  rows.push(["VEHICLE", e.veh || "—"]);
+  rows.push(["LAST REPORT", ago(e.at)]);
+  rows.push(["SOURCE", e.src + " (open data)"]);
+  return rows;
+}
+
+// ----- registration -----
+WLDEF.push([
+  "transit",
+  "Public transit: buses, trains, trams",
+  "#ffd84a",
+  function () {
+    return TRANSIT.length;
+  },
+  trLoad
+]);
+setInterval(trTick, 10000);
+if (EMBED_OK && WL.transit) setTimeout(trLoad, 1500);
+/**
+ * @file Emergency data layers.
+ * Hurricanes (NHC), river flood gauges (NOAA NWPS), tide stations (NOAA CO-OPS), tsunami messages
+ * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
+ * built on a small framework for public info layers that later data packs reuse.
+ *
+ * Module 27 of 29. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// ---------- Info layers: a shared loader, drawer and dossier for public data layers ----------
+// Each layer: key, label, colour, icon, how often to refresh (ms), the widest view (km) it loads
+// and draws at, and a load function that resolves to items {n, lat, lon, color, tag, rows}.
+var IL = {},
+  IL_ORDER = [];
+
+function ilDef(d) {
+  d.items = [];
+  d.at = 0;
+  d.busy = false;
+  d.st = "";
+  d.area = "";
+  IL[d.key] = d;
+  IL_ORDER.push(d.key);
+  if (WL[d.key] === undefined) WL[d.key] = false;
+  WLDEF.push([
+    d.key,
+    d.label,
+    d.color,
+    function () {
+      return d.count ? d.count() : d.items.length;
+    },
+    function () {
+      ilLoad(d, true);
+    }
+  ]);
+}
+
+function ilItem(d, o) {
+  o.kind = "info";
+  o.layer = d.key;
+  o.color = o.color || d.color;
+  o.tag = String(o.tag || d.tag || d.label).toUpperCase();
+  o.id = o.id || d.key + ":" + o.lat + "," + o.lon;
+  return o;
+}
+
+function ilValid(o) {
+  return (
+    o &&
+    typeof o.lat === "number" &&
+    typeof o.lon === "number" &&
+    isFinite(o.lat) &&
+    isFinite(o.lon) &&
+    Math.abs(o.lat) <= 90 &&
+    Math.abs(o.lon) <= 180
+  );
+}
+
+// The area a layer should load for: the focus area when one is set, otherwise the view.
+function ilArea() {
+  var f = focusBox();
+  if (f) return f;
+  var b = viewBox(0.3);
+  return {
+    s: Math.max(-90, b.s),
+    n: Math.min(90, b.n),
+    w: Math.max(-180, b.w),
+    e: Math.min(180, b.e)
+  };
+}
+
+function ilAreaKey(b) {
+  var r = function (v) {
+    return Math.round(v * 2) / 2;
+  };
+  return [r(b.s), r(b.w), r(b.n), r(b.e)].join(",");
+}
+
+function ilLoad(d, force) {
+  if (!WL[d.key] || !EMBED_OK || d.busy) return;
+  var km = viewKm();
+  if (d.maxKm && km > d.maxKm && !focusBox()) {
+    d.st = "ZOOM IN TO LOAD";
+    return;
+  }
+  var area = ilArea(),
+    ak = d.byArea ? ilAreaKey(area) : "";
+  if (!force && Date.now() - d.at < d.every && ak === d.area) return;
+  d.busy = true;
+  d.at = Date.now();
+  d.area = ak;
+  d.st = d.items.length ? d.st : "LOADING…";
+  d.load(d, area)
+    .then(function (list) {
+      d.items = (list || []).filter(ilValid);
+      d.st = d.status ? d.status(d) : d.items.length ? "" : d.none || "NONE ACTIVE";
+      WSTAT[d.key] = "ok";
+    })
+    .catch(function () {
+      WSTAT[d.key] = "x";
+      d.st = nativeHttp() ? "OFFLINE" : "ANDROID APP ONLY";
+    })
+    .then(function () {
+      d.busy = false;
+      wstat();
+    });
+}
+
+// Called from module 10 before this module has run, so it must cope with IL being undefined.
+function ilStatus(key) {
+  var d = IL && IL[key];
+  if (!d || !WL[key]) return null;
+  if (!EMBED_OK) return "APP";
+  if (d.items.length && !d.st) return d.items.length.toLocaleString();
+  return d.st || (d.items.length ? d.items.length.toLocaleString() : "…");
+}
+
+setInterval(function () {
+  if (document.hidden) return;
+  IL_ORDER.forEach(function (k) {
+    ilLoad(IL[k], false);
+  });
+}, 15000);
+
+function ilPoly(P, rings, fill, stroke) {
+  ctx.beginPath();
+  rings.forEach(function (ring) {
+    var started = false;
+    for (var i = 0; i < ring.length; i++) {
+      var p = P(ring[i][0], ring[i][1]);
+      if (p[2] <= 0) {
+        started = false;
+        continue;
+      }
+      if (!started) {
+        ctx.moveTo(p[0], p[1]);
+        started = true;
+      } else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.closePath();
+  });
+  if (fill) {
+    ctx.fillStyle = fill;
+    ctx.fill("evenodd");
+  }
+  if (stroke) {
+    ctx.strokeStyle = stroke;
+    ctx.stroke();
+  }
+}
+
+function drawInfoLayers(t, P) {
+  if (!IL_ORDER) return;
+  var km = viewKm(),
+    labels = km < 300;
+  ctx.save();
+  ctx.font = "600 9.5px 'JetBrains Mono',monospace";
+  ctx.textBaseline = "middle";
+  IL_ORDER.forEach(function (k) {
+    var d = IL[k];
+    if (!WL[k]) return;
+    if (d.draw) {
+      d.draw(d, t, P);
+      return;
+    }
+    if (!d.items.length || (d.drawKm && km > d.drawKm)) return;
+    var shown = 0;
+    for (var i = 0; i < d.items.length; i++) {
+      var e = d.items[i];
+      if (!focusHas(e.lat, e.lon)) continue;
+      if (e.rings && km < 4000) {
+        ctx.lineWidth = 1.2;
+        ilPoly(P, e.rings, "rgba(255,80,40,.22)", okColor(e.color));
+      }
+      var p = P(e.lon, e.lat);
+      if (p[2] <= 0 || p[0] < -20 || p[0] > W + 20 || p[1] < -20 || p[1] > H + 20) continue;
+      var c = okColor(e.color),
+        s = e.size || 5;
+      ctx.fillStyle = "rgba(2,8,14,.85)";
+      ctx.beginPath();
+      ctx.moveTo(p[0], p[1] - s - 1.5);
+      ctx.lineTo(p[0] + s + 1.5, p[1]);
+      ctx.lineTo(p[0], p[1] + s + 1.5);
+      ctx.lineTo(p[0] - s - 1.5, p[1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.moveTo(p[0], p[1] - s);
+      ctx.lineTo(p[0] + s, p[1]);
+      ctx.lineTo(p[0], p[1] + s);
+      ctx.lineTo(p[0] - s, p[1]);
+      ctx.closePath();
+      ctx.fill();
+      if ((labels || e.big) && e.label && shown < 120) {
+        var tw = ctx.measureText(e.label).width;
+        ctx.fillStyle = "rgba(2,8,14,.8)";
+        ctx.fillRect(p[0] + s + 4, p[1] - 7, tw + 8, 14);
+        ctx.fillStyle = c;
+        ctx.fillText(e.label, p[0] + s + 8, p[1]);
+        shown++;
+      }
+      screenPts.push([p[0], p[1], e]);
+    }
+  });
+  ctx.restore();
+}
+
+// Called by entDossier for items of kind "info". Layers may fill extra rows on demand.
+function ilRows(e) {
+  var d = IL[e.layer];
+  if (d && d.fill && !e.filled && !e.filling) {
+    e.filling = true;
+    d.fill(e)
+      .catch(function () {
+        e.rows = e.rows.concat([["LIVE DATA", "Not available right now"]]);
+      })
+      .then(function () {
+        e.filling = false;
+        e.filled = true;
+        if (selected === e) entDossier(e);
+      });
+  }
+  return e.rows.concat(e.filling ? [["LIVE DATA", "Loading…"]] : []);
+}
+
+function ilWhen(t) {
+  return t ? new Date(t).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "—";
+}
+
+// ---------- Hurricanes and tropical storms (National Hurricane Center) ----------
+var HZ_CLASS = {
+  HU: ["Hurricane", "#ff3b3b"],
+  TS: ["Tropical storm", "#ff9a2e"],
+  TD: ["Tropical depression", "#ffd84a"],
+  STS: ["Subtropical storm", "#ff9a2e"],
+  STD: ["Subtropical depression", "#ffd84a"],
+  PTC: ["Potential tropical cyclone", "#c58bff"],
+  PT: ["Post-tropical cyclone", "#9fb4c8"]
+};
+
+function hzCategory(kt) {
+  var c = [64, 83, 96, 113, 137].filter(function (x) {
+    return kt >= x;
+  }).length;
+  return c ? "Category " + c : "";
+}
+
+function hzCoord(num, txt) {
+  if (typeof num === "number") return num;
+  var m = /^(-?[\d.]+)\s*([NSEW])?/.exec(String(txt || ""));
+  if (!m) return null;
+  var v = parseFloat(m[1]);
+  return m[2] === "S" || m[2] === "W" ? -v : v;
+}
+
+ilDef({
+  key: "storm",
+  label: "Hurricanes & tropical storms",
+  color: "#ff9a2e",
+  icon: "🌀",
+  every: 10 * 60000,
+  none: "NONE ACTIVE",
+  load: function (d) {
+    return getJSON("https://www.nhc.noaa.gov/CurrentStorms.json", 20000).then(function (j) {
+      return (j.activeStorms || []).map(function (s) {
+        var cl = HZ_CLASS[s.classification] || [s.classification || "Storm", d.color],
+          kt = num(s.intensity),
+          cat = kt ? hzCategory(kt) : "";
+        return ilItem(d, {
+          id: "storm:" + s.id,
+          n: cl[0] + " " + (s.name || ""),
+          label: (s.name || "").toUpperCase(),
+          lat: hzCoord(s.latitudeNumeric, s.latitude),
+          lon: hzCoord(s.longitudeNumeric, s.longitude),
+          color: cl[1],
+          size: 8,
+          big: true,
+          tag: (cat || cl[0]) + " · NHC",
+          rows: [
+            ["TYPE", cl[0] + (cat ? " · " + cat : "")],
+            ["WINDS", kt ? kt + " kt · " + Math.round(kt * 1.151) + " mph" : "—"],
+            ["PRESSURE", s.pressure ? s.pressure + " mb" : "—"],
+            [
+              "MOVING",
+              s.movementDir != null && s.movementSpeed != null
+                ? s.movementDir + "° at " + s.movementSpeed + " mph"
+                : "—"
+            ],
+            ["UPDATED", ilWhen(Date.parse(s.lastUpdate))],
+            ["SOURCE", "National Hurricane Center"]
+          ]
+        });
+      });
+    });
+  }
+});
+
+// ---------- River flood gauges (NOAA National Water Prediction Service) ----------
+var FL_CAT = {
+  major: ["Major flooding", "#c32aff", 4],
+  moderate: ["Moderate flooding", "#ff2e4d", 3],
+  minor: ["Minor flooding", "#ff8a1f", 2],
+  action: ["Near flood stage", "#ffd84a", 1],
+  no_flooding: ["Normal", "#39d98a", 0]
+};
+
+function flLevel(s) {
+  if (!s || s.primary == null || s.primary === -999) return null;
+  return s.primary + " " + (s.primaryUnit || "");
+}
+
+ilDef({
+  key: "flood",
+  label: "River levels & flood gauges",
+  color: "#4cc3ff",
+  icon: "≋",
+  every: 15 * 60000,
+  maxKm: 1500,
+  drawKm: 1500,
+  byArea: true,
+  load: function (d, b) {
+    return getJSON(
+      "https://api.water.noaa.gov/nwps/v1/gauges?bbox.xmin=" +
+        b.w.toFixed(2) +
+        "&bbox.ymin=" +
+        b.s.toFixed(2) +
+        "&bbox.xmax=" +
+        b.e.toFixed(2) +
+        "&bbox.ymax=" +
+        b.n.toFixed(2) +
+        "&srid=EPSG_4326",
+      25000
+    ).then(function (j) {
+      return (j.gauges || []).map(function (g) {
+        var st = g.status || {},
+          ob = st.observed || {},
+          fc = st.forecast || {},
+          cat = FL_CAT[ob.floodCategory],
+          fcat = FL_CAT[fc.floodCategory];
+        return ilItem(d, {
+          id: "flood:" + g.lid,
+          n: g.name || g.lid,
+          label: cat && cat[2] ? cat[0].toUpperCase() : "",
+          lat: g.latitude,
+          lon: g.longitude,
+          color: cat ? cat[1] : "#7d93a8",
+          size: cat && cat[2] ? 6 : 3.5,
+          big: !!(cat && cat[2] >= 2),
+          tag: (cat ? cat[0] : "River gauge") + " · NOAA",
+          rows: [
+            ["GAUGE", g.lid],
+            ["LEVEL", flLevel(ob) || "No reading"],
+            [
+              "FLOW",
+              ob.secondary != null && ob.secondary !== -999
+                ? ob.secondary + " " + (ob.secondaryUnit || "")
+                : "—"
+            ],
+            ["STATUS", cat ? cat[0] : "Not rated"],
+            ["FORECAST", flLevel(fc) ? flLevel(fc) + (fcat ? " · " + fcat[0] : "") : "None issued"],
+            ["READING", ob.validTime ? ago(Date.parse(ob.validTime)) : "—"],
+            ["FORECAST OFFICE", (g.wfo && g.wfo.name) || "—"],
+            ["SOURCE", "NOAA National Water Prediction Service"]
+          ]
+        });
+      });
+    });
+  }
+});
+
+// ---------- Tide stations (NOAA CO-OPS); readings and predictions are fetched on tap ----------
+var TIDE_API = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter";
+
+function tideYmd(d) {
+  return (
+    d.getUTCFullYear() +
+    String(d.getUTCMonth() + 1).padStart(2, "0") +
+    String(d.getUTCDate()).padStart(2, "0")
+  );
+}
+
+ilDef({
+  key: "tide",
+  label: "Tides & water levels",
+  color: "#3fe0d0",
+  icon: "∿",
+  every: 24 * 3600000,
+  drawKm: 1500,
+  load: function (d) {
+    if (d.items.length) return Promise.resolve(d.items);
+    return getJSON(
+      "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json?type=waterlevels",
+      30000
+    ).then(function (j) {
+      return (j.stations || []).map(function (s) {
+        return ilItem(d, {
+          id: "tide:" + s.id,
+          station: s.id,
+          n: s.name + (s.state ? ", " + s.state : ""),
+          label: "",
+          lat: s.lat,
+          lon: s.lng,
+          size: 3.5,
+          tag: "TIDE STATION · NOAA",
+          rows: [
+            ["STATION", s.id],
+            ["SOURCE", "NOAA Tides & Currents"]
+          ]
+        });
+      });
+    });
+  },
+  fill: function (e) {
+    var q =
+        "&station=" +
+        e.station +
+        "&datum=MLLW&units=english&time_zone=gmt&format=json&application=OjosDeDios",
+      now = new Date();
+    return Promise.all([
+      getJSON(TIDE_API + "?date=latest&product=water_level" + q, 15000).catch(function () {
+        return null;
+      }),
+      getJSON(
+        TIDE_API +
+          "?begin_date=" +
+          tideYmd(now) +
+          "&range=48&product=predictions&interval=hilo" +
+          q,
+        15000
+      ).catch(function () {
+        return null;
+      })
+    ]).then(function (r) {
+      var w = r[0] && r[0].data && r[0].data[0],
+        nxt = ((r[1] && r[1].predictions) || []).filter(function (p) {
+          return Date.parse(p.t.replace(" ", "T") + "Z") > Date.now();
+        });
+      var add = [];
+      if (w)
+        add.push([
+          "WATER LEVEL",
+          (+w.v).toFixed(2) +
+            " ft above low water · " +
+            ago(Date.parse(w.t.replace(" ", "T") + "Z"))
+        ]);
+      nxt.slice(0, 2).forEach(function (p) {
+        add.push([
+          p.type === "H" ? "NEXT HIGH" : "NEXT LOW",
+          (+p.v).toFixed(1) + " ft · " + ilWhen(Date.parse(p.t.replace(" ", "T") + "Z"))
+        ]);
+      });
+      if (!add.length) add.push(["LIVE DATA", "No reading published"]);
+      e.rows = add.concat(e.rows);
+    });
+  }
+});
+
+// ---------- Tsunami messages (US National and Pacific Tsunami Warning Centers) ----------
+var TS_LEVEL = [
+  [/warning/i, "#ff2e4d", "Warning"],
+  [/advisory/i, "#ff8a1f", "Advisory"],
+  [/watch/i, "#ffd84a", "Watch"],
+  [/./, "#4cc3ff", "Information statement"]
+];
+
+function tsParse(xml, src) {
+  var doc = new DOMParser().parseFromString(xml, "application/xml"),
+    feedTitle = (doc.querySelector("feed > title") || {}).textContent || "",
+    out = [];
+  Array.prototype.forEach.call(doc.getElementsByTagName("entry"), function (en) {
+    var get = function (tag) {
+        var x = en.getElementsByTagName(tag)[0];
+        return x ? x.textContent.trim() : "";
+      },
+      lat = num(get("geo:lat")),
+      lon = num(get("geo:long")),
+      upd = Date.parse(get("updated")),
+      lv = TS_LEVEL.filter(function (l) {
+        return l[0].test(feedTitle);
+      })[0];
+    if (lat == null || lon == null || !(Date.now() - upd < 72 * 3600000)) return;
+    out.push({
+      lat: lat,
+      lon: lon,
+      n: get("title") || "Tsunami message",
+      color: lv[1],
+      tag: "TSUNAMI " + lv[2].toUpperCase(),
+      label: lv[2].toUpperCase(),
+      size: 7,
+      big: true,
+      rows: [
+        ["MESSAGE", feedTitle || lv[2]],
+        ["ISSUED", ilWhen(upd)],
+        ["CENTER", src],
+        ["SOURCE", "tsunami.gov"]
+      ]
+    });
+  });
+  return out;
+}
+
+ilDef({
+  key: "tsunami",
+  label: "Tsunami messages",
+  color: "#4cc3ff",
+  icon: "≈",
+  every: 5 * 60000,
+  none: "NONE IN 72 H",
+  load: function (d) {
+    var feeds = [
+      ["https://www.tsunami.gov/events/xml/PAAQAtom.xml", "National Tsunami Warning Center"],
+      ["https://www.tsunami.gov/events/xml/PHEBAtom.xml", "Pacific Tsunami Warning Center"]
+    ];
+    return Promise.all(
+      feeds.map(function (f) {
+        return netGet(f[0], 20000, null, true)
+          .then(function (x) {
+            return tsParse(x, f[1]);
+          })
+          .catch(function () {
+            return null;
+          });
+      })
+    ).then(function (r) {
+      if (
+        r.every(function (x) {
+          return x === null;
+        })
+      )
+        throw new Error("tsunami feeds unreachable");
+      var all = [];
+      r.forEach(function (x) {
+        (x || []).forEach(function (o) {
+          all.push(ilItem(d, o));
+        });
+      });
+      return all;
+    });
+  }
+});
+
+// ---------- Wildfire perimeters (National Interagency Fire Center, WFIGS) ----------
+function fireCentre(rings) {
+  var r = rings[0] || [],
+    x = 0,
+    y = 0;
+  r.forEach(function (p) {
+    x += p[0];
+    y += p[1];
+  });
+  return r.length ? [x / r.length, y / r.length] : [null, null];
+}
+
+ilDef({
+  key: "fireperim",
+  label: "Wildfire perimeters (US)",
+  color: "#ff5a28",
+  icon: "▱",
+  every: 30 * 60000,
+  drawKm: 4000,
+  none: "NONE ACTIVE",
+  load: function (d) {
+    return getJSON(
+      "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query?where=1%3D1&outFields=poly_IncidentName,poly_GISAcres,attr_PercentContained,attr_FireDiscoveryDateTime&outSR=4326&maxAllowableOffset=0.005&geometryPrecision=4&f=geojson",
+      40000
+    ).then(function (j) {
+      return (j.features || []).map(function (f) {
+        var g = f.geometry || {},
+          p = f.properties || {},
+          rings =
+            g.type === "Polygon"
+              ? g.coordinates
+              : g.type === "MultiPolygon"
+                ? [].concat.apply([], g.coordinates)
+                : [],
+          c = fireCentre(rings),
+          acres = num(p.poly_GISAcres),
+          pct = num(p.attr_PercentContained);
+        return ilItem(d, {
+          id: "fire:" + p.poly_IncidentName + ":" + c.join(","),
+          n: (p.poly_IncidentName || "Wildfire") + " Fire",
+          label: (p.poly_IncidentName || "").toUpperCase(),
+          lat: c[1],
+          lon: c[0],
+          rings: rings,
+          size: 4.5,
+          big: acres > 1000,
+          tag: "WILDFIRE PERIMETER · NIFC",
+          rows: [
+            ["AREA", acres != null ? Math.round(acres).toLocaleString() + " acres" : "—"],
+            ["CONTAINED", pct != null ? Math.round(pct) + "%" : "Not reported"],
+            ["DISCOVERED", ilWhen(num(p.attr_FireDiscoveryDateTime))],
+            ["SOURCE", "National Interagency Fire Center (WFIGS)"]
+          ]
+        });
+      });
+    });
+  }
+});
+
+// ---------- Space weather: geomagnetic activity and the aurora forecast (NOAA SWPC) ----------
+var KP_WORDS = [
+  [9, "Extreme storm (G5)"],
+  [8, "Severe storm (G4)"],
+  [7, "Strong storm (G3)"],
+  [6, "Moderate storm (G2)"],
+  [5, "Minor storm (G1)"],
+  [4, "Active"],
+  [0, "Quiet"]
+];
+
+function kpWords(kp) {
+  for (var i = 0; i < KP_WORDS.length; i++) if (kp >= KP_WORDS[i][0]) return KP_WORDS[i][1];
+  return "Quiet";
+}
+
+ilDef({
+  key: "space",
+  label: "Space weather & aurora",
+  color: "#7dff9a",
+  icon: "☼",
+  every: 15 * 60000,
+  count: function () {
+    return IL.space && IL.space.kp != null ? 1 : 0;
+  },
+  status: function (d) {
+    return d.kp != null ? "KP " + d.kp.toFixed(1) + " · " + kpWords(d.kp).toUpperCase() : "";
+  },
+  load: function (d) {
+    return Promise.all([
+      getJSON("https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json", 20000),
+      getJSON("https://services.swpc.noaa.gov/json/ovation_aurora_latest.json", 30000).catch(
+        function () {
+          return null;
+        }
+      )
+    ]).then(function (r) {
+      var k = (r[0] || []).filter(function (x) {
+        return x && x.Kp != null;
+      });
+      d.kp = k.length ? +k[k.length - 1].Kp : null;
+      d.cells = [];
+      ((r[1] && r[1].coordinates) || []).forEach(function (c) {
+        if (c[2] >= 8) d.cells.push([c[0] > 180 ? c[0] - 360 : c[0], c[1], c[2]]);
+      });
+      return [];
+    });
+  },
+  draw: function (d, t, P) {
+    if (!d.cells || !d.cells.length) return;
+    for (var i = 0; i < d.cells.length; i++) {
+      var c = d.cells[i];
+      if (!focusHas(c[1], c[0])) continue;
+      var p = P(c[0], c[1]);
+      if (p[2] <= 0 || p[0] < -10 || p[0] > W + 10 || p[1] < -10 || p[1] > H + 10) continue;
+      ctx.fillStyle = "rgba(90,255,140," + Math.min(0.5, c[2] / 60).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], 3.2, 0, 7);
+      ctx.fill();
+    }
+  }
+});
+
+if (EMBED_OK)
+  setTimeout(function () {
+    IL_ORDER.forEach(function (k) {
+      if (WL[k]) ilLoad(IL[k], true);
+    });
+  }, 1800);
+/**
+ * @file Focus mode.
+ * Pick one or more US states, countries or city areas. They are lit and raised on the map,
+ * everything else is dimmed, and cameras, layers and data outside them pause so the focus area
+ * stays smooth. Boundaries come from public TopoJSON (us-atlas, world-atlas) and are loaded once.
+ *
+ * Module 28 of 29. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// ---------- Focus mode ----------
+var FOC = {
+  areas: [],
+  box: null,
+  mask: null,
+  states: null,
+  countries: null,
+  loading: null,
+  msg: ""
+};
+
+var FOC_SRC = {
+  states: "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json",
+  countries: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json"
+};
+
+var US_ABBR = {
+  AL: "Alabama",
+  AK: "Alaska",
+  AZ: "Arizona",
+  AR: "Arkansas",
+  CA: "California",
+  CO: "Colorado",
+  CT: "Connecticut",
+  DE: "Delaware",
+  DC: "District of Columbia",
+  FL: "Florida",
+  GA: "Georgia",
+  HI: "Hawaii",
+  ID: "Idaho",
+  IL: "Illinois",
+  IN: "Indiana",
+  IA: "Iowa",
+  KS: "Kansas",
+  KY: "Kentucky",
+  LA: "Louisiana",
+  ME: "Maine",
+  MD: "Maryland",
+  MA: "Massachusetts",
+  MI: "Michigan",
+  MN: "Minnesota",
+  MS: "Mississippi",
+  MO: "Missouri",
+  MT: "Montana",
+  NE: "Nebraska",
+  NV: "Nevada",
+  NH: "New Hampshire",
+  NJ: "New Jersey",
+  NM: "New Mexico",
+  NY: "New York",
+  NC: "North Carolina",
+  ND: "North Dakota",
+  OH: "Ohio",
+  OK: "Oklahoma",
+  OR: "Oregon",
+  PA: "Pennsylvania",
+  RI: "Rhode Island",
+  SC: "South Carolina",
+  SD: "South Dakota",
+  TN: "Tennessee",
+  TX: "Texas",
+  UT: "Utah",
+  VT: "Vermont",
+  VA: "Virginia",
+  WA: "Washington",
+  WV: "West Virginia",
+  WI: "Wisconsin",
+  WY: "Wyoming",
+  PR: "Puerto Rico"
+};
+
+// ----- TopoJSON -----
+// Decodes one GeometryCollection into features {name, rings: [[lon, lat]...][], box}.
+// Rings are made continuous across the antimeridian so they can be filled and tested.
+function topoFeatures(topo, objName) {
+  var tf = topo.transform,
+    arcs = topo.arcs.map(function (a) {
+      var x = 0,
+        y = 0;
+      return a.map(function (p) {
+        if (!tf) return [p[0], p[1]];
+        x += p[0];
+        y += p[1];
+        return [x * tf.scale[0] + tf.translate[0], y * tf.scale[1] + tf.translate[1]];
+      });
+    });
+  var ring = function (ix) {
+    var out = [];
+    ix.forEach(function (i) {
+      var a = i < 0 ? arcs[~i].slice().reverse() : arcs[i];
+      for (var k = 0; k < a.length; k++) if (k || !out.length) out.push(a[k]);
+    });
+    for (var k = 1; k < out.length; k++) {
+      var d = out[k][0] - out[k - 1][0];
+      if (d > 180) out[k] = [out[k][0] - 360, out[k][1]];
+      else if (d < -180) out[k] = [out[k][0] + 360, out[k][1]];
+    }
+    return out;
+  };
+  var obj = topo.objects[objName];
+  return ((obj && obj.geometries) || [])
+    .map(function (g) {
+      var polys = g.type === "Polygon" ? [g.arcs] : g.type === "MultiPolygon" ? g.arcs : [],
+        rings = [];
+      polys.forEach(function (pg) {
+        pg.forEach(function (r) {
+          rings.push(ring(r));
+        });
+      });
+      return {
+        name: (g.properties && g.properties.name) || "",
+        rings: rings,
+        box: ringsBox(rings)
+      };
+    })
+    .filter(function (f) {
+      return f.rings.length && f.name;
+    });
+}
+
+function ringsBox(rings) {
+  var b = { w: Infinity, e: -Infinity, s: Infinity, n: -Infinity };
+  rings.forEach(function (r) {
+    r.forEach(function (p) {
+      if (p[0] < b.w) b.w = p[0];
+      if (p[0] > b.e) b.e = p[0];
+      if (p[1] < b.s) b.s = p[1];
+      if (p[1] > b.n) b.n = p[1];
+    });
+  });
+  return b;
+}
+
+// A circle of radius km around a point, as a ring.
+function focCircle(lat, lon, km) {
+  var r = [],
+    dLat = km / 110.57,
+    dLon = km / (111.32 * Math.max(0.2, Math.cos(lat * D)));
+  for (var i = 0; i <= 48; i++) {
+    var a = (i / 48) * Math.PI * 2;
+    r.push([lon + Math.cos(a) * dLon, lat + Math.sin(a) * dLat]);
+  }
+  return r;
+}
+
+function focLoad() {
+  if (FOC.states && FOC.countries) return Promise.resolve();
+  if (FOC.loading) return FOC.loading;
+  FOC.loading = Promise.all([getJSON(FOC_SRC.states, 30000), getJSON(FOC_SRC.countries, 40000)])
+    .then(function (r) {
+      FOC.states = topoFeatures(r[0], "states");
+      FOC.countries = topoFeatures(r[1], "countries");
+    })
+    .catch(function (e) {
+      FOC.loading = null;
+      throw e;
+    });
+  return FOC.loading;
+}
+
+// ----- the focus mask: a small raster of the chosen areas, for fast point tests -----
+function focRebuild() {
+  if (!FOC.areas.length) {
+    FOC.box = null;
+    FOC.mask = null;
+  } else {
+    var b = { w: Infinity, e: -Infinity, s: Infinity, n: -Infinity };
+    FOC.areas.forEach(function (a) {
+      b.w = Math.min(b.w, a.box.w);
+      b.e = Math.max(b.e, a.box.e);
+      b.s = Math.min(b.s, a.box.s);
+      b.n = Math.max(b.n, a.box.n);
+    });
+    FOC.box = b;
+    var cw = Math.max(64, Math.min(1024, Math.round((b.e - b.w) * 40))),
+      ch = Math.max(64, Math.min(1024, Math.round((b.n - b.s) * 40))),
+      cv = document.createElement("canvas");
+    cv.width = cw;
+    cv.height = ch;
+    var g = cv.getContext("2d"),
+      sx = cw / (b.e - b.w || 1),
+      sy = ch / (b.n - b.s || 1);
+    g.fillStyle = "#fff";
+    g.beginPath();
+    FOC.areas.forEach(function (a) {
+      a.rings.forEach(function (r) {
+        r.forEach(function (p, i) {
+          var x = (p[0] - b.w) * sx,
+            y = (b.n - p[1]) * sy;
+          if (i) g.lineTo(x, y);
+          else g.moveTo(x, y);
+        });
+        g.closePath();
+      });
+    });
+    g.fill("evenodd");
+    var px = g.getImageData(0, 0, cw, ch).data,
+      m = new Uint8Array(cw * ch);
+    for (var i = 0; i < m.length; i++) m[i] = px[i * 4 + 3] > 0 ? 1 : 0;
+    FOC.mask = { w: cw, h: ch, sx: sx, sy: sy, a: m };
+  }
+  try {
+    localStorage.setItem(
+      "ojos-focus",
+      JSON.stringify(
+        FOC.areas.map(function (a) {
+          return { type: a.type, name: a.name, lat: a.lat, lon: a.lon, km: a.km };
+        })
+      )
+    );
+  } catch (e) {}
+  render();
+  wstat();
+  lastView = "";
+}
+
+function focusBox() {
+  return FOC && FOC.box ? FOC.box : null;
+}
+
+// True when no focus is set, or the point lies inside a focus area.
+function focusHas(lat, lon) {
+  if (!FOC || !FOC.mask) return true;
+  var b = FOC.box,
+    m = FOC.mask;
+  if (lat < b.s || lat > b.n) return false;
+  for (var k = -1; k <= 1; k++) {
+    var x = lon + k * 360;
+    if (x < b.w || x > b.e) continue;
+    var cx = Math.min(m.w - 1, Math.floor((x - b.w) * m.sx)),
+      cy = Math.min(m.h - 1, Math.floor((b.n - lat) * m.sy));
+    if (m.a[cy * m.w + cx]) return true;
+  }
+  return false;
+}
+
+// ----- choosing areas -----
+function focFind(q) {
+  q = String(q || "").trim();
+  if (!q) return null;
+  var lq = q.toLowerCase(),
+    ab = US_ABBR[q.toUpperCase()],
+    hit = function (list, type) {
+      var f = (list || []).filter(function (x) {
+        return x.name.toLowerCase() === lq || (ab && x.name === ab);
+      })[0];
+      return f ? { type: type, name: f.name, rings: f.rings, box: f.box } : null;
+    };
+  var r = hit(FOC.states, "state") || hit(FOC.countries, "country");
+  if (r) return r;
+  var c = GAZ.filter(function (g) {
+    return String(g[0]).toLowerCase() === lq;
+  })[0];
+  if (c) return focCity(c[0], c[1], c[2], 35);
+  return null;
+}
+
+function focCity(name, lat, lon, km) {
+  var ring = focCircle(lat, lon, km);
+  return {
+    type: "city",
+    name: name,
+    lat: lat,
+    lon: lon,
+    km: km,
+    rings: [ring],
+    box: ringsBox([ring])
+  };
+}
+
+function pointInRings(rings, lat, lon) {
+  var inside = false;
+  rings.forEach(function (r) {
+    for (var i = 0, j = r.length - 1; i < r.length; j = i++) {
+      var xi = r[i][0],
+        yi = r[i][1],
+        xj = r[j][0],
+        yj = r[j][1];
+      if (yi > lat !== yj > lat && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi)
+        inside = !inside;
+    }
+  });
+  return inside;
+}
+
+// The area at the centre of the view: a city area when zoomed in, otherwise the state or country.
+function focHere() {
+  var lat = rot.lat,
+    lon = rot.lon,
+    km = viewKm();
+  if (km < 200) {
+    var near = null,
+      best = Infinity;
+    GAZ.forEach(function (g) {
+      var dd = hav(lat, lon, g[1], g[2]);
+      if (dd < best) {
+        best = dd;
+        near = g;
+      }
+    });
+    var name = near && best < 40 ? near[0] : "This area";
+    return focCity(name, lat, lon, Math.max(5, Math.round(km * 0.45)));
+  }
+  var find = function (list, type) {
+    var f = (list || []).filter(function (x) {
+      return (
+        lat >= x.box.s &&
+        lat <= x.box.n &&
+        (pointInRings(x.rings, lat, lon) ||
+          pointInRings(x.rings, lat, lon + 360) ||
+          pointInRings(x.rings, lat, lon - 360))
+      );
+    })[0];
+    return f ? { type: type, name: f.name, rings: f.rings, box: f.box } : null;
+  };
+  return find(FOC.states, "state") || find(FOC.countries, "country");
+}
+
+function focAdd(a) {
+  if (!a) return false;
+  if (
+    FOC.areas.some(function (x) {
+      return x.name === a.name && x.type === a.type;
+    })
+  )
+    return true;
+  FOC.areas.push(a);
+  focRebuild();
+  return true;
+}
+
+function focRemove(i) {
+  FOC.areas.splice(i, 1);
+  focRebuild();
+}
+
+function focClear() {
+  FOC.areas = [];
+  focRebuild();
+}
+
+function focRestore() {
+  var saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem("ojos-focus") || "null");
+  } catch (e) {}
+  if (!saved || !saved.length) return;
+  focLoad()
+    .then(function () {
+      saved.forEach(function (s) {
+        var a = s.type === "city" ? focCity(s.name, s.lat, s.lon, s.km) : focFind(s.name);
+        if (a && a.type === s.type) FOC.areas.push(a);
+      });
+      focRebuild();
+    })
+    .catch(function () {});
+}
+
+// ----- drawing: dim everything outside, light and raise the focus areas -----
+function focPath(P, a) {
+  a.rings.forEach(function (r) {
+    var started = false;
+    for (var i = 0; i < r.length; i++) {
+      var p = P(r[i][0], r[i][1]);
+      if (p[2] <= 0) {
+        started = false;
+        continue;
+      }
+      if (!started) {
+        ctx.moveTo(p[0], p[1]);
+        started = true;
+      } else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.closePath();
+  });
+}
+
+function drawFocus(P) {
+  if (!FOC || !FOC.areas.length) return;
+  ctx.save();
+  // Darken the world outside the focus areas.
+  ctx.beginPath();
+  ctx.rect(-10, -10, W + 20, H + 20);
+  FOC.areas.forEach(function (a) {
+    focPath(P, a);
+  });
+  ctx.fillStyle = "rgba(1,4,8,.74)";
+  ctx.fill("evenodd");
+  // Raise the focus areas: a drop shadow, a soft light inside, a glowing rim and a highlight.
+  FOC.areas.forEach(function (a) {
+    ctx.beginPath();
+    focPath(P, a);
+    ctx.shadowColor = "rgba(0,0,0,.95)";
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 7;
+    ctx.strokeStyle = "rgba(0,0,0,.9)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.shadowColor = "transparent";
+    ctx.shadowOffsetY = 0;
+    ctx.fillStyle = "rgba(63,224,208,.07)";
+    ctx.fill("evenodd");
+    ctx.shadowColor = "rgba(63,224,208,.85)";
+    ctx.shadowBlur = 12;
+    ctx.strokeStyle = "#3fe0d0";
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.translate(0, -1);
+    ctx.strokeStyle = "rgba(255,255,255,.55)";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.translate(0, 1);
+  });
+  ctx.restore();
+  // Items outside the focus cannot be tapped.
+  screenPts = screenPts.filter(function (s) {
+    var o = s[2];
+    return !o || o.lat == null || focusHas(o.lat, o.lon);
+  });
+}
+
+// ----- panel -----
+function focOpen() {
+  var el = $("focus");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "focus";
+    el.className = "pn";
+    document.body.appendChild(el);
+  }
+  el.style.display = "flex";
+  FOC.msg = FOC.states ? "" : "Loading state and country outlines…";
+  focDraw();
+  focLoad()
+    .then(function () {
+      FOC.msg = "";
+      focDraw();
+    })
+    .catch(function () {
+      FOC.msg = "Could not load outlines. Check the connection and try again.";
+      focDraw();
+    });
+}
+
+function focClose() {
+  var el = $("focus");
+  if (el) el.style.display = "none";
+}
+
+function focDraw() {
+  var el = $("focus");
+  if (!el || el.style.display === "none") return;
+  if (document.activeElement && document.activeElement.id === "focQ") return;
+  var h =
+    '<div class="nh"><div><b class="mono">◎ FOCUS</b><h3>' +
+    (FOC.areas.length
+      ? FOC.areas.length + " area" + (FOC.areas.length > 1 ? "s" : "")
+      : "Whole world") +
+    '</h3></div><button data-fo="x" aria-label="Close">✕</button></div><div class="nl">' +
+    '<form class="chq" id="focForm"><input id="focQ" type="search" placeholder="State, country or city" autocomplete="off"><button>Add</button></form>' +
+    '<div class="brt"><button data-fo="here">⌖ Focus on what I\'m looking at</button>' +
+    (FOC.areas.length ? '<button data-fo="clear">Clear focus</button>' : "") +
+    "</div>";
+  if (FOC.msg) h += '<p class="bre">' + esc(FOC.msg) + "</p>";
+  if (FOC.areas.length)
+    h +=
+      '<h4 class="mono">FOCUSED</h4>' +
+      FOC.areas
+        .map(function (a, i) {
+          return (
+            '<div class="brc"><b>' +
+            esc(a.name) +
+            '</b><em class="mono">' +
+            esc(a.type.toUpperCase()) +
+            '</em><button class="mini" data-fo="rm" data-i="' +
+            i +
+            '" aria-label="Remove">✕</button></div>'
+          );
+        })
+        .join("");
+  h +=
+    '<p class="bre">The chosen areas light up and everything else dims. Cameras, layers and data outside them pause, so the area you care about runs smoothly. Add as many states, countries or cities as you like.</p></div>';
+  el.innerHTML = h;
+}
+
+document.addEventListener("submit", function (e) {
+  if (!e.target || e.target.id !== "focForm") return;
+  e.preventDefault();
+  var q = $("focQ").value;
+  $("focQ").blur();
+  focLoad()
+    .then(function () {
+      var a = focFind(q);
+      FOC.msg = a ? "" : "No state, country or city called “" + q + "” on the built-in lists.";
+      focAdd(a);
+      focDraw();
+    })
+    .catch(function () {
+      FOC.msg = "Could not load outlines. Check the connection and try again.";
+      focDraw();
+    });
+});
+
+document.addEventListener("click", function (e) {
+  if (e.target.closest("#bFocus")) {
+    focOpen();
+    return;
+  }
+  var b = e.target.closest("[data-fo]");
+  if (!b) return;
+  var k = b.getAttribute("data-fo");
+  if (k === "x") focClose();
+  else if (k === "clear") {
+    focClear();
+    focDraw();
+  } else if (k === "rm") {
+    focRemove(+b.getAttribute("data-i"));
+    focDraw();
+  } else if (k === "here") {
+    focLoad()
+      .then(function () {
+        var a = focHere();
+        FOC.msg = a ? "" : "Nothing found at the centre of the map. Move over land and try again.";
+        if (focAdd(a)) focClose();
+        else focDraw();
+      })
+      .catch(function () {
+        FOC.msg = "Could not load outlines. Check the connection and try again.";
+        focDraw();
+      });
+  }
+});
+
+if (EMBED_OK) setTimeout(focRestore, 1200);
+/**
+ * @file Start-up.
+ * Runs last, after every module has defined its state, so the first render sees all layers.
+ *
+ * Module 29 of 29. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
 setButtons();
 render();
 aiSet(AI_ON);

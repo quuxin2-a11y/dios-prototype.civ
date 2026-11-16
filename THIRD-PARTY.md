@@ -41,6 +41,20 @@ This project connects existing libraries and public data. It does not claim them
 | CelesTrak | Satellite orbital elements | Free public data |
 | Digitraffic (Fintraffic) | Ships, Finnish cameras | CC BY 4.0 |
 | AISStream | Ships (optional, user's key) | Provider terms |
+| MBTA V3 API (Boston) | Live buses, subway, light rail, commuter rail and ferries | MassDOT Developers License Agreement |
+| SEPTA TransitView (Philadelphia) | Live buses and trolleys | SEPTA open data terms |
+| TTC via Umo public feed (Toronto) | Live buses and streetcars | TTC open data licence |
+| King County Metro GTFS-Realtime (Seattle) | Live bus positions | King County open data terms |
+| CapMetro GTFS-Realtime via data.texas.gov (Austin) | Live bus and rail positions | Texas Open Data Portal terms |
+| HSL GTFS-Realtime (Helsinki) | Live bus, tram, metro and train positions | CC BY 4.0 |
+| Amtraker (public Amtrak data) | Live Amtrak trains | Community API over Amtrak's public train status |
+| National Hurricane Center (NOAA) | Active hurricanes and tropical storms | US public domain |
+| NOAA National Water Prediction Service | River levels, flood categories and forecasts | US public domain |
+| NOAA Tides & Currents (CO-OPS) | Tide stations, water levels and high/low predictions | US public domain |
+| US Tsunami Warning Centers (tsunami.gov) | Tsunami warnings, advisories, watches and statements | US public domain |
+| National Interagency Fire Center (WFIGS) | Current wildfire perimeters | US public domain |
+| NOAA Space Weather Prediction Center | Planetary K-index and aurora forecast | US public domain |
+| us-atlas and world-atlas (TopoJSON) | State and country outlines for Focus mode | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |
 | USGS | Earthquakes, volcano cameras | US public domain |

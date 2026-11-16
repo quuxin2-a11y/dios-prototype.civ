@@ -1,9 +1,9 @@
 /**
- * @file Home, reports and start-up.
- * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and application
- * start-up.
+ * @file Home, reports and views.
+ * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
+ * settings restored at start-up.
  *
- * Module 25 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -298,7 +298,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v54)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v56)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -611,6 +611,3 @@ if (WL.dots) {
   var bd0 = $("bDots");
   if (bd0) bd0.classList.add("on");
 }
-setButtons();
-render();
-aiSet(AI_ON);

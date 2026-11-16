@@ -3,7 +3,7 @@
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -86,6 +86,8 @@ function drawWorld(t, P) {
   drawFootprint(t, P);
   drawRoute(t, P);
   drawWeb(t, P);
+  drawTransit(t, P);
+  drawInfoLayers(t, P);
   if (WL.ship && SHIPS.length) {
     ctx.fillStyle = "#d9c8ff";
     ctx.strokeStyle = "rgba(2,8,14,.8)";
@@ -93,6 +95,7 @@ function drawWorld(t, P) {
     var big = zoom > 40;
     for (i = 0; i < SHIPS.length; i++) {
       e = SHIPS[i];
+      if (!focusHas(e.lat, e.lon)) continue;
       p = P(e.lon, e.lat);
       if (p[2] <= 0 || p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H) continue;
       if (big && e.cog != null && e.cog < 360) {
@@ -117,6 +120,7 @@ function drawWorld(t, P) {
     ctx.globalAlpha = 0.85;
     for (i = 0; i < PLANES.length; i++) {
       e = PLANES[i];
+      if (!focusHas(e.lat, e.lon)) continue;
       p = P(e.lon, e.lat);
       if (p[2] <= 0 || p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H) continue;
       ctx.fillRect(p[0] - 1.2, p[1] - 1.2, 2.4, 2.4);
@@ -497,6 +501,14 @@ function entDossier(e) {
       ["LAST REPORT", ago(e.at)],
       ["SOURCE", e.src]
     ];
+  } else if (e.kind === "info") {
+    tag = e.tag;
+    col2 = e.color;
+    rows = ilRows(e);
+  } else if (e.kind === "transit") {
+    tag = trTag(e);
+    col2 = e.color;
+    rows = trRows(e);
   } else if (e.kind === "quake") {
     tag = "EARTHQUAKE";
     col2 = "#ff5533";
@@ -558,11 +570,13 @@ function entDossier(e) {
     '</button></div><p class="note2">Eyes on Scene finds the live cameras nearest this ' +
     (e.kind === "plane"
       ? "aircraft"
-      : e.kind === "ship"
-        ? "vessel"
-        : e.kind === "sat"
-          ? "satellite's ground point"
-          : "event") +
+      : e.kind === "transit"
+        ? "vehicle"
+        : e.kind === "ship"
+          ? "vessel"
+          : e.kind === "sat"
+            ? "satellite's ground point"
+            : "event") +
     ".</p>";
   wx(e.lat, e.lon);
 }
@@ -927,48 +941,52 @@ function wstat() {
     var n = w[3] ? w[3]() : null,
       st = WSTAT[w[0]];
     var txt =
-      w[0] === "air" && !nativeHttp() && st === "x"
-        ? "ANDROID APP ONLY"
-        : w[0] === "radar"
-          ? !EMBED_OK
-            ? "APP"
-            : !WL.radar
-              ? ""
-              : !gl || !WL.img
-                ? "NEEDS IMAGERY"
-                : RAD.shown
-                  ? "LIVE · " + ago(RAD.time * 1000)
-                  : st === "x"
-                    ? "OFFLINE"
-                    : "LOADING…"
-          : w[0] === "ship" && WL.ship && EMBED_OK && n
-            ? n.toLocaleString() +
-              (KEYS.ais
-                ? AIS.state === "live"
-                  ? " · WORLD"
-                  : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
-                : " · FINLAND ONLY")
-            : w[0] === "img"
+      w[0] === "transit"
+        ? trStatus()
+        : ilStatus(w[0]) != null
+          ? ilStatus(w[0])
+          : w[0] === "air" && !nativeHttp() && st === "x"
+            ? "ANDROID APP ONLY"
+            : w[0] === "radar"
               ? !EMBED_OK
                 ? "APP"
-                : satOK()
-                  ? "LIVE"
-                  : glTried && !gl
-                    ? "NOT SUPPORTED"
-                    : WL.img
-                      ? "LOADING…"
-                      : ""
-              : n == null
-                ? ""
-                : !EMBED_OK
-                  ? "APP"
-                  : n
-                    ? n.toLocaleString()
-                    : st === "x"
-                      ? "OFFLINE"
-                      : WL[w[0]]
-                        ? "…"
-                        : "";
+                : !WL.radar
+                  ? ""
+                  : !gl || !WL.img
+                    ? "NEEDS IMAGERY"
+                    : RAD.shown
+                      ? "LIVE · " + ago(RAD.time * 1000)
+                      : st === "x"
+                        ? "OFFLINE"
+                        : "LOADING…"
+              : w[0] === "ship" && WL.ship && EMBED_OK && n
+                ? n.toLocaleString() +
+                  (KEYS.ais
+                    ? AIS.state === "live"
+                      ? " · WORLD"
+                      : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
+                    : " · FINLAND ONLY")
+                : w[0] === "img"
+                  ? !EMBED_OK
+                    ? "APP"
+                    : satOK()
+                      ? "LIVE"
+                      : glTried && !gl
+                        ? "NOT SUPPORTED"
+                        : WL.img
+                          ? "LOADING…"
+                          : ""
+                  : n == null
+                    ? ""
+                    : !EMBED_OK
+                      ? "APP"
+                      : n
+                        ? n.toLocaleString()
+                        : st === "x"
+                          ? "OFFLINE"
+                          : WL[w[0]]
+                            ? "…"
+                            : "";
     return (
       '<button class="cat' +
       (WL[w[0]] ? "" : " off") +
@@ -995,7 +1013,8 @@ function wstat() {
       quake: "◎",
       event: "🔥",
       night: "◐",
-      tiles: "▣"
+      tiles: "▣",
+      transit: "🚌"
     },
     ir = $("irail");
   if (ir)
@@ -1009,7 +1028,7 @@ function wstat() {
         '" title="' +
         w[1] +
         '">' +
-        IC[w[0]] +
+        (IC[w[0]] || (IL && IL[w[0]] && IL[w[0]].icon) || "•") +
         (n ? "<small>" + (n > 999 ? Math.round(n / 100) / 10 + "k" : n) + "</small>" : "") +
         "</button>"
       );
@@ -2480,6 +2499,14 @@ function lfDraw() {
       row("_video", "▶", "#c8f2ff", vid, "live video", false) +
       row("air", "✈", "#ffe27a", WL.air ? cnt("air") : "off", "flights", !!WL.air) +
       row("ship", "⛴", "#d9c8ff", WL.ship ? cnt("ship") : "off", "ships", !!WL.ship) +
+      row(
+        "transit",
+        "🚌",
+        "#ffd84a",
+        WL.transit ? cnt("transit") : "off",
+        "transit",
+        !!WL.transit
+      ) +
       row("sat", "✦", "#b4ffb0", WL.sat ? cnt("sat") : "off", "satellites", !!WL.sat) +
       row("quake", "◎", "#ff5533", WL.quake ? cnt("quake") : "off", "earthquakes", !!WL.quake) +
       row("event", "▲", "#ff8a1f", WL.event ? cnt("event") : "off", "fires · storms", !!WL.event) +
@@ -2531,7 +2558,7 @@ document.addEventListener("click", function (e) {
     return;
   }
   if (k === "_hideall") {
-    var keys = ["dots", "air", "ship", "sat", "quake", "event", "radar"];
+    var keys = ["dots", "air", "ship", "transit", "sat", "quake", "event", "radar"];
     if (LF.saved) {
       LF.saved.forEach(function (x) {
         setLayer(x, true);

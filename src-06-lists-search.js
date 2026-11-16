@@ -3,7 +3,7 @@
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13,6 +13,7 @@ function filtered() {
   return cams.filter(function (c) {
     if (!on[c.t]) return false;
     if (region && c.c !== region) return false;
+    if (!focusHas(c.lat, c.lon)) return false;
     if (
       q &&
       (c.n + " " + c.c + " " + c.r + " " + lab(c.t) + " " + (c.d || "")).toLowerCase().indexOf(q) <
@@ -28,6 +29,7 @@ function filteredLive() {
     if (!on[c.t]) return false;
     if (DEAD[c.u] && !SHOWDEAD && FAV.indexOf(c.u) < 0) return false;
     if (region && c.c !== region) return false;
+    if (!focusHas(c.lat, c.lon)) return false;
     if (q && (c.n + " " + c.c + " " + c.r + " " + c.src).toLowerCase().indexOf(q) < 0) return false;
     return true;
   });

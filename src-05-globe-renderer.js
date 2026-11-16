@@ -3,7 +3,7 @@
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 25. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 29. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -752,6 +752,7 @@ function markers(t, P) {
     ctx.drawImage(spr(color, sm ? "s" : "c"), p[0] - 14, p[1] - 14, 28, 28);
     screenPts.push([p[0], p[1], cc]);
   }
+  drawFocus(P);
   if (selected) {
     var s = P(selected.lon, selected.lat);
     if (s[2] > 0) {

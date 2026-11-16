@@ -7,8 +7,10 @@ Run:
     python3 -m pip install playwright && python3 -m playwright install chromium
     python3 -m unittest -v test_browser
 """
+
 import functools
 import http.server
+import json
 import threading
 import unittest
 from pathlib import Path
@@ -21,6 +23,99 @@ except ImportError:  # pragma: no cover - only when Playwright is not installed
 ROOT = Path(__file__).resolve().parent
 PHONE = {"width": 412, "height": 915}
 SETTLE_MS = 2500
+
+# Two vehicles in the shape of the MBTA V3 API's /vehicles response, used instead of the live API.
+MBTA_SAMPLE = {
+    "data": [
+        {
+            "type": "vehicle",
+            "id": "y1836",
+            "attributes": {
+                "bearing": 358,
+                "current_status": "STOPPED_AT",
+                "label": "1836",
+                "latitude": 42.3554,
+                "longitude": -71.0605,
+                "occupancy_status": "MANY_SEATS_AVAILABLE",
+                "speed": None,
+                "updated_at": "2026-11-16T10:00:00-05:00",
+            },
+            "relationships": {
+                "route": {"data": {"id": "22", "type": "route"}},
+                "stop": {"data": {"id": "1216", "type": "stop"}},
+            },
+        },
+        {
+            "type": "vehicle",
+            "id": "G-10147",
+            "attributes": {
+                "bearing": 135,
+                "current_status": "IN_TRANSIT_TO",
+                "label": "3662-3820",
+                "latitude": 42.35,
+                "longitude": -71.07,
+                "speed": 11.1,
+                "updated_at": "2026-11-16T10:00:00-05:00",
+            },
+            "relationships": {
+                "route": {"data": {"id": "Green-D", "type": "route"}},
+                "stop": {"data": {"id": "70178", "type": "stop"}},
+            },
+        },
+    ],
+    "included": [
+        {
+            "type": "route",
+            "id": "22",
+            "attributes": {"short_name": "22", "type": 3, "color": "FFC72C"},
+        },
+        {"type": "route", "id": "Green-D", "attributes": {"long_name": "Green Line D", "type": 0}},
+        {"type": "stop", "id": "1216", "attributes": {"name": "Talbot Ave @ Washington St"}},
+        {"type": "stop", "id": "70178", "attributes": {"name": "Fenway"}},
+    ],
+}
+
+
+def _topology(obj_name, features):
+    """A minimal TopoJSON topology with one unquantized arc per polygon."""
+    arcs, geoms = [], []
+    for name, ring in features:
+        arcs.append(ring)
+        geoms.append({"type": "Polygon", "arcs": [[len(arcs) - 1]], "properties": {"name": name}})
+    return {
+        "type": "Topology",
+        "objects": {obj_name: {"type": "GeometryCollection", "geometries": geoms}},
+        "arcs": arcs,
+    }
+
+
+# Sample responses in the shape of each public source, used instead of the live services.
+SAMPLES = {
+    "us-atlas": _topology(
+        "states",
+        [("Texas", [[-106.6, 31.9], [-93.5, 31.9], [-93.5, 26], [-97.1, 26], [-106.6, 31.9]])],
+    ),
+    "world-atlas": _topology(
+        "countries", [("Japan", [[129, 31], [146, 31], [146, 45], [129, 45], [129, 31]])]
+    ),
+    "CurrentStorms.json": {
+        "activeStorms": [
+            {
+                "id": "al052026",
+                "name": "Ernesto",
+                "classification": "HU",
+                "intensity": "100",
+                "pressure": "960",
+                "latitudeNumeric": 26.1,
+                "longitudeNumeric": -94.2,
+                "movementDir": 315,
+                "movementSpeed": 12,
+                "lastUpdate": "2026-11-16T15:00:00.000Z",
+            }
+        ]
+    },
+    "noaa-planetary-k-index": [{"time_tag": "2026-11-16T09:00:00", "Kp": 5.33}],
+}
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -62,8 +157,22 @@ class AppInBrowser(unittest.TestCase):
 
     @staticmethod
     def _local_only(route):
-        if route.request.url.startswith("http://127.0.0.1"):
+        url = route.request.url
+        if url.startswith("http://127.0.0.1"):
             route.continue_()
+        elif any(k in url for k in SAMPLES):
+            key = next(k for k in SAMPLES if k in url)
+            route.fulfill(
+                body=json.dumps(SAMPLES[key]),
+                content_type="application/json",
+                headers={"access-control-allow-origin": "*"},
+            )
+        elif url.startswith("https://api-v3.mbta.com/vehicles"):
+            route.fulfill(
+                body=json.dumps(MBTA_SAMPLE),
+                content_type="application/json",
+                headers={"access-control-allow-origin": "*"},
+            )
         else:
             route.abort()
 
@@ -83,11 +192,9 @@ class AppInBrowser(unittest.TestCase):
         self.assertGreater(size[1], 0)
 
     def test_bundled_data_is_embedded(self):
-        counts = self.page.evaluate(
-            """() => ['gaz', 'cam-data', 'models', 'land-dots'].map(
+        counts = self.page.evaluate("""() => ['gaz', 'cam-data', 'models', 'land-dots'].map(
                 id => JSON.parse(document.getElementById(id).textContent)
-            ).map(d => Array.isArray(d) ? d.length : Object.keys(d).length)"""
-        )
+            ).map(d => Array.isArray(d) ? d.length : Object.keys(d).length)""")
         for n in counts:
             self.assertGreater(n, 0)
 
@@ -117,6 +224,47 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("[data-em=yes]")
         self.page.wait_for_timeout(500)
         self.assertIn("emg", self.page.evaluate(html_class).split())
+        self.assertEqual(self.errors, [])
+
+    def test_transit_layer_shows_vehicles_near_a_covered_city(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({transit: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS)
+        self.page.fill("#addr", "Boston")
+        self.page.press("#addr", "Enter")
+        # The layer refreshes on a 10-second cycle, so allow one full cycle.
+        self.page.wait_for_function(
+            "() => (document.getElementById('wlayers') || {}).textContent.includes('2 · MBTA')",
+            timeout=20000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_emergency_layers_show_storms_and_space_weather(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({storm: true, space: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            """() => {
+                const t = (document.getElementById('wlayers') || {}).textContent || '';
+                return t.includes('KP 5.3') && /Hurricanes & tropical storms\\s*1/.test(t);
+            }""",
+            timeout=20000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_focus_mode_adds_and_clears_a_state(self):
+        self.page.click("#bFocus")
+        self.page.fill("#focQ", "TX")
+        self.page.press("#focQ", "Enter")
+        self.page.wait_for_function(
+            "() => document.getElementById('focus').textContent.includes('Texas')", timeout=10000
+        )
+        self.assertIn("1 area", self.page.inner_text("#focus"))
+        self.page.click("[data-fo=clear]")
+        self.assertIn("Whole world", self.page.inner_text("#focus"))
         self.assertEqual(self.errors, [])
 
     def test_survives_with_every_public_source_offline(self):
