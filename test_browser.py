@@ -282,6 +282,30 @@ SAMPLES = {
             {"name": "Virginia Beach, VA, United States"},
         ],
     },
+    "overpass-api.de/api/interpreter": {
+        "elements": [
+            {
+                "type": "way",
+                "id": 1,
+                "tags": {"building": "commercial", "height": "381"},
+                "geometry": [
+                    {"lat": 40.748, "lon": -73.986},
+                    {"lat": 40.749, "lon": -73.986},
+                    {"lat": 40.749, "lon": -73.985},
+                    {"lat": 40.748, "lon": -73.986},
+                ],
+            },
+            {
+                "type": "way",
+                "id": 2,
+                "tags": {"highway": "primary"},
+                "geometry": [
+                    {"lat": 40.748, "lon": -73.99},
+                    {"lat": 40.75, "lon": -73.98},
+                ],
+            },
+        ]
+    },
     "dx9v-zd7x": [
         {
             "traffic_report_id": "T1",
@@ -306,7 +330,7 @@ CESIUM_STANDIN = """
     construct: () => any(),
     set: () => true,
   });
-  const rec = window.__cz = { points: {}, lines: 0 };
+  const rec = window.__cz = { points: {}, lines: 0, prims: 0, globe: false };
   let n = 0;
   class Coll {
     constructor(kind) { this.id = kind + (n++); this.items = []; this.show = true; }
@@ -324,12 +348,14 @@ CESIUM_STANDIN = """
     get: (t, k) => {
       if (k === 'PointPrimitiveCollection') return Points;
       if (k === 'PolylineCollection') return Lines;
-      if (k === 'createGooglePhotorealistic3DTileset') return () => Promise.resolve(any());
+      if (k === 'createGooglePhotorealistic3DTileset') return () => { rec.google = (rec.google || 0) + 1; return Promise.resolve(any()); };
+      if (k === 'Cartographic') return { fromCartesian: () => ({ latitude: 0.711, longitude: -1.2913, height: 3000 }) };
       if (k === 'Viewer') return function () {
-        const prims = { add: (x) => x, remove: () => true };
+        const prims = { add: (x) => { rec.prims++; return x; }, remove: () => true };
+        const scene = new Proxy({}, { get: (t3, k3) => k3 === 'primitives' ? prims : k3 === 'canvas' ? document.createElement('canvas') : k3 === 'globe' ? (rec.globe ? any() : undefined) : any(), set: (t3, k3) => { if (k3 === 'globe') rec.globe = true; return true; } });
         return new Proxy({}, { get: (t2, k2) => {
-          if (k2 === 'scene') return new Proxy({}, { get: (t3, k3) => k3 === 'primitives' ? prims : k3 === 'canvas' ? document.createElement('canvas') : any(), set: () => true });
-          if (k2 === 'camera') return new Proxy({}, { get: (t4, k4) => k4 === 'positionCartographic' ? { height: 1.6e7, latitude: 0.6, longitude: -1.7 } : any() });
+          if (k2 === 'scene') return scene;
+          if (k2 === 'camera') return new Proxy({}, { get: (t4, k4) => k4 === 'positionCartographic' ? { height: window.__czH || 1.6e7, latitude: 0.711, longitude: -1.2913 } : k4 === 'pickEllipsoid' ? () => null : any() });
           return any();
         }, set: () => true });
       };
@@ -632,6 +658,9 @@ class AppInBrowser(unittest.TestCase):
     def test_earth_view_opens_from_space_with_points_and_cables(self):
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.add_init_script(
+            "localStorage.setItem('ojos-set', JSON.stringify({look: 'earth', lookV: 2}))"
+        )
+        self.page.add_init_script(
             "localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))"
         )
         self.page.reload()
@@ -641,6 +670,25 @@ class AppInBrowser(unittest.TestCase):
         self.page.wait_for_function(
             "() => window.__cz && window.__cz.lines >= 1 && Object.values(window.__cz.points).filter(n => n > 0).length >= 2",
             timeout=40000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_replica_is_the_default_and_loads_no_google_tiles(self):
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.add_init_script("window.__czH = 3000;")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('replica')", timeout=15000
+        )
+        self.page.wait_for_function(
+            "() => window.__cz && window.__cz.globe && window.__cz.prims >= 4",
+            timeout=20000,
+        )
+        self.assertFalse(self.page.evaluate("() => !!window.__cz.google"))
+        self.page.click("#bRepSw")
+        self.page.wait_for_function(
+            "() => window.__cz.google === 1 && !document.body.classList.contains('replica')",
+            timeout=10000,
         )
         self.assertEqual(self.errors, [])
 

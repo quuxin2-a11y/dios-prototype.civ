@@ -3,7 +3,7 @@
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -1165,16 +1165,66 @@ function t4Fly(lon, lat, rangeM, hdg) {
   try {
     v.camera.flyToBoundingSphere(
       new C.BoundingSphere(C.Cartesian3.fromDegrees(lon, lat, T4.h || 0), 1),
-      { offset: new C.HeadingPitchRange((hdg || 0) * D, -32 * D, rangeM), duration: 2.2 }
+      { offset: new C.HeadingPitchRange((hdg || 0) * D, -32 * D, rangeM), duration: 1.3 }
     );
   } catch (e) {}
 }
+// Load and show Google's Photorealistic 3D Tiles (the Google view), hiding the Replica.
+function t4Google(opt) {
+  opt = opt || {};
+  var C = window.Cesium,
+    v = T4.v;
+  if (!v) return;
+  if (typeof repOff === "function") repOff();
+  if (T4.ts) {
+    T4.ts.show = true;
+    T4.ready = true;
+    return;
+  }
+  // Sharp near the camera, lighter toward the horizon and the screen edges, and tiles for a
+  // flight's destination start loading as soon as the flight begins.
+  var tsOpt = {
+    maximumScreenSpaceError: PERF_L[SET.perf == null ? 1 : SET.perf][1],
+    dynamicScreenSpaceError: true,
+    foveatedScreenSpaceError: true,
+    preloadFlightDestinations: true,
+    showCreditsOnScreen: true
+  };
+  C.createGooglePhotorealistic3DTileset({ key: kG3() }, tsOpt)
+    .catch(function () {
+      return C.createGooglePhotorealistic3DTileset(undefined, tsOpt);
+    })
+    .then(function (ts) {
+      if (!T4.v) return;
+      T4.ts = ts;
+      perfSet(SET.perf);
+      v.scene.primitives.add(ts);
+      T4.ready = true;
+      T4.n = "";
+      ls("ojos-view", "real");
+      t4Pts();
+      t4Sel();
+    })
+    .catch(function () {
+      if (opt.auto) {
+        t4Close();
+        return;
+      }
+      if (typeof repOn === "function") {
+        note("Google 3D", "Google refused its 3D tiles for this key, so Replica is shown instead.");
+        repOn();
+        return;
+      }
+      t4Close();
+    });
+}
+
 // opt.space opens the Earth view from space; opt.auto (start-up) fails quietly and leaves the
 // classic globe in place.
 function t4Open(opt) {
   opt = opt && opt.target ? {} : opt || {};
   if (T4.on) return;
-  if (!kG3()) {
+  if (!opt.replica && !kG3()) {
     if (opt.auto) return;
     note(
       "Photoreal 3D",
@@ -1199,8 +1249,9 @@ function t4Open(opt) {
       btn.textContent = "◆ Photoreal 3D";
       btn.classList.add("on");
       $("ftiles").style.display = "none";
-      var vk = viewKm();
-      if (!T4.v) {
+      var vk = viewKm(),
+        fresh = !T4.v;
+      if (fresh) {
         var v;
         try {
           C.GoogleMaps.defaultApiKey = kG3();
@@ -1217,7 +1268,9 @@ function t4Open(opt) {
             selectionIndicator: false,
             baseLayer: false,
             globe: false,
-            requestRenderMode: false
+            // Draw only when something changed (camera, tiles, data): far less work per second.
+            requestRenderMode: true,
+            maximumRenderTimeChange: Infinity
           });
         } catch (e) {
           t4Close();
@@ -1231,30 +1284,12 @@ function t4Open(opt) {
             PERF_L[SET.perf == null ? 1 : SET.perf][0]
           );
         } catch (e) {}
-        C.createGooglePhotorealistic3DTileset({ key: kG3() })
-          .catch(function () {
-            return C.createGooglePhotorealistic3DTileset();
-          })
-          .then(function (ts) {
-            if (!T4.v) return;
-            T4.ts = ts;
-            perfSet(SET.perf);
-            v.scene.primitives.add(ts);
-            T4.ready = true;
-            T4.n = "";
-            ls("ojos-view", "real");
-            t4Pts();
-            t4Sel();
-          })
-          .catch(function () {
-            t4Close();
-            if (opt.auto) return;
-            note(
-              "Photoreal 3D",
-              "Google refused the 3D city models for this key. In Google Cloud, enable “Map Tiles API” for the same key, then try again. Opening the standard 3D view for now."
-            );
-            setTimeout(t3Open, 400);
-          });
+        // Replica needs no Google data; the Google tiles load only for the Google view.
+        if (opt.replica) {
+          T4.ready = true;
+          T4.n = "";
+          repOn();
+        } else t4Google(opt);
         v.scene.canvas.addEventListener("pointerdown", t4OrbitStop);
         var hd = new C.ScreenSpaceEventHandler(v.scene.canvas);
         hd.setInputAction(function (m) {
@@ -1289,10 +1324,31 @@ function t4Open(opt) {
             select(c);
             target = null;
             T4.h = 0;
-            t4Fly(c.lon, c.lat, 650, camHdg(c));
+            // From space, stop at city height first so the view arrives quickly.
+            var far = v.camera.positionCartographic.height > T4_GLOBAL_M;
+            t4Fly(c.lon, c.lat, far ? 30000 : 650, far ? 0 : camHdg(c));
+            return;
+          }
+          // A tap on the ground: scan that spot for nearby cameras, like on the classic globe.
+          var gp = null;
+          try {
+            gp = v.scene.pickPosition(m.position) || v.camera.pickEllipsoid(m.position);
+          } catch (x) {}
+          if (gp) {
+            var cg = C.Cartographic.fromCartesian(gp),
+              la = cg.latitude / D,
+              lo = cg.longitude / D;
+            if (isFinite(la) && isFinite(lo))
+              showArea({
+                name: la.toFixed(3) + ", " + lo.toFixed(3),
+                lat: la,
+                lon: lo,
+                src: "tap"
+              });
           }
         }, C.ScreenSpaceEventType.LEFT_CLICK);
       }
+      if (!fresh) opt.replica ? repOn() : t4Google(opt);
       if (opt.space)
         T4.v.camera.setView({
           destination: C.Cartesian3.fromDegrees(
@@ -1333,6 +1389,7 @@ function t4Close() {
     ckpClose();
   } catch (e) {}
   T4.on = false;
+  if (typeof repOff === "function") repOff();
   t4OrbitStop();
   if (T4.st) {
     T4.st = false;
@@ -1373,6 +1430,9 @@ setInterval(function () {
   if (T4.ready) {
     t4Pts();
     if (typeof t4Data === "function") t4Data();
+    try {
+      T4.v.scene.requestRender();
+    } catch (e) {}
     t4Sel();
     t4Models();
     t4Flight();

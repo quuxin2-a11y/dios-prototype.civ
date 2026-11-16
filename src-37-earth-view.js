@@ -1,11 +1,11 @@
 /**
- * @file Earth view: the default start-up globe.
- * Opens the CesiumJS + Google Photorealistic 3D Tiles view from space, the way the app now
- * starts, and draws the data layers and undersea cables in it on the graphics chip: cameras as
+ * @file Earth view: the start-up 3D globe.
+ * Opens the CesiumJS view from space (Replica by default, or the Google view), the way the app
+ * now starts, and draws the data layers and undersea cables in it on the graphics chip: cameras as
  * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
  * globe when the 3D engine or Google's tiles are not available.
  *
- * Module 37 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 37 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -16,9 +16,10 @@ if (!(SET.lookV >= 2)) {
   setSave();
 }
 
-// The start-up view: "earth" (default), "clear" or "classic" (the canvas globe looks).
-function lookEarth() {
-  return (SET.look || "earth") === "earth";
+// The start-up view: "replica" (default, 3D with no third-party branding), "earth" (Google 3D),
+// "clear" or "classic" (the canvas globe looks).
+function lookMode() {
+  return SET.look || "replica";
 }
 
 // Signature of what the data layers hold, so points are rebuilt only when something changed.
@@ -98,7 +99,13 @@ function t4Cables() {
 }
 
 // Start in the Earth view from space, over the place the globe was showing.
-if (EMBED_OK && lookEarth() && !/^(3d|real)$/.test(ls("ojos-view") || ""))
+if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && !/^(3d|real)$/.test(ls("ojos-view") || ""))
   setTimeout(function () {
-    t4Open({ auto: true, space: true, lon: rot.lon, lat: rot.lat });
+    t4Open({
+      auto: true,
+      space: true,
+      lon: rot.lon,
+      lat: rot.lat,
+      replica: lookMode() === "replica"
+    });
   }, 900);

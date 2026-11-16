@@ -2,7 +2,7 @@
  * @file Flight log.
  * Progress, schedule and recent history for a selected aircraft.
  *
- * Module 14 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 14 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

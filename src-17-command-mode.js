@@ -2,7 +2,7 @@
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

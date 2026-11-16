@@ -141,7 +141,12 @@ var NAMES = [
   "wbNum",
   "cableItems",
   "cableRows",
-  "windFarms"
+  "windFarms",
+  "repHeight",
+  "repMinHeight",
+  "repParse",
+  "repArea",
+  "repQuery"
 ];
 // Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
 function grabVar(name) {
@@ -157,6 +162,8 @@ function grabVar(name) {
   return src.slice(i + 1, j) + ";\n";
 }
 var TABLES = [
+  "REP_COLORS",
+  "REP_ROADS",
   "VOL_CODES",
   "DM_CATS",
   "CT_ALIASES",
@@ -1509,6 +1516,51 @@ test("wind: turbines group into one farm per project", function () {
   assert.strictEqual(it[0].lat, 32.45);
   assert.deepStrictEqual(it[0].rows[0], ["TURBINES", "627 (2 in view)"]);
   assert.deepStrictEqual(it[0].rows[3], ["TURBINE MODELS", "Mitsubishi MWT95/2.4"]);
+});
+
+test("replica: building heights, parts and the area grid", function () {
+  assert.strictEqual(F.repHeight({ height: "381" }), 381);
+  assert.strictEqual(F.repHeight({ height: "12,5" }), 12.5);
+  assert.strictEqual(F.repHeight({ "building:levels": "10" }), 33);
+  assert.strictEqual(F.repHeight({ building: "house" }), 6);
+  assert.strictEqual(F.repHeight({ building: "yes" }), 10);
+  assert.strictEqual(F.repMinHeight({ "building:min_level": "2" }), 6.4);
+  var sq = [
+    { lat: 40.748, lon: -73.986 },
+    { lat: 40.749, lon: -73.986 },
+    { lat: 40.749, lon: -73.985 },
+    { lat: 40.748, lon: -73.985 },
+    { lat: 40.748, lon: -73.986 }
+  ];
+  var r = F.repParse({
+    elements: [
+      {
+        type: "way",
+        id: 1,
+        tags: { building: "commercial", height: "381", name: "Empire State Building" },
+        geometry: sq
+      },
+      { type: "way", id: 2, tags: { highway: "primary" }, geometry: sq.slice(0, 2) },
+      { type: "way", id: 3, tags: { highway: "footway" }, geometry: sq.slice(0, 2) },
+      { type: "way", id: 4, tags: { natural: "water" }, geometry: sq },
+      { type: "way", id: 5, tags: { leisure: "park", name: "Bryant Park" }, geometry: sq },
+      { type: "way", id: 6, tags: { building: "yes" }, geometry: sq.slice(0, 3) },
+      { type: "node", id: 7, tags: { building: "yes" } }
+    ]
+  });
+  assert.strictEqual(r.buildings.length, 1);
+  assert.strictEqual(r.buildings[0].h, 381);
+  assert.strictEqual(r.buildings[0].color, "#b9c7d8");
+  assert.deepStrictEqual(r.buildings[0].ring[0], [-73.986, 40.748]);
+  assert.strictEqual(r.roads.length, 1);
+  assert.strictEqual(r.roads[0].w, 7);
+  assert.strictEqual(r.water.length, 1);
+  assert.strictEqual(r.parks.length, 1);
+  var a = F.repArea(40.7484, -73.9857),
+    b = F.repArea(40.746, -73.983);
+  assert.strictEqual(a.key, b.key);
+  assert.ok(a.s < 40.7484 && a.n > 40.7484 && a.w < -73.9857 && a.e > -73.9857);
+  assert.ok(F.repQuery(a).indexOf('way["building"]') > 0);
 });
 
 console.log("\n" + n + " tests passed");

@@ -4,7 +4,7 @@
  * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
  * for areas near the map view.
  *
- * Module 26 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 26 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

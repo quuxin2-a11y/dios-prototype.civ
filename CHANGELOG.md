@@ -2,6 +2,17 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v66
+- **Replica is the new default view** (`src-38-replica.js`): a 3D globe from space with NASA true-colour imagery, and a clean 3D model of the city in view built from OpenStreetMap: buildings at their real footprint and height (coloured by use, tap for type and height), roads by class, water and parks. Loads about 2–3 km around the centre of the view, keeps the last four areas, and runs on the graphics chip. Google's tiles are not loaded in Replica, so no third-party logo appears; data sources are behind an ⓘ button.
+- **Google 3D** is one tap away (GOOGLE 3D / REPLICA switch in the 3D view's side bar), and Google's tiles load only then.
+- Briefing → Globe look: Replica 3D (default), Google 3D, Clear globe or Classic dark.
+- Tests: 61 JavaScript tests and 23 browser tests, including Replica opening by default without loading Google tiles, and switching to Google 3D.
+
+## v65
+- Earth view is sharper and faster: Google 3D tiles now refine to more detail (tile detail error 10 instead of 18 on Balanced), with less detail spent on the horizon and screen edges, and tiles for a flight's destination load while flying. The view only redraws when something changes, and flights take 1.3 s instead of 2.2 s.
+- Tapping the ground in the Earth view scans that spot for nearby cameras, as on the classic globe. Tapping a camera from space stops at city height first.
+- The renderer's own logo is no longer shown (CesiumJS does not require it when Cesium ion is not used); Google's logo and data credits stay, smaller.
+
 ## v64
 - **Earth view is now the start-up globe** (`src-37-earth-view.js`): the app opens from space on Google Photorealistic 3D Tiles in CesiumJS, the same engine as Photoreal 3D, and zooms all the way down to 3D cities. From high up every camera is shown at once as a point coloured by kind; data-layer items are points and undersea cables are lines, all drawn by the graphics chip. Tapping any of them opens its details. If the 3D engine or Google's tiles cannot load, the app stays on the canvas globe without a message.
 - Briefing → Globe look: Google Earth 3D (default), Clear globe or Classic dark.

@@ -68,7 +68,7 @@ This project connects existing libraries and public data. It does not claim them
 | City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
 | U.S. Customs and Border Protection | Land border wait times | US public domain |
 | Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
-| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, communication towers, wind farms outside the US, museums, historic sites, World Heritage sites and farm shops | ODbL |
+| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, communication towers, Replica buildings, roads, water and parks, wind farms outside the US, museums, historic sites, World Heritage sites and farm shops | ODbL |
 | FEMA National Shelter System | Open emergency shelters | US public domain |
 | IODA (Georgia Tech) | Internet outages by country | IODA terms of use; attribution required |
 | OpenFEMA | Disaster declarations | US public domain; OpenFEMA terms |
@@ -77,7 +77,7 @@ This project connects existing libraries and public data. It does not claim them
 | Radio Browser | Internet radio station directory | Public domain directory; streams belong to each station |
 | National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
 | LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
-| NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe | NASA open data; no restrictions, attribution requested |
+| NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe and the Replica globe | NASA open data; no restrictions, attribution requested |
 | NOAA Hazard Mapping System | Smoke plumes and fire detections | US public domain |
 | Open-Meteo air quality (Copernicus CAMS) | Modelled air quality | CC BY 4.0 |
 | WHO Disease Outbreak News | Outbreak reports | WHO terms of use |

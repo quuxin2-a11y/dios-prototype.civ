@@ -2,7 +2,7 @@
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -504,7 +504,8 @@ function brDraw() {
   h +=
     '<h4 class="mono">GLOBE LOOK</h4><div class="brt">' +
     [
-      ["earth", "Google Earth 3D"],
+      ["replica", "Replica 3D"],
+      ["earth", "Google 3D"],
       ["clear", "Clear globe"],
       ["classic", "Classic dark"]
     ]
@@ -513,7 +514,7 @@ function brDraw() {
           '<button data-br="lk-' +
           o[0] +
           '" class="' +
-          ((SET.look || "earth") === o[0] ? "on" : "") +
+          ((SET.look || "replica") === o[0] ? "on" : "") +
           '">' +
           o[1] +
           "</button>"
@@ -574,7 +575,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 64 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 66 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -680,10 +681,12 @@ document.addEventListener("click", function (e) {
     setSave();
     lastView = "";
     brDraw();
-    if (SET.look === "earth" && !T4.on) {
+    var three = SET.look === "earth" || SET.look === "replica";
+    if (three && !T4.on) {
       brClose();
-      t4Open({ space: true, lon: rot.lon, lat: rot.lat });
-    } else if (SET.look !== "earth" && T4.on) t4Close();
+      t4Open({ space: true, lon: rot.lon, lat: rot.lat, replica: SET.look === "replica" });
+    } else if (three) SET.look === "replica" ? repOn() : t4Google();
+    else if (T4.on) t4Close();
   } else if (k.indexOf("tx-") === 0) {
     textSet(i);
     brDraw();

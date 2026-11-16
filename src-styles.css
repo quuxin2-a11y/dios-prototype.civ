@@ -7066,3 +7066,31 @@ button:active {
   text-transform: uppercase;
   color: var(--dim, #7d93a8);
 }
+/* Earth view credits: no renderer logo; data credits kept small and legible as required */
+#czmap .cesium-credit-logoContainer {
+  display: none !important;
+}
+#czmap .cesium-widget-credits {
+  font-size: 9px;
+  opacity: 0.85;
+}
+/* Replica: only the app's own brand on screen; sources are behind the ⓘ button */
+body.replica #czmap .cesium-widget-credits,
+body.replica #czmap .cesium-viewer-bottom {
+  display: none !important;
+}
+#repst {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #11161df2;
+  color: var(--ink);
+  font-size: 12px;
+  pointer-events: none;
+}

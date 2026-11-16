@@ -3,7 +3,7 @@
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 38. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 39. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -117,9 +117,9 @@ var panX = 0,
   panY = 0;
 var COVER = ["newsp", "flog", "brief", "cmp", "ops", "fnd", "plans", "rec", "emgp", "cty", "chk"];
 var PERF_L = [
-  [1, 28, 1.5, 1.5, 30],
-  [1.25, 18, 2, 2, 45],
-  [2, 10, 3, 2, 0]
+  [1, 16, 1.5, 1.5, 30],
+  [1.25, 10, 2, 2, 45],
+  [2, 6, 3, 2, 0]
 ]; // [3D pixel scale, 3D tile detail error] for Smooth, Balanced, Sharp
 function perfSet(i) {
   i = i == null ? 1 : +i;
