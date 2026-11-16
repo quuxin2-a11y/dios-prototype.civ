@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29,7 +29,8 @@ var WL_GROUP = {};
   ["Energy and geology", "powerplant fuel volcano"],
   ["Climate", "drought tempnow"],
   ["Culture and area facts", "museum historic unesco places countryfacts"],
-  ["Farming", "farming farmshop"]
+  ["Farming", "farming farmshop"],
+  ["Networks and wind", "cables towers windfarm"]
 ].forEach(function (g) {
   g[1].split(" ").forEach(function (k) {
     WL_GROUP[k] = g[0];
@@ -138,10 +139,17 @@ function ilStatus(key) {
   return d.st || (d.items.length ? d.items.length.toLocaleString() : "…");
 }
 
+// At most three data layers load at once, so camera networks are not starved at start-up.
+var IL_MAX_BUSY = 3;
 setInterval(function () {
   if (document.hidden) return;
+  var busy = IL_ORDER.filter(function (k) {
+    return IL[k].busy;
+  }).length;
   IL_ORDER.forEach(function (k) {
+    if (busy >= IL_MAX_BUSY) return;
     ilLoad(IL[k], false);
+    if (IL[k].busy) busy++;
   });
 }, 15000);
 
@@ -223,26 +231,21 @@ function drawInfoLayers(t, P) {
         screenPts.push([p[0], p[1], e]);
         continue;
       }
-      ctx.fillStyle = "rgba(2,8,14,.85)";
-      ctx.beginPath();
-      ctx.moveTo(p[0], p[1] - s - 1.5);
-      ctx.lineTo(p[0] + s + 1.5, p[1]);
-      ctx.lineTo(p[0], p[1] + s + 1.5);
-      ctx.lineTo(p[0] - s - 1.5, p[1]);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.moveTo(p[0], p[1] - s);
-      ctx.lineTo(p[0] + s, p[1]);
-      ctx.lineTo(p[0], p[1] + s);
-      ctx.lineTo(p[0] - s, p[1]);
-      ctx.closePath();
-      ctx.fill();
+      if (lookClear()) {
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], s * 0.8 + 1, 0, 6.2832);
+        ctx.fillStyle = c;
+        ctx.fill();
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = "rgba(255,255,255,.9)";
+        ctx.stroke();
+      } else {
+        ilDiamond(p, s, c);
+      }
       if ((labels || e.big) && e.label && shown < 120) {
-        var tw = ctx.measureText(e.label).width;
+        var tw0 = ctx.measureText(e.label).width;
         ctx.fillStyle = "rgba(2,8,14,.8)";
-        ctx.fillRect(p[0] + s + 4, p[1] - 7, tw + 8, 14);
+        ctx.fillRect(p[0] + s + 4, p[1] - 7, tw0 + 8, 14);
         ctx.fillStyle = c;
         ctx.fillText(e.label, p[0] + s + 8, p[1]);
         shown++;
@@ -251,6 +254,26 @@ function drawInfoLayers(t, P) {
     }
   });
   ctx.restore();
+}
+
+// The classic look's diamond marker.
+function ilDiamond(p, s, c) {
+  ctx.fillStyle = "rgba(2,8,14,.85)";
+  ctx.beginPath();
+  ctx.moveTo(p[0], p[1] - s - 1.5);
+  ctx.lineTo(p[0] + s + 1.5, p[1]);
+  ctx.lineTo(p[0], p[1] + s + 1.5);
+  ctx.lineTo(p[0] - s - 1.5, p[1]);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(p[0], p[1] - s);
+  ctx.lineTo(p[0] + s, p[1]);
+  ctx.lineTo(p[0], p[1] + s);
+  ctx.lineTo(p[0] - s, p[1]);
+  ctx.closePath();
+  ctx.fill();
 }
 
 // Called by entDossier for items of kind "info". Layers may fill extra rows on demand.

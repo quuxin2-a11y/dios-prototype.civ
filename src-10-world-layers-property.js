@@ -3,7 +3,7 @@
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

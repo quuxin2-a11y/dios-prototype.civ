@@ -138,7 +138,10 @@ var NAMES = [
   "wdPoint",
   "wdItems",
   "wbItems",
-  "wbNum"
+  "wbNum",
+  "cableItems",
+  "cableRows",
+  "windFarms"
 ];
 // Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
 function grabVar(name) {
@@ -1420,6 +1423,92 @@ test("area facts: Wikidata query, points and World Bank country rows", function 
   });
   assert.strictEqual(w.length, 1);
   assert.deepStrictEqual(w[0].rows[0], ["FARMLAND", "48.5% (2022)"]);
+});
+
+test("cables: routes merge per cable and details read owners and landings", function () {
+  var gj = {
+    features: [
+      {
+        properties: { id: "marea", name: "MAREA", color: "#e3317d", coordinates: [-40, 40] },
+        geometry: {
+          type: "MultiLineString",
+          coordinates: [
+            [
+              [-75.98, 36.85],
+              [-2.93, 43.26]
+            ]
+          ]
+        }
+      },
+      {
+        properties: { id: "marea", name: "MAREA", color: "#e3317d" },
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [-10, 40],
+            [-5, 41]
+          ]
+        }
+      },
+      {
+        properties: { id: "x", color: "javascript:1" },
+        geometry: {
+          type: "MultiLineString",
+          coordinates: [
+            [
+              [0, 0],
+              [1, 1]
+            ]
+          ]
+        }
+      },
+      { properties: {}, geometry: null }
+    ]
+  };
+  var it = F.cableItems(IL_D, gj);
+  assert.strictEqual(it.length, 2);
+  assert.strictEqual(it[0].parts.length, 2);
+  assert.strictEqual(it[0].lat, 40);
+  assert.strictEqual(it[1].color, "#4cc3ff");
+  var r = F.cableRows({
+    owners: "Meta, Microsoft, Telxius",
+    suppliers: "SubCom",
+    length: "6,605 km",
+    rfs: "2018 May",
+    landing_points: [{ name: "Bilbao, Spain" }, { name: "Virginia Beach, VA, United States" }]
+  });
+  assert.deepStrictEqual(r[1], ["OWNED BY", "Meta, Microsoft, Telxius"]);
+  assert.deepStrictEqual(r[4], ["IN SERVICE", "2018 May"]);
+  assert.strictEqual(r[5][1], "Bilbao, Spain; Virginia Beach, VA, United States");
+  assert.strictEqual(F.cableRows({ is_planned: true, rfs: "2027 Q4" })[4][1], "Planned · 2027 Q4");
+});
+
+test("wind: turbines group into one farm per project", function () {
+  var t = function (x, y) {
+    return {
+      attributes: {
+        p_name: "Roscoe",
+        p_tnum: 627,
+        p_cap: 781.5,
+        p_year: 2009,
+        t_manu: "Mitsubishi",
+        t_model: "MWT95/2.4",
+        t_state: "TX",
+        t_county: "Nolan County"
+      },
+      geometry: { x: x, y: y }
+    };
+  };
+  var it = F.windFarms(IL_D, [
+    t(-100.5, 32.4),
+    t(-100.4, 32.5),
+    { attributes: { p_name: "Bad" }, geometry: {} }
+  ]);
+  assert.strictEqual(it.length, 1);
+  assert.strictEqual(it[0].label, "ROSCOE");
+  assert.strictEqual(it[0].lat, 32.45);
+  assert.deepStrictEqual(it[0].rows[0], ["TURBINES", "627 (2 in view)"]);
+  assert.deepStrictEqual(it[0].rows[3], ["TURBINE MODELS", "Mitsubishi MWT95/2.4"]);
 });
 
 console.log("\n" + n + " tests passed");

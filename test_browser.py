@@ -249,6 +249,39 @@ SAMPLES = {
             }
         ]
     },
+    "cable/cable-geo.json": {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "id": "marea",
+                    "name": "MAREA",
+                    "color": "#e3317d",
+                    "coordinates": [-40, 40],
+                },
+                "geometry": {
+                    "type": "MultiLineString",
+                    "coordinates": [
+                        [[-75.98, 36.85], [-50, 39], [-20, 42], [-2.93, 43.26]]
+                    ],
+                },
+            }
+        ],
+    },
+    "cable/marea.json": {
+        "id": "marea",
+        "name": "MAREA",
+        "length": "6,605 km",
+        "owners": "Meta, Microsoft, Telxius",
+        "suppliers": "SubCom",
+        "rfs": "2018 May",
+        "is_planned": False,
+        "landing_points": [
+            {"name": "Bilbao, Spain"},
+            {"name": "Virginia Beach, VA, United States"},
+        ],
+    },
     "dx9v-zd7x": [
         {
             "traffic_report_id": "T1",
@@ -540,6 +573,17 @@ class AppInBrowser(unittest.TestCase):
             "() => document.querySelectorAll('#wlayers [data-wl]').length"
         )
         self.assertEqual(rendered, len(all_on))
+
+    def test_undersea_cables_load(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({cables: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => /Undersea cables\\s*1/.test((document.getElementById('wlayers') || {}).textContent)",
+            timeout=25000,
+        )
+        self.assertEqual(self.errors, [])
 
     def test_focus_mode_adds_and_clears_a_state(self):
         self.page.click("#bFocus")

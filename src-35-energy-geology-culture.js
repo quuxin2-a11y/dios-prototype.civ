@@ -5,7 +5,7 @@
  * historic sites and UNESCO World Heritage sites (OpenStreetMap); populated places (Wikidata);
  * and country facts and farming indicators (World Bank). Built on the info-layer framework.
  *
- * Module 35 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 35 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

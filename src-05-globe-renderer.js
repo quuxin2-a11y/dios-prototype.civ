@@ -3,7 +3,7 @@
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -221,10 +221,11 @@ function draw3d(t) {
     cy = CY();
   // atmosphere glow
   if (R < Math.max(W, H) * 1.2) {
-    var g = ctx.createRadialGradient(cx, cy, R * 0.985, cx, cy, R * 1.22);
+    var g = ctx.createRadialGradient(cx, cy, R * 0.985, cx, cy, R * 1.22),
+      clr = lookClear();
     g.addColorStop(0, "rgba(120,175,255,0)");
-    g.addColorStop(0.05, "rgba(120,175,255,0.5)");
-    g.addColorStop(0.3, "rgba(90,150,255,0.14)");
+    g.addColorStop(0.05, clr ? "rgba(140,195,255,0.85)" : "rgba(120,175,255,0.5)");
+    g.addColorStop(0.3, clr ? "rgba(80,150,255,0.28)" : "rgba(90,150,255,0.14)");
     g.addColorStop(1, "rgba(90,150,255,0)");
     ctx.fillStyle = g;
     ctx.beginPath();
@@ -237,8 +238,8 @@ function draw3d(t) {
   if (!satDraw(R, cx, cy)) {
     // ocean sphere
     var o = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.35, R * 0.1, cx, cy, R);
-    o.addColorStop(0, "#0f2a40");
-    o.addColorStop(1, "#030a12");
+    o.addColorStop(0, lookClear() ? "#1d5fae" : "#0f2a40");
+    o.addColorStop(1, lookClear() ? "#061a3d" : "#030a12");
     ctx.fillStyle = o;
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, 7);
@@ -279,7 +280,9 @@ function draw3d(t) {
       var nt = WL && WL.night && sunCos(DOTS[i], DOTS[i + 1]) < 0;
       ctx.fillStyle = nt
         ? "rgba(64,88,135," + (a * 0.6).toFixed(2) + ")"
-        : "rgba(120,200,235," + a.toFixed(2) + ")";
+        : lookClear()
+          ? "rgba(150,205,140," + a.toFixed(2) + ")"
+          : "rgba(120,200,235," + a.toFixed(2) + ")";
       ctx.fillRect(p2[0] - ds / 2, p2[1] - ds / 2, ds, ds);
     }
     if (WL && WL.night) {
@@ -509,6 +512,52 @@ var VX = [],
   CGlo,
   CGla,
   CGm;
+// The globe look: "clear" (default) shows imagery at full brightness with coloured points;
+// "classic" keeps the darker look with direction arrows. Chosen in Briefing.
+function lookClear() {
+  return !(typeof SET === "object" && SET && SET.look === "classic");
+}
+
+var CAM_KIND_COLORS = null;
+
+// Draw the VNUM visible cameras as round points, one path per colour so it stays fast.
+function drawCamPoints(n) {
+  if (!CAM_KIND_COLORS) {
+    CAM_KIND_COLORS = {};
+    Object.keys(L).forEach(function (k) {
+      CAM_KIND_COLORS[k] = L[k][1];
+    });
+  }
+  var r = zoom > 60 ? 4.6 : zoom > 8 ? 3.6 : zoom > 2.5 ? 2.6 : n > 20000 ? 1.5 : 1.9,
+    grp = {},
+    j,
+    lc,
+    ky;
+  for (j = 0; j < n; j++) {
+    lc = VC[j];
+    ky = lc.v || lc.mj ? "#ff4d8a" : CAM_KIND_COLORS[lc.t] || "#4cc3ff";
+    (grp[ky] || (grp[ky] = [])).push(j);
+  }
+  ctx.save();
+  // Zoomed in, points get a white ring; zoomed out, a thin dark edge keeps dense areas readable.
+  var ring = r >= 3.6;
+  ctx.lineWidth = ring ? 1.1 : 0.6;
+  ctx.strokeStyle = ring ? "rgba(255,255,255,0.9)" : "rgba(2,10,24,0.55)";
+  for (ky in grp) {
+    var ar = grp[ky];
+    ctx.beginPath();
+    for (var a = 0; a < ar.length; a++) {
+      j = ar[a];
+      ctx.moveTo(VX[j] + r, VY[j]);
+      ctx.arc(VX[j], VY[j], r, 0, 6.2832);
+    }
+    ctx.fillStyle = ky;
+    ctx.fill();
+    if (r > 1.6) ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function markers(t, P) {
   screenPts = [];
   drawPin(t, P);
@@ -581,7 +630,11 @@ function markers(t, P) {
   }
   var clus = !WL.dots && n > (W < 700 ? 110 : 220),
     cell = W < 700 ? 30 : 34;
-  if (WL.dots && n > 500) {
+  if (WL.dots && n > 500 && lookClear()) {
+    // clear look: every camera as a coloured point over the imagery, coloured by kind
+    VRECT = true;
+    drawCamPoints(n);
+  } else if (WL.dots && n > 500) {
     // every camera as its own point of light, no grouping
     VRECT = true;
     ctx.save();

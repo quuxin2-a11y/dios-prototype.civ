@@ -7182,7 +7182,7 @@ button:active {
  * @file Shared setup.
  * Snapshot of the page source and the camera category table (label and colour per type).
  *
- * Module 1 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 1 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7202,7 +7202,7 @@ var visLive = [];
  * Tracks dead and live feeds, builds the copyable diagnostics text, refreshes still images, and
  * reads TxDOT camera snapshots.
  *
- * Module 2 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 2 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7297,7 +7297,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v62 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v63 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -7699,7 +7699,7 @@ function txParse(j, d) {
  * AIS vessel positions over WebSocket and REST, radar tiles drawn on the globe, and spoken
  * prompts and voice commands.
  *
- * Module 3 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 3 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -8562,7 +8562,7 @@ document.addEventListener("change", function (e) {
  * Street View embed with a live guide, position helpers, and the turn-by-turn drive HUD with
  * cameras along the route.
  *
- * Module 4 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 4 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -9790,7 +9790,7 @@ $("ver").textContent = "v" + cams.length;
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -10008,10 +10008,11 @@ function draw3d(t) {
     cy = CY();
   // atmosphere glow
   if (R < Math.max(W, H) * 1.2) {
-    var g = ctx.createRadialGradient(cx, cy, R * 0.985, cx, cy, R * 1.22);
+    var g = ctx.createRadialGradient(cx, cy, R * 0.985, cx, cy, R * 1.22),
+      clr = lookClear();
     g.addColorStop(0, "rgba(120,175,255,0)");
-    g.addColorStop(0.05, "rgba(120,175,255,0.5)");
-    g.addColorStop(0.3, "rgba(90,150,255,0.14)");
+    g.addColorStop(0.05, clr ? "rgba(140,195,255,0.85)" : "rgba(120,175,255,0.5)");
+    g.addColorStop(0.3, clr ? "rgba(80,150,255,0.28)" : "rgba(90,150,255,0.14)");
     g.addColorStop(1, "rgba(90,150,255,0)");
     ctx.fillStyle = g;
     ctx.beginPath();
@@ -10024,8 +10025,8 @@ function draw3d(t) {
   if (!satDraw(R, cx, cy)) {
     // ocean sphere
     var o = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.35, R * 0.1, cx, cy, R);
-    o.addColorStop(0, "#0f2a40");
-    o.addColorStop(1, "#030a12");
+    o.addColorStop(0, lookClear() ? "#1d5fae" : "#0f2a40");
+    o.addColorStop(1, lookClear() ? "#061a3d" : "#030a12");
     ctx.fillStyle = o;
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, 7);
@@ -10066,7 +10067,9 @@ function draw3d(t) {
       var nt = WL && WL.night && sunCos(DOTS[i], DOTS[i + 1]) < 0;
       ctx.fillStyle = nt
         ? "rgba(64,88,135," + (a * 0.6).toFixed(2) + ")"
-        : "rgba(120,200,235," + a.toFixed(2) + ")";
+        : lookClear()
+          ? "rgba(150,205,140," + a.toFixed(2) + ")"
+          : "rgba(120,200,235," + a.toFixed(2) + ")";
       ctx.fillRect(p2[0] - ds / 2, p2[1] - ds / 2, ds, ds);
     }
     if (WL && WL.night) {
@@ -10296,6 +10299,52 @@ var VX = [],
   CGlo,
   CGla,
   CGm;
+// The globe look: "clear" (default) shows imagery at full brightness with coloured points;
+// "classic" keeps the darker look with direction arrows. Chosen in Briefing.
+function lookClear() {
+  return !(typeof SET === "object" && SET && SET.look === "classic");
+}
+
+var CAM_KIND_COLORS = null;
+
+// Draw the VNUM visible cameras as round points, one path per colour so it stays fast.
+function drawCamPoints(n) {
+  if (!CAM_KIND_COLORS) {
+    CAM_KIND_COLORS = {};
+    Object.keys(L).forEach(function (k) {
+      CAM_KIND_COLORS[k] = L[k][1];
+    });
+  }
+  var r = zoom > 60 ? 4.6 : zoom > 8 ? 3.6 : zoom > 2.5 ? 2.6 : n > 20000 ? 1.5 : 1.9,
+    grp = {},
+    j,
+    lc,
+    ky;
+  for (j = 0; j < n; j++) {
+    lc = VC[j];
+    ky = lc.v || lc.mj ? "#ff4d8a" : CAM_KIND_COLORS[lc.t] || "#4cc3ff";
+    (grp[ky] || (grp[ky] = [])).push(j);
+  }
+  ctx.save();
+  // Zoomed in, points get a white ring; zoomed out, a thin dark edge keeps dense areas readable.
+  var ring = r >= 3.6;
+  ctx.lineWidth = ring ? 1.1 : 0.6;
+  ctx.strokeStyle = ring ? "rgba(255,255,255,0.9)" : "rgba(2,10,24,0.55)";
+  for (ky in grp) {
+    var ar = grp[ky];
+    ctx.beginPath();
+    for (var a = 0; a < ar.length; a++) {
+      j = ar[a];
+      ctx.moveTo(VX[j] + r, VY[j]);
+      ctx.arc(VX[j], VY[j], r, 0, 6.2832);
+    }
+    ctx.fillStyle = ky;
+    ctx.fill();
+    if (r > 1.6) ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function markers(t, P) {
   screenPts = [];
   drawPin(t, P);
@@ -10368,7 +10417,11 @@ function markers(t, P) {
   }
   var clus = !WL.dots && n > (W < 700 ? 110 : 220),
     cell = W < 700 ? 30 : 34;
-  if (WL.dots && n > 500) {
+  if (WL.dots && n > 500 && lookClear()) {
+    // clear look: every camera as a coloured point over the imagery, coloured by kind
+    VRECT = true;
+    drawCamPoints(n);
+  } else if (WL.dots && n > 500) {
     // every camera as its own point of light, no grouping
     VRECT = true;
     ctx.save();
@@ -10704,7 +10757,7 @@ function showTip(c, e) {
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -11891,7 +11944,7 @@ $("addrClear").onclick = function () {
  * @file Viewer wall and on-device object detection.
  * Multi-camera wall, embeds, and the optional in-browser detection model with per-camera counts.
  *
- * Module 7 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 7 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13023,7 +13076,7 @@ setInterval(function () {
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13078,8 +13131,15 @@ function netGet(url, ms, headers, text) {
       if (text) return typeof d === "string" ? d : JSON.stringify(d);
       return typeof d === "string" ? JSON.parse(d) : d;
     })
-    .catch(function () {
-      return webGet(url, ms, headers, text);
+    .catch(function (ne) {
+      // Keep the app-side error: the browser fallback usually fails on CORS and hides it.
+      return webGet(url, ms, headers, text).catch(function (we) {
+        throw new Error(
+          String((ne && ne.message) || ne || "app request failed").slice(0, 40) +
+            " / " +
+            String((we && we.message) || we).slice(0, 30)
+        );
+      });
     });
 }
 function getJSON(url, ms, headers) {
@@ -14335,6 +14395,7 @@ function windySweep() {
     .then(function (sv) {
       if (
         sv &&
+        sv.complete &&
         sv.t &&
         Date.now() - sv.t < (KEYS.windy ? 7 : 30) * 864e5 &&
         sv.rows &&
@@ -14345,6 +14406,8 @@ function windySweep() {
         WSW.on = false;
         return;
       }
+      // A sweep that was cut short: show what it found, then sweep again (repeats are skipped).
+      if (sv && sv.rows && sv.rows.length) windyAdd(sv.rows);
       for (var la = -90; la < 90; la += 45)
         for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
       windyStep();
@@ -14361,7 +14424,7 @@ function windyStep() {
   if (!t) {
     WSW.on = false;
     WSW.done = true;
-    idbSet("windy", { t: Date.now(), rows: WSW.rows });
+    idbSet("windy", { t: Date.now(), rows: WSW.rows, complete: true });
     liveStatus();
     return;
   }
@@ -14706,11 +14769,29 @@ if (EMBED_OK)
       fail(s.name, e);
     }
   });
+// Networks that did not answer are tried again after 2 and 8 minutes; a busy or slow start-up
+// should not leave them out for the whole session.
+function liveRetry() {
+  if (!EMBED_OK || document.hidden) return;
+  SOURCES.forEach(function (s) {
+    var st = LIVESTAT[s.name];
+    if (!st || st.n || (s.keyName && !keyOf(s.keyName))) return;
+    delete LIVESTAT[s.name];
+    try {
+      s.load();
+    } catch (e) {
+      fail(s.name, e);
+    }
+  });
+  liveStatus();
+}
+setTimeout(liveRetry, 2 * 60000);
+setTimeout(liveRetry, 8 * 60000);
 /**
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15346,7 +15427,7 @@ document.addEventListener("click", function (e) {
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -18006,7 +18087,7 @@ document.addEventListener("click", function (e) {
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -19346,7 +19427,7 @@ document.addEventListener("click", function (e) {
  * A continuous zoom from the 3D city into procedurally drawn cutaways of buildings and aircraft,
  * with labelled facts.
  *
- * Module 12 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 12 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -21584,7 +21665,7 @@ document.addEventListener("click", function (e) {
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
  * map, and the ticker.
  *
- * Module 13 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 13 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22253,7 +22334,7 @@ setInterval(function () {
  * @file Flight log.
  * Progress, schedule and recent history for a selected aircraft.
  *
- * Module 14 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 14 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22677,7 +22758,7 @@ setInterval(function () {
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -23177,6 +23258,25 @@ function brDraw() {
       .join("") +
     "</div>";
   h +=
+    '<h4 class="mono">GLOBE LOOK</h4><div class="brt">' +
+    [
+      ["clear", "Clear (new)"],
+      ["classic", "Classic dark"]
+    ]
+      .map(function (o) {
+        return (
+          '<button data-br="lk-' +
+          o[0] +
+          '" class="' +
+          ((SET.look || "clear") === o[0] ? "on" : "") +
+          '">' +
+          o[1] +
+          "</button>"
+        );
+      })
+      .join("") +
+    "</div>";
+  h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
       .map(function (n, i) {
@@ -23229,7 +23329,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 62 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 63 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -23330,7 +23430,12 @@ document.addEventListener("click", function (e) {
     brClose();
     opsOpen();
   } else if (k.indexOf("st-") === 0) styleSet(k.slice(3));
-  else if (k.indexOf("tx-") === 0) {
+  else if (k.indexOf("lk-") === 0) {
+    SET.look = k.slice(3);
+    setSave();
+    lastView = "";
+    brDraw();
+  } else if (k.indexOf("tx-") === 0) {
     textSet(i);
     brDraw();
   } else if (k.indexOf("pf-") === 0) {
@@ -23828,7 +23933,7 @@ setTimeout(function () {
  * Look up a flight or ship by any identifier, side-by-side comparison, and public posts about a
  * place.
  *
- * Module 16 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 16 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24300,7 +24405,7 @@ setInterval(function () {
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24669,7 +24774,7 @@ document.addEventListener("click", function (e) {
  * Flight and vessel finder, the plans directory, and organisation lookups in state and national
  * registers.
  *
- * Module 18 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 18 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26609,7 +26714,7 @@ document.addEventListener("click", function (e) {
  * @file Route choices.
  * Alternative routes from OSRM, scored against reported hazards and camera coverage.
  *
- * Module 19 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 19 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26872,7 +26977,7 @@ document.addEventListener("click", function (e) {
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28005,7 +28110,7 @@ setInterval(function () {
  * @file Country file.
  * Travel advisory, emergency numbers, leadership, economy and currency for any country.
  *
- * Module 21 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 21 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28403,7 +28508,7 @@ document.addEventListener("click", function (e) {
  * MeteoAlarm warnings, offline tile packs, check-in messages, the error log and the source health
  * check.
  *
- * Module 22 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 22 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28874,7 +28979,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v62 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v63 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -28965,7 +29070,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v62 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v63 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -29017,7 +29122,7 @@ try {
  * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
  * vibration, shortcuts).
  *
- * Module 23 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 23 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29589,7 +29694,7 @@ setTimeout(function () {
  * Links between nearby cameras, field-of-view footprints and ranges, chase mode and the rewind
  * strip.
  *
- * Module 24 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 24 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30307,7 +30412,7 @@ setTab("info", window.innerWidth < 1000);
  * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
  * settings restored at start-up.
  *
- * Module 25 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30602,7 +30707,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v62)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v63)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -30921,7 +31026,7 @@ if (WL.dots) {
  * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
  * for areas near the map view.
  *
- * Module 26 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 26 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -31592,7 +31697,7 @@ if (EMBED_OK && WL.transit) setTimeout(trLoad, 1500);
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -31617,7 +31722,8 @@ var WL_GROUP = {};
   ["Energy and geology", "powerplant fuel volcano"],
   ["Climate", "drought tempnow"],
   ["Culture and area facts", "museum historic unesco places countryfacts"],
-  ["Farming", "farming farmshop"]
+  ["Farming", "farming farmshop"],
+  ["Networks and wind", "cables towers windfarm"]
 ].forEach(function (g) {
   g[1].split(" ").forEach(function (k) {
     WL_GROUP[k] = g[0];
@@ -31726,10 +31832,17 @@ function ilStatus(key) {
   return d.st || (d.items.length ? d.items.length.toLocaleString() : "…");
 }
 
+// At most three data layers load at once, so camera networks are not starved at start-up.
+var IL_MAX_BUSY = 3;
 setInterval(function () {
   if (document.hidden) return;
+  var busy = IL_ORDER.filter(function (k) {
+    return IL[k].busy;
+  }).length;
   IL_ORDER.forEach(function (k) {
+    if (busy >= IL_MAX_BUSY) return;
     ilLoad(IL[k], false);
+    if (IL[k].busy) busy++;
   });
 }, 15000);
 
@@ -31811,26 +31924,21 @@ function drawInfoLayers(t, P) {
         screenPts.push([p[0], p[1], e]);
         continue;
       }
-      ctx.fillStyle = "rgba(2,8,14,.85)";
-      ctx.beginPath();
-      ctx.moveTo(p[0], p[1] - s - 1.5);
-      ctx.lineTo(p[0] + s + 1.5, p[1]);
-      ctx.lineTo(p[0], p[1] + s + 1.5);
-      ctx.lineTo(p[0] - s - 1.5, p[1]);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = c;
-      ctx.beginPath();
-      ctx.moveTo(p[0], p[1] - s);
-      ctx.lineTo(p[0] + s, p[1]);
-      ctx.lineTo(p[0], p[1] + s);
-      ctx.lineTo(p[0] - s, p[1]);
-      ctx.closePath();
-      ctx.fill();
+      if (lookClear()) {
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], s * 0.8 + 1, 0, 6.2832);
+        ctx.fillStyle = c;
+        ctx.fill();
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = "rgba(255,255,255,.9)";
+        ctx.stroke();
+      } else {
+        ilDiamond(p, s, c);
+      }
       if ((labels || e.big) && e.label && shown < 120) {
-        var tw = ctx.measureText(e.label).width;
+        var tw0 = ctx.measureText(e.label).width;
         ctx.fillStyle = "rgba(2,8,14,.8)";
-        ctx.fillRect(p[0] + s + 4, p[1] - 7, tw + 8, 14);
+        ctx.fillRect(p[0] + s + 4, p[1] - 7, tw0 + 8, 14);
         ctx.fillStyle = c;
         ctx.fillText(e.label, p[0] + s + 8, p[1]);
         shown++;
@@ -31839,6 +31947,26 @@ function drawInfoLayers(t, P) {
     }
   });
   ctx.restore();
+}
+
+// The classic look's diamond marker.
+function ilDiamond(p, s, c) {
+  ctx.fillStyle = "rgba(2,8,14,.85)";
+  ctx.beginPath();
+  ctx.moveTo(p[0], p[1] - s - 1.5);
+  ctx.lineTo(p[0] + s + 1.5, p[1]);
+  ctx.lineTo(p[0], p[1] + s + 1.5);
+  ctx.lineTo(p[0] - s - 1.5, p[1]);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(p[0], p[1] - s);
+  ctx.lineTo(p[0] + s, p[1]);
+  ctx.lineTo(p[0], p[1] + s);
+  ctx.lineTo(p[0] - s, p[1]);
+  ctx.closePath();
+  ctx.fill();
 }
 
 // Called by entDossier for items of kind "info". Layers may fill extra rows on demand.
@@ -32309,7 +32437,7 @@ if (EMBED_OK)
  * everything else is dimmed, and cameras, layers and data outside them pause so the focus area
  * stays smooth. Boundaries come from public TopoJSON (us-atlas, world-atlas) and are loaded once.
  *
- * Module 28 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 28 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -32855,7 +32983,7 @@ if (EMBED_OK) setTimeout(focRestore, 1200);
  * incidents and work zones (city open-data portals) and US land border wait times (CBP).
  * Built on the info-layer framework in module 27.
  *
- * Module 29 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 29 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33403,7 +33531,7 @@ ilDef({
  * Seattle Fire Department 911 dispatches (City of Seattle). Built on the info-layer framework
  * in module 27.
  *
- * Module 30 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 30 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33829,7 +33957,7 @@ ilDef({
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
  * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
- * Module 31 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 31 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34003,7 +34131,7 @@ function liveAtcUrl(code) {
  * Black Marble city lights) from NASA GIBS; smoke plumes and fire detections from NOAA's Hazard
  * Mapping System; and modelled air quality from Open-Meteo (Copernicus CAMS).
  *
- * Module 32 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 32 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34439,7 +34567,7 @@ ilDef({
  * parks and national parks (OpenStreetMap), recent wildlife observations (iNaturalist) and live
  * river and lake levels (USGS). Built on the info-layer framework in module 27.
  *
- * Module 33 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 33 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34951,7 +35079,7 @@ ilDef({
  * (OpenStreetMap) and country economic indicators (World Bank). Built on the info-layer
  * framework in module 27.
  *
- * Module 34 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 34 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -35307,7 +35435,7 @@ ilDef({
  * historic sites and UNESCO World Heritage sites (OpenStreetMap); populated places (Wikidata);
  * and country facts and farming indicators (World Bank). Built on the info-layer framework.
  *
- * Module 35 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 35 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -35892,10 +36020,326 @@ osmLayer({
   }
 });
 /**
+ * @file Undersea cables, communication towers and wind farms, and the clear globe look.
+ * Submarine cable routes and landing points with owners, length and service date on tap
+ * (TeleGeography); communication towers and masts with their operators (OpenStreetMap); and
+ * wind farms grouped from turbine records (USGS US Wind Turbine Database, and OpenStreetMap
+ * outside the US). Also switches existing installs to the clear look once.
+ *
+ * Module 36 of 37. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// ---------- One-time move to the clear look ----------
+// Turns on cables, full daylight imagery and every camera as a point, once; anything the user
+// changes afterwards stays.
+(function () {
+  if (SET.lookV >= 1) return;
+  SET.lookV = 1;
+  if (!SET.look) SET.look = "clear";
+  WL.night = false;
+  WL.cables = true;
+  WL.img = true;
+  WL.dots = true;
+  setSave();
+  ls("ojos-layers", WL);
+})();
+
+// ---------- Undersea cables (TeleGeography) ----------
+var CB_API = "https://www.submarinecablemap.com/api/v3/";
+
+// Cable routes: one item per cable with its line parts; the item sits at the label point.
+function cableItems(d, gj) {
+  var by = {};
+  ((gj && gj.features) || []).forEach(function (f) {
+    var p = f.properties || {},
+      g = f.geometry || {},
+      parts =
+        g.type === "MultiLineString"
+          ? g.coordinates
+          : g.type === "LineString"
+            ? [g.coordinates]
+            : [];
+    if (!p.id || !parts.length) return;
+    var e = by[p.id];
+    if (!e) {
+      var lp = p.coordinates || (parts[0] && parts[0][Math.floor(parts[0].length / 2)]) || [];
+      e = by[p.id] = ilItem(d, {
+        id: "cable:" + p.id,
+        cable: p.id,
+        n: p.name || p.id,
+        label: "",
+        lat: num(lp[1]),
+        lon: num(lp[0]),
+        color: /^#[0-9a-f]{6}$/i.test(p.color || "") ? p.color : "#4cc3ff",
+        parts: [],
+        tag: "Undersea cable · TeleGeography",
+        links: [
+          [
+            "Cable page on TeleGeography",
+            "https://www.submarinecablemap.com/submarine-cable/" + encodeURIComponent(p.id)
+          ]
+        ],
+        rows: [["SOURCE", "TeleGeography Submarine Cable Map (CC BY-NC-SA)"]]
+      });
+    }
+    parts.forEach(function (pt) {
+      if (pt && pt.length > 1) e.parts.push(pt);
+    });
+  });
+  return Object.keys(by).map(function (k) {
+    return by[k];
+  });
+}
+
+// Rows for one cable from its detail record.
+function cableRows(j) {
+  var lps = (j.landing_points || []).map(function (l) {
+    return l.name;
+  });
+  return [
+    [
+      "WHAT IT DOES",
+      "Carries internet, phone and data traffic between " +
+        (lps.length ? lps.length + " landing points" : "countries")
+    ],
+    ["OWNED BY", j.owners || "—"],
+    ["BUILT BY", j.suppliers || "—"],
+    ["LENGTH", j.length || "—"],
+    [
+      "IN SERVICE",
+      j.is_planned
+        ? "Planned · " + (j.rfs || "date to be set")
+        : j.rfs || (j.rfs_year ? String(j.rfs_year) : "—")
+    ],
+    [
+      "LANDS AT",
+      lps.slice(0, 12).join("; ") +
+        (lps.length > 12 ? " and " + (lps.length - 12) + " more" : "") || "—"
+    ],
+    ["SOURCE", "TeleGeography Submarine Cable Map (CC BY-NC-SA)"]
+  ];
+}
+
+// Draw each cable as a thin coloured line; leave tap points along the route.
+function cableDraw(d, t, P) {
+  if (!d.items.length) return;
+  var km = viewKm(),
+    every = km > 6000 ? 6 : km > 1500 ? 3 : 1;
+  ctx.save();
+  ctx.lineWidth = km > 6000 ? 1.1 : km > 1500 ? 1.5 : 2.2;
+  ctx.globalAlpha = 0.85;
+  for (var i = 0; i < d.items.length; i++) {
+    var e = d.items[i];
+    ctx.strokeStyle = e.color;
+    ctx.beginPath();
+    for (var k = 0; k < e.parts.length; k++) {
+      var pt = e.parts[k],
+        on = false;
+      for (var m = 0; m < pt.length; m++) {
+        var p = P(pt[m][0], pt[m][1]);
+        if (p[2] <= 0) {
+          on = false;
+          continue;
+        }
+        if (on) ctx.lineTo(p[0], p[1]);
+        else ctx.moveTo(p[0], p[1]);
+        on = true;
+        if (m % every === 0 && p[0] > 0 && p[0] < W && p[1] > 0 && p[1] < H)
+          screenPts.push([p[0], p[1], e]);
+      }
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+ilDef({
+  key: "cables",
+  label: "Undersea cables",
+  color: "#4cc3ff",
+  icon: "〰",
+  every: 24 * 3600000,
+  draw: cableDraw,
+  load: function (d) {
+    return getJSON(CB_API + "cable/cable-geo.json", 40000).then(function (gj) {
+      return cableItems(d, gj);
+    });
+  },
+  fill: function (e) {
+    return getJSON(CB_API + "cable/" + encodeURIComponent(e.cable) + ".json", 20000).then(
+      function (j) {
+        e.rows = cableRows(j || {});
+        if (j && j.url) {
+          var u = safeUrl(j.url);
+          if (/^https?:\/\//.test(u)) e.links = e.links.concat([["Operator website", u]]);
+        }
+      }
+    );
+  }
+});
+
+// ---------- Communication towers (OpenStreetMap) ----------
+osmLayer({
+  key: "towers",
+  label: "Cell & radio towers",
+  color: "#ff6ad5",
+  icon: "📡",
+  tag: "Communication tower · OpenStreetMap",
+  unnamed: "Communication tower",
+  filter: '["tower:type"="communication"]',
+  maxKm: 80,
+  rows: function (t) {
+    var uses = [
+      ["communication:mobile_phone", "Mobile phone"],
+      ["communication:radio", "Radio"],
+      ["communication:television", "Television"],
+      ["communication:microwave", "Microwave link"],
+      ["communication:amateur_radio", "Amateur radio"]
+    ]
+      .filter(function (u) {
+        return t[u[0]] && t[u[0]] !== "no";
+      })
+      .map(function (u) {
+        return u[1];
+      });
+    return [
+      ["USED FOR", uses.join(", ") || "Communications"],
+      ["CARRIERS", t["communication:mobile_phone:operator"] || t.network || "—"],
+      ["STRUCTURE", t.man_made ? tfWords(t.man_made) : "—"],
+      ["HEIGHT", t.height ? t.height + " m" : "—"]
+    ];
+  }
+});
+
+// ---------- Wind farms (USGS USWTDB in the US, OpenStreetMap elsewhere) ----------
+// Turbines are grouped by project so each wind farm is one point.
+function windFarms(d, feats) {
+  var by = {};
+  (feats || []).forEach(function (f) {
+    var a = f.attributes || {},
+      g = f.geometry || {},
+      k = a.p_name || "Unnamed project";
+    if (num(g.y) == null) return;
+    var w = (by[k] = by[k] || { a: a, n: 0, lat: 0, lon: 0, models: {} });
+    w.n++;
+    w.lat += g.y;
+    w.lon += g.x;
+    if (a.t_manu) w.models[a.t_manu + (a.t_model ? " " + a.t_model : "")] = 1;
+  });
+  return Object.keys(by).map(function (k) {
+    var w = by[k],
+      a = w.a,
+      mw = num(a.p_cap);
+    return ilItem(d, {
+      id: "wind:" + k,
+      n: k,
+      label: mw && mw >= 100 ? k.toUpperCase() : "",
+      lat: w.lat / w.n,
+      lon: w.lon / w.n,
+      size: mw >= 200 ? 6.5 : mw >= 50 ? 5 : 4,
+      tag: (mw ? Math.round(mw) + " MW" : "Wind farm") + " · USGS",
+      rows: [
+        [
+          "TURBINES",
+          (a.p_tnum || w.n) + (a.p_tnum && a.p_tnum !== w.n ? " (" + w.n + " in view)" : "")
+        ],
+        ["CAPACITY", mw ? Math.round(mw).toLocaleString() + " MW" : "—"],
+        ["ONLINE SINCE", a.p_year ? String(a.p_year) : "—"],
+        ["TURBINE MODELS", Object.keys(w.models).slice(0, 3).join(", ") || "—"],
+        ["OFFSHORE", a.t_offshore === 1 ? "Yes" : "No"],
+        ["STATE", [a.t_county, a.t_state].filter(Boolean).join(", ") || "—"],
+        ["SOURCE", "U.S. Wind Turbine Database (USGS, LBNL, ACP)"]
+      ]
+    });
+  });
+}
+
+function windOsm(d, j) {
+  return ((j && j.elements) || []).map(function (x) {
+    var t = x.tags || {},
+      c = x.center || x;
+    return ilItem(d, {
+      id: "windosm:" + x.type + x.id,
+      n: t.name || "Wind farm",
+      label: "",
+      lat: num(c.lat),
+      lon: num(c.lon),
+      size: 5,
+      tag: "Wind farm · OpenStreetMap",
+      rows: [
+        ["OUTPUT", plantOutput(t["plant:output:electricity"])],
+        ["OPERATOR", t.operator || "—"],
+        ["SOURCE", "OpenStreetMap contributors"]
+      ]
+    });
+  });
+}
+
+ilDef({
+  key: "windfarm",
+  label: "Wind farms",
+  color: "#7fe3ff",
+  icon: "🌬",
+  every: 24 * 3600000,
+  maxKm: 800,
+  drawKm: 800,
+  byArea: true,
+  none: "NONE HERE",
+  load: function (d, b) {
+    var env = [b.w, b.s, b.e, b.n]
+        .map(function (v) {
+          return v.toFixed(3);
+        })
+        .join(","),
+      us =
+        b.s < 72 && b.n > 17 && b.w < -64 && b.e > -180
+          ? getJSON(
+              "https://energy.usgs.gov/arcgis/rest/services/Hosted/uswtdbDyn/FeatureServer/0/query?where=1%3D1&geometryType=esriGeometryEnvelope&inSR=4326&outSR=4326&resultRecordCount=2000&f=json&outFields=p_name,p_year,p_tnum,p_cap,t_manu,t_model,t_state,t_county,t_offshore&geometry=" +
+                env,
+              30000
+            )
+              .then(function (j) {
+                return windFarms(d, j.features);
+              })
+              .catch(function () {
+                return [];
+              })
+          : Promise.resolve([]),
+      osm = getJSON(
+        "https://overpass-api.de/api/interpreter?data=" +
+          encodeURIComponent(
+            '[out:json][timeout:25];nwr["power"="plant"]["plant:source"="wind"](' +
+              [b.s, b.w, b.n, b.e]
+                .map(function (v) {
+                  return v.toFixed(3);
+                })
+                .join(",") +
+              ");out center tags 800;"
+          ),
+        30000
+      )
+        .then(function (j) {
+          return windOsm(d, j);
+        })
+        .catch(function () {
+          return [];
+        });
+    return Promise.all([us, osm]).then(function (r) {
+      // Inside the US the USGS record is used; OpenStreetMap fills in the rest of the world.
+      var usItems = r[0];
+      var rest = r[1].filter(function (e) {
+        return !usItems.length || !(e.lat > 24 && e.lat < 50 && e.lon > -125 && e.lon < -66);
+      });
+      return usItems.concat(rest);
+    });
+  }
+});
+/**
  * @file Start-up.
  * Runs last, after every module has defined its state, so the first render sees all layers.
  *
- * Module 36 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 37 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

@@ -2,6 +2,14 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v63
+- **Clear globe look, now the default:** satellite imagery at full brightness with a brighter atmosphere, every camera drawn as a round point coloured by kind (white-ringed when zoomed in), and round markers for data layers. Briefing → Globe look switches back to the classic dark look. Existing installs move to the new look once, with cables, daylight imagery and camera points switched on.
+- **Undersea cables** (`src-36-cables-towers-wind.js`): every submarine cable route, drawn in its map colour; tap one for owners, builder, length, service date and landing points (TeleGeography).
+- **Cell and radio towers** with what they are used for and who operates them (OpenStreetMap).
+- **Wind farms:** US turbines grouped into projects with capacity, turbine count, year and models (USGS US Wind Turbine Database), and wind farms elsewhere from OpenStreetMap.
+- **Camera count fixes:** a Windy sweep that was cut short was being cached as complete, so only part of the worldwide list came back; partial caches now resume the sweep. Camera networks that do not answer at start-up are retried after 2 and 8 minutes, and the status report keeps the app-side error. Data layers now load at most three at a time so they do not crowd out camera networks.
+- Tests: 60 JavaScript tests and 20 browser tests.
+
 ## v62
 - Fixed a start-up crash for anyone who had chosen a map style other than Satellite: the style was restored before the NASA views module had loaded, which stopped the app (introduced in v59).
 - New browser test that starts the app with saved settings from earlier versions and every layer switched on.

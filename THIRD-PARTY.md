@@ -68,7 +68,7 @@ This project connects existing libraries and public data. It does not claim them
 | City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
 | U.S. Customs and Border Protection | Land border wait times | US public domain |
 | Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
-| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, museums, historic sites, World Heritage sites and farm shops | ODbL |
+| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, communication towers, wind farms outside the US, museums, historic sites, World Heritage sites and farm shops | ODbL |
 | FEMA National Shelter System | Open emergency shelters | US public domain |
 | IODA (Georgia Tech) | Internet outages by country | IODA terms of use; attribution required |
 | OpenFEMA | Disaster declarations | US public domain; OpenFEMA terms |
@@ -92,6 +92,8 @@ This project connects existing libraries and public data. It does not claim them
 | U.S. Drought Monitor (NDMC, USDA, NOAA) | Drought areas | Free to use with credit to the U.S. Drought Monitor |
 | Open-Meteo weather forecast API | Temperature grid | CC BY 4.0 |
 | Wikidata | Place population and facts | CC0 |
+| TeleGeography Submarine Cable Map | Undersea cable routes, owners, length, service dates and landing points | CC BY-NC-SA 3.0 (non-commercial); commercial use needs a TeleGeography data licence |
+| U.S. Wind Turbine Database (USGS, LBNL, American Clean Power) | Wind farms in the US | US public domain |
 | us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |

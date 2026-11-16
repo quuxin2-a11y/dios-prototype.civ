@@ -3,7 +3,7 @@
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -58,8 +58,15 @@ function netGet(url, ms, headers, text) {
       if (text) return typeof d === "string" ? d : JSON.stringify(d);
       return typeof d === "string" ? JSON.parse(d) : d;
     })
-    .catch(function () {
-      return webGet(url, ms, headers, text);
+    .catch(function (ne) {
+      // Keep the app-side error: the browser fallback usually fails on CORS and hides it.
+      return webGet(url, ms, headers, text).catch(function (we) {
+        throw new Error(
+          String((ne && ne.message) || ne || "app request failed").slice(0, 40) +
+            " / " +
+            String((we && we.message) || we).slice(0, 30)
+        );
+      });
     });
 }
 function getJSON(url, ms, headers) {
@@ -1315,6 +1322,7 @@ function windySweep() {
     .then(function (sv) {
       if (
         sv &&
+        sv.complete &&
         sv.t &&
         Date.now() - sv.t < (KEYS.windy ? 7 : 30) * 864e5 &&
         sv.rows &&
@@ -1325,6 +1333,8 @@ function windySweep() {
         WSW.on = false;
         return;
       }
+      // A sweep that was cut short: show what it found, then sweep again (repeats are skipped).
+      if (sv && sv.rows && sv.rows.length) windyAdd(sv.rows);
       for (var la = -90; la < 90; la += 45)
         for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
       windyStep();
@@ -1341,7 +1351,7 @@ function windyStep() {
   if (!t) {
     WSW.on = false;
     WSW.done = true;
-    idbSet("windy", { t: Date.now(), rows: WSW.rows });
+    idbSet("windy", { t: Date.now(), rows: WSW.rows, complete: true });
     liveStatus();
     return;
   }
@@ -1686,3 +1696,21 @@ if (EMBED_OK)
       fail(s.name, e);
     }
   });
+// Networks that did not answer are tried again after 2 and 8 minutes; a busy or slow start-up
+// should not leave them out for the whole session.
+function liveRetry() {
+  if (!EMBED_OK || document.hidden) return;
+  SOURCES.forEach(function (s) {
+    var st = LIVESTAT[s.name];
+    if (!st || st.n || (s.keyName && !keyOf(s.keyName))) return;
+    delete LIVESTAT[s.name];
+    try {
+      s.load();
+    } catch (e) {
+      fail(s.name, e);
+    }
+  });
+  liveStatus();
+}
+setTimeout(liveRetry, 2 * 60000);
+setTimeout(liveRetry, 8 * 60000);

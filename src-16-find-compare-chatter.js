@@ -3,7 +3,7 @@
  * Look up a flight or ship by any identifier, side-by-side comparison, and public posts about a
  * place.
  *
- * Module 16 of 36. Modules share one scope: build.py concatenates them in order
+ * Module 16 of 37. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
