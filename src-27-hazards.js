@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

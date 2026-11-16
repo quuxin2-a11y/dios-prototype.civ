@@ -68,7 +68,7 @@ This project connects existing libraries and public data. It does not claim them
 | City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
 | U.S. Customs and Border Protection | Land border wait times | US public domain |
 | Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
-| OpenStreetMap via Overpass | Hospitals, fire stations and police stations | ODbL |
+| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks and ferry terminals | ODbL |
 | FEMA National Shelter System | Open emergency shelters | US public domain |
 | IODA (Georgia Tech) | Internet outages by country | IODA terms of use; attribution required |
 | OpenFEMA | Disaster declarations | US public domain; OpenFEMA terms |
@@ -80,6 +80,13 @@ This project connects existing libraries and public data. It does not claim them
 | NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe | NASA open data; no restrictions, attribution requested |
 | NOAA Hazard Mapping System | Smoke plumes and fire detections | US public domain |
 | Open-Meteo air quality (Copernicus CAMS) | Modelled air quality | CC BY 4.0 |
+| WHO Disease Outbreak News | Outbreak reports | WHO terms of use |
+| World Bank Open Data | Country positions and economic indicators | CC BY 4.0 |
+| iNaturalist | Wildlife observations and photos | Observations CC licences chosen by each observer; photo licences vary |
+| USGS Water Services | River and lake levels | US public domain |
+| FAA National Airspace System status | Airport delays and closures | US public domain |
+| aviationweather.gov (NOAA/NWS) | Airport positions | US public domain |
+| US Department of State travel advisories | Advisory levels | US public domain |
 | us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |

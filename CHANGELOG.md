@@ -2,6 +2,20 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v60
+- **Health, public places and nature** (`src-33-health-places-nature.js`):
+  - Disease outbreak news from the last 90 days, placed on each named country (WHO).
+  - Pharmacies, libraries, public toilets, EV chargers, free Wi-Fi spots, parks and national parks (OpenStreetMap).
+  - Research-grade wildlife sightings from the last 30 days with photos; observer details are not shown and protected species keep iNaturalist's blurred positions (iNaturalist).
+  - Live river flow, gage height and lake levels (USGS).
+- **Travel and economy** (`src-34-travel-economy.js`):
+  - US airport ground stops, ground delays, departure and arrival delays and closures (FAA), placed using aviationweather.gov airport data.
+  - Travel advisory levels for every country (US Department of State).
+  - Ferry terminals (OpenStreetMap).
+  - GDP per person, unemployment, inflation and GDP growth by country (World Bank).
+- Details cards can show a photo.
+- Tests: 55 JavaScript tests (tables are now read from the shipped modules too) and 17 browser tests.
+
 ## v59
 - **Earth layers** (`src-32-earth.js`):
   - NASA satellite views that replace the globe imagery while on: yesterday's true-colour Earth (VIIRS), last night's lights (VIIRS Day/Night Band, useful for spotting power outages), and the Black Marble city lights. Only one view is on at a time; turning it off restores the chosen map style.

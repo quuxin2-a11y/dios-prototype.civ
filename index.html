@@ -7175,7 +7175,7 @@ button:active {
  * @file Shared setup.
  * Snapshot of the page source and the camera category table (label and colour per type).
  *
- * Module 1 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 1 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7195,7 +7195,7 @@ var visLive = [];
  * Tracks dead and live feeds, builds the copyable diagnostics text, refreshes still images, and
  * reads TxDOT camera snapshots.
  *
- * Module 2 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 2 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7290,7 +7290,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v59 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v60 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -7692,7 +7692,7 @@ function txParse(j, d) {
  * AIS vessel positions over WebSocket and REST, radar tiles drawn on the globe, and spoken
  * prompts and voice commands.
  *
- * Module 3 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 3 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -8555,7 +8555,7 @@ document.addEventListener("change", function (e) {
  * Street View embed with a live guide, position helpers, and the turn-by-turn drive HUD with
  * cameras along the route.
  *
- * Module 4 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 4 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -9783,7 +9783,7 @@ $("ver").textContent = "v" + cams.length;
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -10697,7 +10697,7 @@ function showTip(c, e) {
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -11884,7 +11884,7 @@ $("addrClear").onclick = function () {
  * @file Viewer wall and on-device object detection.
  * Multi-camera wall, embeds, and the optional in-browser detection model with per-camera counts.
  *
- * Module 7 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 7 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13016,7 +13016,7 @@ setInterval(function () {
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -14703,7 +14703,7 @@ if (EMBED_OK)
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15339,7 +15339,7 @@ document.addEventListener("click", function (e) {
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15770,8 +15770,14 @@ function entExtras(e) {
       if (u) links.push(["Air traffic audio near " + c + " · LiveATC", u]);
     });
   }
-  var au = e.kind === "info" && e.audio ? safeUrl(e.audio) : "";
+  var au = e.kind === "info" && e.audio ? safeUrl(e.audio) : "",
+    im = e.kind === "info" && e.img ? safeUrl(e.img) : "";
   return (
+    (/^https:\/\//.test(im)
+      ? '<div class="acts"><img alt="" loading="lazy" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px" src="' +
+        esc(im) +
+        '"></div>'
+      : "") +
     (/^https:\/\//.test(au)
       ? '<div class="acts"><audio controls preload="none" style="width:100%" src="' +
         esc(au) +
@@ -17988,7 +17994,7 @@ document.addEventListener("click", function (e) {
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -19328,7 +19334,7 @@ document.addEventListener("click", function (e) {
  * A continuous zoom from the 3D city into procedurally drawn cutaways of buildings and aircraft,
  * with labelled facts.
  *
- * Module 12 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 12 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -21566,7 +21572,7 @@ document.addEventListener("click", function (e) {
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
  * map, and the ticker.
  *
- * Module 13 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 13 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22235,7 +22241,7 @@ setInterval(function () {
  * @file Flight log.
  * Progress, schedule and recent history for a selected aircraft.
  *
- * Module 14 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 14 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22659,7 +22665,7 @@ setInterval(function () {
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -23211,7 +23217,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 59 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 60 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -23810,7 +23816,7 @@ setTimeout(function () {
  * Look up a flight or ship by any identifier, side-by-side comparison, and public posts about a
  * place.
  *
- * Module 16 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 16 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24282,7 +24288,7 @@ setInterval(function () {
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24651,7 +24657,7 @@ document.addEventListener("click", function (e) {
  * Flight and vessel finder, the plans directory, and organisation lookups in state and national
  * registers.
  *
- * Module 18 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 18 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26591,7 +26597,7 @@ document.addEventListener("click", function (e) {
  * @file Route choices.
  * Alternative routes from OSRM, scored against reported hazards and camera coverage.
  *
- * Module 19 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 19 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26854,7 +26860,7 @@ document.addEventListener("click", function (e) {
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -27987,7 +27993,7 @@ setInterval(function () {
  * @file Country file.
  * Travel advisory, emergency numbers, leadership, economy and currency for any country.
  *
- * Module 21 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 21 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28385,7 +28391,7 @@ document.addEventListener("click", function (e) {
  * MeteoAlarm warnings, offline tile packs, check-in messages, the error log and the source health
  * check.
  *
- * Module 22 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 22 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28856,7 +28862,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v59 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v60 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -28947,7 +28953,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v59 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v60 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -28999,7 +29005,7 @@ try {
  * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
  * vibration, shortcuts).
  *
- * Module 23 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 23 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29571,7 +29577,7 @@ setTimeout(function () {
  * Links between nearby cameras, field-of-view footprints and ranges, chase mode and the rewind
  * strip.
  *
- * Module 24 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 24 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30289,7 +30295,7 @@ setTab("info", window.innerWidth < 1000);
  * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
  * settings restored at start-up.
  *
- * Module 25 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30584,7 +30590,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v59)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v60)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -30903,7 +30909,7 @@ if (WL.dots) {
  * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
  * for areas near the map view.
  *
- * Module 26 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 26 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -31574,7 +31580,7 @@ if (EMBED_OK && WL.transit) setTimeout(trLoad, 1500);
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -32269,7 +32275,7 @@ if (EMBED_OK)
  * everything else is dimmed, and cameras, layers and data outside them pause so the focus area
  * stays smooth. Boundaries come from public TopoJSON (us-atlas, world-atlas) and are loaded once.
  *
- * Module 28 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 28 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -32815,7 +32821,7 @@ if (EMBED_OK) setTimeout(focRestore, 1200);
  * incidents and work zones (city open-data portals) and US land border wait times (CBP).
  * Built on the info-layer framework in module 27.
  *
- * Module 29 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 29 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33363,7 +33369,7 @@ ilDef({
  * Seattle Fire Department 911 dispatches (City of Seattle). Built on the info-layer framework
  * in module 27.
  *
- * Module 30 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 30 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33387,8 +33393,8 @@ function osmLayer(o) {
     color: o.color,
     icon: o.icon,
     every: 6 * 3600000,
-    maxKm: 150,
-    drawKm: 150,
+    maxKm: o.maxKm || 150,
+    drawKm: o.maxKm || 150,
     byArea: true,
     none: "NONE MAPPED HERE",
     load: function (d, b) {
@@ -33788,7 +33794,7 @@ ilDef({
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
  * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
- * Module 31 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 31 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33962,7 +33968,7 @@ function liveAtcUrl(code) {
  * Black Marble city lights) from NASA GIBS; smoke plumes and fire detections from NOAA's Hazard
  * Mapping System; and modelled air quality from Open-Meteo (Copernicus CAMS).
  *
- * Module 32 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 32 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34392,10 +34398,877 @@ ilDef({
   }
 });
 /**
+ * @file Health, public places and nature layers.
+ * Disease outbreak news (WHO), pharmacies, libraries, public toilets, EV chargers, free Wi-Fi,
+ * parks and national parks (OpenStreetMap), recent wildlife observations (iNaturalist) and live
+ * river and lake levels (USGS). Built on the info-layer framework in module 27.
+ *
+ * Module 33 of 35. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// ---------- Countries: names and capital positions (World Bank) ----------
+// Shared by the outbreak, travel advisory and economy layers.
+var WB_COUNTRIES = null;
+
+function wbCountries() {
+  if (WB_COUNTRIES) return WB_COUNTRIES;
+  WB_COUNTRIES = getJSON("https://api.worldbank.org/v2/country?format=json&per_page=400", 25000)
+    .then(function (j) {
+      return wbIndex((j && j[1]) || []);
+    })
+    .catch(function (e) {
+      WB_COUNTRIES = null;
+      throw e;
+    });
+  return WB_COUNTRIES;
+}
+
+// Fold a name for matching: lower case, no accents, no punctuation, no leading "the".
+function ctFold(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[’'`.]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/^the /, "")
+    .trim();
+}
+
+var CT_ALIASES = {
+  "democratic republic of the congo": "CD",
+  "democratic republic of congo": "CD",
+  drc: "CD",
+  "republic of the congo": "CG",
+  "republic of congo": "CG",
+  burma: "MM",
+  "cote divoire": "CI",
+  "ivory coast": "CI",
+  "south korea": "KR",
+  "north korea": "KP",
+  "korea south": "KR",
+  "korea north": "KP",
+  russia: "RU",
+  iran: "IR",
+  syria: "SY",
+  venezuela: "VE",
+  laos: "LA",
+  vietnam: "VN",
+  turkey: "TR",
+  turkiye: "TR",
+  egypt: "EG",
+  yemen: "YE",
+  gambia: "GM",
+  bahamas: "BS",
+  "bahamas the": "BS",
+  "gambia the": "GM",
+  "united states": "US",
+  "united kingdom": "GB",
+  "czech republic": "CZ",
+  czechia: "CZ",
+  "slovak republic": "SK",
+  kyrgyzstan: "KG",
+  "cabo verde": "CV",
+  "cape verde": "CV",
+  micronesia: "FM",
+  "west bank": "PS",
+  gaza: "PS",
+  "hong kong": "HK",
+  macau: "MO",
+  "timor leste": "TL",
+  "east timor": "TL",
+  "saint lucia": "LC",
+  "st lucia": "LC",
+  eswatini: "SZ",
+  swaziland: "SZ",
+  "united republic of tanzania": "TZ",
+  tanzania: "TZ",
+  bolivia: "BO",
+  moldova: "MD"
+};
+
+// Build lookups from World Bank country rows: by ISO2, by ISO3 and by folded name.
+function wbIndex(rows) {
+  var ix = { by2: {}, by3: {}, byName: {} },
+    names = null;
+  try {
+    names = new Intl.DisplayNames(["en"], { type: "region" });
+  } catch (e) {
+    names = null;
+  }
+  rows.forEach(function (r) {
+    var lat = num(r.latitude),
+      lon = num(r.longitude),
+      iso2 = r.iso2Code;
+    if (lat == null || lon == null || !/^[A-Z]{2}$/.test(iso2 || "")) return;
+    var c = {
+      iso2: iso2,
+      iso3: r.id,
+      name: r.name,
+      capital: r.capitalCity || "",
+      lat: lat,
+      lon: lon
+    };
+    ix.by2[iso2] = c;
+    ix.by3[r.id] = c;
+    ix.byName[ctFold(r.name)] = c;
+    if (names)
+      try {
+        ix.byName[ctFold(names.of(iso2))] = c;
+      } catch (e) {
+        /* code unknown to this browser */
+      }
+  });
+  Object.keys(CT_ALIASES).forEach(function (k) {
+    var c = ix.by2[CT_ALIASES[k]];
+    if (c) ix.byName[k] = c;
+  });
+  return ix;
+}
+
+function ctFind(ix, name) {
+  return ix.byName[ctFold(name)] || null;
+}
+
+// ---------- Disease outbreak news (WHO) ----------
+// Titles read "Disease – Country" or "Disease, Country A, Country B and Country C".
+function donPlaces(ix, title) {
+  var parts = String(title || "")
+    .split(/\s[–—-]\s|,\s*|\sand\s/)
+    .map(function (s) {
+      return s.trim();
+    })
+    .filter(Boolean);
+  var seen = {};
+  return parts.slice(1).reduce(function (out, p) {
+    var c = ctFind(ix, p);
+    if (c && !seen[c.iso2]) {
+      seen[c.iso2] = 1;
+      out.push(c);
+    }
+    return out;
+  }, []);
+}
+
+function donDisease(title) {
+  return (
+    String(title || "")
+      .split(/\s[–—-]\s|,\s/)[0]
+      .trim() || "Outbreak"
+  );
+}
+
+function donItems(d, rows, ix) {
+  var out = [];
+  (rows || []).forEach(function (r) {
+    var places = donPlaces(ix, r.Title),
+      at = Date.parse(r.PublicationDateAndTime || r.PublicationDate),
+      dz = donDisease(r.Title),
+      url =
+        "https://www.who.int/emergencies/disease-outbreak-news/item/" +
+        encodeURIComponent(r.UrlName || "");
+    places.forEach(function (c) {
+      out.push(
+        ilItem(d, {
+          id: "don:" + r.UrlName + ":" + c.iso2,
+          n: dz + " · " + c.name,
+          label: dz.toUpperCase().slice(0, 24),
+          lat: c.lat,
+          lon: c.lon,
+          size: 6,
+          big: Date.now() - at < 14 * 864e5,
+          tag: "Outbreak news · WHO",
+          links: r.UrlName ? [["Read the WHO report", url]] : null,
+          rows: [
+            ["DISEASE", dz],
+            ["COUNTRY", c.name],
+            ["PUBLISHED", ilWhen(at)],
+            ["REPORT", r.Title || "—"],
+            ["SOURCE", "World Health Organization, Disease Outbreak News"]
+          ]
+        })
+      );
+    });
+  });
+  return out;
+}
+
+ilDef({
+  key: "outbreaks",
+  label: "Disease outbreaks",
+  color: "#ff5c7a",
+  icon: "🦠",
+  every: 3 * 3600000,
+  none: "NONE IN 90 DAYS",
+  load: function (d) {
+    var since = new Date(Date.now() - 90 * 864e5).toISOString().slice(0, 10);
+    return Promise.all([
+      getJSON(
+        "https://www.who.int/api/news/diseaseoutbreaknews?$orderby=PublicationDateAndTime%20desc&$top=60&$filter=" +
+          encodeURIComponent("PublicationDateAndTime ge " + since + "T00:00:00Z"),
+        25000
+      ),
+      wbCountries()
+    ]).then(function (r) {
+      return donItems(d, (r[0] || {}).value, r[1]);
+    });
+  }
+});
+
+// ---------- Places from OpenStreetMap ----------
+osmLayer({
+  key: "pharmacy",
+  label: "Pharmacies",
+  color: "#39d98a",
+  icon: "💊",
+  tag: "Pharmacy · OpenStreetMap",
+  unnamed: "Pharmacy",
+  filter: '["amenity"="pharmacy"]',
+  rows: function (t) {
+    return [
+      ["HOURS", t.opening_hours || "—"],
+      [
+        "DISPENSING",
+        t.dispensing === "yes" ? "Prescriptions" : t.dispensing === "no" ? "No prescriptions" : "—"
+      ]
+    ];
+  }
+});
+
+osmLayer({
+  key: "library",
+  label: "Libraries",
+  color: "#c58bff",
+  icon: "📚",
+  tag: "Library · OpenStreetMap",
+  unnamed: "Library",
+  filter: '["amenity"="library"]',
+  rows: function (t) {
+    return [["HOURS", t.opening_hours || "—"]];
+  }
+});
+
+osmLayer({
+  key: "toilets",
+  label: "Public toilets",
+  color: "#4cc3ff",
+  icon: "🚻",
+  tag: "Toilets · OpenStreetMap",
+  unnamed: "Public toilets",
+  filter: '["amenity"="toilets"]',
+  rows: function (t) {
+    return [
+      ["FREE", t.fee === "no" ? "Yes" : t.fee === "yes" ? "No" : "—"],
+      ["WHEELCHAIR", t.wheelchair ? tfWords(t.wheelchair) : "—"],
+      ["CHANGING TABLE", t.changing_table ? tfWords(t.changing_table) : "—"],
+      ["HOURS", t.opening_hours || "—"]
+    ];
+  }
+});
+
+osmLayer({
+  key: "evcharge",
+  label: "EV chargers",
+  color: "#39ff6a",
+  icon: "🔌",
+  tag: "EV charging · OpenStreetMap",
+  unnamed: "EV charging",
+  filter: '["amenity"="charging_station"]',
+  rows: function (t) {
+    var plugs = Object.keys(t)
+      .filter(function (k) {
+        return /^socket:[^:]+$/.test(k);
+      })
+      .map(function (k) {
+        return tfWords(k.slice(7)) + (/^\d+$/.test(t[k]) ? " ×" + t[k] : "");
+      });
+    return [
+      ["NETWORK", t.network || t.brand || "—"],
+      ["PLUGS", plugs.join(", ") || "—"],
+      ["SPACES", t.capacity || "—"],
+      ["FEE", t.fee === "no" ? "Free" : t.fee === "yes" ? "Paid" : "—"]
+    ];
+  }
+});
+
+osmLayer({
+  key: "wifi",
+  label: "Free Wi-Fi",
+  color: "#7fe3ff",
+  icon: "📶",
+  tag: "Free Wi-Fi · OpenStreetMap",
+  unnamed: "Free Wi-Fi",
+  filter: '["internet_access"~"wlan|yes"]["internet_access:fee"="no"]',
+  rows: function (t) {
+    return [
+      [
+        "PLACE",
+        t.amenity
+          ? tfWords(t.amenity)
+          : t.shop
+            ? tfWords(t.shop)
+            : t.tourism
+              ? tfWords(t.tourism)
+              : "—"
+      ],
+      ["NETWORK NAME", t["internet_access:ssid"] || "—"]
+    ];
+  }
+});
+
+osmLayer({
+  key: "parks",
+  label: "Parks",
+  color: "#39d98a",
+  icon: "🌳",
+  tag: "Park · OpenStreetMap",
+  unnamed: "Park",
+  filter: '["leisure"="park"]["name"]',
+  rows: function (t) {
+    return [["HOURS", t.opening_hours || "—"]];
+  }
+});
+
+osmLayer({
+  key: "natpark",
+  label: "National parks",
+  color: "#7fd36b",
+  icon: "🏞",
+  tag: "National park · OpenStreetMap",
+  unnamed: "National park",
+  filter: '["boundary"="national_park"]["name"]',
+  maxKm: 1500,
+  rows: function (t) {
+    return [["PROTECTED BY", t.operator || t["protection_title"] || "—"]];
+  }
+});
+
+// ---------- Wildlife observations (iNaturalist) ----------
+// Research-grade observations from the last 30 days. Observer names are not shown.
+// iNaturalist blurs the position of sensitive species; those are marked as approximate.
+var INAT_COLORS = {
+  Aves: "#4cc3ff",
+  Mammalia: "#ff9a2e",
+  Reptilia: "#7fd36b",
+  Amphibia: "#39d98a",
+  Actinopterygii: "#4c8dff",
+  Insecta: "#ffd84a",
+  Arachnida: "#c58bff",
+  Plantae: "#5fbf5f",
+  Fungi: "#d9a066",
+  Mollusca: "#ff6ad5"
+};
+
+function inatItems(d, list) {
+  return (list || []).reduce(function (out, o) {
+    var g = (o.geojson && o.geojson.coordinates) || [],
+      t = o.taxon || {},
+      ph =
+        o.photos &&
+        o.photos[0] &&
+        safeUrl(String(o.photos[0].url || "").replace("square", "medium")),
+      name = t.preferred_common_name || t.name || "Unknown species";
+    if (num(g[1]) == null) return out;
+    out.push(
+      ilItem(d, {
+        id: "inat:" + o.id,
+        n: name.replace(/^./, function (c) {
+          return c.toUpperCase();
+        }),
+        label: "",
+        lat: num(g[1]),
+        lon: num(g[0]),
+        color: INAT_COLORS[t.iconic_taxon_name] || "#9fb4c8",
+        size: 3.5,
+        tag: (t.iconic_taxon_name || "Wildlife") + " · iNaturalist",
+        img: /^https:\/\//.test(ph || "") ? ph : null,
+        links: o.uri ? [["See on iNaturalist", safeUrl(o.uri)]] : null,
+        rows: [
+          ["SPECIES", t.name || "—"],
+          ["SEEN", o.observed_on || "—"],
+          ["NEAR", o.place_guess || "—"],
+          ["POSITION", o.obscured ? "Approximate (protected species)" : "As recorded"],
+          ["SOURCE", "iNaturalist community, research grade"]
+        ]
+      })
+    );
+    return out;
+  }, []);
+}
+
+ilDef({
+  key: "wildlife",
+  label: "Wildlife sightings",
+  color: "#7fd36b",
+  icon: "🦉",
+  every: 60 * 60000,
+  maxKm: 300,
+  drawKm: 300,
+  byArea: true,
+  none: "NONE RECENT HERE",
+  load: function (d, b) {
+    var since = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+    return getJSON(
+      "https://api.inaturalist.org/v1/observations?quality_grade=research&per_page=200&order_by=observed_on&photos=true" +
+        "&d1=" +
+        since +
+        "&swlat=" +
+        b.s.toFixed(3) +
+        "&swlng=" +
+        b.w.toFixed(3) +
+        "&nelat=" +
+        b.n.toFixed(3) +
+        "&nelng=" +
+        b.e.toFixed(3),
+      25000
+    ).then(function (j) {
+      return inatItems(d, j.results);
+    });
+  }
+});
+
+// ---------- River and lake levels (USGS) ----------
+var USGS_PARAMS = {
+  "00065": ["GAGE HEIGHT", "ft"],
+  "00060": ["FLOW", "ft³/s"],
+  62614: ["LAKE LEVEL", "ft above sea level"],
+  62615: ["LAKE LEVEL", "ft above sea level"]
+};
+
+// USGS limits a box to 25 square degrees; shrink around the centre if needed.
+function usgsBox(b) {
+  var c = gdCentre(b),
+    h = Math.min((b.n - b.s) / 2, 2.4),
+    w = Math.min((b.e - b.w) / 2, 2.4);
+  return [c[1] - w, c[0] - h, c[1] + w, c[0] + h].map(function (v) {
+    return v.toFixed(4);
+  });
+}
+
+function usgsItems(d, ts) {
+  var by = {};
+  (ts || []).forEach(function (t) {
+    var si = t.sourceInfo || {},
+      code = ((si.siteCode || [])[0] || {}).value,
+      g = (si.geoLocation || {}).geogLocation || {},
+      p = ((((t.variable || {}).variableCode || [])[0] || {}).value || "").trim(),
+      vals = ((t.values || [])[0] || {}).value || [],
+      last = vals[vals.length - 1],
+      def = USGS_PARAMS[p];
+    if (!code || !def || !last) return;
+    var v = num(last.value);
+    if (v == null || v <= -999) return;
+    var s = (by[code] = by[code] || {
+      code: code,
+      name: si.siteName,
+      lat: num(g.latitude),
+      lon: num(g.longitude),
+      rows: [],
+      at: 0
+    });
+    s.rows.push([def[0], v.toLocaleString() + " " + def[1]]);
+    s.at = Math.max(s.at, Date.parse(last.dateTime) || 0);
+  });
+  return Object.keys(by).map(function (k) {
+    var s = by[k];
+    return ilItem(d, {
+      id: "usgs:" + s.code,
+      n: tfWords(s.name || "Water gauge"),
+      label: "",
+      lat: s.lat,
+      lon: s.lon,
+      size: 4,
+      tag: "Water level · USGS " + s.code,
+      links: [["USGS site page", "https://waterdata.usgs.gov/monitoring-location/" + s.code + "/"]],
+      rows: s.rows.concat([
+        ["READING", s.at ? ago(s.at) : "—"],
+        ["SOURCE", "U.S. Geological Survey"]
+      ])
+    });
+  });
+}
+
+ilDef({
+  key: "water",
+  label: "River & lake levels",
+  color: "#4cc3ff",
+  icon: "🌊",
+  every: 15 * 60000,
+  maxKm: 600,
+  drawKm: 600,
+  byArea: true,
+  none: "NO US GAUGES HERE",
+  load: function (d, b) {
+    return getJSON(
+      "https://waterservices.usgs.gov/nwis/iv/?format=json&siteStatus=active&parameterCd=00065,00060,62614,62615&bBox=" +
+        usgsBox(b).join(","),
+      30000
+    ).then(function (j) {
+      return usgsItems(d, ((j || {}).value || {}).timeSeries);
+    });
+  }
+});
+/**
+ * @file Travel and economy layers.
+ * US airport delays and closures (FAA), US State Department travel advisories, ferry terminals
+ * (OpenStreetMap) and country economic indicators (World Bank). Built on the info-layer
+ * framework in module 27.
+ *
+ * Module 34 of 35. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// ---------- Airport delays (FAA National Airspace System status) ----------
+// The FAA lists airports by FAA code without positions; positions come from aviationweather.gov.
+var FAA_ICAO = {
+  ANC: "PANC",
+  FAI: "PAFA",
+  JNU: "PAJN",
+  HNL: "PHNL",
+  OGG: "PHOG",
+  KOA: "PHKO",
+  LIH: "PHLI",
+  ITO: "PHTO",
+  SJU: "TJSJ",
+  STT: "TIST",
+  STX: "TISX",
+  GUM: "PGUM"
+};
+var FAA_POS = {};
+
+function faaIcao(code) {
+  code = String(code || "").toUpperCase();
+  return FAA_ICAO[code] || (/^[A-Z0-9]{3}$/.test(code) ? "K" + code : code);
+}
+
+function faaText(el, tag) {
+  var x = el.getElementsByTagName(tag)[0];
+  return x ? x.textContent.trim() : "";
+}
+
+// Every element with an ARPT child is one event; its parent list says what kind.
+function faaParse(xml) {
+  var doc = new DOMParser().parseFromString(xml, "text/xml"),
+    ap = doc.getElementsByTagName("ARPT"),
+    by = {};
+  for (var i = 0; i < ap.length; i++) {
+    var ev = ap[i].parentNode,
+      list = ev.parentNode ? ev.parentNode.nodeName : "",
+      code = ap[i].textContent.trim().toUpperCase();
+    if (!code) continue;
+    var a = (by[code] = by[code] || { code: code, events: [] }),
+      reason = faaText(ev, "Reason");
+    if (/Ground_Stop/i.test(list)) {
+      a.events.push({
+        kind: "Ground stop",
+        sev: 4,
+        text: reason + (faaText(ev, "End_Time") ? " · until " + faaText(ev, "End_Time") : "")
+      });
+    } else if (/Ground_Delay/i.test(list)) {
+      a.events.push({
+        kind: "Ground delay",
+        sev: 3,
+        text:
+          "Average " +
+          faaText(ev, "Avg") +
+          ", up to " +
+          faaText(ev, "Max") +
+          (reason ? " · " + reason : "")
+      });
+    } else if (/Arrival_Departure/i.test(list)) {
+      var ad = ev.getElementsByTagName("Arrival_Departure")[0],
+        type = ad ? ad.getAttribute("Type") || "Delay" : "Delay";
+      a.events.push({
+        kind: type + " delay",
+        sev: 2,
+        text:
+          faaText(ev, "Min") +
+          " to " +
+          faaText(ev, "Max") +
+          (faaText(ev, "Trend") ? " · " + faaText(ev, "Trend").toLowerCase() : "") +
+          (reason ? " · " + reason : "")
+      });
+    } else if (/Closure/i.test(list)) {
+      // Standing closures to private planes are routine; only full closures are flagged.
+      var full = !/non-scheduled|transient|general aviation|PPR/i.test(reason);
+      a.events.push({
+        kind: full ? "Closed" : "Restriction",
+        sev: full ? 4 : 0,
+        text: reason + (faaText(ev, "Reopen") ? " · reopens " + faaText(ev, "Reopen") : "")
+      });
+    } else {
+      a.events.push({ kind: "Notice", sev: 1, text: reason });
+    }
+  }
+  return Object.keys(by).map(function (k) {
+    return by[k];
+  });
+}
+
+function faaPositions(codes) {
+  var need = codes.filter(function (c) {
+    return !FAA_POS[c];
+  });
+  if (!need.length) return Promise.resolve(FAA_POS);
+  return getJSON(
+    "https://aviationweather.gov/api/data/airport?format=json&ids=" + need.map(faaIcao).join(","),
+    20000
+  ).then(function (list) {
+    (list || []).forEach(function (a) {
+      var c = a.faaId || a.iataId;
+      if (c && num(a.lat) != null)
+        FAA_POS[c] = {
+          lat: num(a.lat),
+          lon: num(a.lon),
+          name: tfWords(String(a.name || "").trim())
+        };
+    });
+    return FAA_POS;
+  });
+}
+
+var FAA_COLORS = ["#7d93a8", "#ffd84a", "#ff9a2e", "#ff6a2e", "#ff4d5e"];
+
+function faaItems(d, airports, pos) {
+  return airports.reduce(function (out, a) {
+    var p = pos[a.code];
+    if (!p) return out;
+    var sev = Math.max.apply(
+        null,
+        a.events.map(function (e) {
+          return e.sev;
+        })
+      ),
+      top = a.events.filter(function (e) {
+        return e.sev === sev;
+      })[0];
+    out.push(
+      ilItem(d, {
+        id: "faa:" + a.code,
+        n: p.name || a.code,
+        label: sev >= 2 ? a.code + " " + top.kind.toUpperCase() : "",
+        lat: p.lat,
+        lon: p.lon,
+        color: FAA_COLORS[sev] || FAA_COLORS[0],
+        size: sev >= 3 ? 7 : sev >= 2 ? 5.5 : 3.5,
+        big: sev >= 3,
+        tag: a.code + " · " + top.kind + " · FAA",
+        links: [["FAA airport status", "https://nasstatus.faa.gov/"]],
+        rows: a.events
+          .slice()
+          .sort(function (x, y) {
+            return y.sev - x.sev;
+          })
+          .map(function (e) {
+            return [e.kind.toUpperCase(), e.text || "—"];
+          })
+          .concat([["SOURCE", "FAA National Airspace System status"]])
+      })
+    );
+    return out;
+  }, []);
+}
+
+ilDef({
+  key: "airdelay",
+  label: "Airport delays (US)",
+  color: "#ff9a2e",
+  icon: "🛫",
+  every: 5 * 60000,
+  none: "NO DELAYS REPORTED",
+  load: function (d) {
+    return netGet(
+      "https://nasstatus.faa.gov/api/airport-status-information",
+      20000,
+      null,
+      true
+    ).then(function (xml) {
+      var airports = faaParse(xml);
+      return faaPositions(
+        airports.map(function (a) {
+          return a.code;
+        })
+      ).then(function (pos) {
+        return faaItems(d, airports, pos);
+      });
+    });
+  }
+});
+
+// ---------- Travel advisories (US State Department) ----------
+var ADV_LEVELS = [
+  null,
+  ["Exercise normal precautions", "#39d98a"],
+  ["Exercise increased caution", "#ffd84a"],
+  ["Reconsider travel", "#ff9a2e"],
+  ["Do not travel", "#ff4d5e"]
+];
+
+// Titles read "Country - Level 2: Exercise Increased Caution"; links end "destination.xxx.html".
+function advParse(r, ix) {
+  var t = String(r.Title || ""),
+    m = /^(.*?)\s+-\s+Level\s+(\d)/i.exec(t),
+    lvl = m ? +m[2] : 0,
+    i3 = /destination\.([a-z]{3})\./i.exec(r.Link || ""),
+    c = (i3 && ix.by3[i3[1].toUpperCase()]) || (m && ctFind(ix, m[1]));
+  if (!c || !ADV_LEVELS[lvl]) return null;
+  return {
+    c: c,
+    lvl: lvl,
+    name: m ? m[1] : c.name,
+    at: Date.parse(r.Updated || r.Published),
+    link: safeUrl(r.Link || "")
+  };
+}
+
+function advItems(d, rows, ix) {
+  var seen = {};
+  return (rows || []).reduce(function (out, r) {
+    var a = advParse(r, ix);
+    if (!a || seen[a.c.iso2]) return out;
+    seen[a.c.iso2] = 1;
+    var L = ADV_LEVELS[a.lvl];
+    out.push(
+      ilItem(d, {
+        id: "adv:" + a.c.iso2,
+        n: a.name + " travel advisory",
+        label: a.lvl >= 3 ? a.name.toUpperCase() : "",
+        lat: a.c.lat,
+        lon: a.c.lon,
+        color: L[1],
+        size: 3 + a.lvl,
+        big: a.lvl === 4,
+        tag: "Level " + a.lvl + " · " + L[0],
+        links: /^https:\/\//.test(a.link) ? [["Full advisory", a.link]] : null,
+        rows: [
+          ["LEVEL", a.lvl + " of 4 · " + L[0]],
+          ["COUNTRY", a.name],
+          ["UPDATED", a.at ? ilWhen(a.at) : "—"],
+          ["FOR", "US citizens"],
+          ["SOURCE", "US Department of State"]
+        ]
+      })
+    );
+    return out;
+  }, []);
+}
+
+ilDef({
+  key: "advisory",
+  label: "Travel advisories",
+  color: "#ffd84a",
+  icon: "🧳",
+  every: 6 * 3600000,
+  load: function (d) {
+    return Promise.all([
+      getJSON("https://cadataapi.state.gov/api/TravelAdvisories", 30000),
+      wbCountries()
+    ]).then(function (r) {
+      return advItems(d, r[0], r[1]);
+    });
+  }
+});
+
+osmLayer({
+  key: "ferry",
+  label: "Ferry terminals",
+  color: "#4c8dff",
+  icon: "⛴",
+  tag: "Ferry terminal · OpenStreetMap",
+  unnamed: "Ferry terminal",
+  filter: '["amenity"="ferry_terminal"]',
+  maxKm: 600,
+  rows: function (t) {
+    return [["CARS", t.motor_vehicle === "yes" || t.motorcar === "yes" ? "Yes" : "—"]];
+  }
+});
+
+// ---------- Economy by country (World Bank) ----------
+var WB_IND = [
+  ["NY.GDP.PCAP.CD", "GDP PER PERSON", "usd"],
+  ["SL.UEM.TOTL.ZS", "UNEMPLOYMENT", "pct"],
+  ["FP.CPI.TOTL.ZG", "INFLATION", "pct"],
+  ["NY.GDP.MKTP.KD.ZG", "GDP GROWTH", "pct"]
+];
+
+function wbFmt(v, kind) {
+  if (v == null) return "—";
+  if (kind === "usd") return "$" + Math.round(v).toLocaleString();
+  return (Math.round(v * 10) / 10).toFixed(1) + "%";
+}
+
+function econColor(gdp) {
+  if (gdp == null) return "#7d93a8";
+  if (gdp >= 40000) return "#39d98a";
+  if (gdp >= 12000) return "#9fe870";
+  if (gdp >= 4000) return "#ffd84a";
+  return "#ff9a2e";
+}
+
+// Merge indicator rows ([meta, rows] per indicator) into one item per country.
+function econItems(d, sets, ix) {
+  var by = {};
+  sets.forEach(function (rows, k) {
+    ((rows && rows[1]) || []).forEach(function (r) {
+      var c = ix.by3[r.countryiso3code],
+        v = num(r.value);
+      if (!c || v == null) return;
+      var e = (by[c.iso2] = by[c.iso2] || { c: c, v: {}, yr: {} });
+      e.v[k] = v;
+      e.yr[k] = r.date;
+    });
+  });
+  return Object.keys(by).map(function (k) {
+    var e = by[k];
+    return ilItem(d, {
+      id: "econ:" + k,
+      n: e.c.name + " economy",
+      label: "",
+      lat: e.c.lat,
+      lon: e.c.lon,
+      color: econColor(e.v[0]),
+      size: 4.5,
+      tag: (e.v[0] != null ? wbFmt(e.v[0], "usd") + " per person" : "Economy") + " · World Bank",
+      rows: WB_IND.map(function (ind, i) {
+        return [ind[1], wbFmt(e.v[i], ind[2]) + (e.yr[i] ? " (" + e.yr[i] + ")" : "")];
+      }).concat([
+        ["CAPITAL", e.c.capital || "—"],
+        ["SOURCE", "World Bank, World Development Indicators"]
+      ])
+    });
+  });
+}
+
+ilDef({
+  key: "economy",
+  label: "Economy by country",
+  color: "#9fe870",
+  icon: "💹",
+  every: 24 * 3600000,
+  load: function (d) {
+    return Promise.all(
+      WB_IND.map(function (ind) {
+        return getJSON(
+          "https://api.worldbank.org/v2/country/all/indicator/" +
+            ind[0] +
+            "?format=json&mrnev=1&per_page=400",
+          30000
+        ).catch(function () {
+          return null;
+        });
+      }).concat([wbCountries()])
+    ).then(function (r) {
+      var ix = r.pop();
+      return econItems(d, r, ix);
+    });
+  }
+});
+/**
  * @file Start-up.
  * Runs last, after every module has defined its state, so the first render sees all layers.
  *
- * Module 33 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 35 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

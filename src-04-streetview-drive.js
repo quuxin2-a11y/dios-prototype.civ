@@ -3,7 +3,7 @@
  * Street View embed with a live guide, position helpers, and the turn-by-turn drive HUD with
  * cameras along the route.
  *
- * Module 4 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 4 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

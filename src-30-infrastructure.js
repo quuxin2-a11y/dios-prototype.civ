@@ -5,7 +5,7 @@
  * Seattle Fire Department 911 dispatches (City of Seattle). Built on the info-layer framework
  * in module 27.
  *
- * Module 30 of 33. Modules share one scope: build.py concatenates them in order
+ * Module 30 of 35. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29,8 +29,8 @@ function osmLayer(o) {
     color: o.color,
     icon: o.icon,
     every: 6 * 3600000,
-    maxKm: 150,
-    drawKm: 150,
+    maxKm: o.maxKm || 150,
+    drawKm: o.maxKm || 150,
     byArea: true,
     none: "NONE MAPPED HERE",
     load: function (d, b) {

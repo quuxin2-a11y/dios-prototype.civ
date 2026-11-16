@@ -110,10 +110,50 @@ var NAMES = [
   "firesParse",
   "fireColor",
   "aqBand",
-  "aqGrid"
+  "aqGrid",
+  "ctFold",
+  "wbIndex",
+  "ctFind",
+  "donPlaces",
+  "donDisease",
+  "donItems",
+  "inatItems",
+  "usgsBox",
+  "usgsItems",
+  "faaIcao",
+  "faaItems",
+  "advParse",
+  "advItems",
+  "wbFmt",
+  "econColor",
+  "econItems",
+  "ago"
+];
+// Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
+function grabVar(name) {
+  var i = src.indexOf("\nvar " + name + " = ");
+  if (i < 0) throw new Error("table not found: " + name);
+  var d = 0;
+  for (var j = i + 1; j < src.length; j++) {
+    var c = src[j];
+    if (c === "{" || c === "[") d++;
+    else if (c === "}" || c === "]") d--;
+    else if ((c === ";" || c === ",") && d === 0) break;
+  }
+  return src.slice(i + 1, j) + ";\n";
+}
+var TABLES = [
+  "CT_ALIASES",
+  "INAT_COLORS",
+  "USGS_PARAMS",
+  "FAA_ICAO",
+  "FAA_COLORS",
+  "ADV_LEVELS",
+  "WB_IND"
 ];
 var code =
   CONSTANTS +
+  TABLES.map(grabVar).join("") +
   NAMES.map(grab).join("\n") +
   "\nreturn{" +
   NAMES.map(function (k) {
@@ -1024,6 +1064,231 @@ test("earth: air quality bands and the sampling grid", function () {
   assert.strictEqual(g.length, 9);
   assert.deepStrictEqual(g[0], [1, 11]);
   assert.deepStrictEqual(g[8], [5, 15]);
+});
+
+var WB_ROWS = [
+  {
+    id: "COD",
+    iso2Code: "CD",
+    name: "Congo, Dem. Rep.",
+    capitalCity: "Kinshasa",
+    latitude: "-4.325",
+    longitude: "15.3222"
+  },
+  {
+    id: "KEN",
+    iso2Code: "KE",
+    name: "Kenya",
+    capitalCity: "Nairobi",
+    latitude: "-1.27975",
+    longitude: "36.8126"
+  },
+  {
+    id: "NGA",
+    iso2Code: "NG",
+    name: "Nigeria",
+    capitalCity: "Abuja",
+    latitude: "9.05804",
+    longitude: "7.48906"
+  },
+  {
+    id: "QAT",
+    iso2Code: "QA",
+    name: "Qatar",
+    capitalCity: "Doha",
+    latitude: "25.2948",
+    longitude: "51.5082"
+  },
+  {
+    id: "CHN",
+    iso2Code: "CN",
+    name: "China",
+    capitalCity: "Beijing",
+    latitude: "40.0495",
+    longitude: "116.286"
+  },
+  {
+    id: "MMR",
+    iso2Code: "MM",
+    name: "Myanmar",
+    capitalCity: "Naypyidaw",
+    latitude: "21.914",
+    longitude: "95.9562"
+  },
+  {
+    id: "SSF",
+    iso2Code: "ZG",
+    name: "Sub-Saharan Africa",
+    capitalCity: "",
+    latitude: "",
+    longitude: ""
+  }
+];
+
+test("health: outbreak titles place each named country", function () {
+  var ix = F.wbIndex(WB_ROWS);
+  assert.strictEqual(ix.by3.SSF, undefined);
+  assert.strictEqual(F.ctFind(ix, "Democratic Republic of the Congo").iso2, "CD");
+  assert.strictEqual(F.ctFind(ix, "Burma").iso2, "MM");
+  assert.strictEqual(F.ctFold("Côte d’Ivoire"), "cote divoire");
+  var t =
+    "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo, Kenya and Nigeria";
+  assert.deepStrictEqual(
+    F.donPlaces(ix, t).map(function (c) {
+      return c.iso2;
+    }),
+    ["CD", "KE", "NG"]
+  );
+  assert.strictEqual(
+    F.donDisease("Middle East respiratory syndrome (MERS) – Qatar"),
+    "Middle East respiratory syndrome (MERS)"
+  );
+  assert.strictEqual(F.donPlaces(ix, "Yellow fever - WHO African Region").length, 0);
+  var it = F.donItems(
+    IL_D,
+    [
+      {
+        Title: "Middle East respiratory syndrome (MERS) – Qatar",
+        UrlName: "2026-DON626",
+        PublicationDateAndTime: "2026-11-13T19:00:00Z"
+      }
+    ],
+    ix
+  );
+  assert.strictEqual(it.length, 1);
+  assert.strictEqual(it[0].lat, 25.2948);
+  assert.strictEqual(
+    it[0].links[0][1],
+    "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON626"
+  );
+});
+
+test("nature: wildlife keeps no observer details and flags blurred positions", function () {
+  var it = F.inatItems(IL_D, [
+    {
+      id: 1,
+      observed_on: "2026-11-10",
+      obscured: true,
+      geojson: { coordinates: [-97.7, 30.3] },
+      user: { login: "someone" },
+      taxon: { name: "Lynx rufus", preferred_common_name: "bobcat", iconic_taxon_name: "Mammalia" },
+      photos: [{ url: "https://inaturalist-open-data.s3.amazonaws.com/photos/1/square.jpg" }],
+      uri: "https://www.inaturalist.org/observations/1"
+    },
+    { id: 2, taxon: { name: "x" } }
+  ]);
+  assert.strictEqual(it.length, 1);
+  assert.strictEqual(it[0].n, "Bobcat");
+  assert.strictEqual(
+    it[0].img,
+    "https://inaturalist-open-data.s3.amazonaws.com/photos/1/medium.jpg"
+  );
+  assert.ok(JSON.stringify(it[0]).indexOf("someone") < 0);
+  assert.ok(
+    it[0].rows.some(function (r) {
+      return r[1] === "Approximate (protected species)";
+    })
+  );
+});
+
+test("nature: USGS box stays under 25 square degrees and readings merge per site", function () {
+  var b = F.usgsBox({ s: 20, n: 40, w: -110, e: -80 }).map(Number);
+  assert.ok((b[2] - b[0]) * (b[3] - b[1]) <= 25);
+  var ts = function (p, v) {
+    return {
+      sourceInfo: {
+        siteName: "LAKE CK AT LAKE CK PKWY NR AUSTIN, TX",
+        siteCode: [{ value: "08105886" }],
+        geoLocation: { geogLocation: { latitude: 30.46, longitude: -97.79 } }
+      },
+      variable: { variableCode: [{ value: p }] },
+      values: [{ value: [{ value: v, dateTime: "2026-11-16T14:50:00.000-06:00" }] }]
+    };
+  };
+  var it = F.usgsItems(IL_D, [
+    ts("00060", "1.67"),
+    ts("00065", "3.2"),
+    ts("99999", "1"),
+    ts("00065", "-999999")
+  ]);
+  assert.strictEqual(it.length, 1);
+  assert.deepStrictEqual(it[0].rows.slice(0, 2), [
+    ["FLOW", "1.67 ft³/s"],
+    ["GAGE HEIGHT", "3.2 ft"]
+  ]);
+});
+
+test("travel: FAA codes, delay severity and State Department levels", function () {
+  assert.strictEqual(F.faaIcao("teb"), "KTEB");
+  assert.strictEqual(F.faaIcao("HNL"), "PHNL");
+  var it = F.faaItems(
+    IL_D,
+    [
+      {
+        code: "SFO",
+        events: [
+          { kind: "Ground delay", sev: 3, text: "Average 1 hour 5 minutes" },
+          { kind: "Restriction", sev: 0, text: "GA PPR" }
+        ]
+      },
+      { code: "ZZZ", events: [{ kind: "Notice", sev: 1, text: "" }] }
+    ],
+    { SFO: { lat: 37.6188, lon: -122.3754, name: "San Francisco intl" } }
+  );
+  assert.strictEqual(it.length, 1);
+  assert.strictEqual(it[0].label, "SFO GROUND DELAY");
+  assert.strictEqual(it[0].rows[0][0], "GROUND DELAY");
+  var ix = F.wbIndex(WB_ROWS);
+  var a = F.advParse(
+    {
+      Title: "China - Level 2: Exercise Increased Caution",
+      Link: "https://travel.state.gov/x/destination.chn.html",
+      Updated: "2026-10-22T20:00:00-04:00"
+    },
+    ix
+  );
+  assert.strictEqual(a.c.iso2, "CN");
+  assert.strictEqual(a.lvl, 2);
+  assert.strictEqual(
+    F.advParse({ Title: "Burma - Level 4: Do Not Travel", Link: "" }, ix).c.iso2,
+    "MM"
+  );
+  assert.strictEqual(F.advParse({ Title: "Atlantis - Level 1: x", Link: "" }, ix), null);
+  var adv = F.advItems(
+    IL_D,
+    [{ Title: "Burma - Level 4: Do Not Travel" }, { Title: "Burma - Level 4: Do Not Travel" }],
+    ix
+  );
+  assert.strictEqual(adv.length, 1);
+  assert.strictEqual(adv[0].big, true);
+});
+
+test("economy: World Bank indicators merge per country", function () {
+  var ix = F.wbIndex(WB_ROWS);
+  var set = function (rows) {
+    return [{ page: 1 }, rows];
+  };
+  var it = F.econItems(
+    IL_D,
+    [
+      set([
+        { countryiso3code: "KEN", value: 2099.3, date: "2024" },
+        { countryiso3code: "SSF", value: 1600, date: "2024" }
+      ]),
+      set([{ countryiso3code: "KEN", value: 5.62, date: "2024" }]),
+      null,
+      set([{ countryiso3code: "KEN", value: null, date: "2024" }])
+    ],
+    ix
+  );
+  assert.strictEqual(it.length, 1);
+  assert.deepStrictEqual(it[0].rows.slice(0, 4), [
+    ["GDP PER PERSON", "$2,099 (2024)"],
+    ["UNEMPLOYMENT", "5.6% (2024)"],
+    ["INFLATION", "—"],
+    ["GDP GROWTH", "—"]
+  ]);
+  assert.strictEqual(F.wbFmt(-1.25, "pct"), "-1.2%");
 });
 
 console.log("\n" + n + " tests passed");

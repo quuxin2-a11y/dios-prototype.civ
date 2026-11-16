@@ -182,6 +182,45 @@ SAMPLES = {
         "Lon, Lat, YearDay, Time, Satellite, Method, Ecosystem, FRP\n"
         "-119.5, 41.0, 2026319, 0301, GOES-WEST, NGFS, 24, 55.0\n"
     ),
+    "airport-status-information": (
+        "<AIRPORT_STATUS_INFORMATION><Update_Time>Mon Nov 16 21:09:57 2026 GMT</Update_Time>"
+        "<Delay_type><Name>Ground Delay Programs</Name><Ground_Delay_List><Ground_Delay>"
+        "<ARPT>SFO</ARPT><Reason>low ceilings</Reason><Avg>1 hour and 5 minutes</Avg>"
+        "<Max>2 hours and 28 minutes</Max></Ground_Delay></Ground_Delay_List></Delay_type>"
+        "</AIRPORT_STATUS_INFORMATION>"
+    ),
+    "aviationweather.gov/api/data/airport": [
+        {
+            "icaoId": "KSFO",
+            "iataId": "SFO",
+            "faaId": "SFO",
+            "name": "SAN FRANCISCO/SAN FRANCISCO INTL ",
+            "lat": 37.6188,
+            "lon": -122.3754,
+        }
+    ],
+    "diseaseoutbreaknews": {
+        "value": [
+            {
+                "Title": "Middle East respiratory syndrome (MERS) – Qatar",
+                "UrlName": "2026-DON626",
+                "PublicationDateAndTime": "2026-11-13T19:00:00Z",
+            }
+        ]
+    },
+    "api.worldbank.org/v2/country?": [
+        {"page": 1},
+        [
+            {
+                "id": "QAT",
+                "iso2Code": "QA",
+                "name": "Qatar",
+                "capitalCity": "Doha",
+                "latitude": "25.2948",
+                "longitude": "51.5082",
+            }
+        ],
+    ],
     "dx9v-zd7x": [
         {
             "traffic_report_id": "T1",
@@ -420,6 +459,20 @@ class AppInBrowser(unittest.TestCase):
         )
         self.assertTrue(saved.get("eo_lights"))
         self.assertFalse(saved.get("eo_today"))
+        self.assertEqual(self.errors, [])
+
+    def test_airport_delays_and_outbreaks_load(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({airdelay: true, outbreaks: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            """() => {
+                const t = (document.getElementById('wlayers') || {}).textContent || '';
+                return /Airport delays \\(US\\)\\s*1/.test(t) && /Disease outbreaks\\s*1/.test(t);
+            }""",
+            timeout=20000,
+        )
         self.assertEqual(self.errors, [])
 
     def test_focus_mode_adds_and_clears_a_state(self):
