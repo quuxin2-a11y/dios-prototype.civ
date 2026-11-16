@@ -88,7 +88,7 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 - **Client-only.** All logic runs on the device. User keys, saved places and contacts are kept in local storage and never transmitted except to the provider each key belongs to.
 - **Rendering.** A custom Canvas 2D / WebGL globe for the default view; CesiumJS for photoreal 3D; MapLibre GL for the terrain map; a small WebGL renderer for Inspect.
-- **Single-file bundle.** `build.py` assembles the sources into `index.html` so the same artifact ships in the APK and on GitHub Pages; CI fails if the committed bundle drifts from its sources.
+- **Modules and bundle.** The application is 25 modules (`src-NN-*.js`), each a self-contained, syntax-checked and Prettier-formatted script with a header describing its responsibility. They share one scope: `build.py` concatenates them in order inside a single closure and resolves the `/*@include*/` markers in `src-template.html` (styles, modules and bundled JSON data) to produce `index.html`. The same file ships in the APK and on GitHub Pages, and CI fails if the committed bundle drifts from its sources.
 - **Native layer.** `install_native.py` layers the Java sources and Android resources in this repo onto the Capacitor project generated in CI, and can roll them back.
 
 ## Project layout
@@ -96,7 +96,7 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 | Path | Language | Purpose |
 |---|---|---|
 | `src-01-start.js` … `src-25-*.js` | JavaScript | Application source in 25 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit). Formatted with Prettier (`.prettierrc.json`) |
-| `src-template.html` | HTML | Document structure |
+| `src-template.html` | HTML | Document structure, with `/*@include*/` markers filled in by `build.py` |
 | `src-styles.css` | CSS | Design system and component styles |
 | `src-data-*.json` | JSON | Bundled gazetteer, coastline points, fallback portal list and the generated 3D models |
 | `MainActivity.java` | Java | Activity: plugin registration, launcher shortcuts, intent routing |
@@ -109,6 +109,8 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 | `check_secrets.py` | Python | Fails CI on committed credentials or key files |
 | `make_models.py` | Python | Generates the glTF models (NumPy) into `src-data-models.json` |
 | `test_tools.py` | Python | `unittest` suite for the Python tooling |
+| `test_browser.py` | Python | Headless-browser tests of the built app (Playwright) |
+| `eslint.config.mjs`, `.prettierrc.json` | JavaScript, JSON | Lint and formatting rules |
 | `tests.js` | JavaScript | Unit tests for the application logic, run against the real sources |
 | `sw.js`, `manifest.webmanifest` | JavaScript, JSON | Service worker and web-app manifest |
 | `index.html` | HTML | **Build output** of `build.py` (excluded from language statistics) |
@@ -149,21 +151,22 @@ The debug APK is written to `app/android/app/build/outputs/apk/debug/`. Release 
 | Suite | Command | Covers |
 |---|---|---|
 | JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model (32 tests) |
+| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, and the Emergency mode confirmation (8 tests) |
 | Python | `python3 -m unittest -v test_tools` | Secret scanner, native installer (install, idempotence, rollback) |
 | Java | `./gradlew testDebugUnitTest` | Launch-action routing in the native plugin |
-| Bundle | `python3 build.py --check` | Committed `index.html` matches its sources |
+| Sources | `node --check`, `eslint`, `prettier --check`, `python3 build.py --check` | Every module parses on its own and passes ESLint's recommended rules (`eslint.config.mjs`, including undefined-name checks across modules), formatting is consistent, and the committed `index.html` matches its sources |
 | On device | Settings → Testing → System check | Reachability of every public source; local error log with a shareable report |
 
 ## Continuous integration
 
 Every push to `main` runs [`apk.yml`](.github/workflows/apk.yml):
 
-1. Verify the bundle matches its sources and parses.
-2. Run the JavaScript and Python test suites and the secret scan.
+1. Syntax-check and lint every module, check formatting with Prettier, and verify the bundle matches its sources.
+2. Run the JavaScript, browser and Python test suites and the secret scan.
 3. Generate the Capacitor project, install the native Java sources, pin third-party scripts with Subresource Integrity hashes.
 4. Run the Java unit tests, then build and sign the release APK (falling back to the web-only build if the native layer fails to compile).
 5. Publish the APK with its SHA-256 checksum and a signed build-provenance attestation.
-6. Scan the code with CodeQL.
+6. Scan the JavaScript modules, Python tools and Java sources with CodeQL.
 
 Workflows run with read-only permissions by default; only the release job can write.
 

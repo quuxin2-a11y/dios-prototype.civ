@@ -2,6 +2,13 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v54
+- **Self-contained modules.** Each of the 25 `src-NN-*.js` files is now a complete script that parses and is checked on its own, with a header describing what it does. Behaviour is unchanged.
+- **Simpler build.** `build.py` now fills `/*@include*/` markers in `src-template.html` (styles, modules, bundled data) instead of patching markup, and embeds all JSON data compactly.
+- **Linting.** ESLint's recommended rules run on every module, including undefined-name checks across modules (`eslint.config.mjs`). Fixing its findings removed dead code and unused variables, and renamed two variables that shadowed others in the globe renderer.
+- **Browser tests.** `test_browser.py` loads the built app in headless Chromium with every public source blocked and checks start-up, embedded data, Finder, Records, Country file and the Emergency mode confirmation.
+- **CI:** every module is syntax-checked, linted and Prettier-checked on each push, and the browser tests run before the build; CodeQL now scans the modules directly and skips the generated `index.html`.
+
 ## v53
 - **Security hardening (code scanning):** toast messages are now built node by node, allowing only bold text and line breaks; layer status text and dossier labels are escaped; coordinates written into buttons are forced to numbers; colours are checked against a hex pattern.
 - **Media addresses are validated** before reaching an image or video element: only https, http, blob and inline PNG/JPEG/GIF/WebP images are accepted.
