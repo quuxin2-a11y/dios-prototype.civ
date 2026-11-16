@@ -3,7 +3,7 @@
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

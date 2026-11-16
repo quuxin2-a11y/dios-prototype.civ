@@ -5,7 +5,7 @@
  * wind farms grouped from turbine records (USGS US Wind Turbine Database, and OpenStreetMap
  * outside the US). Also switches existing installs to the clear look once.
  *
- * Module 36 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 36 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15,7 +15,6 @@
 (function () {
   if (SET.lookV >= 1) return;
   SET.lookV = 1;
-  if (!SET.look) SET.look = "clear";
   WL.night = false;
   WL.cables = true;
   WL.img = true;

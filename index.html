@@ -7182,7 +7182,7 @@ button:active {
  * @file Shared setup.
  * Snapshot of the page source and the camera category table (label and colour per type).
  *
- * Module 1 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 1 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7202,7 +7202,7 @@ var visLive = [];
  * Tracks dead and live feeds, builds the copyable diagnostics text, refreshes still images, and
  * reads TxDOT camera snapshots.
  *
- * Module 2 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 2 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7297,7 +7297,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v63 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v64 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -7699,7 +7699,7 @@ function txParse(j, d) {
  * AIS vessel positions over WebSocket and REST, radar tiles drawn on the globe, and spoken
  * prompts and voice commands.
  *
- * Module 3 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 3 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -8562,7 +8562,7 @@ document.addEventListener("change", function (e) {
  * Street View embed with a live guide, position helpers, and the turn-by-turn drive HUD with
  * cameras along the route.
  *
- * Module 4 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 4 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -9790,7 +9790,7 @@ $("ver").textContent = "v" + cams.length;
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -10330,15 +10330,21 @@ function drawCamPoints(n) {
   var ring = r >= 3.6;
   ctx.lineWidth = ring ? 1.1 : 0.6;
   ctx.strokeStyle = ring ? "rgba(255,255,255,0.9)" : "rgba(2,10,24,0.55)";
+  // Very many points: squares are far cheaper to draw than circles and look the same that small.
+  var square = n > 30000;
   for (ky in grp) {
     var ar = grp[ky];
+    ctx.fillStyle = ky;
+    if (square) {
+      for (var b = 0; b < ar.length; b++) ctx.fillRect(VX[ar[b]] - r, VY[ar[b]] - r, r * 2, r * 2);
+      continue;
+    }
     ctx.beginPath();
     for (var a = 0; a < ar.length; a++) {
       j = ar[a];
       ctx.moveTo(VX[j] + r, VY[j]);
       ctx.arc(VX[j], VY[j], r, 0, 6.2832);
     }
-    ctx.fillStyle = ky;
     ctx.fill();
     if (r > 1.6) ctx.stroke();
   }
@@ -10757,7 +10763,7 @@ function showTip(c, e) {
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -11944,7 +11950,7 @@ $("addrClear").onclick = function () {
  * @file Viewer wall and on-device object detection.
  * Multi-camera wall, embeds, and the optional in-browser detection model with per-camera counts.
  *
- * Module 7 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 7 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13076,7 +13082,7 @@ setInterval(function () {
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -14791,7 +14797,7 @@ setTimeout(liveRetry, 8 * 60000);
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15427,7 +15433,7 @@ document.addEventListener("click", function (e) {
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -18087,7 +18093,7 @@ document.addEventListener("click", function (e) {
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -18134,20 +18140,28 @@ function t4Pts() {
   var hide = t4Hide(),
     cp = v.camera.positionCartographic,
     cla = cp.latitude / D,
-    clo = cp.longitude / D,
-    key =
-      visLive.length +
-      "|" +
-      Math.round(T4.gh || 0) +
-      "|" +
-      (hide ? 1 : 0) +
-      "|" +
-      Math.round(cla * 60) +
-      "|" +
-      Math.round(clo * 60);
+    clo = cp.longitude / D;
+  // From high up (the Earth view), every camera is shown at once and only rebuilt when the list
+  // changes, so moving the globe never re-adds points.
+  if (cp.height > T4_GLOBAL_M) {
+    t4PtsGlobal(hide);
+    return;
+  }
+  var key =
+    visLive.length +
+    "|" +
+    Math.round(T4.gh || 0) +
+    "|" +
+    (hide ? 1 : 0) +
+    "|" +
+    Math.round(cla * 60) +
+    "|" +
+    Math.round(clo * 60);
   if (T4.n === key) return;
   T4.n = key;
+  if (T4.gpts) T4.gpts.show = false;
   var pc = T4.pts;
+  pc && (pc.show = true);
   if (!pc) pc = T4.pts = v.scene.primitives.add(new C.PointPrimitiveCollection());
   pc.removeAll();
   if (hide) return;
@@ -18183,6 +18197,47 @@ function t4Pts() {
     });
   }
 }
+// Above this camera height the Earth view shows every camera at once.
+var T4_GLOBAL_M = 60000;
+
+function t4PtsGlobal(hide) {
+  var C = window.Cesium,
+    v = T4.v,
+    key = "G|" + visLive.length + "|" + (hide ? 1 : 0) + "|" + (lookClear() ? 1 : 0);
+  if (T4.pts) T4.pts.show = false;
+  if (!T4.gpts) T4.gpts = v.scene.primitives.add(new C.PointPrimitiveCollection());
+  T4.gpts.show = !hide;
+  if (T4.gn === key) return;
+  // While networks are still arriving the list grows constantly; rebuild at most every 8 s.
+  if (T4.gn && Date.now() - (T4.gt || 0) < 8000) return;
+  T4.gn = key;
+  T4.gt = Date.now();
+  T4.n = "";
+  var pc = T4.gpts;
+  pc.removeAll();
+  if (hide) return;
+  var cols = {},
+    white = C.Color.fromCssColorString("#ffffff").withAlpha(0.85),
+    sc = new C.NearFarScalar(2e5, 2.2, 2e7, 0.9);
+  Object.keys(L).forEach(function (k) {
+    cols[k] = C.Color.fromCssColorString(L[k][1]);
+  });
+  var live = C.Color.fromCssColorString("#ff4d8a"),
+    other = C.Color.fromCssColorString("#4cc3ff");
+  for (var i = 0; i < visLive.length; i++) {
+    var c = visLive[i];
+    pc.add({
+      position: C.Cartesian3.fromDegrees(c.lon, c.lat, 2500),
+      color: c.v || c.mj ? live : cols[c.t] || other,
+      pixelSize: 3.6,
+      outlineColor: white,
+      outlineWidth: 0.8,
+      scaleByDistance: sc,
+      id: c
+    });
+  }
+}
+
 // Low-poly glTF models, generated by make_models.py into src-data-models.json and embedded by build.py.
 var MDL = JSON.parse(document.getElementById("models").textContent);
 // 3D models in the Photoreal view: aircraft, ships and satellites at their live positions (models are our own, generated by models/gen.py)
@@ -19204,9 +19259,13 @@ function t4Fly(lon, lat, rangeM, hdg) {
     );
   } catch (e) {}
 }
-function t4Open() {
+// opt.space opens the Earth view from space; opt.auto (start-up) fails quietly and leaves the
+// classic globe in place.
+function t4Open(opt) {
+  opt = opt && opt.target ? {} : opt || {};
   if (T4.on) return;
   if (!kG3()) {
+    if (opt.auto) return;
     note(
       "Photoreal 3D",
       "This view uses Google's 3D city models. Add your Google Maps key under Layers → Sources &amp; keys first.",
@@ -19252,7 +19311,7 @@ function t4Open() {
           });
         } catch (e) {
           t4Close();
-          note("Photoreal 3D", "This phone couldn't start the 3D engine.");
+          if (!opt.auto) note("Photoreal 3D", "This phone couldn't start the 3D engine.");
           return;
         }
         try {
@@ -19279,6 +19338,7 @@ function t4Open() {
           })
           .catch(function () {
             t4Close();
+            if (opt.auto) return;
             note(
               "Photoreal 3D",
               "Google refused the 3D city models for this key. In Google Cloud, enable “Map Tiles API” for the same key, then try again. Opening the standard 3D view for now."
@@ -19303,7 +19363,7 @@ function t4Open() {
           }
           var p = v.scene.pick(m.position),
             c = p && p.id && p.id.u ? p.id : null,
-            o = p && p.id && p.id.oj;
+            o = p && p.id && (p.id.oj || (p.id.kind === "info" ? p.id : null));
           if (o && !c) {
             select(o);
             target = null;
@@ -19311,7 +19371,8 @@ function t4Open() {
               T4MT = 0;
               t4Flight();
               if (W < 1000) sheetSet(34, true);
-            } else t4Fly(o.lon, o.lat, o.kind === "sat" ? (o.alt || 400) * 1000 + 2e6 : 900, 0);
+            } else if (o.kind !== "info")
+              t4Fly(o.lon, o.lat, o.kind === "sat" ? (o.alt || 400) * 1000 + 2e6 : 900, 0);
             return;
           }
           if (c) {
@@ -19322,17 +19383,27 @@ function t4Open() {
           }
         }, C.ScreenSpaceEventType.LEFT_CLICK);
       }
-      T4.v.camera.setView({
-        destination: C.Cartesian3.fromDegrees(
-          rot.lon,
-          rot.lat - Math.min(8, vk / 260),
-          Math.max(900, vk * 750)
-        ),
-        orientation: { heading: 0, pitch: -52 * D, roll: 0 }
-      });
+      if (opt.space)
+        T4.v.camera.setView({
+          destination: C.Cartesian3.fromDegrees(
+            opt.lon == null ? -96 : opt.lon,
+            opt.lat == null ? 36 : opt.lat,
+            opt.h || 1.6e7
+          ),
+          orientation: { heading: 0, pitch: -90 * D, roll: 0 }
+        });
+      else
+        T4.v.camera.setView({
+          destination: C.Cartesian3.fromDegrees(
+            rot.lon,
+            rot.lat - Math.min(8, vk / 260),
+            Math.max(900, vk * 750)
+          ),
+          orientation: { heading: 0, pitch: -52 * D, roll: 0 }
+        });
       T4.n = "";
       t4Pts();
-      if (!ls("ojos-t4tip")) {
+      if (!ls("ojos-t4tip") && !opt.auto) {
         ls("ojos-t4tip", 1);
         note(
           "Photoreal 3D",
@@ -19342,7 +19413,8 @@ function t4Open() {
     })
     .catch(function () {
       btn.textContent = "◆ Photoreal 3D";
-      note("Photoreal 3D", "Couldn't load the 3D engine. Check your connection and try again.");
+      if (!opt.auto)
+        note("Photoreal 3D", "Couldn't load the 3D engine. Check your connection and try again.");
     });
 }
 function t4Close() {
@@ -19390,6 +19462,7 @@ setInterval(function () {
   }
   if (T4.ready) {
     t4Pts();
+    if (typeof t4Data === "function") t4Data();
     t4Sel();
     t4Models();
     t4Flight();
@@ -19427,7 +19500,7 @@ document.addEventListener("click", function (e) {
  * A continuous zoom from the 3D city into procedurally drawn cutaways of buildings and aircraft,
  * with labelled facts.
  *
- * Module 12 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 12 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -21665,7 +21738,7 @@ document.addEventListener("click", function (e) {
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
  * map, and the ticker.
  *
- * Module 13 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 13 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22334,7 +22407,7 @@ setInterval(function () {
  * @file Flight log.
  * Progress, schedule and recent history for a selected aircraft.
  *
- * Module 14 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 14 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22758,7 +22831,7 @@ setInterval(function () {
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -23260,7 +23333,8 @@ function brDraw() {
   h +=
     '<h4 class="mono">GLOBE LOOK</h4><div class="brt">' +
     [
-      ["clear", "Clear (new)"],
+      ["earth", "Google Earth 3D"],
+      ["clear", "Clear globe"],
       ["classic", "Classic dark"]
     ]
       .map(function (o) {
@@ -23268,7 +23342,7 @@ function brDraw() {
           '<button data-br="lk-' +
           o[0] +
           '" class="' +
-          ((SET.look || "clear") === o[0] ? "on" : "") +
+          ((SET.look || "earth") === o[0] ? "on" : "") +
           '">' +
           o[1] +
           "</button>"
@@ -23329,7 +23403,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 63 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 64 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -23435,6 +23509,10 @@ document.addEventListener("click", function (e) {
     setSave();
     lastView = "";
     brDraw();
+    if (SET.look === "earth" && !T4.on) {
+      brClose();
+      t4Open({ space: true, lon: rot.lon, lat: rot.lat });
+    } else if (SET.look !== "earth" && T4.on) t4Close();
   } else if (k.indexOf("tx-") === 0) {
     textSet(i);
     brDraw();
@@ -23933,7 +24011,7 @@ setTimeout(function () {
  * Look up a flight or ship by any identifier, side-by-side comparison, and public posts about a
  * place.
  *
- * Module 16 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 16 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24405,7 +24483,7 @@ setInterval(function () {
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24774,7 +24852,7 @@ document.addEventListener("click", function (e) {
  * Flight and vessel finder, the plans directory, and organisation lookups in state and national
  * registers.
  *
- * Module 18 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 18 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26714,7 +26792,7 @@ document.addEventListener("click", function (e) {
  * @file Route choices.
  * Alternative routes from OSRM, scored against reported hazards and camera coverage.
  *
- * Module 19 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 19 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26977,7 +27055,7 @@ document.addEventListener("click", function (e) {
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28110,7 +28188,7 @@ setInterval(function () {
  * @file Country file.
  * Travel advisory, emergency numbers, leadership, economy and currency for any country.
  *
- * Module 21 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 21 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28508,7 +28586,7 @@ document.addEventListener("click", function (e) {
  * MeteoAlarm warnings, offline tile packs, check-in messages, the error log and the source health
  * check.
  *
- * Module 22 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 22 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28979,7 +29057,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v63 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v64 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -29070,7 +29148,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v63 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v64 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -29122,7 +29200,7 @@ try {
  * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
  * vibration, shortcuts).
  *
- * Module 23 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 23 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29694,7 +29772,7 @@ setTimeout(function () {
  * Links between nearby cameras, field-of-view footprints and ranges, chase mode and the rewind
  * strip.
  *
- * Module 24 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 24 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30412,7 +30490,7 @@ setTab("info", window.innerWidth < 1000);
  * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
  * settings restored at start-up.
  *
- * Module 25 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30707,7 +30785,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v63)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v64)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -31014,7 +31092,10 @@ if (ls("ojos-static") === true)
     ST2D = false;
   }, 400);
 if (ls("ojos-view") === "3d" && EMBED_OK) setTimeout(t3Open, 1200);
-if (ls("ojos-view") === "real" && EMBED_OK && kG3()) setTimeout(t4Open, 1200);
+if (ls("ojos-view") === "real" && EMBED_OK && kG3())
+  setTimeout(function () {
+    t4Open({ auto: true });
+  }, 1200);
 if (WL.dots) {
   spin = false;
   var bd0 = $("bDots");
@@ -31026,7 +31107,7 @@ if (WL.dots) {
  * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
  * for areas near the map view.
  *
- * Module 26 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 26 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -31697,7 +31778,7 @@ if (EMBED_OK && WL.transit) setTimeout(trLoad, 1500);
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -32437,7 +32518,7 @@ if (EMBED_OK)
  * everything else is dimmed, and cameras, layers and data outside them pause so the focus area
  * stays smooth. Boundaries come from public TopoJSON (us-atlas, world-atlas) and are loaded once.
  *
- * Module 28 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 28 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -32983,7 +33064,7 @@ if (EMBED_OK) setTimeout(focRestore, 1200);
  * incidents and work zones (city open-data portals) and US land border wait times (CBP).
  * Built on the info-layer framework in module 27.
  *
- * Module 29 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 29 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33531,7 +33612,7 @@ ilDef({
  * Seattle Fire Department 911 dispatches (City of Seattle). Built on the info-layer framework
  * in module 27.
  *
- * Module 30 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 30 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33957,7 +34038,7 @@ ilDef({
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
  * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
- * Module 31 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 31 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34131,7 +34212,7 @@ function liveAtcUrl(code) {
  * Black Marble city lights) from NASA GIBS; smoke plumes and fire detections from NOAA's Hazard
  * Mapping System; and modelled air quality from Open-Meteo (Copernicus CAMS).
  *
- * Module 32 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 32 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34567,7 +34648,7 @@ ilDef({
  * parks and national parks (OpenStreetMap), recent wildlife observations (iNaturalist) and live
  * river and lake levels (USGS). Built on the info-layer framework in module 27.
  *
- * Module 33 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 33 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -35079,7 +35160,7 @@ ilDef({
  * (OpenStreetMap) and country economic indicators (World Bank). Built on the info-layer
  * framework in module 27.
  *
- * Module 34 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 34 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -35435,7 +35516,7 @@ ilDef({
  * historic sites and UNESCO World Heritage sites (OpenStreetMap); populated places (Wikidata);
  * and country facts and farming indicators (World Bank). Built on the info-layer framework.
  *
- * Module 35 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 35 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -36026,7 +36107,7 @@ osmLayer({
  * wind farms grouped from turbine records (USGS US Wind Turbine Database, and OpenStreetMap
  * outside the US). Also switches existing installs to the clear look once.
  *
- * Module 36 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 36 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -36036,7 +36117,6 @@ osmLayer({
 (function () {
   if (SET.lookV >= 1) return;
   SET.lookV = 1;
-  if (!SET.look) SET.look = "clear";
   WL.night = false;
   WL.cables = true;
   WL.img = true;
@@ -36336,10 +36416,114 @@ ilDef({
   }
 });
 /**
+ * @file Earth view: the default start-up globe.
+ * Opens the CesiumJS + Google Photorealistic 3D Tiles view from space, the way the app now
+ * starts, and draws the data layers and undersea cables in it on the graphics chip: cameras as
+ * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
+ * globe when the 3D engine or Google's tiles are not available.
+ *
+ * Module 37 of 38. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+// v63 saved "clear" as the look for everyone; the Earth view is the default from v64.
+if (!(SET.lookV >= 2)) {
+  SET.lookV = 2;
+  if (SET.look === "clear") delete SET.look;
+  setSave();
+}
+
+// The start-up view: "earth" (default), "clear" or "classic" (the canvas globe looks).
+function lookEarth() {
+  return (SET.look || "earth") === "earth";
+}
+
+// Signature of what the data layers hold, so points are rebuilt only when something changed.
+function t4DataKey() {
+  return IL_ORDER.filter(function (k) {
+    return WL[k] && k !== "cables" && IL[k].items.length;
+  })
+    .map(function (k) {
+      return k + IL[k].items.length + ":" + IL[k].at;
+    })
+    .join("|");
+}
+
+// Data-layer items as points, and cables as lines, in the Earth view.
+function t4Data() {
+  var C = window.Cesium,
+    v = T4.v;
+  if (!C || !v || !T4.ready) return;
+  var key = t4DataKey();
+  if (!T4.ipts) T4.ipts = v.scene.primitives.add(new C.PointPrimitiveCollection());
+  if (T4.ik !== key) {
+    T4.ik = key;
+    var pc = T4.ipts,
+      white = C.Color.fromCssColorString("#ffffff").withAlpha(0.9),
+      sc = new C.NearFarScalar(5e4, 1.6, 2e7, 0.8),
+      seen = 0;
+    pc.removeAll();
+    IL_ORDER.forEach(function (k) {
+      var d = IL[k];
+      if (!WL[k] || k === "cables") return;
+      for (var i = 0; i < d.items.length && seen < 40000; i++) {
+        var e = d.items[i];
+        if (!ilValid(e) || !focusHas(e.lat, e.lon)) continue;
+        pc.add({
+          position: C.Cartesian3.fromDegrees(e.lon, e.lat, 3000),
+          color: C.Color.fromCssColorString(okColor(e.color)),
+          pixelSize: Math.max(5, (e.size || 5) * 1.4),
+          outlineColor: white,
+          outlineWidth: 1.2,
+          scaleByDistance: sc,
+          id: e
+        });
+        seen++;
+      }
+    });
+  }
+  t4Cables();
+}
+
+function t4Cables() {
+  var C = window.Cesium,
+    v = T4.v,
+    d = IL.cables,
+    on = !!WL.cables && d && d.items.length;
+  if (T4.cbl) T4.cbl.show = !!on;
+  if (!on || T4.cbk === d.at) return;
+  T4.cbk = d.at;
+  if (!T4.cbl) T4.cbl = v.scene.primitives.add(new C.PolylineCollection());
+  var pl = T4.cbl;
+  pl.removeAll();
+  d.items.forEach(function (e) {
+    var mat = C.Material.fromType("Color", {
+      color: C.Color.fromCssColorString(e.color).withAlpha(0.9)
+    });
+    e.parts.forEach(function (pt) {
+      var flat = [];
+      for (var i = 0; i < pt.length; i++) flat.push(pt[i][0], pt[i][1], 1500);
+      if (flat.length >= 6)
+        pl.add({
+          positions: C.Cartesian3.fromDegreesArrayHeights(flat),
+          width: 1.6,
+          material: mat,
+          id: e
+        });
+    });
+  });
+}
+
+// Start in the Earth view from space, over the place the globe was showing.
+if (EMBED_OK && lookEarth() && !/^(3d|real)$/.test(ls("ojos-view") || ""))
+  setTimeout(function () {
+    t4Open({ auto: true, space: true, lon: rot.lon, lat: rot.lat });
+  }, 900);
+/**
  * @file Start-up.
  * Runs last, after every module has defined its state, so the first render sees all layers.
  *
- * Module 37 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 38 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

@@ -2,6 +2,12 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v64
+- **Earth view is now the start-up globe** (`src-37-earth-view.js`): the app opens from space on Google Photorealistic 3D Tiles in CesiumJS, the same engine as Photoreal 3D, and zooms all the way down to 3D cities. From high up every camera is shown at once as a point coloured by kind; data-layer items are points and undersea cables are lines, all drawn by the graphics chip. Tapping any of them opens its details. If the 3D engine or Google's tiles cannot load, the app stays on the canvas globe without a message.
+- Briefing → Globe look: Google Earth 3D (default), Clear globe or Classic dark.
+- Performance: the Earth view adds camera points only when the list changes (at most every 8 s while networks are still loading), and the canvas globe draws very large point counts as squares.
+- Tests: 60 JavaScript tests and 22 browser tests, including the Earth view against a stand-in 3D engine and the classic look staying on the canvas globe.
+
 ## v63
 - **Clear globe look, now the default:** satellite imagery at full brightness with a brighter atmosphere, every camera drawn as a round point coloured by kind (white-ringed when zoomed in), and round markers for data layers. Briefing → Globe look switches back to the classic dark look. Existing installs move to the new look once, with cables, daylight imagery and camera points switched on.
 - **Undersea cables** (`src-36-cables-towers-wind.js`): every submarine cable route, drawn in its map colour; tap one for owners, builder, length, service date and landing points (TeleGeography).

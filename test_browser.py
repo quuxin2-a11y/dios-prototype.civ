@@ -296,6 +296,50 @@ SAMPLES = {
 }
 
 
+# A stand-in for CesiumJS: every property and call returns another stand-in, except the
+# collections and camera the Earth view relies on, which record what the app adds.
+CESIUM_STANDIN = """
+(() => {
+  const any = () => new Proxy(function () {}, {
+    get: (t, k) => k === Symbol.toPrimitive ? () => 0 : k === 'then' ? undefined : any(),
+    apply: () => any(),
+    construct: () => any(),
+    set: () => true,
+  });
+  const rec = window.__cz = { points: {}, lines: 0 };
+  let n = 0;
+  class Coll {
+    constructor(kind) { this.id = kind + (n++); this.items = []; this.show = true; }
+    add(o) { this.items.push(o); rec.points[this.id] = this.items.length; return o; }
+    removeAll() { this.items = []; rec.points[this.id] = 0; }
+  }
+  class Points extends Coll { constructor() { super('p'); } }
+  class Lines extends Coll {
+    constructor() { super('l'); }
+    add(o) { rec.lines++; return super.add(o); }
+    removeAll() { rec.lines = 0; super.removeAll(); }
+  }
+  const base = any();
+  window.Cesium = new Proxy({}, {
+    get: (t, k) => {
+      if (k === 'PointPrimitiveCollection') return Points;
+      if (k === 'PolylineCollection') return Lines;
+      if (k === 'createGooglePhotorealistic3DTileset') return () => Promise.resolve(any());
+      if (k === 'Viewer') return function () {
+        const prims = { add: (x) => x, remove: () => true };
+        return new Proxy({}, { get: (t2, k2) => {
+          if (k2 === 'scene') return new Proxy({}, { get: (t3, k3) => k3 === 'primitives' ? prims : k3 === 'canvas' ? document.createElement('canvas') : any(), set: () => true });
+          if (k2 === 'camera') return new Proxy({}, { get: (t4, k4) => k4 === 'positionCartographic' ? { height: 1.6e7, latitude: 0.6, longitude: -1.7 } : any() });
+          return any();
+        }, set: () => true });
+      };
+      return base[k];
+    },
+  });
+})();
+"""
+
+
 # A 1x1 PNG stands in for satellite tiles.
 PNG_1PX = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -582,6 +626,33 @@ class AppInBrowser(unittest.TestCase):
         self.page.wait_for_function(
             "() => /Undersea cables\\s*1/.test((document.getElementById('wlayers') || {}).textContent)",
             timeout=25000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_earth_view_opens_from_space_with_points_and_cables(self):
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('real')", timeout=15000
+        )
+        self.page.wait_for_function(
+            "() => window.__cz && window.__cz.lines >= 1 && Object.values(window.__cz.points).filter(n => n > 0).length >= 2",
+            timeout=40000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_classic_look_keeps_the_canvas_globe(self):
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-set', JSON.stringify({look: 'classic', lookV: 2}))"
+        )
+        self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS)
+        self.assertFalse(
+            self.page.evaluate("() => document.body.classList.contains('real')")
         )
         self.assertEqual(self.errors, [])
 

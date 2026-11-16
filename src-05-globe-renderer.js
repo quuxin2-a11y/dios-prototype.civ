@@ -3,7 +3,7 @@
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -543,15 +543,21 @@ function drawCamPoints(n) {
   var ring = r >= 3.6;
   ctx.lineWidth = ring ? 1.1 : 0.6;
   ctx.strokeStyle = ring ? "rgba(255,255,255,0.9)" : "rgba(2,10,24,0.55)";
+  // Very many points: squares are far cheaper to draw than circles and look the same that small.
+  var square = n > 30000;
   for (ky in grp) {
     var ar = grp[ky];
+    ctx.fillStyle = ky;
+    if (square) {
+      for (var b = 0; b < ar.length; b++) ctx.fillRect(VX[ar[b]] - r, VY[ar[b]] - r, r * 2, r * 2);
+      continue;
+    }
     ctx.beginPath();
     for (var a = 0; a < ar.length; a++) {
       j = ar[a];
       ctx.moveTo(VX[j] + r, VY[j]);
       ctx.arc(VX[j], VY[j], r, 0, 6.2832);
     }
-    ctx.fillStyle = ky;
     ctx.fill();
     if (r > 1.6) ctx.stroke();
   }

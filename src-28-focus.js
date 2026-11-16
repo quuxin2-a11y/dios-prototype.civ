@@ -4,7 +4,7 @@
  * everything else is dimmed, and cameras, layers and data outside them pause so the focus area
  * stays smooth. Boundaries come from public TopoJSON (us-atlas, world-atlas) and are loaded once.
  *
- * Module 28 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 28 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

@@ -4,7 +4,7 @@
  * incidents and work zones (city open-data portals) and US land border wait times (CBP).
  * Built on the info-layer framework in module 27.
  *
- * Module 29 of 37. Modules share one scope: build.py concatenates them in order
+ * Module 29 of 38. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
