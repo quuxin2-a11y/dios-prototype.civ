@@ -4,7 +4,7 @@
  * (OpenStreetMap) and country economic indicators (World Bank). Built on the info-layer
  * framework in module 27.
  *
- * Module 34 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 34 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

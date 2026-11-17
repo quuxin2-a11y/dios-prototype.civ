@@ -2,6 +2,39 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v70
+- Replica imagery outside the US is now the EOxCloudless Sentinel-2 mosaic (2024, 10 m per pixel, cloud-free), about 25 times sharper than the NASA imagery it replaces: city blocks, parks and main roads are clear. US aerial photos stay on top inside the US.
+- The mosaic is licensed CC BY-NC-SA 4.0 (non-commercial use only) and its credit must be visible on the map, so a small text credit shows in the corner while it is in view: from high up anywhere, and close in outside the US. Noted in THIRD-PARTY.md.
+- Guide updated for v70.
+
+## v69
+- **Replica World is now the start-up view.** The app opens straight into the 3D world from space, with every camera, layer and setting the globe has; one tap on the logo switches to the globe. Briefing → Globe look has Replica World first; the other looks still work.
+- **A more realistic Replica:**
+  - Buildings use their mapped wall colour, or a colour from their material (brick, stone, marble, glass and others), and their mapped roof: domes and onion domes as rounded caps, gabled, hipped and similar roofs as stepped pitched roofs, in the roof colour.
+  - Mapped building parts replace the plain outline around them, so detailed landmarks show their real shape.
+  - Mapped street trees.
+  - Aerial photos under the city across the US (USDA NAIP via The National Map, public domain), over NASA imagery for the rest of the Earth.
+- **Names and borders, from space to the street:** glowing country borders and fainter state lines, country and state names, city and town names for the region in view, then neighbourhoods, street names and the names of landmark buildings as you zoom in. Each set shows only at the distances where it is readable.
+- No third-party logos appear in Replica; sources are in the ⓘ panel. Google 3D is still available from the GOOGLE switch.
+- Guide updated for v69.
+- Tests: 64 JavaScript tests (colours, roofs, building parts, trees, place names) and 27 browser tests (start-up in Replica World).
+
+## v68 · guide
+- Rebuilt `guide.html` for everything up to v68: the three worlds (Globe, Replica World, Sky), a working demo of the logo gestures, a searchable catalogue of every data pack with its source and coverage, tools, gestures, settings, privacy and an updated FAQ. Old screenshots were removed; the page is self-contained with no external requests.
+
+## v68
+- **Replica World** (`src-39-replica-world.js`): one tap on the logo switches the whole app into the 3D Replica with its own dashboard: a top bar with the brand, live camera, aircraft, ship and transit counts, the sky button and exit; a search bar; and a dock with Layers, Cameras, Events, Planes, Ships, Trains and Settings. It uses the same layers, settings and panels as the globe, so a change in one world shows in the other. Tapping the logo again returns to the globe; ◆ Replica in the button row does the same.
+- **Logo gestures:** one tap switches worlds (after 420 ms, so it is not mistaken for the start of five), five quick taps still open the signature, and holding the logo opens the sky.
+- **Sky** (`src-40-sky.js`): the night sky right now over the place in view, with about 5,000 stars, constellation lines and names (Orion and the rest), bright-star names, the Moon with its phase, the Sun, the planets and compass points; the sky colour follows the Sun. Drag to look around, pinch to zoom, tap anything to identify it, and step the time by an hour or a day. **Solar system** shows the eight planets on their orbits today. Positions are computed on the phone from the d3-celestial star catalogue (BSD) and JPL's published orbital elements; the catalogue is kept for offline use after the first load.
+- The app opens on the globe again by default; Briefing → Globe look can still start in Replica 3D or Google 3D.
+- Tests: 63 JavaScript tests (sidereal time, Polaris, the equinox Sun, full and new Moon dates) and 26 browser tests (logo tap into Replica World and back, five taps, holding for the sky).
+
+## v67
+- Fixed Replica not appearing for anyone who had used the Google view: start-up now follows Briefing → Globe look instead of reopening the last 3D view.
+- Replica city data now falls back to public Overpass mirrors when the main server is busy (also used by the OpenStreetMap layers and wind farms), and retries after 8 s instead of giving up.
+- Replica buildings are built on the main thread in batches of 700, so nothing has to be fetched from the CDN for them; a chip shows how many buildings loaded, or that there are none mapped here.
+- Tests: 61 JavaScript tests and 24 browser tests, including the mirror fallback and start-up after using the Google view.
+
 ## v66
 - **Replica is the new default view** (`src-38-replica.js`): a 3D globe from space with NASA true-colour imagery, and a clean 3D model of the city in view built from OpenStreetMap: buildings at their real footprint and height (coloured by use, tap for type and height), roads by class, water and parks. Loads about 2–3 km around the centre of the view, keeps the last four areas, and runs on the graphics chip. Google's tiles are not loaded in Replica, so no third-party logo appears; data sources are behind an ⓘ button.
 - **Google 3D** is one tap away (GOOGLE 3D / REPLICA switch in the 3D view's side bar), and Google's tiles load only then.

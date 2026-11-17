@@ -3,7 +3,7 @@
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -1369,7 +1369,7 @@ function t4Open(opt) {
         });
       T4.n = "";
       t4Pts();
-      if (!ls("ojos-t4tip") && !opt.auto) {
+      if (!ls("ojos-t4tip") && !opt.auto && !opt.quiet) {
         ls("ojos-t4tip", 1);
         note(
           "Photoreal 3D",

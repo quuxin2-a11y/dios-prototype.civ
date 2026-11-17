@@ -78,6 +78,8 @@ This project connects existing libraries and public data. It does not claim them
 | National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
 | LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
 | NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe and the Replica globe | NASA open data; no restrictions, attribution requested |
+| EOxCloudless Sentinel-2 mosaic 2024 (EOX IT Services GmbH, contains modified Copernicus Sentinel data 2024) | Satellite imagery under Replica outside the US | CC BY-NC-SA 4.0: **non-commercial use only**; commercial use needs an EOX commercial licence. The credit is shown on the map while this imagery is in view |
+| USGS The National Map, USGSImageryOnly (USDA NAIP orthoimagery) | Aerial photos under Replica in the US | US public domain; credited in the Replica ⓘ panel |
 | NOAA Hazard Mapping System | Smoke plumes and fire detections | US public domain |
 | Open-Meteo air quality (Copernicus CAMS) | Modelled air quality | CC BY 4.0 |
 | WHO Disease Outbreak News | Outbreak reports | WHO terms of use |
@@ -94,6 +96,8 @@ This project connects existing libraries and public data. It does not claim them
 | Wikidata | Place population and facts | CC0 |
 | TeleGeography Submarine Cable Map | Undersea cable routes, owners, length, service dates and landing points | CC BY-NC-SA 3.0 (non-commercial); commercial use needs a TeleGeography data licence |
 | U.S. Wind Turbine Database (USGS, LBNL, American Clean Power) | Wind farms in the US | US public domain |
+| d3-celestial data (Olaf Frohn) | Star positions, constellation lines and names for the sky | BSD 3-Clause |
+| JPL Approximate Positions of the Planets (Standish) | Planet positions | US public domain |
 | us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |

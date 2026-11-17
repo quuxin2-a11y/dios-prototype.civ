@@ -5,7 +5,7 @@
  * wind farms grouped from turbine records (USGS US Wind Turbine Database, and OpenStreetMap
  * outside the US). Also switches existing installs to the clear look once.
  *
- * Module 36 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 36 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -284,17 +284,14 @@ ilDef({
                 return [];
               })
           : Promise.resolve([]),
-      osm = getJSON(
-        "https://overpass-api.de/api/interpreter?data=" +
-          encodeURIComponent(
-            '[out:json][timeout:25];nwr["power"="plant"]["plant:source"="wind"](' +
-              [b.s, b.w, b.n, b.e]
-                .map(function (v) {
-                  return v.toFixed(3);
-                })
-                .join(",") +
-              ");out center tags 800;"
-          ),
+      osm = overpassGet(
+        '[out:json][timeout:25];nwr["power"="plant"]["plant:source"="wind"](' +
+          [b.s, b.w, b.n, b.e]
+            .map(function (v) {
+              return v.toFixed(3);
+            })
+            .join(",") +
+          ");out center tags 800;",
         30000
       )
         .then(function (j) {

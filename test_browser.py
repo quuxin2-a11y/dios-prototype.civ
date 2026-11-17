@@ -403,6 +403,11 @@ class AppInBrowser(unittest.TestCase):
         self.page.route("**/*", self._local_only)
         # Skip the first-run introduction so the tests start on the globe.
         self.page.add_init_script("localStorage.setItem('ojos-onb', 'true')")
+        # Most tests exercise the globe; Replica World, the default start, has its own tests.
+        self.page.add_init_script(
+            "if (!localStorage.getItem('ojos-set'))"
+            " localStorage.setItem('ojos-set', JSON.stringify({look: 'clear', lookV: 3}))"
+        )
         self.page.goto(self.url)
         self.page.wait_for_timeout(SETTLE_MS)
 
@@ -673,23 +678,116 @@ class AppInBrowser(unittest.TestCase):
         )
         self.assertEqual(self.errors, [])
 
-    def test_replica_is_the_default_and_loads_no_google_tiles(self):
+    def tap_logo(self, times=1):
+        for _ in range(times):
+            self.page.click(".brand", force=True)
+            self.page.wait_for_timeout(60)
+
+    def test_logo_tap_opens_replica_world_without_google_tiles(self):
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.add_init_script("window.__czH = 3000;")
         self.page.reload()
+        self.page.wait_for_timeout(SETTLE_MS)
+        self.assertFalse(
+            self.page.evaluate("() => document.body.classList.contains('real')")
+        )
+        self.tap_logo()
         self.page.wait_for_function(
-            "() => document.body.classList.contains('replica')", timeout=15000
+            "() => document.body.classList.contains('rw') && document.body.classList.contains('replica')",
+            timeout=15000,
         )
         self.page.wait_for_function(
             "() => window.__cz && window.__cz.globe && window.__cz.prims >= 4",
             timeout=20000,
         )
         self.assertFalse(self.page.evaluate("() => !!window.__cz.google"))
+        self.assertTrue(self.visible("#rwdash .rwdock"))
         self.page.click("#bRepSw")
         self.page.wait_for_function(
             "() => window.__cz.google === 1 && !document.body.classList.contains('replica')",
             timeout=10000,
         )
+        # The Replica logo takes you back to the globe.
+        self.page.click(".rwbrand")
+        self.page.wait_for_function(
+            "() => !document.body.classList.contains('rw') && !document.body.classList.contains('real')",
+            timeout=5000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_starts_in_replica_world_by_default(self):
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.add_init_script("window.__czH = 3000;")
+        self.page.add_init_script("localStorage.removeItem('ojos-set')")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('rw') && document.body.classList.contains('replica')",
+            timeout=15000,
+        )
+        self.assertFalse(self.page.evaluate("() => window.__cz.google || 0"))
+        # One tap on the logo goes to the globe.
+        self.page.click(".rwbrand")
+        self.page.wait_for_function(
+            "() => !document.body.classList.contains('rw')", timeout=5000
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_five_logo_taps_still_open_the_signature_not_replica(self):
+        self.tap_logo(5)
+        self.page.wait_for_timeout(700)
+        self.assertTrue(self.visible("#sigfx"))
+        self.assertFalse(
+            self.page.evaluate("() => document.body.classList.contains('rw')")
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_holding_the_logo_opens_the_sky(self):
+        box = self.page.locator(".brand").bounding_box()
+        self.page.mouse.move(box["x"] + 20, box["y"] + 20)
+        self.page.mouse.down()
+        self.page.wait_for_timeout(900)
+        self.page.mouse.up()
+        self.page.wait_for_timeout(600)
+        self.assertTrue(self.visible("#sky"))
+        self.assertFalse(
+            self.page.evaluate("() => document.body.classList.contains('rw')")
+        )
+        self.page.click("[data-sky='sys']")
+        self.page.click("[data-sky='x']")
+        self.assertFalse(self.visible("#sky"))
+        self.assertEqual(self.errors, [])
+
+    def test_replica_falls_back_to_a_mirror_when_overpass_is_busy(self):
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.add_init_script("window.__czH = 3000;")
+        # Opened Google 3D last time: start-up still follows Globe look (here, Replica 3D).
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-view', JSON.stringify('real'))"
+        )
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-set', JSON.stringify({look: 'replica', lookV: 2}))"
+        )
+        self.page.route(
+            "https://overpass-api.de/**",
+            lambda route: route.fulfill(status=429, body="rate limited"),
+        )
+        self.page.route(
+            "https://overpass.kumi.systems/**",
+            lambda route: route.fulfill(
+                body=json.dumps(SAMPLES["overpass-api.de/api/interpreter"]),
+                content_type="application/json",
+                headers={"access-control-allow-origin": "*"},
+            ),
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('replica')", timeout=15000
+        )
+        self.page.wait_for_function(
+            "() => /\d+ buildings?/.test((document.getElementById('repst') || {}).textContent || '')",
+            timeout=25000,
+        )
+        self.assertFalse(self.page.evaluate("() => !!window.__cz.google"))
         self.assertEqual(self.errors, [])
 
     def test_classic_look_keeps_the_canvas_globe(self):

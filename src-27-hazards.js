@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13,6 +13,27 @@
 // and draws at, and a load function that resolves to items {n, lat, lon, color, tag, rows}.
 var IL = {},
   IL_ORDER = [];
+
+// OpenStreetMap queries: the main Overpass server turns requests away when busy, so each query
+// falls through to public mirrors.
+var OVERPASS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter"
+];
+
+function overpassGet(q, ms) {
+  var i = 0;
+  var next = function (err) {
+    var u = OVERPASS[i++];
+    if (!u) return Promise.reject(err || new Error("no Overpass server answered"));
+    return getJSON(u + "?data=" + encodeURIComponent(q), ms || 30000).then(function (j) {
+      if (!j || !j.elements) throw new Error("empty reply");
+      return j;
+    }, next);
+  };
+  return next();
+}
 
 // Section headings in the Layers list, by layer key.
 var WL_GROUP = {};

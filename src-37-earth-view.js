@@ -1,11 +1,11 @@
 /**
  * @file Earth view: the start-up 3D globe.
- * Opens the CesiumJS view from space (Replica by default, or the Google view), the way the app
+ * Opens Replica World (the default), or the CesiumJS view from space on its own, the way the app
  * now starts, and draws the data layers and undersea cables in it on the graphics chip: cameras as
  * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
  * globe when the 3D engine or Google's tiles are not available.
  *
- * Module 37 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 37 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -16,10 +16,17 @@ if (!(SET.lookV >= 2)) {
   setSave();
 }
 
-// The start-up view: "replica" (default, 3D with no third-party branding), "earth" (Google 3D),
-// "clear" or "classic" (the canvas globe looks).
+// From v69 the app starts in Replica World; "clear" and "replica" were the old defaults.
+if (!(SET.lookV >= 3)) {
+  SET.lookV = 3;
+  if (SET.look === "clear" || SET.look === "replica") delete SET.look;
+  setSave();
+}
+
+// The start-up view: "world" (default, Replica World, module 39), "clear" (the satellite globe),
+// "classic", or the 3D view on its own: "replica" or "earth" (Google 3D).
 function lookMode() {
-  return SET.look || "replica";
+  return SET.look || "world";
 }
 
 // Signature of what the data layers hold, so points are rebuilt only when something changed.
@@ -99,7 +106,12 @@ function t4Cables() {
 }
 
 // Start in the Earth view from space, over the place the globe was showing.
-if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && !/^(3d|real)$/.test(ls("ojos-view") || ""))
+// Start-up follows Globe look, whatever view was open last time (except the standard 3D view).
+if (EMBED_OK && lookMode() === "world" && ls("ojos-view") !== "3d")
+  setTimeout(function () {
+    rwEnter({ auto: true, space: true, lon: rot.lon, lat: rot.lat });
+  }, 900);
+else if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && ls("ojos-view") !== "3d")
   setTimeout(function () {
     t4Open({
       auto: true,

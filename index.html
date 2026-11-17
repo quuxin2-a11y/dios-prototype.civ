@@ -7094,6 +7094,22 @@ body.replica #czmap .cesium-widget-credits,
 body.replica #czmap .cesium-viewer-bottom {
   display: none !important;
 }
+#repcr {
+  position: absolute;
+  left: 8px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+  z-index: 3;
+  display: none;
+  max-width: 70%;
+  font-size: 9px;
+  line-height: 1.3;
+  color: #ffffffb3;
+  text-shadow: 0 1px 2px #000;
+  pointer-events: none;
+}
+body.rw #repcr {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
 #repst {
   position: absolute;
   top: 12px;
@@ -7108,6 +7124,237 @@ body.replica #czmap .cesium-viewer-bottom {
   color: var(--ink);
   font-size: 12px;
   pointer-events: none;
+}
+/* ---------- Replica World dashboard ---------- */
+.hud .rwbtn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#rwdash {
+  display: none;
+}
+body.rw #rwdash {
+  display: block;
+}
+body.rw .top,
+body.rw .hud,
+body.rw .scanbar,
+body.rw .coords,
+body.rw #brandov,
+body.rw #t4places,
+body.rw .mtabs,
+body.rw #peek,
+body.rw #lfrail {
+  display: none !important;
+}
+#rwdash .rwtop {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 34px);
+  left: 10px;
+  right: 10px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #070c12e6;
+  backdrop-filter: blur(10px);
+}
+#rwdash .rwbrand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#rwdash .rwbrand svg {
+  width: 28px;
+  height: 28px;
+}
+#rwdash .rwbrand b {
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+}
+#rwdash .rwcount {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+}
+#rwdash .rwcount i {
+  font-style: normal;
+  color: var(--accent);
+  margin-right: 4px;
+}
+#rwdash .rwtop button {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0d151f;
+  color: var(--ink);
+  font-size: 16px;
+}
+#rwdash .rwsearch {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 96px);
+  left: 10px;
+  right: 10px;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+}
+#rwdash .rwsearch input {
+  flex: 1;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #070c12e6;
+  color: var(--ink);
+  font-size: 15px;
+}
+#rwdash .rwsearch button {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 0;
+  background: var(--accent);
+  color: #02130c;
+  font-weight: 800;
+}
+#rwdash .rwdock {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 40;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #070c12ee;
+  backdrop-filter: blur(10px);
+}
+#rwdash .rwdock button {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #9fb4c8;
+  font-size: 10px;
+}
+#rwdash .rwdock button svg {
+  width: 22px;
+  height: 22px;
+}
+#rwdash .rwdock button.on {
+  color: var(--accent);
+  background: #36f1b51a;
+}
+body.rw #t4bar {
+  top: calc(env(safe-area-inset-top, 0px) + 150px) !important;
+  bottom: auto !important;
+}
+body.rw.sheet .grid {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+}
+/* ---------- Sky ---------- */
+#sky {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  background: #02040a;
+}
+#skycv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+#sky .skytop,
+#sky .skybot {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+#sky .skytop {
+  top: calc(env(safe-area-inset-top, 0px) + 40px);
+}
+#sky .skybot {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  justify-content: center;
+}
+#sky button {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #ffffff2e;
+  background: #0b1220d9;
+  color: #dfe9f5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+#sky button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#skyinfo {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+  display: none;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #ffffff26;
+  background: #0b1220ee;
+  color: #dfe9f5;
+  font-size: 13px;
+}
+#skyinfo b {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+#skyinfo span {
+  display: inline-block;
+  min-width: 110px;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+body.rw #repst {
+  top: calc(env(safe-area-inset-top, 0px) + 146px);
+}
+body.sky-open #toasts {
+  display: none;
+}
+#sky {
+  z-index: 95;
 }
 
 </style>
@@ -7154,7 +7401,7 @@ body.replica #czmap .cesium-viewer-bottom {
   <div class="stage" id="stage">
     <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="ftiles"></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
     <div class="hud">
-      <button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bFocus">◎ Focus</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
+      <button id="bRW" class="rwbtn">◆ Replica</button><button id="bSky">✦ Sky</button><button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bFocus">◎ Focus</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
       <button id="bSpin" class="on">Auto-rotate</button><button id="bReset">Reset</button><button data-sv="here">◉ Street View</button><button id="bWeb">⬡ Build Web</button><button id="bSun">☀ Chase the Sun</button><button id="bWall" class="on">▦ Multi-View (0)</button><button data-h="fav">★ Favorites</button><button data-h="rand">⤮ Random camera</button><button data-h="quake">◎ Strongest quake</button><button id="bSet">⚙ Settings</button>
     </div>
     <form class="scanbar" id="addrForm"><input id="addr" type="search" placeholder="Search any place" autocomplete="off"><button>Search</button><button type="button" class="x" id="micBtn" aria-label="Voice"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3"/></svg></button><button type="button" class="x" id="addrClear">✕</button></form>
@@ -7210,7 +7457,7 @@ body.replica #czmap .cesium-viewer-bottom {
  * @file Shared setup.
  * Snapshot of the page source and the camera category table (label and colour per type).
  *
- * Module 1 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 1 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7230,7 +7477,7 @@ var visLive = [];
  * Tracks dead and live feeds, builds the copyable diagnostics text, refreshes still images, and
  * reads TxDOT camera snapshots.
  *
- * Module 2 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 2 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -7325,7 +7572,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v66 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v70 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -7727,7 +7974,7 @@ function txParse(j, d) {
  * AIS vessel positions over WebSocket and REST, radar tiles drawn on the globe, and spoken
  * prompts and voice commands.
  *
- * Module 3 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 3 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -8590,7 +8837,7 @@ document.addEventListener("change", function (e) {
  * Street View embed with a live guide, position helpers, and the turn-by-turn drive HUD with
  * cameras along the route.
  *
- * Module 4 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 4 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -9818,7 +10065,7 @@ $("ver").textContent = "v" + cams.length;
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -10791,7 +11038,7 @@ function showTip(c, e) {
  * Filtering, the camera list, media playback (HLS, MJPEG, stills), the detail sheet and saved
  * cameras.
  *
- * Module 6 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 6 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -11978,7 +12225,7 @@ $("addrClear").onclick = function () {
  * @file Viewer wall and on-device object detection.
  * Multi-camera wall, embeds, and the optional in-browser detection model with per-camera counts.
  *
- * Module 7 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 7 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -13110,7 +13357,7 @@ setInterval(function () {
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -14825,7 +15072,7 @@ setTimeout(liveRetry, 8 * 60000);
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -15461,7 +15708,7 @@ document.addEventListener("click", function (e) {
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -18121,7 +18368,7 @@ document.addEventListener("click", function (e) {
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -19487,7 +19734,7 @@ function t4Open(opt) {
         });
       T4.n = "";
       t4Pts();
-      if (!ls("ojos-t4tip") && !opt.auto) {
+      if (!ls("ojos-t4tip") && !opt.auto && !opt.quiet) {
         ls("ojos-t4tip", 1);
         note(
           "Photoreal 3D",
@@ -19588,7 +19835,7 @@ document.addEventListener("click", function (e) {
  * A continuous zoom from the 3D city into procedurally drawn cutaways of buildings and aircraft,
  * with labelled facts.
  *
- * Module 12 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 12 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -21826,7 +22073,7 @@ document.addEventListener("click", function (e) {
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
  * map, and the ticker.
  *
- * Module 13 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 13 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22495,7 +22742,7 @@ setInterval(function () {
  * @file Flight log.
  * Progress, schedule and recent history for a selected aircraft.
  *
- * Module 14 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 14 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -22919,7 +23166,7 @@ setInterval(function () {
  * @file Briefing, watchlist, notifications and replay.
  * Settings, the daily briefing, watched aircraft and ships with alerts, and time replay.
  *
- * Module 15 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 15 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -23421,9 +23668,10 @@ function brDraw() {
   h +=
     '<h4 class="mono">GLOBE LOOK</h4><div class="brt">' +
     [
+      ["world", "Replica World"],
+      ["clear", "Clear globe"],
       ["replica", "Replica 3D"],
       ["earth", "Google 3D"],
-      ["clear", "Clear globe"],
       ["classic", "Classic dark"]
     ]
       .map(function (o) {
@@ -23431,7 +23679,7 @@ function brDraw() {
           '<button data-br="lk-' +
           o[0] +
           '" class="' +
-          ((SET.look || "replica") === o[0] ? "on" : "") +
+          (lookMode() === o[0] ? "on" : "") +
           '">' +
           o[1] +
           "</button>"
@@ -23492,7 +23740,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 66 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 70 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -23599,6 +23847,12 @@ document.addEventListener("click", function (e) {
     lastView = "";
     brDraw();
     var three = SET.look === "earth" || SET.look === "replica";
+    if (SET.look === "world") {
+      brClose();
+      rwEnter(T4.on ? {} : { space: true, lon: rot.lon, lat: rot.lat });
+      return;
+    }
+    if (RW.on) rwExit();
     if (three && !T4.on) {
       brClose();
       t4Open({ space: true, lon: rot.lon, lat: rot.lat, replica: SET.look === "replica" });
@@ -24102,7 +24356,7 @@ setTimeout(function () {
  * Look up a flight or ship by any identifier, side-by-side comparison, and public posts about a
  * place.
  *
- * Module 16 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 16 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24574,7 +24828,7 @@ setInterval(function () {
  * @file Command mode.
  * The operations wall: state machine, camera grid and status.
  *
- * Module 17 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 17 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -24943,7 +25197,7 @@ document.addEventListener("click", function (e) {
  * Flight and vessel finder, the plans directory, and organisation lookups in state and national
  * registers.
  *
- * Module 18 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 18 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -26883,7 +27137,7 @@ document.addEventListener("click", function (e) {
  * @file Route choices.
  * Alternative routes from OSRM, scored against reported hazards and camera coverage.
  *
- * Module 19 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 19 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -27146,7 +27400,7 @@ document.addEventListener("click", function (e) {
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28279,7 +28533,7 @@ setInterval(function () {
  * @file Country file.
  * Travel advisory, emergency numbers, leadership, economy and currency for any country.
  *
- * Module 21 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 21 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -28677,7 +28931,7 @@ document.addEventListener("click", function (e) {
  * MeteoAlarm warnings, offline tile packs, check-in messages, the error log and the source health
  * check.
  *
- * Module 22 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 22 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29148,7 +29402,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v66 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v70 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -29239,7 +29493,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v66 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v70 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -29291,7 +29545,7 @@ try {
  * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
  * vibration, shortcuts).
  *
- * Module 23 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 23 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -29863,7 +30117,7 @@ setTimeout(function () {
  * Links between nearby cameras, field-of-view footprints and ranges, chase mode and the rewind
  * strip.
  *
- * Module 24 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 24 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30581,7 +30835,7 @@ setTab("info", window.innerWidth < 1000);
  * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
  * settings restored at start-up.
  *
- * Module 25 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -30593,7 +30847,9 @@ document.addEventListener("click", function (e) {
     $("sigfx").style.display = "none";
     return;
   }
-  if (!e.target.closest(".brand")) return;
+  // Any of the logos (globe header, 3D view, Replica World) count toward the five taps.
+  if (!e.target.closest(".brand, #brandov, .rwbrand")) return;
+  if (typeof LOGO === "object" && LOGO.held) return;
   var n = Date.now();
   sigN = n - sigT < 700 ? sigN + 1 : 1;
   sigT = n;
@@ -30876,7 +31132,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v66)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v70)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -31183,10 +31439,7 @@ if (ls("ojos-static") === true)
     ST2D = false;
   }, 400);
 if (ls("ojos-view") === "3d" && EMBED_OK) setTimeout(t3Open, 1200);
-if (ls("ojos-view") === "real" && EMBED_OK && kG3())
-  setTimeout(function () {
-    t4Open({ auto: true });
-  }, 1200);
+// The 3D views ("real") are opened by the start-up code in module 37, which follows Globe look.
 if (WL.dots) {
   spin = false;
   var bd0 = $("bDots");
@@ -31198,7 +31451,7 @@ if (WL.dots) {
  * JSON APIs and GTFS-Realtime feeds (decoded by a small protobuf reader). Feeds are fetched only
  * for areas near the map view.
  *
- * Module 26 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 26 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -31869,7 +32122,7 @@ if (EMBED_OK && WL.transit) setTimeout(trLoad, 1500);
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -31878,6 +32131,27 @@ if (EMBED_OK && WL.transit) setTimeout(trLoad, 1500);
 // and draws at, and a load function that resolves to items {n, lat, lon, color, tag, rows}.
 var IL = {},
   IL_ORDER = [];
+
+// OpenStreetMap queries: the main Overpass server turns requests away when busy, so each query
+// falls through to public mirrors.
+var OVERPASS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter"
+];
+
+function overpassGet(q, ms) {
+  var i = 0;
+  var next = function (err) {
+    var u = OVERPASS[i++];
+    if (!u) return Promise.reject(err || new Error("no Overpass server answered"));
+    return getJSON(u + "?data=" + encodeURIComponent(q), ms || 30000).then(function (j) {
+      if (!j || !j.elements) throw new Error("empty reply");
+      return j;
+    }, next);
+  };
+  return next();
+}
 
 // Section headings in the Layers list, by layer key.
 var WL_GROUP = {};
@@ -32609,7 +32883,7 @@ if (EMBED_OK)
  * everything else is dimmed, and cameras, layers and data outside them pause so the focus area
  * stays smooth. Boundaries come from public TopoJSON (us-atlas, world-atlas) and are loaded once.
  *
- * Module 28 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 28 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33155,7 +33429,7 @@ if (EMBED_OK) setTimeout(focRestore, 1200);
  * incidents and work zones (city open-data portals) and US land border wait times (CBP).
  * Built on the info-layer framework in module 27.
  *
- * Module 29 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 29 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33703,7 +33977,7 @@ ilDef({
  * Seattle Fire Department 911 dispatches (City of Seattle). Built on the info-layer framework
  * in module 27.
  *
- * Module 30 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 30 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -33737,11 +34011,8 @@ function osmLayer(o) {
           return v.toFixed(3);
         })
         .join(",");
-      return getJSON(
-        "https://overpass-api.de/api/interpreter?data=" +
-          encodeURIComponent(
-            "[out:json][timeout:25];nwr" + o.filter + "(" + bb + ");out center tags 1500;"
-          ),
+      return overpassGet(
+        "[out:json][timeout:25];nwr" + o.filter + "(" + bb + ");out center tags 1500;",
         30000
       ).then(function (j) {
         return (j.elements || []).map(function (x) {
@@ -34129,7 +34400,7 @@ ilDef({
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
  * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
- * Module 31 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 31 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34303,7 +34574,7 @@ function liveAtcUrl(code) {
  * Black Marble city lights) from NASA GIBS; smoke plumes and fire detections from NOAA's Hazard
  * Mapping System; and modelled air quality from Open-Meteo (Copernicus CAMS).
  *
- * Module 32 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 32 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -34739,7 +35010,7 @@ ilDef({
  * parks and national parks (OpenStreetMap), recent wildlife observations (iNaturalist) and live
  * river and lake levels (USGS). Built on the info-layer framework in module 27.
  *
- * Module 33 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 33 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -35251,7 +35522,7 @@ ilDef({
  * (OpenStreetMap) and country economic indicators (World Bank). Built on the info-layer
  * framework in module 27.
  *
- * Module 34 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 34 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -35607,7 +35878,7 @@ ilDef({
  * historic sites and UNESCO World Heritage sites (OpenStreetMap); populated places (Wikidata);
  * and country facts and farming indicators (World Bank). Built on the info-layer framework.
  *
- * Module 35 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 35 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -36198,7 +36469,7 @@ osmLayer({
  * wind farms grouped from turbine records (USGS US Wind Turbine Database, and OpenStreetMap
  * outside the US). Also switches existing installs to the clear look once.
  *
- * Module 36 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 36 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -36477,17 +36748,14 @@ ilDef({
                 return [];
               })
           : Promise.resolve([]),
-      osm = getJSON(
-        "https://overpass-api.de/api/interpreter?data=" +
-          encodeURIComponent(
-            '[out:json][timeout:25];nwr["power"="plant"]["plant:source"="wind"](' +
-              [b.s, b.w, b.n, b.e]
-                .map(function (v) {
-                  return v.toFixed(3);
-                })
-                .join(",") +
-              ");out center tags 800;"
-          ),
+      osm = overpassGet(
+        '[out:json][timeout:25];nwr["power"="plant"]["plant:source"="wind"](' +
+          [b.s, b.w, b.n, b.e]
+            .map(function (v) {
+              return v.toFixed(3);
+            })
+            .join(",") +
+          ");out center tags 800;",
         30000
       )
         .then(function (j) {
@@ -36508,12 +36776,12 @@ ilDef({
 });
 /**
  * @file Earth view: the start-up 3D globe.
- * Opens the CesiumJS view from space (Replica by default, or the Google view), the way the app
+ * Opens Replica World (the default), or the CesiumJS view from space on its own, the way the app
  * now starts, and draws the data layers and undersea cables in it on the graphics chip: cameras as
  * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
  * globe when the 3D engine or Google's tiles are not available.
  *
- * Module 37 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 37 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -36524,10 +36792,17 @@ if (!(SET.lookV >= 2)) {
   setSave();
 }
 
-// The start-up view: "replica" (default, 3D with no third-party branding), "earth" (Google 3D),
-// "clear" or "classic" (the canvas globe looks).
+// From v69 the app starts in Replica World; "clear" and "replica" were the old defaults.
+if (!(SET.lookV >= 3)) {
+  SET.lookV = 3;
+  if (SET.look === "clear" || SET.look === "replica") delete SET.look;
+  setSave();
+}
+
+// The start-up view: "world" (default, Replica World, module 39), "clear" (the satellite globe),
+// "classic", or the 3D view on its own: "replica" or "earth" (Google 3D).
 function lookMode() {
-  return SET.look || "replica";
+  return SET.look || "world";
 }
 
 // Signature of what the data layers hold, so points are rebuilt only when something changed.
@@ -36607,7 +36882,12 @@ function t4Cables() {
 }
 
 // Start in the Earth view from space, over the place the globe was showing.
-if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && !/^(3d|real)$/.test(ls("ojos-view") || ""))
+// Start-up follows Globe look, whatever view was open last time (except the standard 3D view).
+if (EMBED_OK && lookMode() === "world" && ls("ojos-view") !== "3d")
+  setTimeout(function () {
+    rwEnter({ auto: true, space: true, lon: rot.lon, lat: rot.lat });
+  }, 900);
+else if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && ls("ojos-view") !== "3d")
   setTimeout(function () {
     t4Open({
       auto: true,
@@ -36619,12 +36899,13 @@ if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && !/^(3d|real)$/.test(ls("
   }, 900);
 /**
  * @file Replica: the default 3D view, with no third-party branding on screen.
- * A clean 3D model of the area in view, built from OpenStreetMap: buildings at their real
- * footprint and height, roads, water and parks, over NASA satellite imagery of the whole Earth.
+ * A 3D model of the area in view, built from OpenStreetMap: buildings at their real footprint,
+ * height, colour and roof shape, roads, trees, water, parks, and the names of streets, landmarks,
+ * cities, states and countries, over US aerial photos and a Sentinel-2 mosaic of the whole Earth.
  * Runs in the same CesiumJS viewer as the Google view (module 11), so cameras, aircraft, ships,
  * data layers and taps all work the same; Google's tiles are not loaded at all here.
  *
- * Module 38 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 38 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -36655,6 +36936,48 @@ var REP_COLORS = {
   default: "#cfd6de"
 };
 
+// Typical wall colours for building:material, used when no colour is mapped.
+var REP_MATERIAL = {
+  brick: "#a4553f",
+  stone: "#c9c2b2",
+  sandstone: "#d6c39a",
+  limestone: "#ddd5c0",
+  marble: "#eeeae2",
+  granite: "#a9a39b",
+  concrete: "#bdbab3",
+  glass: "#8fb3c9",
+  metal: "#a9b0b8",
+  steel: "#a9b0b8",
+  wood: "#a07a52",
+  timber_framing: "#d9cbb0",
+  plaster: "#e6e0d2",
+  stucco: "#e6e0d2"
+};
+
+// Colour words mappers use that are not CSS colour names.
+var REP_COLOUR_WORDS = {
+  cream: "#f3ead2",
+  sand: "#d8c9a3",
+  lightbrown: "#b5835a",
+  darkbrown: "#5c4033",
+  darkgrey: "#555a60",
+  lightgrey: "#c8ccd0"
+};
+var REP_CSS_NAMES =
+  /^(white|black|gray|grey|silver|lightgray|darkgray|dimgray|slategray|red|darkred|maroon|brown|saddlebrown|sienna|chocolate|peru|tan|beige|wheat|ivory|linen|khaki|yellow|gold|orange|pink|salmon|coral|green|darkgreen|olive|teal|blue|navy|lightblue|skyblue|steelblue|purple|whitesmoke|gainsboro|snow|antiquewhite|burlywood|rosybrown|indianred|firebrick|seashell|floralwhite|cornsilk|azure|aliceblue|lavender)$/;
+
+// An OpenStreetMap colour tag as a CSS colour, or "" if it is not one.
+function repColour(v) {
+  v = String(v || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, "");
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(v)) return v;
+  if (/^[0-9a-f]{6}$/.test(v)) return "#" + v;
+  if (REP_COLOUR_WORDS[v]) return REP_COLOUR_WORDS[v];
+  return REP_CSS_NAMES.test(v) ? v : "";
+}
+
 // Height in metres from height, building:levels or a sensible default.
 function repHeight(t) {
   var h = parseFloat(String(t.height || "").replace(",", "."));
@@ -36671,6 +36994,77 @@ function repMinHeight(t) {
   return isFinite(lv) && lv > 0 ? lv * 3.2 : 0;
 }
 
+// Footprint centre [lon, lat] and equivalent radius in metres.
+function repFootprint(ring) {
+  var lat0 = ring[0][1],
+    kx = 111320 * Math.cos(lat0 * D),
+    ky = 110540,
+    a = 0,
+    cx = 0,
+    cy = 0;
+  for (var i = 0; i < ring.length; i++) {
+    cx += ring[i][0] / ring.length;
+    cy += ring[i][1] / ring.length;
+    var j = (i + 1) % ring.length;
+    a += ring[i][0] * kx * ring[j][1] * ky - ring[j][0] * kx * ring[i][1] * ky;
+  }
+  return { c: [cx, cy], r: Math.sqrt(Math.abs(a / 2) / Math.PI) };
+}
+
+var REP_PITCHED =
+  /^(gabled|hipped|pyramidal|half-hipped|mansard|gambrel|saltbox|side_hipped|round|skillion)$/;
+
+// Walls, roof shape and colours for one building from its tags.
+function repBuilding(w, ring, t) {
+  var kind = t.building && t.building !== "yes" ? t.building : t.amenity || "default",
+    fp = repFootprint(ring),
+    shape = String(t["roof:shape"] || "").toLowerCase(),
+    roofShape = /^(dome|onion)$/.test(shape) ? "dome" : REP_PITCHED.test(shape) ? "pitched" : "",
+    rh = parseFloat(t["roof:height"]),
+    rl = parseFloat(t["roof:levels"]);
+  if (!(rh > 0)) rh = rl > 0 ? rl * 3 : 0;
+  if (roofShape && !rh)
+    rh = roofShape === "dome" ? Math.min(fp.r * 0.9, 40) : Math.min(fp.r * 0.5, 8);
+  if (!roofShape) rh = 0;
+  var explicit = !!(t.height || t["building:levels"]),
+    min = repMinHeight(t),
+    h = repHeight(t),
+    walls = explicit ? Math.max(min + 2, h - rh) : h;
+  return {
+    id: w.id,
+    ring: ring,
+    h: walls,
+    top: walls + rh,
+    min: min,
+    c: fp.c,
+    r: fp.r,
+    part: !t.building && !!t["building:part"],
+    color:
+      repColour(t["building:colour"] || t.colour) ||
+      REP_MATERIAL[String(t["building:material"] || "").toLowerCase()] ||
+      REP_COLORS[kind] ||
+      REP_COLORS.default,
+    roof: roofShape ? { shape: roofShape, color: repColour(t["roof:colour"]) || "#7c7f86" } : null,
+    name: t.name || "",
+    kind: kind
+  };
+}
+
+// True if point p ([lon, lat]) is inside the ring.
+function repInside(p, ring) {
+  var inside = false;
+  for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    var a = ring[i],
+      b = ring[j];
+    if (
+      a[1] > p[1] !== b[1] > p[1] &&
+      p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]
+    )
+      inside = !inside;
+  }
+  return inside;
+}
+
 var REP_ROADS = {
   motorway: [9, "#7d8da3"],
   trunk: [8, "#7d8da3"],
@@ -36678,15 +37072,30 @@ var REP_ROADS = {
   secondary: [6, "#64748a"],
   tertiary: [5, "#5a6a80"],
   residential: [3.5, "#4f5e72"],
-  unclassified: [3.5, "#4f5e72"]
+  unclassified: [3.5, "#4f5e72"],
+  living_street: [3, "#4f5e72"],
+  pedestrian: [3, "#8a8172"]
 };
 
-// Overpass "out geom" ways to {buildings, roads, water, parks}; rings are [lon, lat] lists.
+var REP_PLACES = /^(city|town|village|suburb|quarter|neighbourhood)$/;
+
+// Overpass elements to {buildings, roads, water, parks, trees, places}; rings are [lon, lat] lists.
 function repParse(j) {
-  var out = { buildings: [], roads: [], water: [], parks: [] };
+  var out = { buildings: [], roads: [], water: [], parks: [], trees: [], places: [] };
   ((j && j.elements) || []).forEach(function (w) {
-    var g = w.geometry,
-      t = w.tags || {};
+    var t = w.tags || {};
+    if (w.type === "node") {
+      var lat = num(w.lat),
+        lon = num(w.lon);
+      if (lat == null || lon == null) return;
+      if (t.natural === "tree") {
+        var th = parseFloat(t.height);
+        out.trees.push({ lon: lon, lat: lat, h: th > 2 && th < 60 ? th : 9 });
+      } else if (t.name && REP_PLACES.test(t.place || ""))
+        out.places.push({ lon: lon, lat: lat, name: t.name, kind: t.place });
+      return;
+    }
+    var g = w.geometry;
     if (w.type !== "way" || !g || g.length < 2) return;
     var ring = g
       .map(function (p) {
@@ -36697,25 +37106,33 @@ function repParse(j) {
       });
     if (ring.length < 2) return;
     if (t.building || t["building:part"]) {
-      if (ring.length < 4) return;
-      var kind = t.building && t.building !== "yes" ? t.building : t.amenity || "default";
-      out.buildings.push({
-        id: w.id,
-        ring: ring,
-        h: repHeight(t),
-        min: repMinHeight(t),
-        color: REP_COLORS[kind] || REP_COLORS.default,
-        name: t.name || "",
-        kind: kind
-      });
+      if (ring.length >= 4) out.buildings.push(repBuilding(w, ring, t));
     } else if (t.highway && REP_ROADS[t.highway]) {
-      out.roads.push({ line: ring, w: REP_ROADS[t.highway][0], color: REP_ROADS[t.highway][1] });
+      out.roads.push({
+        line: ring,
+        w: REP_ROADS[t.highway][0],
+        color: REP_ROADS[t.highway][1],
+        name: t.name || ""
+      });
     } else if (t.natural === "water" || t.waterway === "riverbank") {
       if (ring.length >= 4) out.water.push({ ring: ring });
     } else if (t.leisure === "park" || t.landuse === "grass" || t.leisure === "garden") {
       if (ring.length >= 4) out.parks.push({ ring: ring, name: t.name || "" });
     }
   });
+  // Mapped building parts replace the plain outline they sit in (OSM "Simple 3D Buildings").
+  var parts = out.buildings.filter(function (b) {
+    return b.part;
+  });
+  if (parts.length)
+    out.buildings = out.buildings.filter(function (b) {
+      return (
+        b.part ||
+        !parts.some(function (p) {
+          return repInside(p.c, b.ring);
+        })
+      );
+    });
   return out;
 }
 
@@ -36734,30 +37151,37 @@ function repArea(lat, lon) {
   };
 }
 
+// Separate outputs, so trees can never crowd buildings out of the element limit.
 function repQuery(a) {
-  var bb = [a.s, a.w, a.n, a.e]
-    .map(function (v) {
-      return v.toFixed(4);
-    })
-    .join(",");
+  var bb =
+    "(" +
+    [a.s, a.w, a.n, a.e]
+      .map(function (v) {
+        return v.toFixed(4);
+      })
+      .join(",") +
+    ");";
   return (
     "[out:json][timeout:25];(" +
-    'way["building"](' +
+    'way["building"]' +
     bb +
-    ");" +
-    'way["building:part"](' +
+    'way["building:part"]' +
     bb +
-    ");" +
-    'way["highway"~"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified)$"](' +
+    'way["highway"~"^(' +
+    Object.keys(REP_ROADS).join("|") +
+    ')$"]' +
     bb +
-    ");" +
-    'way["natural"="water"](' +
+    'way["natural"="water"]' +
     bb +
-    ");" +
-    'way["leisure"~"^(park|garden)$"](' +
+    'way["leisure"~"^(park|garden)$"]' +
     bb +
-    ");" +
-    ");out geom tags 12000;"
+    ");out geom tags 12000;" +
+    'node["natural"="tree"]' +
+    bb +
+    "out 2500;" +
+    'node["place"]["name"]' +
+    bb +
+    "out 80;"
   );
 }
 
@@ -36768,56 +37192,97 @@ function repFlat(ring, h) {
   return f;
 }
 
+// A ring shrunk toward its centre by factor k, for stepped pitched roofs.
+function repShrink(ring, c, k) {
+  return ring.map(function (p) {
+    return [c[0] + (p[0] - c[0]) * k, c[1] + (p[1] - c[1]) * k];
+  });
+}
+
+// Shared label style: white text with a dark outline, crisp at half scale.
+function repLabel(C, coll, lon, lat, h, text, o) {
+  coll.add({
+    position: C.Cartesian3.fromDegrees(lon, lat, h),
+    text: text,
+    font: (o.weight || 600) + " " + (o.px || 26) + "px Inter, system-ui, sans-serif",
+    scale: 0.5,
+    fillColor: C.Color.fromCssColorString(o.color || "#ffffff"),
+    outlineColor: C.Color.fromCssColorString("#000000cc"),
+    outlineWidth: 4,
+    style: C.LabelStyle.FILL_AND_OUTLINE,
+    horizontalOrigin: C.HorizontalOrigin.CENTER,
+    verticalOrigin: C.VerticalOrigin.BOTTOM,
+    distanceDisplayCondition: new C.DistanceDisplayCondition(o.near || 0, o.far),
+    disableDepthTestDistance: o.over || 0
+  });
+}
+
 function repBuild(parts) {
   var C = window.Cesium,
     v = T4.v,
     prims = [];
   if (!C || !v) return prims;
-  var poly = function (list, height, extrude, colorOf, idOf) {
+  var batch = function (inst, flat) {
+    // Built on the main thread in batches, so no helper scripts have to be fetched from the CDN.
+    for (var k = 0; k < inst.length; k += 700)
+      prims.push(
+        v.scene.primitives.add(
+          new C.Primitive({
+            geometryInstances: inst.slice(k, k + 700),
+            appearance: new C.PerInstanceColorAppearance({
+              flat: !!flat,
+              translucent: false,
+              closed: !flat
+            }),
+            asynchronous: false
+          })
+        )
+      );
+  };
+  var colour = function (c) {
+    return C.ColorGeometryInstanceAttribute.fromColor(C.Color.fromCssColorString(c));
+  };
+  var slab = function (ring, from, to, c, id) {
+    return new C.GeometryInstance({
+      geometry: new C.PolygonGeometry({
+        polygonHierarchy: new C.PolygonHierarchy(
+          C.Cartesian3.fromDegreesArray([].concat.apply([], ring))
+        ),
+        height: from,
+        extrudedHeight: to,
+        vertexFormat: C.PerInstanceColorAppearance.VERTEX_FORMAT
+      }),
+      attributes: { color: colour(c) },
+      id: id
+    });
+  };
+  var blob = function (lon, lat, h, rx, rz, c, parts, id) {
+    return new C.GeometryInstance({
+      geometry: new C.EllipsoidGeometry({
+        radii: new C.Cartesian3(rx, rx, rz),
+        stackPartitions: parts,
+        slicePartitions: parts,
+        vertexFormat: C.PerInstanceColorAppearance.VERTEX_FORMAT
+      }),
+      modelMatrix: C.Transforms.eastNorthUpToFixedFrame(C.Cartesian3.fromDegrees(lon, lat, h)),
+      attributes: { color: colour(c) },
+      id: id
+    });
+  };
+  var flat = function (list, h, c) {
     var inst = [];
     list.forEach(function (x) {
       try {
-        inst.push(
-          new C.GeometryInstance({
-            geometry: new C.PolygonGeometry({
-              polygonHierarchy: new C.PolygonHierarchy(
-                C.Cartesian3.fromDegreesArray([].concat.apply([], x.ring))
-              ),
-              height: extrude ? x.min : height,
-              extrudedHeight: extrude ? x.h : undefined,
-              vertexFormat: C.PerInstanceColorAppearance.VERTEX_FORMAT
-            }),
-            attributes: { color: C.ColorGeometryInstanceAttribute.fromColor(colorOf(x)) },
-            id: idOf ? idOf(x) : undefined
-          })
-        );
+        inst.push(slab(x.ring, h, undefined, c));
       } catch (e) {
         /* skip a malformed outline */
       }
     });
-    if (!inst.length) return;
-    prims.push(
-      v.scene.primitives.add(
-        new C.Primitive({
-          geometryInstances: inst,
-          appearance: new C.PerInstanceColorAppearance({
-            flat: !extrude,
-            translucent: false,
-            closed: !!extrude
-          }),
-          asynchronous: true
-        })
-      )
-    );
+    batch(inst, true);
   };
-  var water = C.Color.fromCssColorString("#1d5fae"),
-    park = C.Color.fromCssColorString("#2f6d3a");
-  poly(parts.water, 0.3, false, function () {
-    return water;
-  });
-  poly(parts.parks, 0.5, false, function () {
-    return park;
-  });
+  flat(parts.water, 0.3, "#1d5fae");
+  flat(parts.parks, 0.5, "#2f6d3a");
+
   if (parts.roads.length) {
     var pl = v.scene.primitives.add(new C.PolylineCollection());
     parts.roads.forEach(function (r) {
@@ -36829,43 +37294,234 @@ function repBuild(parts) {
     });
     prims.push(pl);
   }
-  poly(
-    parts.buildings,
-    0,
-    true,
-    function (b) {
-      return C.Color.fromCssColorString(b.color);
-    },
-    function (b) {
-      return repBuildingItem(b);
+
+  // Walls, then roofs: stepped tiers for pitched roofs and a half-buried ellipsoid for domes.
+  var walls = [],
+    roofs = [];
+  parts.buildings.forEach(function (b) {
+    var id = repBuildingItem(b);
+    try {
+      walls.push(slab(b.ring, b.min, b.h, b.color, id));
+      if (b.roof && b.roof.shape === "pitched") {
+        var mid = b.h + (b.top - b.h) * 0.5;
+        roofs.push(slab(repShrink(b.ring, b.c, 0.72), b.h, mid, b.roof.color, id));
+        roofs.push(slab(repShrink(b.ring, b.c, 0.36), mid, b.top, b.roof.color, id));
+      } else if (b.roof)
+        roofs.push(blob(b.c[0], b.c[1], b.h, b.r * 0.85, b.top - b.h, b.roof.color, 20, id));
+    } catch (e) {
+      /* skip a malformed outline */
     }
-  );
+  });
+  batch(walls);
+  batch(roofs);
+
+  // Mapped street trees: a low-poly crown on a short trunk.
+  var trees = [];
+  parts.trees.forEach(function (t, i) {
+    var crown = t.h * 0.42;
+    trees.push(
+      blob(t.lon, t.lat, t.h - crown, crown * 0.8, crown, i % 3 ? "#3f6f37" : "#4b7d3f", 7)
+    );
+  });
+  batch(trees);
+
+  // Names: streets, landmarks and neighbourhoods, each at the distances where they help.
+  var lab = v.scene.primitives.add(new C.LabelCollection()),
+    seen = {};
+  parts.roads
+    .slice()
+    .sort(function (a, b) {
+      return b.line.length - a.line.length;
+    })
+    .forEach(function (r) {
+      if (!r.name || seen["s" + r.name]) return;
+      seen["s" + r.name] = 1;
+      var m = r.line[Math.floor(r.line.length / 2)];
+      repLabel(C, lab, m[0], m[1], 3, r.name, { px: 24, far: 1800, over: 300 });
+    });
+  parts.buildings.forEach(function (b) {
+    if (!b.name || seen["b" + b.name]) return;
+    seen["b" + b.name] = 1;
+    repLabel(C, lab, b.c[0], b.c[1], b.top + 6, b.name, {
+      px: 26,
+      weight: 700,
+      color: "#ffe7a8",
+      far: 5000,
+      over: 800
+    });
+  });
+  parts.places.forEach(function (p) {
+    if (seen["p" + p.name]) return;
+    seen["p" + p.name] = 1;
+    repLabel(C, lab, p.lon, p.lat, 120, p.name, {
+      px: 32,
+      weight: 700,
+      color: "#d9f6ff",
+      near: 600,
+      far: 22000,
+      over: 1e6
+    });
+  });
+  prims.push(lab);
   return prims;
 }
 
 // What a tapped building shows.
 function repBuildingItem(b) {
-  var c = b.ring.reduce(
-    function (a, p) {
-      return [a[0] + p[0] / b.ring.length, a[1] + p[1] / b.ring.length];
-    },
-    [0, 0]
-  );
   return {
     kind: "info",
     layer: "replica",
     id: "rep:" + b.id,
     n: b.name || tfWords(b.kind === "default" ? "Building" : b.kind),
-    lat: c[1],
-    lon: c[0],
+    lat: b.c[1],
+    lon: b.c[0],
     color: "#cfd6de",
     tag: "BUILDING · REPLICA",
     rows: [
       ["TYPE", b.kind === "default" ? "Building" : tfWords(b.kind)],
-      ["HEIGHT", Math.round(b.h) + " m"],
+      ["HEIGHT", Math.round(b.top) + " m"],
       ["SOURCE", "OpenStreetMap contributors"]
     ]
   };
+}
+
+// ---------- Countries, states and cities: outlines and names over the whole globe ----------
+// Average of the ring with the most points: the mainland for most countries.
+function repRingLabelAt(rings) {
+  var r = rings.reduce(function (a, b) {
+    return b.length > a.length ? b : a;
+  }, []);
+  var x = 0,
+    y = 0;
+  r.forEach(function (p) {
+    x += p[0];
+    y += p[1];
+  });
+  return r.length ? [x / r.length, y / r.length] : null;
+}
+
+function repAtlas() {
+  if (REP.atlas) return;
+  REP.atlas = "pending";
+  focLoad()
+    .then(function () {
+      var C = window.Cesium,
+        v = T4.v;
+      if (!C || !v) return;
+      var lines = v.scene.primitives.add(new C.PolylineCollection()),
+        names = v.scene.primitives.add(new C.LabelCollection());
+      var draw = function (list, css, width, label) {
+        // Country borders glow; state lines are thin and fainter.
+        var mat =
+          css === "glow"
+            ? C.Material.fromType("PolylineGlow", {
+                color: C.Color.fromCssColorString("#7fe6ff"),
+                glowPower: 0.18
+              })
+            : C.Material.fromType("Color", { color: C.Color.fromCssColorString(css) });
+        list.forEach(function (f) {
+          f.rings.forEach(function (r) {
+            if (r.length < 2) return;
+            lines.add({
+              positions: C.Cartesian3.fromDegreesArrayHeights(repFlat(r, 60)),
+              width: width,
+              material: mat
+            });
+          });
+          var at = repRingLabelAt(f.rings);
+          if (at)
+            repLabel(
+              C,
+              names,
+              at[0],
+              at[1],
+              2000,
+              label.upper ? f.name.toUpperCase() : f.name,
+              label
+            );
+        });
+      };
+      draw(FOC.countries, "glow", 5, {
+        px: 30,
+        weight: 800,
+        color: "#ffffff",
+        near: 1.2e6,
+        far: 3.2e7,
+        upper: true
+      });
+      draw(FOC.states, "#9fe8ff55", 1, {
+        px: 26,
+        weight: 700,
+        color: "#cfe9ff",
+        near: 1.5e5,
+        far: 5e6
+      });
+      REP.atlas = [lines, names];
+      REP.atlas.forEach(function (p) {
+        p.show = REP.on;
+      });
+      v.scene.requestRender();
+    })
+    .catch(function () {
+      REP.atlas = null;
+    });
+}
+
+// City and town names for the region in view, between street level and space.
+var REP_CITY_MIN_M = 12000,
+  REP_CITY_MAX_M = 1.2e6;
+
+function repCities(lat, lon, height) {
+  var big = height > 250000,
+    step = big ? 6 : 2,
+    la = Math.floor(lat / step) * step,
+    lo = Math.floor(lon / step) * step,
+    key = step + ":" + la + "," + lo;
+  REP.cities = REP.cities || [];
+  if (
+    REP.citiesBusy ||
+    REP.cities.some(function (c) {
+      return c.key === key;
+    })
+  )
+    return;
+  REP.citiesBusy = true;
+  var q =
+    '[out:json][timeout:20];node["place"~"^(' +
+    (big ? "city" : "city|town") +
+    ')$"]["name"](' +
+    [la, lo, la + step, lo + step].join(",") +
+    ");out 400;";
+  overpassGet(q, 25000)
+    .then(function (j) {
+      var C = window.Cesium,
+        v = T4.v;
+      if (!C || !v) return;
+      var coll = v.scene.primitives.add(new C.LabelCollection());
+      (j.elements || []).forEach(function (n) {
+        var t = n.tags || {},
+          city = t.place === "city",
+          pop = parseFloat(t.population) || 0;
+        repLabel(C, coll, n.lon, n.lat, 300, t["name:en"] || t.name, {
+          px: city ? (pop > 1e6 ? 34 : 30) : 24,
+          weight: city ? 800 : 650,
+          color: city ? "#ffffff" : "#e3eef5",
+          near: REP_CITY_MIN_M,
+          far: city ? (pop > 1e6 ? 2.6e6 : 1.2e6) : 2.2e5,
+          over: 1e7
+        });
+      });
+      coll.show = REP.on;
+      REP.cities.push({ key: key, prims: [coll] });
+      while (REP.cities.length > 10) repDrop(REP.cities.shift());
+      v.scene.requestRender();
+    })
+    .catch(function () {
+      /* names are optional; try again when the view moves to a new region */
+    })
+    .then(function () {
+      REP.citiesBusy = false;
+    });
 }
 
 function repDrop(a) {
@@ -36883,9 +37539,13 @@ function repDrop(a) {
 function repTick() {
   var C = window.Cesium,
     v = T4.v;
-  if (!REP.on || !v || REP.busy || document.hidden) return;
+  if (!REP.on || !v) return;
   var cp = v.camera.positionCartographic;
-  repStatus(cp.height > REP_MAX_M ? "far" : "");
+  repCredit(cp);
+  if (REP.busy || document.hidden || Date.now() < (REP.retry || 0)) return;
+  if (cp.height > REP_CITY_MIN_M && cp.height < REP_CITY_MAX_M)
+    repCities(cp.latitude / D, cp.longitude / D, cp.height);
+  if (Date.now() > (REP.hold || 0)) repStatus(cp.height > REP_MAX_M ? "far" : "");
   if (cp.height > REP_MAX_M) return;
   var mid = null;
   try {
@@ -36903,17 +37563,21 @@ function repTick() {
     return;
   REP.busy = true;
   repStatus("loading");
-  getJSON("https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(repQuery(a)), 30000)
+  overpassGet(repQuery(a), 30000)
     .then(function (j) {
       if (!REP.on) return;
-      a.prims = repBuild(repParse(j));
+      var parts = repParse(j);
+      a.prims = repBuild(parts);
       REP.areas.push(a);
       while (REP.areas.length > REP_MAX_AREAS) repDrop(REP.areas.shift());
       v.scene.requestRender();
-      repStatus("");
+      REP.last = parts.buildings.length;
+      repStatus(parts.buildings.length ? "built" : "empty");
+      REP.hold = Date.now() + 2500;
     })
     .catch(function () {
       repStatus("offline");
+      REP.retry = Date.now() + 8000;
     })
     .then(function () {
       REP.busy = false;
@@ -36934,12 +37598,31 @@ function repStatus(s) {
       : s === "far"
         ? "Zoom in to a city to see the replica"
         : s === "offline"
-          ? "Replica data unavailable right now"
-          : "";
+          ? "Map servers busy, retrying…"
+          : s === "built"
+            ? (REP.last || 0).toLocaleString() + (REP.last === 1 ? " building" : " buildings")
+            : s === "empty"
+              ? "No mapped buildings here"
+              : "";
   el.style.display = REP.on && s ? "block" : "none";
 }
 
-// NASA true-colour imagery for the globe under the replica (public domain, no logo needed).
+// Imagery under the replica, sharpest last so it sits on top:
+//  - EOxCloudless Sentinel-2 mosaic worldwide (10 m). CC BY-NC-SA 4.0: free for non-commercial
+//    use, and the credit must be visible on the map while it shows (repCredit).
+//  - US aerial photos (USDA NAIP via The National Map), public domain.
+var REP_S2 = "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+  REP_S2_CREDIT =
+    "EOxCloudless https://cloudless.eox.at by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2024)";
+var REP_USGS =
+  "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}";
+var REP_USGS_AREAS = [
+  [-125, 24, -66.5, 49.5], // contiguous US
+  [-170, 51, -129.5, 71.5], // Alaska
+  [-160.5, 18.8, -154.6, 22.4], // Hawaii
+  [-67.4, 17.8, -65.2, 18.6] // Puerto Rico and the Virgin Islands
+];
+
 function repImagery() {
   var C = window.Cesium,
     v = T4.v;
@@ -36950,28 +37633,55 @@ function repImagery() {
   }
   v.scene.globe.show = true;
   if (REP.img) return;
-  REP.img = "pending";
-  eoProbe(EO_VIEWS.eo_today)
-    .then(function (f) {
-      var url =
-        EO_GIBS +
-        EO_VIEWS.eo_today.layer +
-        "/default/" +
-        f.date +
-        "/GoogleMapsCompatible_Level" +
-        f.lvl +
-        "/{z}/{y}/{x}.jpg";
-      REP.img = v.imageryLayers.addImageryProvider(
-        new C.UrlTemplateImageryProvider({
-          url: url,
-          tilingScheme: new C.WebMercatorTilingScheme(),
-          maximumLevel: f.lvl
-        })
-      );
+  var tiles = function (url, max, r) {
+    return v.imageryLayers.addImageryProvider(
+      new C.UrlTemplateImageryProvider({
+        url: url,
+        tilingScheme: new C.WebMercatorTilingScheme(),
+        rectangle: r ? C.Rectangle.fromDegrees(r[0], r[1], r[2], r[3]) : undefined,
+        maximumLevel: max
+      })
+    );
+  };
+  REP.img = [tiles(REP_S2, 15)].concat(
+    REP_USGS_AREAS.map(function (r) {
+      return tiles(REP_USGS, 19, r);
     })
-    .catch(function () {
-      REP.img = null;
+  );
+}
+
+// True when the point is covered by the US aerial photos.
+function repInUS(lat, lon) {
+  return REP_USGS_AREAS.some(function (r) {
+    return lon >= r[0] && lon <= r[2] && lat >= r[1] && lat <= r[3];
+  });
+}
+
+// The Sentinel-2 credit, shown on the map whenever that imagery is in view: everywhere from
+// high up, and outside the US close in.
+function repCredit(cp) {
+  var el = $("repcr");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "repcr";
+    el.textContent = REP_S2_CREDIT;
+    $("real").appendChild(el);
+  }
+  var show = REP.on && (cp.height > 400000 || !repInUS(cp.latitude / D, cp.longitude / D));
+  el.style.display = show ? "block" : "none";
+}
+
+// Show or hide everything the replica has drawn: areas, city names, borders and country names.
+function repShowAll(on) {
+  var all = REP.areas.concat(
+    REP.cities || [],
+    Array.isArray(REP.atlas) ? [{ prims: REP.atlas }] : []
+  );
+  all.forEach(function (a) {
+    (a.prims || []).forEach(function (p) {
+      p.show = on;
     });
+  });
 }
 
 function repOn() {
@@ -36980,11 +37690,8 @@ function repOn() {
   document.body.classList.add("replica");
   if (T4.ts) T4.ts.show = false;
   repImagery();
-  REP.areas.forEach(function (a) {
-    (a.prims || []).forEach(function (p) {
-      p.show = true;
-    });
-  });
+  repAtlas();
+  repShowAll(true);
   repButton();
   T4.v.scene.requestRender();
   repTick();
@@ -36994,12 +37701,9 @@ function repOff() {
   REP.on = false;
   document.body.classList.remove("replica");
   if (T4.v && T4.v.scene.globe) T4.v.scene.globe.show = false;
-  REP.areas.forEach(function (a) {
-    (a.prims || []).forEach(function (p) {
-      p.show = false;
-    });
-  });
+  repShowAll(false);
   repStatus("");
+  if ($("repcr")) $("repcr").style.display = "none";
   repButton();
 }
 
@@ -37014,7 +37718,7 @@ function repButton() {
     b.style.cssText = "width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em";
     bar.insertBefore(b, bar.firstChild);
   }
-  b.textContent = REP.on ? "GOOGLE 3D" : "REPLICA";
+  b.textContent = REP.on ? "GOOGLE" : "REPLICA";
   b.setAttribute("aria-label", REP.on ? "Switch to the Google 3D view" : "Switch to Replica");
   var i = $("bRepInfo");
   if (!i) {
@@ -37031,7 +37735,9 @@ document.addEventListener("click", function (e) {
   if (e.target.closest("#bRepInfo")) {
     note(
       "Map data",
-      "Buildings, roads, water and parks © OpenStreetMap contributors (ODbL). Satellite imagery: NASA EOSDIS GIBS. Every other source is listed in Layers and in each item's details."
+      "Buildings, roofs, colours, roads, trees, water, parks and place names © OpenStreetMap contributors (ODbL). Aerial photos (US): USDA and USGS, The National Map. Satellite imagery elsewhere: " +
+        REP_S2_CREDIT +
+        ", CC BY-NC-SA 4.0. Borders: Natural Earth via world-atlas and us-atlas. Every other source is listed in Layers and in each item's details."
     );
     return;
   }
@@ -37050,10 +37756,1031 @@ document.addEventListener("click", function (e) {
 
 setInterval(repTick, 1500);
 /**
+ * @file Replica World: the whole app in the 3D replica, behind one button.
+ * ◆ Replica switches to a full-screen 3D world (module 38) with its own dashboard: a top bar
+ * with the brand, live counts, search and the Galaxy button, and a dock for Layers, Cameras,
+ * Events, Planes, Ships, Trains and Settings. Layers, settings and selections are the same ones
+ * the globe uses, so a change in one world shows in the other.
+ *
+ * Module 39 of 41. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+var RW = { on: false };
+
+var RW_DOCK = [
+  ["layers", "Layers", '<path d="M12 4l9 4.5-9 4.5-9-4.5z"/><path d="M3 13l9 4.5 9-4.5"/>'],
+  [
+    "cams",
+    "Cameras",
+    '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 10.5l5-2.5v8l-5-2.5"/>'
+  ],
+  ["events", "Events", '<path d="M3 12h4l2.5-6 4 12 2.5-6h5"/>'],
+  ["air", "Planes", '<path d="M3 13l18-6-6 14-3-6z"/>'],
+  ["ship", "Ships", '<path d="M3 15h18l-3 5H6zM12 4v11M12 5l6 6h-6"/>'],
+  [
+    "transit",
+    "Trains",
+    '<rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 11h12M9 21l1.5-4M15 21l-1.5-4"/>'
+  ],
+  [
+    "set",
+    "Settings",
+    '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'
+  ]
+];
+
+// Live counts for the top bar, the same numbers the globe's status strip shows.
+function rwCounts() {
+  var c = function (label, n, on) {
+    return "<span><i>" + label + "</i>" + (on ? n.toLocaleString() : "—") + "</span>";
+  };
+  return (
+    c("CAM", visLive.length, true) +
+    c("AIR", PLANES.length, WL.air) +
+    c("SEA", SHIPS.length, WL.ship) +
+    c("TRN", TRANSIT.length, WL.transit)
+  );
+}
+
+function rwDraw() {
+  var el = $("rwdash");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "rwdash";
+    el.innerHTML =
+      '<div class="rwtop">' +
+      '<div class="rwbrand"><svg viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><b>REPLICA</b></div>' +
+      '<div class="rwcount mono" id="rwcount"></div>' +
+      '<button class="rwgal" data-rw="galaxy" aria-label="Galaxy">✦</button>' +
+      '<button class="rwx" data-rw="exit" aria-label="Back to the globe">✕</button>' +
+      "</div>" +
+      '<form class="rwsearch" id="rwForm"><input id="rwq" type="search" placeholder="Search a city, address or place" autocomplete="off"><button>Go</button></form>' +
+      '<nav class="rwdock">' +
+      RW_DOCK.map(function (d) {
+        return (
+          '<button data-rw="' +
+          d[0] +
+          '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+          d[2] +
+          "</svg><span>" +
+          d[1] +
+          "</span></button>"
+        );
+      }).join("") +
+      "</nav>";
+    document.body.appendChild(el);
+  }
+  var cnt = $("rwcount"),
+    h = rwCounts();
+  if (cnt && cnt._h !== h) {
+    cnt._h = h;
+    cnt.innerHTML = h;
+  }
+  Array.prototype.forEach.call(el.querySelectorAll(".rwdock button"), function (b) {
+    var k = b.getAttribute("data-rw");
+    if (k === "air" || k === "ship" || k === "transit") b.classList.toggle("on", !!WL[k]);
+  });
+}
+
+function rwEnter(opt) {
+  if (RW.on) return;
+  RW.on = true;
+  RW.t0 = Date.now();
+  document.body.classList.add("rw");
+  rwDraw();
+  if (T4.on) repOn();
+  else t4Open(Object.assign({ replica: true, quiet: true }, opt));
+  document.body.classList.remove("sheet");
+}
+
+function rwExit() {
+  if (!RW.on) return;
+  RW.on = false;
+  document.body.classList.remove("rw");
+  if (T4.on) t4Close();
+}
+
+document.addEventListener("click", function (e) {
+  if (e.target.closest("#bRW")) {
+    rwEnter();
+    return;
+  }
+  var b = e.target.closest("[data-rw]");
+  if (!b) return;
+  var k = b.getAttribute("data-rw");
+  if (k === "exit") rwExit();
+  else if (k === "galaxy") galOpen();
+  else if (k === "set") brOpen("set");
+  else if (k === "layers" || k === "cams" || k === "events") {
+    var g = document.querySelector(".grid");
+    if (document.body.classList.contains("sheet") && g && g.getAttribute("data-tab") === k)
+      document.body.classList.remove("sheet");
+    else setTab(k);
+  } else if (k === "air" || k === "ship" || k === "transit") {
+    setLayer(k, !WL[k]);
+    rwDraw();
+  }
+});
+
+// Search from the Replica bar goes through the app's own search.
+document.addEventListener("submit", function (e) {
+  if (e.target.id !== "rwForm") return;
+  e.preventDefault();
+  var q = $("rwq").value.trim();
+  if (!q) return;
+  $("addr").value = q;
+  var f = $("addrForm");
+  if (f.requestSubmit) f.requestSubmit();
+  else f.dispatchEvent(new Event("submit", { cancelable: true }));
+  $("rwq").blur();
+});
+
+// The logo: one tap switches between the globe and Replica World, five quick taps still open
+// the signature (module 25), and holding it opens the sky. A single tap waits 420 ms to be sure
+// it is not the start of the five.
+var LOGO_SEL = ".brand, #brandov, .rwbrand",
+  LOGO = { n: 0, timer: 0, hold: 0, held: false };
+
+function logoToggleWorld() {
+  if (ST || T4.st) return; // the logo first leaves the clean screen there (module 10)
+  if (RW.on) rwExit();
+  else rwEnter();
+}
+
+document.addEventListener("pointerdown", function (e) {
+  if (!e.target.closest(LOGO_SEL)) return;
+  clearTimeout(LOGO.hold);
+  LOGO.held = false;
+  LOGO.hold = setTimeout(function () {
+    LOGO.held = true;
+    LOGO.n = 0;
+    clearTimeout(LOGO.timer);
+    galOpen();
+  }, 650);
+});
+["pointerup", "pointercancel", "pointerleave"].forEach(function (t) {
+  document.addEventListener(t, function () {
+    clearTimeout(LOGO.hold);
+  });
+});
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(LOGO_SEL)) return;
+  if (LOGO.held) {
+    LOGO.held = false;
+    return;
+  }
+  LOGO.n++;
+  clearTimeout(LOGO.timer);
+  LOGO.timer = setTimeout(function () {
+    if (LOGO.n === 1) logoToggleWorld();
+    LOGO.n = 0;
+  }, 420);
+});
+
+setInterval(function () {
+  if (!RW.on) return;
+  // The 3D view's own ✕ also leaves Replica World (after allowing time for the engine to load).
+  if (!T4.on && Date.now() - RW.t0 > 25000) {
+    RW.on = false;
+    document.body.classList.remove("rw");
+    return;
+  }
+  rwDraw();
+}, 1000);
+/**
+ * @file Sky: the night sky right now and the solar system, from either world.
+ * "Sky now" shows the stars, constellations (Orion and the rest), the Moon with its phase, the
+ * Sun and the planets as they stand at this moment over the place in view, computed on the phone
+ * from star positions (d3-celestial, BSD) and published orbital elements (JPL). "Solar system"
+ * shows the eight planets on their orbits today. Opened by holding the logo or the ✦ button.
+ *
+ * Module 40 of 41. Modules share one scope: build.py concatenates them in order
+ * inside a single closure. See README, "Architecture".
+ */
+
+var SKY = {
+  on: false,
+  mode: "sky",
+  az: 180,
+  alt: 35,
+  zoom: 1,
+  t: 0, // minutes ahead of now
+  data: null,
+  loading: false,
+  pts: [],
+  sel: null,
+  sys: { yaw: 0.6, tilt: 0.9, zoom: 1 }
+};
+var SKY_DATA = "https://cdn.jsdelivr.net/gh/ofrohn/d3-celestial@master/data/";
+
+// ---------- Astronomy ----------
+function skyJD(ms) {
+  return ms / 864e5 + 2440587.5;
+}
+
+// Greenwich mean sidereal time in degrees.
+function skyGMST(jd) {
+  var g = 280.46061837 + 360.98564736629 * (jd - 2451545);
+  return ((g % 360) + 360) % 360;
+}
+
+// Right ascension and declination (degrees) to altitude and azimuth (degrees, azimuth from north
+// through east) for an observer at lat, lon at Julian date jd.
+function skyAltAz(ra, dec, lat, lon, jd) {
+  var r = Math.PI / 180,
+    ha = (skyGMST(jd) + lon - ra) * r,
+    d = dec * r,
+    p = lat * r;
+  var sa = Math.sin(d) * Math.sin(p) + Math.cos(d) * Math.cos(p) * Math.cos(ha),
+    alt = Math.asin(Math.max(-1, Math.min(1, sa))),
+    az = Math.atan2(
+      -Math.sin(ha) * Math.cos(d),
+      Math.cos(p) * Math.sin(d) - Math.sin(p) * Math.cos(d) * Math.cos(ha)
+    );
+  return [alt / r, (((az / r) % 360) + 360) % 360];
+}
+
+// JPL "Approximate Positions of the Planets", 1800–2050: a, e, I, L, long. perihelion, long. node
+// at J2000, then their rates per century.
+var SKY_PLANETS = [
+  [
+    "Mercury",
+    "#b5b1aa",
+    2440,
+    [0.38709927, 0.20563593, 7.00497902, 252.2503235, 77.45779628, 48.33076593],
+    [0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081],
+    "88 days",
+    "58.6 days"
+  ],
+  [
+    "Venus",
+    "#e8d6a8",
+    6052,
+    [0.72333566, 0.00677672, 3.39467605, 181.9790995, 131.60246718, 76.67984255],
+    [0.0000039, -0.00004107, -0.0007889, 58517.81538729, 0.00268329, -0.27769418],
+    "225 days",
+    "243 days (backwards)"
+  ],
+  [
+    "Earth",
+    "#4c8dff",
+    6371,
+    [1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0],
+    [0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0],
+    "365.25 days",
+    "23.9 hours"
+  ],
+  [
+    "Mars",
+    "#d9673f",
+    3390,
+    [1.52371034, 0.0933941, 1.84969142, -4.55343205, -23.94362959, 49.55953891],
+    [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343],
+    "687 days",
+    "24.6 hours"
+  ],
+  [
+    "Jupiter",
+    "#d8b48a",
+    69911,
+    [5.202887, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909],
+    [-0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106],
+    "11.9 years",
+    "9.9 hours"
+  ],
+  [
+    "Saturn",
+    "#e3cf98",
+    58232,
+    [9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448],
+    [-0.0012506, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794],
+    "29.5 years",
+    "10.7 hours"
+  ],
+  [
+    "Uranus",
+    "#9fd8e0",
+    25362,
+    [19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.9542763, 74.01692503],
+    [-0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589],
+    "84 years",
+    "17.2 hours (backwards)"
+  ],
+  [
+    "Neptune",
+    "#5b7fe8",
+    24622,
+    [30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574],
+    [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664],
+    "165 years",
+    "16.1 hours"
+  ]
+];
+
+// Heliocentric ecliptic x, y, z (AU) of a planet at Julian date jd.
+function skyHelio(p, jd) {
+  var T = (jd - 2451545) / 36525,
+    r = Math.PI / 180,
+    el = p[3].map(function (v, i) {
+      return v + p[4][i] * T;
+    }),
+    a = el[0],
+    e = el[1],
+    I = el[2] * r,
+    L = el[3],
+    wb = el[4],
+    O = el[5],
+    w = (wb - O) * r,
+    M = ((((L - wb) % 360) + 540) % 360) - 180;
+  var Mr = M * r,
+    E = Mr + e * Math.sin(Mr);
+  for (var k = 0; k < 8; k++) E = E - (E - e * Math.sin(E) - Mr) / (1 - e * Math.cos(E));
+  var xp = a * (Math.cos(E) - e),
+    yp = a * Math.sqrt(1 - e * e) * Math.sin(E),
+    Or = O * r,
+    cw = Math.cos(w),
+    sw = Math.sin(w),
+    cO = Math.cos(Or),
+    sO = Math.sin(Or),
+    cI = Math.cos(I),
+    sI = Math.sin(I);
+  return [
+    (cw * cO - sw * sO * cI) * xp + (-sw * cO - cw * sO * cI) * yp,
+    (cw * sO + sw * cO * cI) * xp + (-sw * sO + cw * cO * cI) * yp,
+    sw * sI * xp + cw * sI * yp
+  ];
+}
+
+// Ecliptic vector to right ascension and declination (degrees).
+function skyEclToEq(v) {
+  var ob = 23.43928 * (Math.PI / 180),
+    x = v[0],
+    y = v[1] * Math.cos(ob) - v[2] * Math.sin(ob),
+    z = v[1] * Math.sin(ob) + v[2] * Math.cos(ob);
+  var ra = (Math.atan2(y, x) * 180) / Math.PI,
+    dec = (Math.atan2(z, Math.sqrt(x * x + y * y)) * 180) / Math.PI;
+  return [(ra + 360) % 360, dec, Math.sqrt(x * x + y * y + z * z)];
+}
+
+// Low-precision Moon (Meeus, main terms): ecliptic longitude, latitude (degrees), distance (km).
+function skyMoon(jd) {
+  var r = Math.PI / 180,
+    d = jd - 2451545,
+    L = 218.316 + 13.176396 * d,
+    M = (134.963 + 13.064993 * d) * r,
+    F = (93.272 + 13.22935 * d) * r,
+    lon = L + 6.289 * Math.sin(M),
+    lat = 5.128 * Math.sin(F),
+    dist = 385001 - 20905 * Math.cos(M);
+  return [((lon % 360) + 360) % 360, lat, dist];
+}
+
+// Sun's geocentric ecliptic longitude (degrees).
+function skySunLon(jd) {
+  var e = skyHelio(SKY_PLANETS[2], jd);
+  return ((Math.atan2(-e[1], -e[0]) * 180) / Math.PI + 360) % 360;
+}
+
+// Fraction of the Moon lit (0 new, 1 full) and whether it is waxing.
+function skyMoonPhase(jd) {
+  var el = (((skyMoon(jd)[0] - skySunLon(jd)) % 360) + 360) % 360;
+  return [(1 - Math.cos((el * Math.PI) / 180)) / 2, el < 180];
+}
+
+function skyEclLonLatToEq(lon, lat) {
+  var r = Math.PI / 180;
+  return skyEclToEq([
+    Math.cos(lat * r) * Math.cos(lon * r),
+    Math.cos(lat * r) * Math.sin(lon * r),
+    Math.sin(lat * r)
+  ]);
+}
+
+// Stereographic projection of (alt, az) around the view centre; null when behind the viewer.
+function skyProject(alt, az, alt0, az0, scale, cx, cy) {
+  var r = Math.PI / 180,
+    a = alt * r,
+    b = alt0 * r,
+    dz = (az - az0) * r,
+    cosc = Math.sin(b) * Math.sin(a) + Math.cos(b) * Math.cos(a) * Math.cos(dz);
+  if (cosc < -0.2) return null;
+  var k = (2 / (1 + cosc)) * scale;
+  return [
+    cx + k * Math.cos(a) * Math.sin(dz),
+    cy - k * (Math.cos(b) * Math.sin(a) - Math.sin(b) * Math.cos(a) * Math.cos(dz))
+  ];
+}
+
+function skyStarColor(bv) {
+  var b = parseFloat(bv);
+  if (!isFinite(b)) return "#ffffff";
+  if (b < 0) return "#a9c8ff";
+  if (b < 0.3) return "#dfe9ff";
+  if (b < 0.6) return "#fff8ea";
+  if (b < 1.0) return "#ffe2b0";
+  if (b < 1.4) return "#ffc890";
+  return "#ffaa78";
+}
+
+var SKY_NAMES = [
+  ["Sirius", 101.287, -16.716],
+  ["Betelgeuse", 88.793, 7.407],
+  ["Rigel", 78.634, -8.202],
+  ["Polaris", 37.954, 89.264],
+  ["Vega", 279.235, 38.784],
+  ["Arcturus", 213.915, 19.182],
+  ["Capella", 79.172, 45.998],
+  ["Aldebaran", 68.98, 16.509],
+  ["Antares", 247.352, -26.432],
+  ["Spica", 201.298, -11.161],
+  ["Altair", 297.696, 8.868],
+  ["Deneb", 310.358, 45.28],
+  ["Procyon", 114.825, 5.225],
+  ["Pollux", 116.329, 28.026],
+  ["Regulus", 152.093, 11.967],
+  ["Canopus", 95.988, -52.696],
+  ["Fomalhaut", 344.413, -29.622]
+];
+
+// ---------- Data ----------
+function skyLoad() {
+  if (SKY.data || SKY.loading) return;
+  SKY.loading = true;
+  idbGet("sky")
+    .then(function (c) {
+      if (c && c.stars) return c;
+      return Promise.all([
+        getJSON(SKY_DATA + "stars.6.json", 40000),
+        getJSON(SKY_DATA + "constellations.lines.json", 30000),
+        getJSON(SKY_DATA + "constellations.json", 30000)
+      ]).then(function (r) {
+        var c2 = skyPack(r[0], r[1], r[2]);
+        idbSet("sky", c2);
+        return c2;
+      });
+    })
+    .then(function (c) {
+      SKY.data = c;
+      skyDraw();
+    })
+    .catch(function () {
+      SKY.data = { stars: [], lines: [], names: [], offline: true };
+      skyDraw();
+    })
+    .then(function () {
+      SKY.loading = false;
+    });
+}
+
+// Compact the catalogues: stars as [ra, dec, mag, colour], lines as [[ra, dec], …], names.
+function skyPack(st, li, cn) {
+  var ra = function (x) {
+    return x < 0 ? x + 360 : x;
+  };
+  return {
+    stars: ((st && st.features) || []).map(function (f) {
+      var c = f.geometry.coordinates;
+      return [ra(c[0]), c[1], f.properties.mag, skyStarColor(f.properties.bv)];
+    }),
+    lines: [].concat.apply(
+      [],
+      ((li && li.features) || []).map(function (f) {
+        return f.geometry.coordinates.map(function (seg) {
+          return seg.map(function (p) {
+            return [ra(p[0]), p[1]];
+          });
+        });
+      })
+    ),
+    names: ((cn && cn.features) || [])
+      .filter(function (f) {
+        return +f.properties.rank <= 2;
+      })
+      .map(function (f) {
+        var c = f.geometry.coordinates;
+        return [f.properties.en || f.properties.name, ra(c[0]), c[1]];
+      })
+  };
+}
+
+// ---------- Drawing ----------
+function skyWhere() {
+  if (T4.on && T4.v) {
+    try {
+      var cp = T4.v.camera.positionCartographic;
+      return [cp.latitude / D, cp.longitude / D];
+    } catch (e) {}
+  }
+  return [rot.lat, rot.lon];
+}
+
+function skyDraw() {
+  var cv = $("skycv");
+  if (!cv || !SKY.on) return;
+  var dpr = Math.min(2, window.devicePixelRatio || 1),
+    w = cv.clientWidth,
+    h = cv.clientHeight;
+  if (cv.width !== Math.round(w * dpr)) {
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+  }
+  var g = cv.getContext("2d");
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  SKY.pts = [];
+  if (SKY.mode === "sys") skyDrawSystem(g, w, h);
+  else skyDrawSky(g, w, h);
+  skyInfo();
+}
+
+function skyDrawSky(g, w, h) {
+  var jd = skyJD(Date.now() + SKY.t * 60000),
+    here = skyWhere(),
+    lat = here[0],
+    lon = here[1],
+    cx = w / 2,
+    cy = h / 2,
+    scale = (Math.min(w, h) / 2.4) * SKY.zoom,
+    P = function (alt, az) {
+      return skyProject(alt, az, SKY.alt, SKY.az, scale, cx, cy);
+    },
+    sunEq = skyEclLonLatToEq(skySunLon(jd), 0),
+    sun = skyAltAz(sunEq[0], sunEq[1], lat, lon, jd),
+    day = Math.max(0, Math.min(1, (sun[0] + 12) / 18));
+  // Sky colour follows the Sun: black at night, deep blue at dusk, blue in daytime.
+  var top = day > 0.66 ? "#2f6fb8" : day > 0.33 ? "#16305a" : "#02040a",
+    bot = day > 0.66 ? "#8fbbe8" : day > 0.33 ? "#3b3f6b" : "#08101f";
+  var bg = g.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, top);
+  bg.addColorStop(1, bot);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, w, h);
+  var starAlpha = 1 - Math.min(1, day * 1.4),
+    data = SKY.data || { stars: [], lines: [], names: [] };
+  // Constellation lines.
+  g.strokeStyle = "rgba(120,170,255," + (0.45 * starAlpha + 0.05).toFixed(2) + ")";
+  g.lineWidth = 1;
+  g.beginPath();
+  data.lines.forEach(function (seg) {
+    var prev = null;
+    seg.forEach(function (p) {
+      var aa = skyAltAz(p[0], p[1], lat, lon, jd),
+        q = P(aa[0], aa[1]);
+      if (q && prev) {
+        g.moveTo(prev[0], prev[1]);
+        g.lineTo(q[0], q[1]);
+      }
+      prev = q;
+    });
+  });
+  g.stroke();
+  // Stars, brighter ones bigger.
+  var limit = 4.5 + SKY.zoom * 1.2;
+  data.stars.forEach(function (s) {
+    if (s[2] > limit) return;
+    var aa = skyAltAz(s[0], s[1], lat, lon, jd);
+    if (aa[0] < -2) return;
+    var q = P(aa[0], aa[1]);
+    if (!q || q[0] < -5 || q[0] > w + 5 || q[1] < -5 || q[1] > h + 5) return;
+    var rad = Math.max(0.5, (5.2 - s[2]) * 0.55) * Math.sqrt(SKY.zoom);
+    g.globalAlpha = Math.max(0.15, starAlpha) * (s[2] < 2 ? 1 : 0.85);
+    g.fillStyle = s[3];
+    g.beginPath();
+    g.arc(q[0], q[1], rad, 0, 6.2832);
+    g.fill();
+  });
+  g.globalAlpha = 1;
+  // Constellation and star names.
+  g.font = "600 11px system-ui, sans-serif";
+  g.textAlign = "center";
+  g.fillStyle = "rgba(150,190,255," + (0.75 * starAlpha + 0.2).toFixed(2) + ")";
+  data.names.forEach(function (n) {
+    var aa = skyAltAz(n[1], n[2], lat, lon, jd);
+    if (aa[0] < 0) return;
+    var q = P(aa[0], aa[1]);
+    if (q) g.fillText(n[0].toUpperCase(), q[0], q[1]);
+  });
+  g.textAlign = "left";
+  g.fillStyle = "rgba(255,240,210,.85)";
+  SKY_NAMES.forEach(function (n) {
+    var aa = skyAltAz(n[1], n[2], lat, lon, jd);
+    if (aa[0] < 0) return;
+    var q = P(aa[0], aa[1]);
+    if (q) {
+      g.fillText(n[0], q[0] + 6, q[1] - 4);
+      SKY.pts.push([q[0], q[1], { kind: "star", name: n[0], alt: aa[0], az: aa[1] }]);
+    }
+  });
+  // Planets.
+  var earth = skyHelio(SKY_PLANETS[2], jd);
+  SKY_PLANETS.forEach(function (p, i) {
+    if (i === 2) return;
+    var hp = skyHelio(p, jd),
+      eq = skyEclToEq([hp[0] - earth[0], hp[1] - earth[1], hp[2] - earth[2]]),
+      aa = skyAltAz(eq[0], eq[1], lat, lon, jd);
+    if (aa[0] < -1) return;
+    var q = P(aa[0], aa[1]);
+    if (!q) return;
+    g.fillStyle = p[1];
+    g.beginPath();
+    g.arc(q[0], q[1], 3.6, 0, 6.2832);
+    g.fill();
+    g.fillStyle = "#ffe9a8";
+    g.font = "700 12px system-ui, sans-serif";
+    g.fillText(p[0], q[0] + 7, q[1] + 4);
+    SKY.pts.push([q[0], q[1], { kind: "planet", i: i, alt: aa[0], az: aa[1], au: eq[2] }]);
+  });
+  // The Moon with its phase.
+  var mo = skyMoon(jd),
+    meq = skyEclLonLatToEq(mo[0], mo[1]),
+    maa = skyAltAz(meq[0], meq[1], lat, lon, jd),
+    mq = maa[0] > -2 ? P(maa[0], maa[1]) : null;
+  if (mq) {
+    var ph = skyMoonPhase(jd),
+      mr = 11 * Math.sqrt(SKY.zoom);
+    skyMoonDisc(g, mq[0], mq[1], mr, ph[0], ph[1]);
+    g.fillStyle = "#e8eef6";
+    g.font = "700 12px system-ui, sans-serif";
+    g.fillText("Moon", mq[0] + mr + 5, mq[1] + 4);
+    SKY.pts.push([
+      mq[0],
+      mq[1],
+      { kind: "moon", alt: maa[0], az: maa[1], lit: ph[0], waxing: ph[1], km: mo[2] }
+    ]);
+  }
+  // The Sun, when up.
+  var sq = sun[0] > -1 ? P(sun[0], sun[1]) : null;
+  if (sq) {
+    var sg = g.createRadialGradient(sq[0], sq[1], 2, sq[0], sq[1], 40);
+    sg.addColorStop(0, "rgba(255,250,220,1)");
+    sg.addColorStop(0.3, "rgba(255,220,120,.6)");
+    sg.addColorStop(1, "rgba(255,200,80,0)");
+    g.fillStyle = sg;
+    g.beginPath();
+    g.arc(sq[0], sq[1], 40, 0, 6.2832);
+    g.fill();
+    SKY.pts.push([sq[0], sq[1], { kind: "sun", alt: sun[0], az: sun[1] }]);
+  }
+  // Ground below the horizon, and compass points.
+  g.fillStyle = "rgba(10,16,12,.92)";
+  g.beginPath();
+  var started = false;
+  for (var az = SKY.az - 180; az <= SKY.az + 180; az += 3) {
+    var hq = P(0, az);
+    if (!hq) continue;
+    if (!started) {
+      g.moveTo(hq[0], hq[1]);
+      started = true;
+    } else g.lineTo(hq[0], hq[1]);
+  }
+  if (started) {
+    g.lineTo(w + 50, h + 50);
+    g.lineTo(-50, h + 50);
+    g.closePath();
+    g.fill();
+  }
+  g.font = "800 13px system-ui, sans-serif";
+  g.textAlign = "center";
+  [
+    ["N", 0],
+    ["NE", 45],
+    ["E", 90],
+    ["SE", 135],
+    ["S", 180],
+    ["SW", 225],
+    ["W", 270],
+    ["NW", 315]
+  ].forEach(function (c) {
+    var q = P(0, c[1]);
+    if (!q) return;
+    g.fillStyle = c[0].length === 1 ? "#36f1b5" : "rgba(54,241,181,.6)";
+    g.fillText(c[0], q[0], q[1] + 16);
+  });
+  g.textAlign = "left";
+  if (data.offline) {
+    g.fillStyle = "rgba(255,255,255,.7)";
+    g.font = "12px system-ui, sans-serif";
+    g.fillText("Star catalogue unavailable offline — Moon and planets shown.", 14, h - 90);
+  }
+}
+
+// A disc lit by phase: f is the lit fraction; a waxing Moon is lit on the right (north of the
+// tropics), a waning one on the left.
+function skyMoonDisc(g, x, y, r, f, waxing) {
+  var dark = "#2a2f38",
+    lit = "#eef2f7",
+    side = waxing ? 1 : -1,
+    tw = Math.abs(1 - 2 * f) * r;
+  g.save();
+  g.fillStyle = dark;
+  g.beginPath();
+  g.arc(x, y, r, 0, 6.2832);
+  g.fill();
+  // The lit half.
+  g.fillStyle = lit;
+  g.beginPath();
+  g.arc(x, y, r, -Math.PI / 2, Math.PI / 2, side < 0);
+  g.closePath();
+  g.fill();
+  // The terminator: less than half lit covers part of the lit half, more than half adds to it.
+  g.fillStyle = f < 0.5 ? dark : lit;
+  g.beginPath();
+  g.ellipse(x, y, tw, r, 0, 0, 6.2832);
+  g.fill();
+  g.restore();
+}
+
+function skyDrawSystem(g, w, h) {
+  var jd = skyJD(Date.now() + SKY.t * 60000),
+    cx = w / 2,
+    cy = h / 2,
+    S = SKY.sys,
+    unit = (Math.min(w, h) / 2 / Math.sqrt(31)) * S.zoom,
+    proj = function (v) {
+      // Distances on a square-root scale so the outer planets fit; tilted view.
+      var d = Math.sqrt(v[0] * v[0] + v[1] * v[1]) || 1e-9,
+        k = Math.sqrt(d) / d,
+        x = v[0] * k,
+        y = v[1] * k,
+        cs = Math.cos(S.yaw),
+        sn = Math.sin(S.yaw),
+        xr = x * cs - y * sn,
+        yr = x * sn + y * cs;
+      return [cx + xr * unit, cy + yr * unit * Math.cos(S.tilt) - v[2] * unit * Math.sin(S.tilt)];
+    };
+  g.fillStyle = "#02040a";
+  g.fillRect(0, 0, w, h);
+  // Distant stars.
+  var seed = 7;
+  for (var i = 0; i < 260; i++) {
+    seed = (seed * 16807) % 2147483647;
+    var sx = (seed / 2147483647) * w;
+    seed = (seed * 16807) % 2147483647;
+    var sy = (seed / 2147483647) * h;
+    g.fillStyle = "rgba(255,255,255," + (0.2 + (i % 5) * 0.12).toFixed(2) + ")";
+    g.fillRect(sx, sy, 1.2, 1.2);
+  }
+  // Orbits.
+  SKY_PLANETS.forEach(function (p) {
+    g.strokeStyle = "rgba(120,170,255,.25)";
+    g.beginPath();
+    for (var k = 0; k <= 120; k++) {
+      var q = proj(skyHelio(p, jd + (k / 120) * 365.25 * Math.pow(p[3][0], 1.5)));
+      if (k) g.lineTo(q[0], q[1]);
+      else g.moveTo(q[0], q[1]);
+    }
+    g.stroke();
+  });
+  // The Sun.
+  var sg = g.createRadialGradient(cx, cy, 2, cx, cy, 26);
+  sg.addColorStop(0, "#fffbe6");
+  sg.addColorStop(0.4, "#ffd36a");
+  sg.addColorStop(1, "rgba(255,170,40,0)");
+  g.fillStyle = sg;
+  g.beginPath();
+  g.arc(cx, cy, 26, 0, 6.2832);
+  g.fill();
+  SKY.pts.push([cx, cy, { kind: "sun" }]);
+  // Planets, sized by a compressed scale.
+  SKY_PLANETS.forEach(function (p, i) {
+    var hp = skyHelio(p, jd),
+      q = proj(hp),
+      r = 3 + Math.pow(p[2] / 2440, 0.45) * 1.6;
+    var pg = g.createRadialGradient(q[0] - r / 3, q[1] - r / 3, r / 5, q[0], q[1], r);
+    pg.addColorStop(0, "#ffffff");
+    pg.addColorStop(0.25, p[1]);
+    pg.addColorStop(1, "#0b0f18");
+    g.fillStyle = pg;
+    g.beginPath();
+    g.arc(q[0], q[1], r, 0, 6.2832);
+    g.fill();
+    if (p[0] === "Saturn") {
+      g.strokeStyle = "rgba(227,207,152,.7)";
+      g.lineWidth = 1.5;
+      g.beginPath();
+      g.ellipse(q[0], q[1], r * 2, r * 0.7, -0.3, 0, 6.2832);
+      g.stroke();
+      g.lineWidth = 1;
+    }
+    g.fillStyle = "#dfe9f5";
+    g.font = "700 11px system-ui, sans-serif";
+    g.fillText(p[0], q[0] + r + 4, q[1] + 4);
+    SKY.pts.push([
+      q[0],
+      q[1],
+      {
+        kind: "planet",
+        i: i,
+        au: Math.sqrt(hp[0] * hp[0] + hp[1] * hp[1] + hp[2] * hp[2]),
+        helio: true
+      }
+    ]);
+  });
+  g.fillStyle = "rgba(255,255,255,.55)";
+  g.font = "11px system-ui, sans-serif";
+  g.fillText(
+    "Positions for " +
+      new Date(Date.now() + SKY.t * 60000).toUTCString().slice(0, 22) +
+      " UTC · sizes and distances not to scale",
+    12,
+    h - 92
+  );
+}
+
+// ---------- Panel ----------
+function skyCompass(az) {
+  return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(az / 45) % 8];
+}
+
+function skyInfo() {
+  var el = $("skyinfo"),
+    o = SKY.sel;
+  if (!el) return;
+  if (!o) {
+    el.style.display = "none";
+    return;
+  }
+  var rows = [],
+    title = "";
+  if (o.kind === "planet") {
+    var p = SKY_PLANETS[o.i];
+    title = p[0];
+    rows.push(["SIZE", (p[2] * 2).toLocaleString() + " km across"]);
+    rows.push(["YEAR", p[7]], ["DAY", p[8]]);
+    if (o.au != null)
+      rows.push([
+        o.helio ? "FROM THE SUN" : "FROM EARTH",
+        (o.au * 149.6).toFixed(0) + " million km"
+      ]);
+  } else if (o.kind === "moon") {
+    title = "Moon";
+    rows.push(["LIT", Math.round(o.lit * 100) + "% · " + (o.waxing ? "waxing" : "waning")]);
+    rows.push(["FROM EARTH", Math.round(o.km).toLocaleString() + " km"]);
+  } else if (o.kind === "sun") title = "Sun";
+  else title = o.name;
+  if (o.alt != null)
+    rows.push(["IN THE SKY", Math.round(o.alt) + "° up, toward " + skyCompass(o.az)]);
+  el.innerHTML =
+    "<b>" +
+    esc(title) +
+    "</b>" +
+    rows
+      .map(function (r) {
+        return "<div><span>" + r[0] + "</span>" + esc(r[1]) + "</div>";
+      })
+      .join("");
+  el.style.display = "block";
+}
+
+function galOpen() {
+  var el = $("sky");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "sky";
+    el.innerHTML =
+      '<canvas id="skycv"></canvas>' +
+      '<div class="skytop"><button data-sky="sky" class="on">SKY NOW</button><button data-sky="sys">SOLAR SYSTEM</button><span style="flex:1"></span><button data-sky="x" aria-label="Back">✕</button></div>' +
+      '<div id="skyinfo"></div>' +
+      '<div class="skybot"><button data-sky="back">−1 h</button><button data-sky="now">NOW</button><button data-sky="fwd">+1 h</button><button data-sky="day">+1 day</button></div>';
+    document.body.appendChild(el);
+    skyGestures($("skycv"));
+  }
+  SKY.on = true;
+  SKY.sel = null;
+  el.style.display = "block";
+  document.body.classList.add("sky-open");
+  skyLoad();
+  skyDraw();
+}
+
+function galClose() {
+  SKY.on = false;
+  document.body.classList.remove("sky-open");
+  var el = $("sky");
+  if (el) el.style.display = "none";
+}
+
+document.addEventListener("click", function (e) {
+  if (e.target.closest("#bSky")) {
+    galOpen();
+    return;
+  }
+  var b = e.target.closest("[data-sky]");
+  if (!b) return;
+  var k = b.getAttribute("data-sky");
+  if (k === "x") galClose();
+  else if (k === "sky" || k === "sys") {
+    SKY.mode = k;
+    SKY.sel = null;
+    Array.prototype.forEach.call(document.querySelectorAll(".skytop [data-sky]"), function (x) {
+      x.classList.toggle("on", x.getAttribute("data-sky") === k);
+    });
+  } else if (k === "now") SKY.t = 0;
+  else if (k === "back") SKY.t -= 60;
+  else if (k === "fwd") SKY.t += 60;
+  else if (k === "day") SKY.t += 1440;
+  skyDraw();
+});
+
+// Drag to look around (or turn the solar system), pinch to zoom, tap to identify.
+function skyGestures(cv) {
+  var pts = {},
+    last = null,
+    pinch = null,
+    moved = 0;
+  cv.addEventListener("pointerdown", function (e) {
+    pts[e.pointerId] = [e.clientX, e.clientY];
+    cv.setPointerCapture(e.pointerId);
+    last = [e.clientX, e.clientY];
+    moved = 0;
+    var ids = Object.keys(pts);
+    if (ids.length === 2) {
+      var a = pts[ids[0]],
+        b = pts[ids[1]];
+      pinch = [Math.hypot(a[0] - b[0], a[1] - b[1]), SKY.mode === "sys" ? SKY.sys.zoom : SKY.zoom];
+    }
+  });
+  cv.addEventListener("pointermove", function (e) {
+    if (!pts[e.pointerId]) return;
+    pts[e.pointerId] = [e.clientX, e.clientY];
+    var ids = Object.keys(pts);
+    if (ids.length === 2 && pinch) {
+      var a = pts[ids[0]],
+        b = pts[ids[1]],
+        z = Math.max(
+          0.5,
+          Math.min(8, (pinch[1] * Math.hypot(a[0] - b[0], a[1] - b[1])) / pinch[0])
+        );
+      if (SKY.mode === "sys") SKY.sys.zoom = z;
+      else SKY.zoom = z;
+      moved = 99;
+      skyDraw();
+      return;
+    }
+    var dx = e.clientX - last[0],
+      dy = e.clientY - last[1];
+    last = [e.clientX, e.clientY];
+    moved += Math.abs(dx) + Math.abs(dy);
+    if (SKY.mode === "sys") {
+      SKY.sys.yaw += dx * 0.008;
+      SKY.sys.tilt = Math.max(0, Math.min(1.45, SKY.sys.tilt + dy * 0.006));
+    } else {
+      var f = 0.18 / SKY.zoom;
+      SKY.az = (((SKY.az - dx * f) % 360) + 360) % 360;
+      SKY.alt = Math.max(-10, Math.min(90, SKY.alt + dy * f));
+    }
+    skyDraw();
+  });
+  var up = function (e) {
+    delete pts[e.pointerId];
+    if (Object.keys(pts).length < 2) pinch = null;
+    if (moved < 8 && e.type === "pointerup") {
+      var r = cv.getBoundingClientRect(),
+        x = e.clientX - r.left,
+        y = e.clientY - r.top,
+        best = null,
+        bd = 30;
+      SKY.pts.forEach(function (p) {
+        var d = Math.hypot(p[0] - x, p[1] - y);
+        if (d < bd) {
+          bd = d;
+          best = p[2];
+        }
+      });
+      SKY.sel = best;
+      skyDraw();
+    }
+  };
+  cv.addEventListener("pointerup", up);
+  cv.addEventListener("pointercancel", up);
+  cv.addEventListener(
+    "wheel",
+    function (e) {
+      e.preventDefault();
+      var z = Math.max(
+        0.5,
+        Math.min(8, (SKY.mode === "sys" ? SKY.sys.zoom : SKY.zoom) * (e.deltaY < 0 ? 1.12 : 0.89))
+      );
+      if (SKY.mode === "sys") SKY.sys.zoom = z;
+      else SKY.zoom = z;
+      skyDraw();
+    },
+    { passive: false }
+  );
+}
+
+// Keep the sky moving in real time while it is open.
+setInterval(function () {
+  if (SKY.on && !document.hidden) skyDraw();
+}, 5000);
+window.addEventListener("resize", function () {
+  if (SKY.on) skyDraw();
+});
+/**
  * @file Start-up.
  * Runs last, after every module has defined its state, so the first render sees all layers.
  *
- * Module 39 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 41 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

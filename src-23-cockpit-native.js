@@ -3,7 +3,7 @@
  * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
  * vibration, shortcuts).
  *
- * Module 23 of 39. Modules share one scope: build.py concatenates them in order
+ * Module 23 of 41. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

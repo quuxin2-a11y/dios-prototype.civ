@@ -7079,6 +7079,22 @@ body.replica #czmap .cesium-widget-credits,
 body.replica #czmap .cesium-viewer-bottom {
   display: none !important;
 }
+#repcr {
+  position: absolute;
+  left: 8px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+  z-index: 3;
+  display: none;
+  max-width: 70%;
+  font-size: 9px;
+  line-height: 1.3;
+  color: #ffffffb3;
+  text-shadow: 0 1px 2px #000;
+  pointer-events: none;
+}
+body.rw #repcr {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
 #repst {
   position: absolute;
   top: 12px;
@@ -7093,4 +7109,235 @@ body.replica #czmap .cesium-viewer-bottom {
   color: var(--ink);
   font-size: 12px;
   pointer-events: none;
+}
+/* ---------- Replica World dashboard ---------- */
+.hud .rwbtn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#rwdash {
+  display: none;
+}
+body.rw #rwdash {
+  display: block;
+}
+body.rw .top,
+body.rw .hud,
+body.rw .scanbar,
+body.rw .coords,
+body.rw #brandov,
+body.rw #t4places,
+body.rw .mtabs,
+body.rw #peek,
+body.rw #lfrail {
+  display: none !important;
+}
+#rwdash .rwtop {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 34px);
+  left: 10px;
+  right: 10px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #070c12e6;
+  backdrop-filter: blur(10px);
+}
+#rwdash .rwbrand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#rwdash .rwbrand svg {
+  width: 28px;
+  height: 28px;
+}
+#rwdash .rwbrand b {
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+}
+#rwdash .rwcount {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+}
+#rwdash .rwcount i {
+  font-style: normal;
+  color: var(--accent);
+  margin-right: 4px;
+}
+#rwdash .rwtop button {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0d151f;
+  color: var(--ink);
+  font-size: 16px;
+}
+#rwdash .rwsearch {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 96px);
+  left: 10px;
+  right: 10px;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+}
+#rwdash .rwsearch input {
+  flex: 1;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #070c12e6;
+  color: var(--ink);
+  font-size: 15px;
+}
+#rwdash .rwsearch button {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 0;
+  background: var(--accent);
+  color: #02130c;
+  font-weight: 800;
+}
+#rwdash .rwdock {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 40;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #070c12ee;
+  backdrop-filter: blur(10px);
+}
+#rwdash .rwdock button {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #9fb4c8;
+  font-size: 10px;
+}
+#rwdash .rwdock button svg {
+  width: 22px;
+  height: 22px;
+}
+#rwdash .rwdock button.on {
+  color: var(--accent);
+  background: #36f1b51a;
+}
+body.rw #t4bar {
+  top: calc(env(safe-area-inset-top, 0px) + 150px) !important;
+  bottom: auto !important;
+}
+body.rw.sheet .grid {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+}
+/* ---------- Sky ---------- */
+#sky {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  background: #02040a;
+}
+#skycv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+#sky .skytop,
+#sky .skybot {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+#sky .skytop {
+  top: calc(env(safe-area-inset-top, 0px) + 40px);
+}
+#sky .skybot {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  justify-content: center;
+}
+#sky button {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #ffffff2e;
+  background: #0b1220d9;
+  color: #dfe9f5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+#sky button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#skyinfo {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+  display: none;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #ffffff26;
+  background: #0b1220ee;
+  color: #dfe9f5;
+  font-size: 13px;
+}
+#skyinfo b {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+#skyinfo span {
+  display: inline-block;
+  min-width: 110px;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+body.rw #repst {
+  top: calc(env(safe-area-inset-top, 0px) + 146px);
+}
+body.sky-open #toasts {
+  display: none;
+}
+#sky {
+  z-index: 95;
 }

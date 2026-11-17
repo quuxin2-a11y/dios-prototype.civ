@@ -143,14 +143,29 @@ var NAMES = [
   "cableRows",
   "windFarms",
   "repHeight",
+  "repColour",
+  "repFootprint",
+  "repBuilding",
+  "repInside",
+  "repRingLabelAt",
   "repMinHeight",
   "repParse",
   "repArea",
-  "repQuery"
+  "repQuery",
+  "skyJD",
+  "skyGMST",
+  "skyAltAz",
+  "skyHelio",
+  "skyEclToEq",
+  "skyMoon",
+  "skySunLon",
+  "skyMoonPhase",
+  "skyProject",
+  "skyStarColor"
 ];
 // Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
 function grabVar(name) {
-  var i = src.indexOf("\nvar " + name + " = ");
+  var i = src.indexOf("\nvar " + name + " =");
   if (i < 0) throw new Error("table not found: " + name);
   var d = 0;
   for (var j = i + 1; j < src.length; j++) {
@@ -162,8 +177,14 @@ function grabVar(name) {
   return src.slice(i + 1, j) + ";\n";
 }
 var TABLES = [
+  "SKY_PLANETS",
   "REP_COLORS",
   "REP_ROADS",
+  "REP_MATERIAL",
+  "REP_COLOUR_WORDS",
+  "REP_CSS_NAMES",
+  "REP_PITCHED",
+  "REP_PLACES",
   "VOL_CODES",
   "DM_CATS",
   "CT_ALIASES",
@@ -1561,6 +1582,121 @@ test("replica: building heights, parts and the area grid", function () {
   assert.strictEqual(a.key, b.key);
   assert.ok(a.s < 40.7484 && a.n > 40.7484 && a.w < -73.9857 && a.e > -73.9857);
   assert.ok(F.repQuery(a).indexOf('way["building"]') > 0);
+});
+
+test("replica: real colours, roofs, building parts, trees and place names", function () {
+  assert.strictEqual(F.repColour("#FFF"), "#fff");
+  assert.strictEqual(F.repColour("light grey"), "#c8ccd0");
+  assert.strictEqual(F.repColour("White"), "white");
+  assert.strictEqual(F.repColour("a1b2c3"), "#a1b2c3");
+  assert.strictEqual(F.repColour("url(x)"), "");
+  var sq = [
+    [-77.0368, 38.8975],
+    [-77.0362, 38.8975],
+    [-77.0362, 38.8979],
+    [-77.0368, 38.8979],
+    [-77.0368, 38.8975]
+  ];
+  var fp = F.repFootprint(sq);
+  assert.ok(fp.r > 25 && fp.r < 35, "about 52 m by 44 m");
+  assert.ok(F.repInside(fp.c, sq));
+  assert.ok(!F.repInside([-77.03, 38.89], sq));
+  var b = F.repBuilding({ id: 1 }, sq, {
+    building: "government",
+    height: "21",
+    "building:colour": "white",
+    "roof:shape": "hipped",
+    "roof:height": "4",
+    "roof:colour": "grey"
+  });
+  assert.strictEqual(b.color, "white");
+  assert.strictEqual(b.h, 17);
+  assert.strictEqual(b.top, 21);
+  assert.deepStrictEqual(b.roof, { shape: "pitched", color: "grey" });
+  var brick = F.repBuilding({ id: 2 }, sq, { building: "yes", "building:material": "brick" });
+  assert.strictEqual(brick.color, "#a4553f");
+  assert.strictEqual(brick.roof, null);
+  var dome = F.repBuilding({ id: 3 }, sq, { building: "yes", "roof:shape": "dome" });
+  assert.strictEqual(dome.roof.shape, "dome");
+  assert.ok(dome.top > dome.h);
+  var geom = sq.map(function (p) {
+    return { lon: p[0], lat: p[1] };
+  });
+  var r = F.repParse({
+    elements: [
+      { type: "way", id: 10, tags: { building: "yes", name: "White House" }, geometry: geom },
+      { type: "way", id: 11, tags: { "building:part": "yes", height: "21" }, geometry: geom },
+      {
+        type: "way",
+        id: 12,
+        tags: { highway: "primary", name: "Pennsylvania Avenue" },
+        geometry: geom
+      },
+      { type: "node", id: 13, lat: 38.897, lon: -77.036, tags: { natural: "tree" } },
+      {
+        type: "node",
+        id: 14,
+        lat: 38.9,
+        lon: -77.03,
+        tags: { place: "neighbourhood", name: "Downtown" }
+      },
+      { type: "node", id: 15, lat: 38.9, lon: -77.03, tags: { place: "locality", name: "Skip" } }
+    ]
+  });
+  assert.strictEqual(r.buildings.length, 1, "the outline gives way to its mapped part");
+  assert.strictEqual(r.buildings[0].part, true);
+  assert.strictEqual(r.roads[0].name, "Pennsylvania Avenue");
+  assert.strictEqual(r.trees.length, 1);
+  assert.strictEqual(r.trees[0].h, 9);
+  assert.deepStrictEqual(
+    r.places.map(function (p) {
+      return p.name;
+    }),
+    ["Downtown"]
+  );
+  assert.deepStrictEqual(
+    F.repRingLabelAt([
+      [
+        [0, 0],
+        [2, 0]
+      ],
+      [
+        [10, 10],
+        [12, 10],
+        [12, 12],
+        [10, 12]
+      ]
+    ]),
+    [11, 11]
+  );
+  var q = F.repQuery(F.repArea(38.8977, -77.0365));
+  assert.ok(q.indexOf('node["natural"="tree"]') > 0 && q.indexOf("out 2500;") > 0);
+});
+
+test("sky: sidereal time, Polaris and the equinox", function () {
+  var jd = F.skyJD(Date.UTC(2000, 0, 1, 12));
+  assert.strictEqual(jd, 2451545);
+  assert.ok(Math.abs(F.skyGMST(jd) - 280.46) < 0.01);
+  // Polaris stands about as high as the observer's latitude, due north.
+  var p = F.skyAltAz(37.954, 89.264, 30.27, -97.74, F.skyJD(Date.UTC(2026, 10, 16, 3)));
+  assert.ok(Math.abs(p[0] - 30.27) < 1, "Polaris altitude " + p[0]);
+  assert.ok(p[1] < 3 || p[1] > 357, "Polaris azimuth " + p[1]);
+  // At the March equinox the Sun is at ecliptic longitude 0 (Earth at 180).
+  var sl = F.skySunLon(F.skyJD(Date.UTC(2026, 2, 20, 14, 46)));
+  assert.ok(sl < 0.5 || sl > 359.5, "Sun longitude " + sl);
+});
+
+test("sky: Moon phases on known dates and the projection centre", function () {
+  var full = F.skyMoonPhase(F.skyJD(Date.UTC(2024, 0, 25, 17, 54)))[0],
+    nw = F.skyMoonPhase(F.skyJD(Date.UTC(2024, 0, 11, 11, 57)))[0];
+  assert.ok(full > 0.97, "full " + full);
+  assert.ok(nw < 0.03, "new " + nw);
+  assert.strictEqual(F.skyMoonPhase(F.skyJD(Date.UTC(2024, 0, 18, 3, 53)))[1], true);
+  var c = F.skyProject(35, 180, 35, 180, 100, 200, 300);
+  assert.ok(Math.abs(c[0] - 200) < 1e-9 && Math.abs(c[1] - 300) < 1e-9);
+  assert.strictEqual(F.skyProject(-35, 0, 35, 180, 100, 200, 300), null);
+  assert.strictEqual(F.skyStarColor("-0.1"), "#a9c8ff");
+  assert.strictEqual(F.skyStarColor("1.85"), "#ffaa78");
 });
 
 console.log("\n" + n + " tests passed");
