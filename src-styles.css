@@ -7860,3 +7860,9 @@ body.bare #bareX {
 #cgp {
   background: #04070b;
 }
+#brief .brhint {
+  margin: 6px 2px 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #8fa3b3;
+}

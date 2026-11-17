@@ -116,9 +116,13 @@ function t4Cables() {
 // screen last time (closed on a black screen, or crashed) gets a shorter wait before the
 // fallback; module 42 marks the start good once a map has drawn.
 var BOOT_SAFE = ls("ojos-boot") === "pending",
-  BOOT_DASH = EMBED_OK && lookMode() === "world";
+  BOOT_DASH = EMBED_OK && lookMode() === "world" && SET.display !== "simple";
 ls("ojos-boot", "pending");
 if (BOOT_DASH)
   setTimeout(function () {
     rwEnter({ auto: true, mode: "globe", lon: rot.lon, lat: rot.lat });
+  }, 400);
+else if (EMBED_OK && lookMode() === "world")
+  setTimeout(function () {
+    rwEnter({ auto: true, mode: "canvas", lon: rot.lon, lat: rot.lat });
   }, 400);

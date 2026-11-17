@@ -501,6 +501,27 @@ function brDraw() {
       })
       .join("") +
     "</div>";
+  // How the map is drawn: for phones whose graphics chip flickers with one of them.
+  h +=
+    '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
+    [
+      ["globe", "Globe"],
+      ["flat", "Flat map"],
+      ["simple", "Simple globe"]
+    ]
+      .map(function (o) {
+        return (
+          '<button data-br="dp-' +
+          o[0] +
+          '" class="' +
+          (displayMode() === o[0] ? "on" : "") +
+          '">' +
+          o[1] +
+          "</button>"
+        );
+      })
+      .join("") +
+    '</div><p class="brhint">If the map flickers or shows lines on your phone, try Flat map, then Simple globe. Your data and layers stay the same.</p>';
   h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
@@ -554,7 +575,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 79 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 80 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -645,6 +666,10 @@ document.addEventListener("click", function (e) {
     SET.brief = SET.brief === false;
     setSave();
     brDraw();
+  } else if (k.indexOf("dp-") === 0) {
+    // Close Settings so the new drawing can be judged straight away.
+    brClose();
+    displaySet(k.slice(3));
   } else if (k === "rail") {
     railSet(SET.rail === false);
     brDraw();

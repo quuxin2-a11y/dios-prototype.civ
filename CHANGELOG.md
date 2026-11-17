@@ -2,6 +2,10 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v80
+- **Display setting** (Settings → Display): Globe (default), Flat map (the same map without the globe projection, which some phone graphics chips draw more reliably) or Simple globe (the app's own globe, no map engine). The choice applies straight away, is kept, and is used at the next start. For phones where the map flickers or shows lines.
+- The status and report now name the display mode and the phone's graphics chip, so display problems can be traced.
+
 ## v79
 - **Fixed the screen flashing and tearing on the dark globe.** Blurred see-through panels (the top bar, dock and pop-ups) drawn over the map's graphics surface made some Android phones flash the whole screen or tear it in bands. Panels are now solid, which looks the same and draws in one pass.
 - The globe's atmosphere layer is gone (it could flash the screen on some graphics chips), labels and tiles appear without cross-fades, and the camera halo is lighter on the graphics chip.

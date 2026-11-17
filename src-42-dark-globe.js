@@ -63,7 +63,7 @@ function opsStyle() {
     version: 8,
     glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
     // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
-    projection: { type: "globe" },
+    projection: { type: displayMode() === "flat" ? "mercator" : "globe" },
     sources: {
       omt: {
         type: "vector",
@@ -391,6 +391,30 @@ function t3Info() {
   });
 }
 
+// ---------- Display: how the map is drawn ----------
+// "globe" (default), "flat" (the same map without the globe projection, which some graphics
+// chips draw more reliably) or "simple" (the app's own globe, no map engine at all).
+function displayMode() {
+  return /^(globe|flat|simple)$/.test(SET.display || "") ? SET.display : "globe";
+}
+
+function displaySet(m) {
+  SET.display = m;
+  setSave();
+  errLog("Display set to " + m);
+  if (!RW.on) return;
+  // The map engine is rebuilt so the new drawing applies straight away.
+  if (T3.on) t3Close();
+  if (T3.map)
+    try {
+      T3.map.remove();
+    } catch (e) {}
+  T3.map = null;
+  T3.ready = false;
+  RW.retries = 0;
+  rwMode(m === "simple" ? "canvas" : "globe");
+}
+
 // ---------- Zoom in and see it in 3D ----------
 // One world: zooming into a city fades in the aerial photos, raises the buildings and tilts the
 // view; zooming back out levels it again. A tilt or turn you make yourself is left alone.
@@ -452,7 +476,13 @@ function opsFail(why) {
 // The fallback never sticks: the dark globe is tried again every OPS_RETRY_MS while online,
 // and straight away when the connection comes back.
 function opsRetry() {
-  if (!RW.on || RW.mode !== "canvas" || !navigator.onLine || (RW.retries || 0) >= OPS_RETRIES)
+  if (
+    !RW.on ||
+    RW.mode !== "canvas" ||
+    displayMode() === "simple" ||
+    !navigator.onLine ||
+    (RW.retries || 0) >= OPS_RETRIES
+  )
     return;
   RW.retries = (RW.retries || 0) + 1;
   rwMode("globe");

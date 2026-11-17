@@ -975,6 +975,32 @@ class AppInBrowser(unittest.TestCase):
         self.assertFalse(after["radio"])
         self.assertEqual(self.errors, [])
 
+    def test_display_setting_switches_how_the_map_is_drawn(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=8000)
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("[data-br='dp-flat']")
+        self.page.wait_for_function(
+            "() => window.__ml.style.projection.type === 'mercator' && document.body.classList.contains('rw-globe')",
+            timeout=5000,
+        )
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("[data-br='dp-simple']")
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=5000)
+        self.assertTrue(self.visible("#gl"))
+        # The choice is kept, and the next start uses it.
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("[data-br='dp-globe']")
+        self.page.wait_for_function(
+            "() => window.__ml.style.projection.type === 'globe' && document.body.classList.contains('rw-globe')",
+            timeout=5000,
+        )
+        self.assertEqual(self.errors, [])
+
     def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):
         self.page.click("#bBare")
         self.assertTrue(

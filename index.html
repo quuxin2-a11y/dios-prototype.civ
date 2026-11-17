@@ -7875,6 +7875,12 @@ body.bare #bareX {
 #cgp {
   background: #04070b;
 }
+#brief .brhint {
+  margin: 6px 2px 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #8fa3b3;
+}
 
 </style>
 </head>
@@ -8091,7 +8097,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v79 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v80 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -8106,6 +8112,7 @@ function diagText() {
       " moveDpr=" +
       PERF.moveCap
   );
+  L.push("DISPLAY " + displayMode() + " · GPU " + gpuName());
   L.push("CAMERAS " + LIVE.length + " · hidden offline " + deadN());
   L.push("OK: " + (ok.join("; ") || "none"));
   L.push("FAILED: " + (bad.join("; ") || "none"));
@@ -8171,6 +8178,25 @@ function diagText() {
   );
   L.push("ERRORS: " + errText().split("\n").slice(-8).join(" | "));
   return L.join("\n");
+}
+// The phone's graphics chip, as the browser reports it (for display problems).
+function gpuName() {
+  if (gpuName.v) return gpuName.v;
+  try {
+    var g = document.createElement("canvas").getContext("webgl"),
+      x = g && g.getExtension("WEBGL_debug_renderer_info");
+    gpuName.v = g
+      ? String(x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) : g.getParameter(g.RENDERER)).slice(
+          0,
+          80
+        )
+      : "no WebGL";
+    var lose = g && g.getExtension("WEBGL_lose_context");
+    if (lose) lose.loseContext();
+  } catch (e) {
+    gpuName.v = "unknown";
+  }
+  return gpuName.v;
 }
 function copyText(t) {
   var done = function () {
@@ -18494,7 +18520,9 @@ function t3Open(opt) {
           if (typeof CF === "object") CF.key = "";
           if (T3.ops) opsAttach(m);
           try {
-            m.setProjection({ type: "globe" });
+            m.setProjection({
+              type: T3.ops && displayMode() === "flat" ? "mercator" : "globe"
+            });
           } catch (e) {}
           try {
             if (T3.terr && !T3.ops) m.setTerrain({ source: "dem", exaggeration: 1.25 });
@@ -24432,6 +24460,27 @@ function brDraw() {
       })
       .join("") +
     "</div>";
+  // How the map is drawn: for phones whose graphics chip flickers with one of them.
+  h +=
+    '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
+    [
+      ["globe", "Globe"],
+      ["flat", "Flat map"],
+      ["simple", "Simple globe"]
+    ]
+      .map(function (o) {
+        return (
+          '<button data-br="dp-' +
+          o[0] +
+          '" class="' +
+          (displayMode() === o[0] ? "on" : "") +
+          '">' +
+          o[1] +
+          "</button>"
+        );
+      })
+      .join("") +
+    '</div><p class="brhint">If the map flickers or shows lines on your phone, try Flat map, then Simple globe. Your data and layers stay the same.</p>';
   h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
@@ -24485,7 +24534,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 79 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 80 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -24576,6 +24625,10 @@ document.addEventListener("click", function (e) {
     SET.brief = SET.brief === false;
     setSave();
     brDraw();
+  } else if (k.indexOf("dp-") === 0) {
+    // Close Settings so the new drawing can be judged straight away.
+    brClose();
+    displaySet(k.slice(3));
   } else if (k === "rail") {
     railSet(SET.rail === false);
     brDraw();
@@ -30141,7 +30194,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v79 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v80 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -30232,7 +30285,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v79 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v80 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -31871,7 +31924,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v79)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v80)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -32011,7 +32064,7 @@ function liveReport() {
     .catch(function (e) {
       // The report itself failed: hand over what is needed to fix it instead.
       errLog("Report: " + errWhere(e));
-      copyText("OJOS DE DIOS v79 error log\n" + errText());
+      copyText("OJOS DE DIOS v80 error log\n" + errText());
       note(
         "Report",
         "Couldn't build the full report, so the error log was copied instead. Paste it into a message to whoever is helping you."
@@ -37896,11 +37949,15 @@ function t4Cables() {
 // screen last time (closed on a black screen, or crashed) gets a shorter wait before the
 // fallback; module 42 marks the start good once a map has drawn.
 var BOOT_SAFE = ls("ojos-boot") === "pending",
-  BOOT_DASH = EMBED_OK && lookMode() === "world";
+  BOOT_DASH = EMBED_OK && lookMode() === "world" && SET.display !== "simple";
 ls("ojos-boot", "pending");
 if (BOOT_DASH)
   setTimeout(function () {
     rwEnter({ auto: true, mode: "globe", lon: rot.lon, lat: rot.lat });
+  }, 400);
+else if (EMBED_OK && lookMode() === "world")
+  setTimeout(function () {
+    rwEnter({ auto: true, mode: "canvas", lon: rot.lon, lat: rot.lat });
   }, 400);
 /**
  * @file The dashboard: the app's one screen, over the dark globe (module 41).
@@ -39331,7 +39388,7 @@ function opsStyle() {
     version: 8,
     glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
     // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
-    projection: { type: "globe" },
+    projection: { type: displayMode() === "flat" ? "mercator" : "globe" },
     sources: {
       omt: {
         type: "vector",
@@ -39659,6 +39716,30 @@ function t3Info() {
   });
 }
 
+// ---------- Display: how the map is drawn ----------
+// "globe" (default), "flat" (the same map without the globe projection, which some graphics
+// chips draw more reliably) or "simple" (the app's own globe, no map engine at all).
+function displayMode() {
+  return /^(globe|flat|simple)$/.test(SET.display || "") ? SET.display : "globe";
+}
+
+function displaySet(m) {
+  SET.display = m;
+  setSave();
+  errLog("Display set to " + m);
+  if (!RW.on) return;
+  // The map engine is rebuilt so the new drawing applies straight away.
+  if (T3.on) t3Close();
+  if (T3.map)
+    try {
+      T3.map.remove();
+    } catch (e) {}
+  T3.map = null;
+  T3.ready = false;
+  RW.retries = 0;
+  rwMode(m === "simple" ? "canvas" : "globe");
+}
+
 // ---------- Zoom in and see it in 3D ----------
 // One world: zooming into a city fades in the aerial photos, raises the buildings and tilts the
 // view; zooming back out levels it again. A tilt or turn you make yourself is left alone.
@@ -39720,7 +39801,13 @@ function opsFail(why) {
 // The fallback never sticks: the dark globe is tried again every OPS_RETRY_MS while online,
 // and straight away when the connection comes back.
 function opsRetry() {
-  if (!RW.on || RW.mode !== "canvas" || !navigator.onLine || (RW.retries || 0) >= OPS_RETRIES)
+  if (
+    !RW.on ||
+    RW.mode !== "canvas" ||
+    displayMode() === "simple" ||
+    !navigator.onLine ||
+    (RW.retries || 0) >= OPS_RETRIES
+  )
     return;
   RW.retries = (RW.retries || 0) + 1;
   rwMode("globe");

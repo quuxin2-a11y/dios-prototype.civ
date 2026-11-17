@@ -2113,7 +2113,9 @@ function t3Open(opt) {
           if (typeof CF === "object") CF.key = "";
           if (T3.ops) opsAttach(m);
           try {
-            m.setProjection({ type: "globe" });
+            m.setProjection({
+              type: T3.ops && displayMode() === "flat" ? "mercator" : "globe"
+            });
           } catch (e) {}
           try {
             if (T3.terr && !T3.ops) m.setTerrain({ source: "dem", exaggeration: 1.25 });

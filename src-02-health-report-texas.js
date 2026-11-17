@@ -98,7 +98,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v79 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v80 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -113,6 +113,7 @@ function diagText() {
       " moveDpr=" +
       PERF.moveCap
   );
+  L.push("DISPLAY " + displayMode() + " · GPU " + gpuName());
   L.push("CAMERAS " + LIVE.length + " · hidden offline " + deadN());
   L.push("OK: " + (ok.join("; ") || "none"));
   L.push("FAILED: " + (bad.join("; ") || "none"));
@@ -178,6 +179,25 @@ function diagText() {
   );
   L.push("ERRORS: " + errText().split("\n").slice(-8).join(" | "));
   return L.join("\n");
+}
+// The phone's graphics chip, as the browser reports it (for display problems).
+function gpuName() {
+  if (gpuName.v) return gpuName.v;
+  try {
+    var g = document.createElement("canvas").getContext("webgl"),
+      x = g && g.getExtension("WEBGL_debug_renderer_info");
+    gpuName.v = g
+      ? String(x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) : g.getParameter(g.RENDERER)).slice(
+          0,
+          80
+        )
+      : "no WebGL";
+    var lose = g && g.getExtension("WEBGL_lose_context");
+    if (lose) lose.loseContext();
+  } catch (e) {
+    gpuName.v = "unknown";
+  }
+  return gpuName.v;
 }
 function copyText(t) {
   var done = function () {
