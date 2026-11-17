@@ -7834,3 +7834,29 @@ body.cg-open #cfp {
   color: var(--accent);
   font-size: 17px;
 }
+/* ---------- v79: no blur over the map ----------
+   Blurred see-through panels drawn over the map's graphics surface made some Android phones
+   flash and tear. Panels are solid instead; they look the same and draw in one pass. */
+body.rw *,
+#cgp,
+#cfp,
+#bareX,
+#php,
+#ops3d {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+body.rw #rwdash .rwtop,
+body.rw #rwdash .rwdock {
+  background: #060a10f5;
+}
+body.rw #t4bar button,
+body.bare #bareX {
+  background: #060a10f0;
+}
+#cfp {
+  background: #05080cfa;
+}
+#cgp {
+  background: #04070b;
+}

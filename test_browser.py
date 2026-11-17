@@ -744,6 +744,7 @@ class AppInBrowser(unittest.TestCase):
         ):
             self.assertIn(layer_id, ids)
         self.assertEqual(style["projection"], {"type": "globe"})
+        self.assertNotIn("sky", style, "the atmosphere flashed the screen on some phones")
         for layer in style["layers"]:
             self.assertNotIn(None, layer.values(), layer["id"])
         self.assertIn("camlabel", self.page.evaluate("() => window.__ml.layers"))

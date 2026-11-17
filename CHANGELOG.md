@@ -2,6 +2,10 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v79
+- **Fixed the screen flashing and tearing on the dark globe.** Blurred see-through panels (the top bar, dock and pop-ups) drawn over the map's graphics surface made some Android phones flash the whole screen or tear it in bands. Panels are now solid, which looks the same and draws in one pass.
+- The globe's atmosphere layer is gone (it could flash the screen on some graphics chips), labels and tiles appear without cross-fades, and the camera halo is lighter on the graphics chip.
+
 ## v78
 - **One world.** The dark globe is the only view. The 3D Replica world and its switch are gone (`src-38-replica.js` removed), nothing 3D loads in the background, and older saved looks open the dark globe. The app's own globe is kept only as the silent fallback if the dark globe can't load.
 - **Zoom in and see it in 3D:** zooming into a city on the dark globe fades in aerial photos (Esri World Imagery, credited behind the map's ⓘ), raises the buildings to their mapped heights and tilts the view; zooming back out levels it again.

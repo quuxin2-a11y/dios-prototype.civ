@@ -484,7 +484,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v78 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v79 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -575,7 +575,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v78 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v79 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {

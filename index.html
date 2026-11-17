@@ -7849,6 +7849,32 @@ body.cg-open #cfp {
   color: var(--accent);
   font-size: 17px;
 }
+/* ---------- v79: no blur over the map ----------
+   Blurred see-through panels drawn over the map's graphics surface made some Android phones
+   flash and tear. Panels are solid instead; they look the same and draw in one pass. */
+body.rw *,
+#cgp,
+#cfp,
+#bareX,
+#php,
+#ops3d {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+body.rw #rwdash .rwtop,
+body.rw #rwdash .rwdock {
+  background: #060a10f5;
+}
+body.rw #t4bar button,
+body.bare #bareX {
+  background: #060a10f0;
+}
+#cfp {
+  background: #05080cfa;
+}
+#cgp {
+  background: #04070b;
+}
 
 </style>
 </head>
@@ -8065,7 +8091,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v78 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v79 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -18147,8 +18173,9 @@ function t3Cams() {
       source: "cams",
       paint: {
         "circle-color": col,
-        "circle-blur": 0.85,
-        "circle-opacity": 0.75,
+        // A soft halo; heavier blur over tens of thousands of points cost too much on phones.
+        "circle-blur": 0.5,
+        "circle-opacity": 0.6,
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 2, 2.5, 8, 6, 13, 11, 17, 18],
         "circle-pitch-alignment": "map"
       }
@@ -18423,6 +18450,8 @@ function t3Open(opt) {
             center: [opt.lon == null ? rot.lon : opt.lon, opt.lat == null ? rot.lat : opt.lat],
             // Sharp enough on any phone without drawing 2.6× the pixels on high-density screens.
             pixelRatio: Math.min(window.devicePixelRatio || 1, ops ? 2 : 2.5),
+            // Labels and tiles appear without cross-fades, which flickered on some phones.
+            fadeDuration: ops ? 0 : 300,
             zoom: ops ? opt.zoom || 1.7 : t3ZoomFor(rot.lat, viewKm()),
             pitch: ops ? 0 : 58,
             bearing: 0,
@@ -24456,7 +24485,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 78 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 79 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -30112,7 +30141,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v78 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v79 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -30203,7 +30232,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v78 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v79 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -31842,7 +31871,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v78)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v79)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -31982,7 +32011,7 @@ function liveReport() {
     .catch(function (e) {
       // The report itself failed: hand over what is needed to fix it instead.
       errLog("Report: " + errWhere(e));
-      copyText("OJOS DE DIOS v78 error log\n" + errText());
+      copyText("OJOS DE DIOS v79 error log\n" + errText());
       note(
         "Report",
         "Couldn't build the full report, so the error log was copied instead. Paste it into a message to whoever is helping you."
@@ -39301,13 +39330,8 @@ function opsStyle() {
   return {
     version: 8,
     glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
+    // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
     projection: { type: "globe" },
-    sky: {
-      "sky-color": "#02050a",
-      "horizon-color": "#0c3550",
-      "fog-color": "#02050a",
-      "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 5, 1, 8, 0]
-    },
     sources: {
       omt: {
         type: "vector",

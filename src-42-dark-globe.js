@@ -62,13 +62,8 @@ function opsStyle() {
   return {
     version: 8,
     glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
+    // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
     projection: { type: "globe" },
-    sky: {
-      "sky-color": "#02050a",
-      "horizon-color": "#0c3550",
-      "fog-color": "#02050a",
-      "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 5, 1, 8, 0]
-    },
     sources: {
       omt: {
         type: "vector",

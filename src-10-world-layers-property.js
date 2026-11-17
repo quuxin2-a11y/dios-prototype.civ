@@ -1792,8 +1792,9 @@ function t3Cams() {
       source: "cams",
       paint: {
         "circle-color": col,
-        "circle-blur": 0.85,
-        "circle-opacity": 0.75,
+        // A soft halo; heavier blur over tens of thousands of points cost too much on phones.
+        "circle-blur": 0.5,
+        "circle-opacity": 0.6,
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 2, 2.5, 8, 6, 13, 11, 17, 18],
         "circle-pitch-alignment": "map"
       }
@@ -2068,6 +2069,8 @@ function t3Open(opt) {
             center: [opt.lon == null ? rot.lon : opt.lon, opt.lat == null ? rot.lat : opt.lat],
             // Sharp enough on any phone without drawing 2.6× the pixels on high-density screens.
             pixelRatio: Math.min(window.devicePixelRatio || 1, ops ? 2 : 2.5),
+            // Labels and tiles appear without cross-fades, which flickered on some phones.
+            fadeDuration: ops ? 0 : 300,
             zoom: ops ? opt.zoom || 1.7 : t3ZoomFor(rot.lat, viewKm()),
             pitch: ops ? 0 : 58,
             bearing: 0,
