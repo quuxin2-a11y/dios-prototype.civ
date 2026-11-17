@@ -98,7 +98,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v80 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v81 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -183,6 +183,7 @@ function diagText() {
 // The phone's graphics chip, as the browser reports it (for display problems).
 function gpuName() {
   if (gpuName.v) return gpuName.v;
+  if (window.__ODD_GPU) return (gpuName.v = String(window.__ODD_GPU)); // set by the tests
   try {
     var g = document.createElement("canvas").getContext("webgl"),
       x = g && g.getExtension("WEBGL_debug_renderer_info");

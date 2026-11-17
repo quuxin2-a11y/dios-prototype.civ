@@ -394,8 +394,11 @@ function t3Info() {
 // ---------- Display: how the map is drawn ----------
 // "globe" (default), "flat" (the same map without the globe projection, which some graphics
 // chips draw more reliably) or "simple" (the app's own globe, no map engine at all).
+// Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, draw the round globe
+// with flicker and lines, so they start on the flat map unless the user chose otherwise.
 function displayMode() {
-  return /^(globe|flat|simple)$/.test(SET.display || "") ? SET.display : "globe";
+  if (/^(globe|flat|simple)$/.test(SET.display || "")) return SET.display;
+  return /PowerVR|Imagination|\bIMG\b/i.test(gpuName()) ? "flat" : "globe";
 }
 
 function displaySet(m) {

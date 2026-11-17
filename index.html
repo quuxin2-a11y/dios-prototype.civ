@@ -8097,7 +8097,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v80 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v81 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -8182,6 +8182,7 @@ function diagText() {
 // The phone's graphics chip, as the browser reports it (for display problems).
 function gpuName() {
   if (gpuName.v) return gpuName.v;
+  if (window.__ODD_GPU) return (gpuName.v = String(window.__ODD_GPU)); // set by the tests
   try {
     var g = document.createElement("canvas").getContext("webgl"),
       x = g && g.getExtension("WEBGL_debug_renderer_info");
@@ -18041,9 +18042,9 @@ function t3Load() {
   if (T3.p) return T3.p;
   var l = document.createElement("link");
   l.rel = "stylesheet";
-  l.href = "https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.0/dist/maplibre-gl.css";
+  l.href = "https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.1/dist/maplibre-gl.css";
   document.head.appendChild(l);
-  T3.p = loadScript("https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.0/dist/maplibre-gl.js").then(
+  T3.p = loadScript("https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.1/dist/maplibre-gl.js").then(
     function () {
       if (!window.maplibregl) throw new Error("library missing");
     }
@@ -24534,7 +24535,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 80 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 81 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -30194,7 +30195,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v80 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v81 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -30285,7 +30286,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v80 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v81 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -31924,7 +31925,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v80)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v81)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -32064,7 +32065,7 @@ function liveReport() {
     .catch(function (e) {
       // The report itself failed: hand over what is needed to fix it instead.
       errLog("Report: " + errWhere(e));
-      copyText("OJOS DE DIOS v80 error log\n" + errText());
+      copyText("OJOS DE DIOS v81 error log\n" + errText());
       note(
         "Report",
         "Couldn't build the full report, so the error log was copied instead. Paste it into a message to whoever is helping you."
@@ -39719,8 +39720,11 @@ function t3Info() {
 // ---------- Display: how the map is drawn ----------
 // "globe" (default), "flat" (the same map without the globe projection, which some graphics
 // chips draw more reliably) or "simple" (the app's own globe, no map engine at all).
+// Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, draw the round globe
+// with flicker and lines, so they start on the flat map unless the user chose otherwise.
 function displayMode() {
-  return /^(globe|flat|simple)$/.test(SET.display || "") ? SET.display : "globe";
+  if (/^(globe|flat|simple)$/.test(SET.display || "")) return SET.display;
+  return /PowerVR|Imagination|\bIMG\b/i.test(gpuName()) ? "flat" : "globe";
 }
 
 function displaySet(m) {

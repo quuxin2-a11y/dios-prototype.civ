@@ -983,7 +983,7 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("#rwdash .rwdock [data-rw='set']")
         self.page.click("[data-br='dp-flat']")
         self.page.wait_for_function(
-            "() => window.__ml.style.projection.type === 'mercator' && document.body.classList.contains('rw-globe')",
+            "() => window.__ml && window.__ml.style && window.__ml.style.projection.type === 'mercator' && document.body.classList.contains('rw-globe')",
             timeout=5000,
         )
         self.page.click("#rwdash .rwdock [data-rw='set']")
@@ -996,8 +996,19 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("#rwdash .rwdock [data-rw='set']")
         self.page.click("[data-br='dp-globe']")
         self.page.wait_for_function(
-            "() => window.__ml.style.projection.type === 'globe' && document.body.classList.contains('rw-globe')",
+            "() => window.__ml && window.__ml.style && window.__ml.style.projection.type === 'globe' && document.body.classList.contains('rw-globe')",
             timeout=5000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_phones_with_a_powervr_chip_start_on_the_flat_map(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        # Report an Imagination (PowerVR) chip, like a Pixel 10's.
+        self.page.add_init_script("window.__ODD_GPU = 'PowerVR D-Series DXT-48-1536';")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => window.__ml && window.__ml.style && window.__ml.style.projection.type === 'mercator'", timeout=8000
         )
         self.assertEqual(self.errors, [])
 

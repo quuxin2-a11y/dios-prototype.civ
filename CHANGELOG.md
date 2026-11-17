@@ -2,6 +2,10 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v81
+- Map engine updated from MapLibre 5.6.0 to 5.24.1, the latest of the same series, which includes many fixes to globe drawing.
+- Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, start on Flat map, where the round globe flickered; a Display choice made in Settings always wins.
+
 ## v80
 - **Display setting** (Settings → Display): Globe (default), Flat map (the same map without the globe projection, which some phone graphics chips draw more reliably) or Simple globe (the app's own globe, no map engine). The choice applies straight away, is kept, and is used at the next start. For phones where the map flickers or shows lines.
 - The status and report now name the display mode and the phone's graphics chip, so display problems can be traced.

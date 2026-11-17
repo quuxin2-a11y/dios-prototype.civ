@@ -1634,9 +1634,9 @@ function t3Load() {
   if (T3.p) return T3.p;
   var l = document.createElement("link");
   l.rel = "stylesheet";
-  l.href = "https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.0/dist/maplibre-gl.css";
+  l.href = "https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.1/dist/maplibre-gl.css";
   document.head.appendChild(l);
-  T3.p = loadScript("https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.0/dist/maplibre-gl.js").then(
+  T3.p = loadScript("https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.1/dist/maplibre-gl.js").then(
     function () {
       if (!window.maplibregl) throw new Error("library missing");
     }
