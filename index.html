@@ -7666,6 +7666,23 @@ body.rw #brandov {
   overflow-y: auto;
   border-top: 1px solid #ffffff12;
 }
+#cfp .cfline {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #ffffff0d;
+}
+#cfp .cfline .cfrow {
+  border-bottom: 0;
+  min-width: 0;
+}
+#cfp .cfcam {
+  flex: 0 0 48px;
+  border: 0;
+  border-left: 1px solid #ffffff0d;
+  background: transparent;
+  color: var(--accent);
+  font-size: 17px;
+}
 #cfp .cfrow {
   display: flex;
   align-items: center;
@@ -7779,18 +7796,54 @@ body.cg-open #cfp {
   flex: 1;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-auto-flow: dense;
-  gap: 4px;
-  padding: 0 6px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  gap: 8px;
+  padding: 2px 6px 8px;
   align-content: start;
+}
+@media (min-width: 640px) {
+  #cgp .cggrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1000px) {
+  #cgp .cggrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+#cgp .cgpager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  border-top: 1px solid #ffffff0d;
+}
+#cgp .cgpager span {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: #8fa3b3;
+}
+#cgp .cgpager button {
+  width: 56px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  color: var(--ink);
+  font-size: 20px;
+}
+#cgp .cgpager button:disabled {
+  opacity: 0.3;
 }
 #cgp .cgt {
   position: relative;
   aspect-ratio: 16 / 10;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   background: #0b1219;
+  border: 1px solid #ffffff10;
   cursor: pointer;
 }
 #cgp .cgt.big {
@@ -7880,6 +7933,34 @@ body.bare #bareX {
   font-size: 12px;
   line-height: 1.45;
   color: #8fa3b3;
+}
+
+/* ---------- v83: See in 3D, offered when zoomed into a city ---------- */
+#rw3d {
+  display: none;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+  z-index: 41;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid #36e0ff66;
+  background: #060a10e6;
+  color: #bff4ff;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+body.rw.rw3dok:not(.bare):not(.real) #rw3d {
+  display: block;
+}
+/* The 3D close-up's way back to the map, shown on the dashboard. */
+body.rw #t4bar [data-t4="x"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px !important;
+  color: var(--ink);
 }
 
 </style>
@@ -10953,6 +11034,7 @@ function draw3d(t) {
       ctx.restore();
     }
   }
+  hybDraw(R); // Smooth globe's borders and names (module 42)
   // limb ring
   ctx.strokeStyle = "rgba(150,195,255,0.35)";
   ctx.lineWidth = 1;
@@ -20578,6 +20660,7 @@ function t4Close() {
   } catch (e) {}
   target = null;
   setTimeout(resize, 40);
+  if (typeof rw3dBack === "function") rw3dBack();
 }
 setInterval(function () {
   if (!T4.on || !T4.v || document.hidden) return;
@@ -24537,7 +24620,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 82 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 85 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -32982,7 +33065,7 @@ var WL_GROUP = {};
   ["Culture and area facts", "museum historic unesco places countryfacts"],
   ["Farming", "farming farmshop"],
   ["Networks and wind", "cables towers windfarm"],
-  ["Conflict", "conflict"]
+  ["Conflict", "conflict military"]
 ].forEach(function (g) {
   g[1].split(" ").forEach(function (k) {
     WL_GROUP[k] = g[0];
@@ -38097,6 +38180,7 @@ function rwMode(mode, opt) {
         : [rot.lon, rot.lat, 1.6e7];
   RW.mode = mode;
   RW.t0 = Date.now();
+  RW.back = null; // a switch made here replaces the return from the 3D close-up
   document.body.classList.toggle("rw-globe", mode === "globe");
   document.body.classList.toggle("rw-canvas", mode === "canvas");
   rwDraw();
@@ -38237,7 +38321,7 @@ document.addEventListener("click", function (e) {
 setInterval(function () {
   if (!RW.on) return;
   // If the engine was closed some other way, leave the dashboard (after time for it to load).
-  if (RW.mode === "globe" && !T3.on && Date.now() - RW.t0 > 25000) {
+  if (RW.mode === "globe" && !T3.on && !T4.on && Date.now() - RW.t0 > 25000) {
     errLog("Dashboard: the dark globe closed; showing the app's own globe");
     rwMode("canvas");
     return;
@@ -39733,8 +39817,9 @@ function t3Info() {
 //   region switches to the flat map, and zooming back out returns to the globe. For phones whose
 //   graphics chip draws the map engine's globe with flicker and lines.
 // "flat": the flat map at every zoom.
-// Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, have that flicker,
-// so they start on Smooth globe unless the user chose otherwise.
+// Android phones start on Smooth globe (some graphics chips, such as the Pixel 10's PowerVR,
+// flicker on the map engine's globe), and so does any phone with that chip; a choice made in
+// Settings always wins.
 var HYB_IN_KM = 2200, // the 2D globe hands over to the flat map below this view width
   HYB_OUT_ZOOM = 3.1, // and the flat map hands back to the globe below this zoom
   HYB_HOLD_MS = 1500; // no switch back within this long after a switch
@@ -39743,10 +39828,14 @@ function displayFlicky() {
   return /PowerVR|Imagination|\bIMG\b/i.test(gpuName());
 }
 
+function displayAndroid() {
+  return /Android/i.test(window.__ODD_UA || navigator.userAgent || "");
+}
+
 function displayMode() {
   var d = SET.display === "simple" ? "hybrid" : SET.display;
   if (/^(globe|hybrid|flat)$/.test(d || "")) return d;
-  return displayFlicky() ? "hybrid" : "globe";
+  return displayAndroid() || displayFlicky() ? "hybrid" : "globe";
 }
 
 // True while the app's own globe is standing in for the map engine in Smooth globe.
@@ -39778,13 +39867,196 @@ function displaySet(m) {
   rwMode(m === "hybrid" ? "canvas" : "globe");
 }
 
+// ---------- Smooth globe: borders and names ----------
+// The 2D globe draws country and US state borders and their names itself, from the same outlines
+// Focus uses (module 28). Outlines are thinned once so a frame stays cheap; names are placed
+// biggest first and skipped where they would overlap or not fit their area.
+var HYB = { c: null, s: null, asked: false },
+  HYB_NAME = {
+    "United States of America": "United States",
+    "Dem. Rep. Congo": "DR Congo",
+    "Central African Rep.": "Central African Rep",
+    "Bosnia and Herz.": "Bosnia",
+    "S. Sudan": "South Sudan"
+  };
+
+function hybThin(list, step) {
+  return list
+    .map(function (f) {
+      var big = null,
+        rings = f.rings.map(function (r) {
+          var out = [r[0]];
+          for (var i = 1; i < r.length; i++) {
+            var q = out[out.length - 1];
+            if (Math.abs(r[i][0] - q[0]) + Math.abs(r[i][1] - q[1]) >= step || i === r.length - 1)
+              out.push(r[i]);
+          }
+          if (!big || r.length > big.length) big = r;
+          return out;
+        }),
+        lon = 0,
+        lat = 0;
+      // The name sits at the middle of the largest piece (the mainland, not an island).
+      big.forEach(function (p) {
+        lon += p[0];
+        lat += p[1];
+      });
+      return {
+        n: HYB_NAME[f.name] || f.name,
+        rings: rings,
+        lon: lon / big.length,
+        lat: lat / big.length,
+        deg: Math.max(f.box.e - f.box.w, f.box.n - f.box.s)
+      };
+    })
+    .sort(function (a, b) {
+      return b.deg - a.deg;
+    });
+}
+
+function hybLines(list, P) {
+  ctx.beginPath();
+  for (var i = 0; i < list.length; i++)
+    for (var j = 0; j < list[i].rings.length; j++) {
+      var r = list[i].rings[j],
+        pen = false;
+      for (var k = 0; k < r.length; k++) {
+        var p = P(r[k][0], r[k][1]);
+        if (p[2] > 0) {
+          pen ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+          pen = true;
+        } else pen = false;
+      }
+    }
+  ctx.stroke();
+}
+
+function hybNames(list, P, R, font, color, minPx, upper, boxes) {
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (var i = 0; i < list.length; i++) {
+    var f = list[i],
+      px = (f.deg * D * R) / 1.4; // about how wide the area looks on screen
+    if (px < minPx) break; // sorted biggest first: the rest are smaller still
+    var p = P(f.lon, f.lat);
+    if (p[2] < 0.3 || p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H) continue;
+    var t = upper ? f.n.toUpperCase() : f.n,
+      w = ctx.measureText(t).width;
+    if (w > px * 1.6) continue;
+    var b = [p[0] - w / 2 - 4, p[1] - 8, p[0] + w / 2 + 4, p[1] + 8],
+      hit = false;
+    for (var k = 0; k < boxes.length && !hit; k++)
+      hit = b[0] < boxes[k][2] && b[2] > boxes[k][0] && b[1] < boxes[k][3] && b[3] > boxes[k][1];
+    if (hit) continue;
+    boxes.push(b);
+    ctx.fillText(t, p[0], p[1]);
+  }
+}
+
+// Called by draw3d (module 05) over the 2D globe, under the data layers.
+function hybDraw(R) {
+  if (!hybCanvas()) return;
+  if (!HYB.c) {
+    if (!HYB.asked) {
+      HYB.asked = true;
+      focLoad()
+        .then(function () {
+          HYB.c = hybThin(FOC.countries, 0.35);
+          HYB.s = hybThin(FOC.states, 0.2);
+          lastView = "";
+        })
+        .catch(function () {
+          HYB.asked = false; // tried again on a later frame
+        });
+    }
+    return;
+  }
+  var km = viewKm(),
+    boxes = [];
+  ctx.save();
+  ctx.lineJoin = "round";
+  if (km < 9000) {
+    ctx.strokeStyle = "rgba(150,190,230,0.2)";
+    ctx.lineWidth = 0.7;
+    hybLines(HYB.s, proj);
+  }
+  ctx.strokeStyle = "rgba(160,205,240,0.42)";
+  ctx.lineWidth = 0.9;
+  hybLines(HYB.c, proj);
+  hybNames(
+    HYB.c,
+    proj,
+    R,
+    "600 10.5px system-ui, sans-serif",
+    "rgba(225,238,248,0.82)",
+    34,
+    true,
+    boxes
+  );
+  if (km < 7000)
+    hybNames(
+      HYB.s,
+      proj,
+      R,
+      "500 10px system-ui, sans-serif",
+      "rgba(175,200,222,0.72)",
+      40,
+      false,
+      boxes
+    );
+  ctx.restore();
+}
+
 // ---------- Zoom in and see it in 3D ----------
 // One world: zooming into a city fades in the aerial photos, raises the buildings and tilts the
 // view; zooming back out levels it again. A tilt or turn you make yourself is left alone.
 var OPS_TILT_ZOOM = 15,
-  OPS_FLAT_ZOOM = 12;
+  OPS_FLAT_ZOOM = 12,
+  RW3D_ZOOM = 14; // "See in 3D" is offered from this zoom
+
+// Zoomed into a city, "See in 3D" opens the photo-real 3D close-up right there; its ✕ comes
+// back to the map at the same place and zoom.
+var rw3dBtn = document.createElement("button");
+rw3dBtn.id = "rw3d";
+rw3dBtn.className = "mono";
+rw3dBtn.textContent = "◆ SEE IN 3D";
+rw3dBtn.setAttribute("aria-label", "See this place in 3D");
+document.body.appendChild(rw3dBtn);
+
+function rw3dShow() {
+  var on = false;
+  try {
+    on =
+      RW.on &&
+      RW.mode === "globe" &&
+      T3.ops &&
+      !!T3.map &&
+      !T4.on &&
+      !!kG3() &&
+      T3.map.getZoom() >= RW3D_ZOOM;
+  } catch (e) {}
+  document.body.classList.toggle("rw3dok", on);
+}
+
+rw3dBtn.addEventListener("click", function () {
+  var w = rwWhere();
+  document.body.classList.remove("rw3dok");
+  t4Open({ close: true, lon: w[0], lat: w[1], quiet: true });
+  RW.back = w; // after t4Open, which leaves the map engine
+});
+
+// Called by t4Close (module 11).
+function rw3dBack() {
+  if (!RW.on || !RW.back) return;
+  var w = RW.back;
+  RW.back = null;
+  rwMode("globe", { lon: rot.lon, lat: rot.lat, h: w[2] });
+}
 
 function opsAttach(m) {
+  m.on("moveend", rw3dShow);
   m.on("zoomend", function () {
     if (!T3.ops || !T3.map) return;
     var z = m.getZoom(),
@@ -40337,6 +40609,68 @@ ilDef({
   }
 });
 
+// ---------- Military aircraft and drones (public ADS-B) ----------
+// Military aircraft that broadcast their position, from adsb.lol's open feed. Large drones such as
+// the RQ-4 Global Hawk, MQ-4C Triton and MQ-9 Reaper appear when their transponder is on, which
+// is often over international waters and rarely over a combat area itself. No public source
+// streams video from military drones.
+var MIL_DRONE = /^(GLHK|Q4|Q9|Q1|MQ|RQ|HRON|HERM|TB2|UAV|DRON)/i,
+  MIL_DRONE_DESC = /unmanned|global hawk|triton|reaper|predator|heron|hermes|bayraktar|drone/i;
+
+ilDef({
+  key: "military",
+  label: "Military aircraft & drones",
+  color: "#ffb020",
+  icon: "✈",
+  every: 60000,
+  none: "NONE BROADCASTING",
+  status: function (d) {
+    var n = d.items.filter(function (x) {
+      return x.drone;
+    }).length;
+    return d.items.length
+      ? d.items.length.toLocaleString() + (n ? " · " + n + " DRONE" + (n > 1 ? "S" : "") : "")
+      : "NONE BROADCASTING";
+  },
+  load: function (d) {
+    return getJSON("https://api.adsb.lol/v2/mil", 20000).then(function (j) {
+      return ((j && j.ac) || [])
+        .filter(function (a) {
+          return a.lat != null && a.lon != null;
+        })
+        .map(function (a) {
+          var drone = MIL_DRONE.test(a.t || "") || MIL_DRONE_DESC.test(a.desc || ""),
+            cs = String(a.flight || "").trim();
+          return ilItem(d, {
+            id: "mil:" + a.hex,
+            n: (drone ? "Drone · " : "") + (cs || a.r || a.hex.toUpperCase()),
+            label: drone ? cs || "DRONE" : "",
+            drone: drone,
+            color: drone ? "#ff3b6b" : null,
+            lat: num(a.lat),
+            lon: num(a.lon),
+            size: drone ? 6 : 4,
+            tag: drone ? "DRONE" : "MILITARY",
+            rows: [
+              ["TYPE", a.desc || a.t || "—"],
+              ["CALLSIGN", cs || "—"],
+              [
+                "ALTITUDE",
+                a.alt_baro === "ground"
+                  ? "On the ground"
+                  : a.alt_baro != null
+                    ? Math.round(a.alt_baro).toLocaleString() + " ft"
+                    : "—"
+              ],
+              ["SPEED", a.gs != null ? Math.round(a.gs) + " kt" : "—"],
+              ["SOURCE", "adsb.lol (public ADS-B)"]
+            ]
+          });
+        });
+    });
+  }
+});
+
 // ---------- War zones: countries under a Level 4 advisory, shaded on the dark globe ----------
 // State Department names that differ from the boundary data's names.
 var CF_ALIAS = {
@@ -40436,6 +40770,7 @@ function cfToggle() {
   }
   setLayer("conflict", true);
   setLayer("advisory", true);
+  setLayer("military", true);
   if (IL.conflict && !IL.conflict.items.length) ilLoad(IL.conflict, true);
   CF.open = true;
   cfDraw();
@@ -40445,6 +40780,21 @@ function cfClose() {
   CF.open = false;
   var el = $("cfp");
   if (el) el.style.display = "none";
+}
+
+// " · 41 MILITARY AIRCRAFT · 2 DRONES" from the public ADS-B layer, when it has loaded.
+function cfMilLine() {
+  var m = IL.military;
+  if (!m || !m.items.length) return "";
+  var n = m.items.filter(function (x) {
+    return x.drone;
+  }).length;
+  return (
+    " · " +
+    m.items.length +
+    " MILITARY AIRCRAFT" +
+    (n ? " · " + n + " DRONE" + (n > 1 ? "S" : "") : "")
+  );
 }
 
 function cfItems() {
@@ -40481,7 +40831,9 @@ function cfDraw() {
       all.length.toLocaleString() +
       " UNVERIFIED REPORTS · " +
       lvl4 +
-      ' DO-NOT-TRAVEL COUNTRIES</span><button data-cf="x" aria-label="Close">✕</button></div>' +
+      " DO-NOT-TRAVEL COUNTRIES" +
+      cfMilLine() +
+      '</span><button data-cf="x" aria-label="Close">✕</button></div>' +
       '<div class="cfchips"><button data-cf="k-" class="' +
       (CF.kind ? "" : "on") +
       '">All</button>' +
@@ -40515,7 +40867,7 @@ function cfDraw() {
     .map(function (e, i) {
       var parts = String(e.n).split(" · ");
       return (
-        '<button class="cfrow" data-cf="go-' +
+        '<div class="cfline"><button class="cfrow" data-cf="go-' +
         i +
         '"><span class="cfk" style="color:' +
         okColor(e.color) +
@@ -40527,7 +40879,9 @@ function cfDraw() {
         esc(parts.slice(1).join(" · ") || "—") +
         "</b><em>" +
         (e.t ? ago(e.t) : "") +
-        "</em></button>"
+        '</em></button><button class="cfcam" data-cf="cam-' +
+        i +
+        '" aria-label="Live cameras around this place">▦</button></div>'
       );
     })
     .join("");
@@ -40536,14 +40890,14 @@ function cfDraw() {
   el.innerHTML = h;
   el.style.display = "flex";
   CF.list = list;
-  CF.drawn = all.length + ":" + d.at + ":" + CF.kind;
+  CF.drawn = all.length + ":" + d.at + ":" + CF.kind + cfMilLine();
 }
 
 setInterval(function () {
   if (
     CF.open &&
     IL.conflict &&
-    CF.drawn !== IL.conflict.items.length + ":" + IL.conflict.at + ":" + CF.kind
+    CF.drawn !== IL.conflict.items.length + ":" + IL.conflict.at + ":" + CF.kind + cfMilLine()
   )
     cfDraw();
 }, 2000);
@@ -40556,6 +40910,12 @@ document.addEventListener("click", function (e) {
   else if (k.indexOf("k-") === 0) {
     CF.kind = k.slice(2);
     cfDraw();
+  } else if (k.indexOf("cam-") === 0) {
+    // The public cameras around the place named in the report, in the camera grid (module 45).
+    var r = CF.list && CF.list[+k.slice(4)];
+    if (!r) return;
+    cfClose();
+    cgOpen(String(r.n).split(" · ").slice(1).join(", ") || "");
   } else if (k.indexOf("go-") === 0) {
     var it = CF.list && CF.list[+k.slice(3)];
     if (!it) return;
@@ -40570,17 +40930,16 @@ document.addEventListener("click", function (e) {
 /**
  * @file Camera grid: every camera in a city, state or the area in view, as mini tiles.
  * Type a place (or use what's on the map) and its cameras fill a grid of small live pictures,
- * nearest the centre first. Tap a tile to make it big, tap again to shrink it back; several can
- * be big at once. Big tiles refresh every few seconds, small ones about once a minute while on
- * screen, and pictures load only as they scroll into view, so a city of thousands stays smooth.
+ * nearest the centre first, one screenful per page (‹ › or a swipe for the next page). Tap a tile
+ * to make it big, tap again to shrink it back; several can be big at once. Big tiles refresh every
+ * few seconds and small ones about once a minute, and only the page in view loads anything.
  * Opens from Cameras in the dashboard's dock; its ➤ button opens Drive (cameras along a route).
  *
  * Module 44 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-var CG = { open: false, list: [], shown: 0, place: "", big: {} },
-  CG_PAGE = 90,
+var CG = { open: false, list: [], page: 0, place: "", big: {} },
   CG_BIG_MS = 4000,
   CG_SMALL_MS = 60000;
 
@@ -40671,7 +41030,9 @@ function cgOpen(q) {
     el.id = "cgp";
     el.innerHTML =
       '<form class="cghead" id="cgForm"><input id="cgq" type="search" placeholder="City or state" autocomplete="off"><button>Show</button><button type="button" class="cgdrive" data-cg="drive" aria-label="Drive: cameras along a route">➤</button><button type="button" data-cg="x" aria-label="Close">✕</button></form>' +
-      '<div class="cgsub mono" id="cgsub"></div><div class="cggrid" id="cggrid"></div>';
+      '<div class="cgsub mono" id="cgsub"></div><div class="cggrid" id="cggrid"></div>' +
+      '<div class="cgpager"><button data-cg="prev" aria-label="Previous page">‹</button><span class="mono" id="cgpg"></span><button data-cg="next" aria-label="Next page">›</button></div>';
+    cgSwipe(el);
     document.body.appendChild(el);
   }
   CG.open = true;
@@ -40697,8 +41058,7 @@ function cgLoad(q) {
     .then(function (box) {
       CG.place = box.name;
       CG.list = cgPick(box);
-      CG.shown = 0;
-      cgMore();
+      cgPage(0);
     })
     .catch(function () {
       $("cgsub").textContent = "COULDN'T FIND THAT PLACE · TRY A CITY OR STATE NAME";
@@ -40714,10 +41074,27 @@ function cgSub() {
     : "NO LIVE CAMERAS IN " + CG.place.toUpperCase();
 }
 
-function cgMore() {
+// Tiles per page: as many as fit on the screen without scrolling (2 across on a phone).
+function cgPer() {
   var g = $("cggrid"),
-    from = CG.shown,
-    to = Math.min(CG.list.length, from + CG_PAGE),
+    w = (g && g.clientWidth) || innerWidth,
+    h = (g && g.clientHeight) || innerHeight - 170,
+    cols = w < 640 ? 2 : w < 1000 ? 3 : 4,
+    tileH = ((w - 12 - (cols - 1) * 8) / cols) * 0.625 + 8;
+  return cols * Math.max(2, Math.floor(h / tileH));
+}
+
+function cgPages() {
+  return Math.max(1, Math.ceil(CG.list.length / cgPer()));
+}
+
+function cgPage(p) {
+  var g = $("cggrid"),
+    per = cgPer();
+  CG.page = Math.max(0, Math.min(cgPages() - 1, p));
+  CG.big = {};
+  var from = CG.page * per,
+    to = Math.min(CG.list.length, from + per),
     h = "";
   for (var i = from; i < to; i++) {
     var c = CG.list[i];
@@ -40730,19 +41107,43 @@ function cgMore() {
       esc(c.n || "Camera") +
       "</span></div>";
   }
-  var old = g.querySelector(".cgmore");
-  if (old) old.remove();
-  g.insertAdjacentHTML("beforeend", h);
-  CG.shown = to;
-  if (to < CG.list.length)
-    g.insertAdjacentHTML(
-      "beforeend",
-      '<button class="cgmore" data-cg="more">Show ' +
-        Math.min(CG_PAGE, CG.list.length - to) +
-        " more</button>"
-    );
+  g.innerHTML = h; // the previous page's pictures stop loading
+  g.scrollTop = 0;
+  var n = cgPages();
+  $("cgpg").textContent = CG.list.length
+    ? "PAGE " + (CG.page + 1) + " OF " + n.toLocaleString()
+    : "";
+  document.querySelector("#cgp .cgpager").style.visibility = n > 1 ? "" : "hidden";
+  document.querySelector("#cgp [data-cg='prev']").disabled = CG.page === 0;
+  document.querySelector("#cgp [data-cg='next']").disabled = CG.page >= n - 1;
   cgSub();
   cgWatch();
+}
+
+// A sideways swipe on the grid turns the page.
+function cgSwipe(el) {
+  var x0 = null,
+    y0 = 0;
+  el.addEventListener(
+    "touchstart",
+    function (e) {
+      if (e.target.closest(".cghead") || e.touches.length !== 1) return (x0 = null);
+      x0 = e.touches[0].clientX;
+      y0 = e.touches[0].clientY;
+    },
+    { passive: true }
+  );
+  el.addEventListener(
+    "touchend",
+    function (e) {
+      if (x0 == null) return;
+      var dx = e.changedTouches[0].clientX - x0,
+        dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) cgPage(CG.page + (dx < 0 ? 1 : -1));
+    },
+    { passive: true }
+  );
 }
 
 // Pictures load as tiles scroll into view, and stop refreshing when they scroll away.
@@ -40812,7 +41213,8 @@ document.addEventListener("click", function (e) {
     // Drive: the cameras along a route, live as you go (module 04).
     cgClose();
     drvPanel();
-  } else if (k === "more") cgMore();
+  } else if (k === "prev") cgPage(CG.page - 1);
+  else if (k === "next") cgPage(CG.page + 1);
   else if (k.indexOf("open-") === 0) {
     var c = CG.list[+k.slice(5)];
     if (!c) return;

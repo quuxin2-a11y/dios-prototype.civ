@@ -915,6 +915,14 @@ class AppInBrowser(unittest.TestCase):
             "**/dios-prototype.civ/data/layers.json*",
             lambda r: r.fulfill(body=json.dumps(feed), content_type="application/json"),
         )
+        mil = {"ac": [
+            {"hex": "ae1234", "flight": "FORTE11 ", "t": "GLHK", "desc": "NORTHROP GRUMMAN RQ-4 Global Hawk", "lat": 43.1, "lon": 33.2, "alt_baro": 52000, "gs": 330},
+            {"hex": "ae5678", "flight": "RCH401", "t": "C17", "lat": 50.0, "lon": 8.6, "alt_baro": 31000, "gs": 450},
+        ]}
+        self.page.route(
+            "**/api.adsb.lol/v2/mil*",
+            lambda r: r.fulfill(body=json.dumps(mil), content_type="application/json"),
+        )
         self.use_dashboard()
         self.page.reload()
         self.page.wait_for_selector(
@@ -928,7 +936,16 @@ class AppInBrowser(unittest.TestCase):
         self.assertIn("UNVERIFIED", self.page.inner_text("#cfp").upper())
         self.page.click("#cfp [data-cf='k-Drone strike']")
         self.assertEqual(self.page.locator("#cfp .cfrow").count(), 2)
+        # Military aircraft from public ADS-B, with the drone picked out.
+        self.page.wait_for_function(
+            "() => /2 MILITARY AIRCRAFT · 1 DRONE/.test(document.querySelector('#cfp .cfhead').textContent)", timeout=8000
+        )
         self.page.click("#cfp .cfrow >> nth=0")
+        self.assertFalse(self.visible("#cfp"))
+        # ▦ on a report opens the public cameras around that place.
+        self.page.click("#rwdash .rwdock [data-rw='conflict']")
+        self.page.click("#cfp .cfcam >> nth=0")
+        self.page.wait_for_selector("#cgp", state="visible", timeout=3000)
         self.assertFalse(self.visible("#cfp"))
         self.assertEqual(self.errors, [])
 
@@ -942,6 +959,9 @@ class AppInBrowser(unittest.TestCase):
         self.page.wait_for_selector("#cgp", state="visible", timeout=3000)
         self.page.wait_for_function("() => /CAMERAS|NO LIVE/.test(document.getElementById('cgsub').textContent)", timeout=5000)
         n = self.page.locator("#cggrid .cgt").count()
+        # One screenful per page: the tiles fit without scrolling, and the pager turns pages.
+        self.assertTrue(self.page.evaluate("() => { const g = document.getElementById('cggrid'); return g.scrollHeight <= g.clientHeight + 2; }"))
+        self.assertEqual(self.page.locator("#cgp .cgpager").count(), 1)
         if n:
             first = self.page.locator("#cggrid .cgt").first
             first.click()
@@ -1027,6 +1047,71 @@ class AppInBrowser(unittest.TestCase):
         # ...and zooming far back out returns to the round globe.
         self.page.evaluate("() => { __mlMap.z = 2; (__mlMap.h.zoomend || []).forEach((f) => f({})); }")
         self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=5000)
+        self.assertEqual(self.errors, [])
+
+    def test_zoomed_into_a_city_see_in_3d_opens_the_close_up_and_comes_back(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.page.wait_for_timeout(300)
+        self.assertFalse(self.visible("#rw3d"), "not offered from space")
+        self.page.evaluate("() => { __mlMap.z = 15.5; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
+        self.assertTrue(self.visible("#rw3d"))
+        maps = self.page.evaluate("() => __ml.maps")
+        self.page.click("#rw3d")
+        self.page.wait_for_function("() => document.body.classList.contains('real')", timeout=5000)
+        self.assertFalse(self.visible("#rw3d"))
+        self.assertTrue(self.visible("#rwdash .rwdock"))
+        # The close-up's ✕ returns to the map, zoomed in where it was.
+        self.page.click("#t4bar [data-t4='x']")
+        self.page.wait_for_function(
+            "(n) => !document.body.classList.contains('real') && document.body.classList.contains('rw-globe') && __ml.maps > n && __mlMap.z > 14",
+            arg=maps,
+            timeout=5000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_smooth_globe_draws_country_and_state_names(self):
+        def topo(obj, name, x0, y0):
+            return {
+                "type": "Topology",
+                "arcs": [[[x0, y0], [x0 + 30, y0], [x0 + 30, y0 + 20], [x0, y0 + 20], [x0, y0]]],
+                "objects": {obj: {"type": "GeometryCollection", "geometries": [
+                    {"type": "Polygon", "arcs": [[0]], "properties": {"name": name}}]}},
+            }
+        for url, body in (
+            ("**/world-atlas@2/countries-50m.json", topo("countries", "United States of America", -115, 28)),
+            ("**/us-atlas@3/states-10m.json", topo("states", "Texas", -104, 28)),
+        ):
+            self.page.route(url, (lambda b: lambda r: r.fulfill(body=json.dumps(b), content_type="application/json"))(body))
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script("window.__ODD_GPU = 'PowerVR D-Series DXT-48-1536';")
+        self.page.add_init_script(
+            "window.__texts = new Set(); const ft = CanvasRenderingContext2D.prototype.fillText;"
+            " CanvasRenderingContext2D.prototype.fillText = function (t, x, y) { window.__texts.add(String(t)); return ft.apply(this, arguments); };"
+        )
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        self.page.wait_for_function("() => window.__texts.has('UNITED STATES')", timeout=8000)
+        self.assertEqual(self.errors, [])
+
+    def test_android_phones_start_on_the_smooth_globe(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script("window.__ODD_UA = 'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro XL) Mobile';")
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        # A choice made in Settings wins over the default.
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("[data-br='dp-globe']")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('rw-globe') && window.__ml && window.__ml.style && window.__ml.style.projection.type === 'globe'",
+            timeout=8000,
+        )
         self.assertEqual(self.errors, [])
 
     def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):

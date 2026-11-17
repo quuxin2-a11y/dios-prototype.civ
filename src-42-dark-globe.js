@@ -397,8 +397,9 @@ function t3Info() {
 //   region switches to the flat map, and zooming back out returns to the globe. For phones whose
 //   graphics chip draws the map engine's globe with flicker and lines.
 // "flat": the flat map at every zoom.
-// Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, have that flicker,
-// so they start on Smooth globe unless the user chose otherwise.
+// Android phones start on Smooth globe (some graphics chips, such as the Pixel 10's PowerVR,
+// flicker on the map engine's globe), and so does any phone with that chip; a choice made in
+// Settings always wins.
 var HYB_IN_KM = 2200, // the 2D globe hands over to the flat map below this view width
   HYB_OUT_ZOOM = 3.1, // and the flat map hands back to the globe below this zoom
   HYB_HOLD_MS = 1500; // no switch back within this long after a switch
@@ -407,10 +408,14 @@ function displayFlicky() {
   return /PowerVR|Imagination|\bIMG\b/i.test(gpuName());
 }
 
+function displayAndroid() {
+  return /Android/i.test(window.__ODD_UA || navigator.userAgent || "");
+}
+
 function displayMode() {
   var d = SET.display === "simple" ? "hybrid" : SET.display;
   if (/^(globe|hybrid|flat)$/.test(d || "")) return d;
-  return displayFlicky() ? "hybrid" : "globe";
+  return displayAndroid() || displayFlicky() ? "hybrid" : "globe";
 }
 
 // True while the app's own globe is standing in for the map engine in Smooth globe.
@@ -442,13 +447,196 @@ function displaySet(m) {
   rwMode(m === "hybrid" ? "canvas" : "globe");
 }
 
+// ---------- Smooth globe: borders and names ----------
+// The 2D globe draws country and US state borders and their names itself, from the same outlines
+// Focus uses (module 28). Outlines are thinned once so a frame stays cheap; names are placed
+// biggest first and skipped where they would overlap or not fit their area.
+var HYB = { c: null, s: null, asked: false },
+  HYB_NAME = {
+    "United States of America": "United States",
+    "Dem. Rep. Congo": "DR Congo",
+    "Central African Rep.": "Central African Rep",
+    "Bosnia and Herz.": "Bosnia",
+    "S. Sudan": "South Sudan"
+  };
+
+function hybThin(list, step) {
+  return list
+    .map(function (f) {
+      var big = null,
+        rings = f.rings.map(function (r) {
+          var out = [r[0]];
+          for (var i = 1; i < r.length; i++) {
+            var q = out[out.length - 1];
+            if (Math.abs(r[i][0] - q[0]) + Math.abs(r[i][1] - q[1]) >= step || i === r.length - 1)
+              out.push(r[i]);
+          }
+          if (!big || r.length > big.length) big = r;
+          return out;
+        }),
+        lon = 0,
+        lat = 0;
+      // The name sits at the middle of the largest piece (the mainland, not an island).
+      big.forEach(function (p) {
+        lon += p[0];
+        lat += p[1];
+      });
+      return {
+        n: HYB_NAME[f.name] || f.name,
+        rings: rings,
+        lon: lon / big.length,
+        lat: lat / big.length,
+        deg: Math.max(f.box.e - f.box.w, f.box.n - f.box.s)
+      };
+    })
+    .sort(function (a, b) {
+      return b.deg - a.deg;
+    });
+}
+
+function hybLines(list, P) {
+  ctx.beginPath();
+  for (var i = 0; i < list.length; i++)
+    for (var j = 0; j < list[i].rings.length; j++) {
+      var r = list[i].rings[j],
+        pen = false;
+      for (var k = 0; k < r.length; k++) {
+        var p = P(r[k][0], r[k][1]);
+        if (p[2] > 0) {
+          pen ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+          pen = true;
+        } else pen = false;
+      }
+    }
+  ctx.stroke();
+}
+
+function hybNames(list, P, R, font, color, minPx, upper, boxes) {
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (var i = 0; i < list.length; i++) {
+    var f = list[i],
+      px = (f.deg * D * R) / 1.4; // about how wide the area looks on screen
+    if (px < minPx) break; // sorted biggest first: the rest are smaller still
+    var p = P(f.lon, f.lat);
+    if (p[2] < 0.3 || p[0] < 0 || p[0] > W || p[1] < 0 || p[1] > H) continue;
+    var t = upper ? f.n.toUpperCase() : f.n,
+      w = ctx.measureText(t).width;
+    if (w > px * 1.6) continue;
+    var b = [p[0] - w / 2 - 4, p[1] - 8, p[0] + w / 2 + 4, p[1] + 8],
+      hit = false;
+    for (var k = 0; k < boxes.length && !hit; k++)
+      hit = b[0] < boxes[k][2] && b[2] > boxes[k][0] && b[1] < boxes[k][3] && b[3] > boxes[k][1];
+    if (hit) continue;
+    boxes.push(b);
+    ctx.fillText(t, p[0], p[1]);
+  }
+}
+
+// Called by draw3d (module 05) over the 2D globe, under the data layers.
+function hybDraw(R) {
+  if (!hybCanvas()) return;
+  if (!HYB.c) {
+    if (!HYB.asked) {
+      HYB.asked = true;
+      focLoad()
+        .then(function () {
+          HYB.c = hybThin(FOC.countries, 0.35);
+          HYB.s = hybThin(FOC.states, 0.2);
+          lastView = "";
+        })
+        .catch(function () {
+          HYB.asked = false; // tried again on a later frame
+        });
+    }
+    return;
+  }
+  var km = viewKm(),
+    boxes = [];
+  ctx.save();
+  ctx.lineJoin = "round";
+  if (km < 9000) {
+    ctx.strokeStyle = "rgba(150,190,230,0.2)";
+    ctx.lineWidth = 0.7;
+    hybLines(HYB.s, proj);
+  }
+  ctx.strokeStyle = "rgba(160,205,240,0.42)";
+  ctx.lineWidth = 0.9;
+  hybLines(HYB.c, proj);
+  hybNames(
+    HYB.c,
+    proj,
+    R,
+    "600 10.5px system-ui, sans-serif",
+    "rgba(225,238,248,0.82)",
+    34,
+    true,
+    boxes
+  );
+  if (km < 7000)
+    hybNames(
+      HYB.s,
+      proj,
+      R,
+      "500 10px system-ui, sans-serif",
+      "rgba(175,200,222,0.72)",
+      40,
+      false,
+      boxes
+    );
+  ctx.restore();
+}
+
 // ---------- Zoom in and see it in 3D ----------
 // One world: zooming into a city fades in the aerial photos, raises the buildings and tilts the
 // view; zooming back out levels it again. A tilt or turn you make yourself is left alone.
 var OPS_TILT_ZOOM = 15,
-  OPS_FLAT_ZOOM = 12;
+  OPS_FLAT_ZOOM = 12,
+  RW3D_ZOOM = 14; // "See in 3D" is offered from this zoom
+
+// Zoomed into a city, "See in 3D" opens the photo-real 3D close-up right there; its ✕ comes
+// back to the map at the same place and zoom.
+var rw3dBtn = document.createElement("button");
+rw3dBtn.id = "rw3d";
+rw3dBtn.className = "mono";
+rw3dBtn.textContent = "◆ SEE IN 3D";
+rw3dBtn.setAttribute("aria-label", "See this place in 3D");
+document.body.appendChild(rw3dBtn);
+
+function rw3dShow() {
+  var on = false;
+  try {
+    on =
+      RW.on &&
+      RW.mode === "globe" &&
+      T3.ops &&
+      !!T3.map &&
+      !T4.on &&
+      !!kG3() &&
+      T3.map.getZoom() >= RW3D_ZOOM;
+  } catch (e) {}
+  document.body.classList.toggle("rw3dok", on);
+}
+
+rw3dBtn.addEventListener("click", function () {
+  var w = rwWhere();
+  document.body.classList.remove("rw3dok");
+  t4Open({ close: true, lon: w[0], lat: w[1], quiet: true });
+  RW.back = w; // after t4Open, which leaves the map engine
+});
+
+// Called by t4Close (module 11).
+function rw3dBack() {
+  if (!RW.on || !RW.back) return;
+  var w = RW.back;
+  RW.back = null;
+  rwMode("globe", { lon: rot.lon, lat: rot.lat, h: w[2] });
+}
 
 function opsAttach(m) {
+  m.on("moveend", rw3dShow);
   m.on("zoomend", function () {
     if (!T3.ops || !T3.map) return;
     var z = m.getZoom(),

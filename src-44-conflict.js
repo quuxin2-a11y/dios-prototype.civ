@@ -34,6 +34,68 @@ ilDef({
   }
 });
 
+// ---------- Military aircraft and drones (public ADS-B) ----------
+// Military aircraft that broadcast their position, from adsb.lol's open feed. Large drones such as
+// the RQ-4 Global Hawk, MQ-4C Triton and MQ-9 Reaper appear when their transponder is on, which
+// is often over international waters and rarely over a combat area itself. No public source
+// streams video from military drones.
+var MIL_DRONE = /^(GLHK|Q4|Q9|Q1|MQ|RQ|HRON|HERM|TB2|UAV|DRON)/i,
+  MIL_DRONE_DESC = /unmanned|global hawk|triton|reaper|predator|heron|hermes|bayraktar|drone/i;
+
+ilDef({
+  key: "military",
+  label: "Military aircraft & drones",
+  color: "#ffb020",
+  icon: "✈",
+  every: 60000,
+  none: "NONE BROADCASTING",
+  status: function (d) {
+    var n = d.items.filter(function (x) {
+      return x.drone;
+    }).length;
+    return d.items.length
+      ? d.items.length.toLocaleString() + (n ? " · " + n + " DRONE" + (n > 1 ? "S" : "") : "")
+      : "NONE BROADCASTING";
+  },
+  load: function (d) {
+    return getJSON("https://api.adsb.lol/v2/mil", 20000).then(function (j) {
+      return ((j && j.ac) || [])
+        .filter(function (a) {
+          return a.lat != null && a.lon != null;
+        })
+        .map(function (a) {
+          var drone = MIL_DRONE.test(a.t || "") || MIL_DRONE_DESC.test(a.desc || ""),
+            cs = String(a.flight || "").trim();
+          return ilItem(d, {
+            id: "mil:" + a.hex,
+            n: (drone ? "Drone · " : "") + (cs || a.r || a.hex.toUpperCase()),
+            label: drone ? cs || "DRONE" : "",
+            drone: drone,
+            color: drone ? "#ff3b6b" : null,
+            lat: num(a.lat),
+            lon: num(a.lon),
+            size: drone ? 6 : 4,
+            tag: drone ? "DRONE" : "MILITARY",
+            rows: [
+              ["TYPE", a.desc || a.t || "—"],
+              ["CALLSIGN", cs || "—"],
+              [
+                "ALTITUDE",
+                a.alt_baro === "ground"
+                  ? "On the ground"
+                  : a.alt_baro != null
+                    ? Math.round(a.alt_baro).toLocaleString() + " ft"
+                    : "—"
+              ],
+              ["SPEED", a.gs != null ? Math.round(a.gs) + " kt" : "—"],
+              ["SOURCE", "adsb.lol (public ADS-B)"]
+            ]
+          });
+        });
+    });
+  }
+});
+
 // ---------- War zones: countries under a Level 4 advisory, shaded on the dark globe ----------
 // State Department names that differ from the boundary data's names.
 var CF_ALIAS = {
@@ -133,6 +195,7 @@ function cfToggle() {
   }
   setLayer("conflict", true);
   setLayer("advisory", true);
+  setLayer("military", true);
   if (IL.conflict && !IL.conflict.items.length) ilLoad(IL.conflict, true);
   CF.open = true;
   cfDraw();
@@ -142,6 +205,21 @@ function cfClose() {
   CF.open = false;
   var el = $("cfp");
   if (el) el.style.display = "none";
+}
+
+// " · 41 MILITARY AIRCRAFT · 2 DRONES" from the public ADS-B layer, when it has loaded.
+function cfMilLine() {
+  var m = IL.military;
+  if (!m || !m.items.length) return "";
+  var n = m.items.filter(function (x) {
+    return x.drone;
+  }).length;
+  return (
+    " · " +
+    m.items.length +
+    " MILITARY AIRCRAFT" +
+    (n ? " · " + n + " DRONE" + (n > 1 ? "S" : "") : "")
+  );
 }
 
 function cfItems() {
@@ -178,7 +256,9 @@ function cfDraw() {
       all.length.toLocaleString() +
       " UNVERIFIED REPORTS · " +
       lvl4 +
-      ' DO-NOT-TRAVEL COUNTRIES</span><button data-cf="x" aria-label="Close">✕</button></div>' +
+      " DO-NOT-TRAVEL COUNTRIES" +
+      cfMilLine() +
+      '</span><button data-cf="x" aria-label="Close">✕</button></div>' +
       '<div class="cfchips"><button data-cf="k-" class="' +
       (CF.kind ? "" : "on") +
       '">All</button>' +
@@ -212,7 +292,7 @@ function cfDraw() {
     .map(function (e, i) {
       var parts = String(e.n).split(" · ");
       return (
-        '<button class="cfrow" data-cf="go-' +
+        '<div class="cfline"><button class="cfrow" data-cf="go-' +
         i +
         '"><span class="cfk" style="color:' +
         okColor(e.color) +
@@ -224,7 +304,9 @@ function cfDraw() {
         esc(parts.slice(1).join(" · ") || "—") +
         "</b><em>" +
         (e.t ? ago(e.t) : "") +
-        "</em></button>"
+        '</em></button><button class="cfcam" data-cf="cam-' +
+        i +
+        '" aria-label="Live cameras around this place">▦</button></div>'
       );
     })
     .join("");
@@ -233,14 +315,14 @@ function cfDraw() {
   el.innerHTML = h;
   el.style.display = "flex";
   CF.list = list;
-  CF.drawn = all.length + ":" + d.at + ":" + CF.kind;
+  CF.drawn = all.length + ":" + d.at + ":" + CF.kind + cfMilLine();
 }
 
 setInterval(function () {
   if (
     CF.open &&
     IL.conflict &&
-    CF.drawn !== IL.conflict.items.length + ":" + IL.conflict.at + ":" + CF.kind
+    CF.drawn !== IL.conflict.items.length + ":" + IL.conflict.at + ":" + CF.kind + cfMilLine()
   )
     cfDraw();
 }, 2000);
@@ -253,6 +335,12 @@ document.addEventListener("click", function (e) {
   else if (k.indexOf("k-") === 0) {
     CF.kind = k.slice(2);
     cfDraw();
+  } else if (k.indexOf("cam-") === 0) {
+    // The public cameras around the place named in the report, in the camera grid (module 45).
+    var r = CF.list && CF.list[+k.slice(4)];
+    if (!r) return;
+    cfClose();
+    cgOpen(String(r.n).split(" · ").slice(1).join(", ") || "");
   } else if (k.indexOf("go-") === 0) {
     var it = CF.list && CF.list[+k.slice(3)];
     if (!it) return;

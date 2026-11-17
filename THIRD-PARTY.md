@@ -99,7 +99,7 @@ This project connects existing libraries and public data. It does not claim them
 | U.S. Wind Turbine Database (USGS, LBNL, American Clean Power) | Wind farms in the US | US public domain |
 | d3-celestial data (Olaf Frohn) | Star positions, constellation lines and names for the sky | BSD 3-Clause |
 | JPL Approximate Positions of the Planets (Standish) | Planet positions | US public domain |
-| us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode and disaster declarations | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
+| us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode, disaster declarations and the Smooth globe's borders and names | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |
 | USGS | Earthquakes, volcano cameras | US public domain |
@@ -128,7 +128,7 @@ This project connects existing libraries and public data. It does not claim them
 | US Department of State travel advisories | Country file: advisory level | US Government work |
 | Frankfurter (European Central Bank rates) | Country file: exchange rate | Open data |
 | MeteoAlarm (EUMETNET, national weather services) | Emergency mode: official weather warnings in Europe | CC BY 4.0 |
-| adsb.lol · adsb.fi (community ADS-B networks) | Aircraft positions for the area in view when OpenSky does not answer; flight lookup by callsign | ODbL / open data |
+| adsb.lol · adsb.fi (community ADS-B networks) | Aircraft positions for the area in view when OpenSky does not answer; flight lookup by callsign; military aircraft and drones (adsb.lol) | ODbL / open data |
 | GLEIF LEI register | Records: legal name, status, jurisdiction and addresses of organisations | CC0 |
 | Wikidata | Records: founding year, officers and parent of well-known organisations | CC0 |
 | OpenCorporates (optional, user's key) | Records: state company register entry and status | OpenCorporates terms |

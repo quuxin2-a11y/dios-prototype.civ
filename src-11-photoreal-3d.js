@@ -1419,6 +1419,7 @@ function t4Close() {
   } catch (e) {}
   target = null;
   setTimeout(resize, 40);
+  if (typeof rw3dBack === "function") rw3dBack();
 }
 setInterval(function () {
   if (!T4.on || !T4.v || document.hidden) return;

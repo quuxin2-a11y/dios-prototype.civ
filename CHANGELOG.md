@@ -2,6 +2,18 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v85
+- **Smooth globe is the default on Android.** Android phones start on Smooth globe; other devices start on Globe, and phones with an Imagination (PowerVR) chip start on Smooth globe whatever they run. A choice made in Settings → Display always wins.
+
+## v84
+- **Names on Smooth globe:** the 2D globe now draws country borders and names, and from closer in US state borders and names. Outlines come from the same open boundary data as Focus (Natural Earth via world-atlas and us-atlas), thinned once so drawing stays smooth; names go biggest first and are skipped where they would overlap or not fit.
+
+## v83
+- **See in 3D is back:** zoomed into a city on the map, a ◆ SEE IN 3D button opens the photo-real 3D close-up of that spot; its ✕ returns to the map at the same place and zoom. The dashboard no longer closes the 3D view after 25 seconds.
+- **Camera grid in pages:** one screenful of tiles per page (two across on a phone), with ‹ › and a sideways swipe to turn pages, instead of one long scrolling sheet. Only the page in view loads pictures. Tiles have more space and a fine outline.
+- **Military aircraft & drones** (Conflict group, switched on by the Conflict button): military aircraft broadcasting on public ADS-B from adsb.lol, refreshed every minute, with drones such as the RQ-4 Global Hawk, MQ-4C Triton and MQ-9 Reaper in red. The Conflict panel shows how many are up.
+- **Cameras near a report:** ▦ beside each conflict report opens the camera grid for that place.
+
 ## v82
 - **Smooth globe** (Settings → Display): from space, a round globe drawn by the app in plain 2D, with no graphics-chip drawing, so it cannot flicker; zooming in to a region hands over to the flat map at the same place, and zooming back out returns to the round globe. The two switch points are apart so the view never flips back and forth.
 - Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, now start on Smooth globe, and Flat map saved on those phones by v81 moves to it once. Simple globe is replaced by Smooth globe.

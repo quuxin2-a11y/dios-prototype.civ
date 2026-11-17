@@ -1,17 +1,16 @@
 /**
  * @file Camera grid: every camera in a city, state or the area in view, as mini tiles.
  * Type a place (or use what's on the map) and its cameras fill a grid of small live pictures,
- * nearest the centre first. Tap a tile to make it big, tap again to shrink it back; several can
- * be big at once. Big tiles refresh every few seconds, small ones about once a minute while on
- * screen, and pictures load only as they scroll into view, so a city of thousands stays smooth.
+ * nearest the centre first, one screenful per page (‹ › or a swipe for the next page). Tap a tile
+ * to make it big, tap again to shrink it back; several can be big at once. Big tiles refresh every
+ * few seconds and small ones about once a minute, and only the page in view loads anything.
  * Opens from Cameras in the dashboard's dock; its ➤ button opens Drive (cameras along a route).
  *
  * Module 44 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-var CG = { open: false, list: [], shown: 0, place: "", big: {} },
-  CG_PAGE = 90,
+var CG = { open: false, list: [], page: 0, place: "", big: {} },
   CG_BIG_MS = 4000,
   CG_SMALL_MS = 60000;
 
@@ -102,7 +101,9 @@ function cgOpen(q) {
     el.id = "cgp";
     el.innerHTML =
       '<form class="cghead" id="cgForm"><input id="cgq" type="search" placeholder="City or state" autocomplete="off"><button>Show</button><button type="button" class="cgdrive" data-cg="drive" aria-label="Drive: cameras along a route">➤</button><button type="button" data-cg="x" aria-label="Close">✕</button></form>' +
-      '<div class="cgsub mono" id="cgsub"></div><div class="cggrid" id="cggrid"></div>';
+      '<div class="cgsub mono" id="cgsub"></div><div class="cggrid" id="cggrid"></div>' +
+      '<div class="cgpager"><button data-cg="prev" aria-label="Previous page">‹</button><span class="mono" id="cgpg"></span><button data-cg="next" aria-label="Next page">›</button></div>';
+    cgSwipe(el);
     document.body.appendChild(el);
   }
   CG.open = true;
@@ -128,8 +129,7 @@ function cgLoad(q) {
     .then(function (box) {
       CG.place = box.name;
       CG.list = cgPick(box);
-      CG.shown = 0;
-      cgMore();
+      cgPage(0);
     })
     .catch(function () {
       $("cgsub").textContent = "COULDN'T FIND THAT PLACE · TRY A CITY OR STATE NAME";
@@ -145,10 +145,27 @@ function cgSub() {
     : "NO LIVE CAMERAS IN " + CG.place.toUpperCase();
 }
 
-function cgMore() {
+// Tiles per page: as many as fit on the screen without scrolling (2 across on a phone).
+function cgPer() {
   var g = $("cggrid"),
-    from = CG.shown,
-    to = Math.min(CG.list.length, from + CG_PAGE),
+    w = (g && g.clientWidth) || innerWidth,
+    h = (g && g.clientHeight) || innerHeight - 170,
+    cols = w < 640 ? 2 : w < 1000 ? 3 : 4,
+    tileH = ((w - 12 - (cols - 1) * 8) / cols) * 0.625 + 8;
+  return cols * Math.max(2, Math.floor(h / tileH));
+}
+
+function cgPages() {
+  return Math.max(1, Math.ceil(CG.list.length / cgPer()));
+}
+
+function cgPage(p) {
+  var g = $("cggrid"),
+    per = cgPer();
+  CG.page = Math.max(0, Math.min(cgPages() - 1, p));
+  CG.big = {};
+  var from = CG.page * per,
+    to = Math.min(CG.list.length, from + per),
     h = "";
   for (var i = from; i < to; i++) {
     var c = CG.list[i];
@@ -161,19 +178,43 @@ function cgMore() {
       esc(c.n || "Camera") +
       "</span></div>";
   }
-  var old = g.querySelector(".cgmore");
-  if (old) old.remove();
-  g.insertAdjacentHTML("beforeend", h);
-  CG.shown = to;
-  if (to < CG.list.length)
-    g.insertAdjacentHTML(
-      "beforeend",
-      '<button class="cgmore" data-cg="more">Show ' +
-        Math.min(CG_PAGE, CG.list.length - to) +
-        " more</button>"
-    );
+  g.innerHTML = h; // the previous page's pictures stop loading
+  g.scrollTop = 0;
+  var n = cgPages();
+  $("cgpg").textContent = CG.list.length
+    ? "PAGE " + (CG.page + 1) + " OF " + n.toLocaleString()
+    : "";
+  document.querySelector("#cgp .cgpager").style.visibility = n > 1 ? "" : "hidden";
+  document.querySelector("#cgp [data-cg='prev']").disabled = CG.page === 0;
+  document.querySelector("#cgp [data-cg='next']").disabled = CG.page >= n - 1;
   cgSub();
   cgWatch();
+}
+
+// A sideways swipe on the grid turns the page.
+function cgSwipe(el) {
+  var x0 = null,
+    y0 = 0;
+  el.addEventListener(
+    "touchstart",
+    function (e) {
+      if (e.target.closest(".cghead") || e.touches.length !== 1) return (x0 = null);
+      x0 = e.touches[0].clientX;
+      y0 = e.touches[0].clientY;
+    },
+    { passive: true }
+  );
+  el.addEventListener(
+    "touchend",
+    function (e) {
+      if (x0 == null) return;
+      var dx = e.changedTouches[0].clientX - x0,
+        dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) cgPage(CG.page + (dx < 0 ? 1 : -1));
+    },
+    { passive: true }
+  );
 }
 
 // Pictures load as tiles scroll into view, and stop refreshing when they scroll away.
@@ -243,7 +284,8 @@ document.addEventListener("click", function (e) {
     // Drive: the cameras along a route, live as you go (module 04).
     cgClose();
     drvPanel();
-  } else if (k === "more") cgMore();
+  } else if (k === "prev") cgPage(CG.page - 1);
+  else if (k === "next") cgPage(CG.page + 1);
   else if (k.indexOf("open-") === 0) {
     var c = CG.list[+k.slice(5)];
     if (!c) return;

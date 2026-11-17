@@ -7651,6 +7651,23 @@ body.rw #brandov {
   overflow-y: auto;
   border-top: 1px solid #ffffff12;
 }
+#cfp .cfline {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #ffffff0d;
+}
+#cfp .cfline .cfrow {
+  border-bottom: 0;
+  min-width: 0;
+}
+#cfp .cfcam {
+  flex: 0 0 48px;
+  border: 0;
+  border-left: 1px solid #ffffff0d;
+  background: transparent;
+  color: var(--accent);
+  font-size: 17px;
+}
 #cfp .cfrow {
   display: flex;
   align-items: center;
@@ -7764,18 +7781,54 @@ body.cg-open #cfp {
   flex: 1;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-auto-flow: dense;
-  gap: 4px;
-  padding: 0 6px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  gap: 8px;
+  padding: 2px 6px 8px;
   align-content: start;
+}
+@media (min-width: 640px) {
+  #cgp .cggrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1000px) {
+  #cgp .cggrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+#cgp .cgpager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  border-top: 1px solid #ffffff0d;
+}
+#cgp .cgpager span {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: #8fa3b3;
+}
+#cgp .cgpager button {
+  width: 56px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  color: var(--ink);
+  font-size: 20px;
+}
+#cgp .cgpager button:disabled {
+  opacity: 0.3;
 }
 #cgp .cgt {
   position: relative;
   aspect-ratio: 16 / 10;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   background: #0b1219;
+  border: 1px solid #ffffff10;
   cursor: pointer;
 }
 #cgp .cgt.big {
@@ -7865,4 +7918,32 @@ body.bare #bareX {
   font-size: 12px;
   line-height: 1.45;
   color: #8fa3b3;
+}
+
+/* ---------- v83: See in 3D, offered when zoomed into a city ---------- */
+#rw3d {
+  display: none;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+  z-index: 41;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid #36e0ff66;
+  background: #060a10e6;
+  color: #bff4ff;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+body.rw.rw3dok:not(.bare):not(.real) #rw3d {
+  display: block;
+}
+/* The 3D close-up's way back to the map, shown on the dashboard. */
+body.rw #t4bar [data-t4="x"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px !important;
+  color: var(--ink);
 }

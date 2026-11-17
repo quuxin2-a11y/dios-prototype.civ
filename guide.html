@@ -221,7 +221,7 @@ footer a{color:var(--mut)}
       </svg></div>
       <div class="in"><p class="eyebrow mono">The map</p><h3>The Dark Globe</h3>
       <p>The whole planet as a sleek dark map: glowing country borders, state lines, and names that appear as you zoom, from countries down to street names. Every camera, aircraft, ship, data layer and undersea cable is drawn on the phone's graphics chip, so it stays smooth with over 100,000 points. Tap anything to open it.</p>
-      <div class="how"><b>Zoom into any city</b> and it turns 3D by itself: aerial photos fade in, buildings rise and the view tilts. Zoom out and it levels again.</div></div>
+      <div class="how"><b>Zoom into any city</b> and it turns 3D by itself: aerial photos fade in, buildings rise and the view tilts. Zoom out and it levels again. Zoomed right in, tap <b>◆ See in 3D</b> for the photo-real 3D close-up of that spot; ✕ brings you back.</div></div>
     </article>
     <article class="world">
       <div class="art"><svg viewBox="0 0 320 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -305,6 +305,8 @@ footer a{color:var(--mut)}
     <tr><td>Tap the logo</td><td>Open the live sky</td></tr>
     <tr><td>Double-tap a layer</td><td>Show only that layer; double-tap it again to bring back the layers you had on</td></tr>
     <tr><td>Zoom into a city</td><td>Aerial photos fade in, buildings rise in 3D and the view tilts</td></tr>
+    <tr><td>◆ See in 3D</td><td>Zoomed right in: the photo-real 3D close-up of that spot (✕ to come back)</td></tr>
+    <tr><td>Swipe sideways on the camera grid</td><td>Next or previous page of cameras</td></tr>
     <tr><td>Hold the logo</td><td>Open the live sky</td></tr>
     <tr><td>Tap the eye</td><td>Hide every menu; tap the eye in the corner to bring them back</td></tr>
     <tr><td>Drag up the bottom panel</td><td>See details, cameras, events and layers</td></tr>
@@ -364,7 +366,7 @@ footer a{color:var(--mut)}
   <details><summary>Why does the camera count change?</summary><p>Each network's fresh list replaces the saved one as it arrives, and the worldwide webcam list keeps building for a few minutes. Networks that don't answer are retried automatically, and their cameras from last time stay on the map in the meantime.</p></details>
   <details><summary>How do I update?</summary><p>On Android, download the newest file from the same GitHub link and install it over the old one. Your settings and keys stay. The web version updates itself.</p></details>
   <details><summary>Can the app go back to the old screen?</summary><p>No. The dark globe and its dashboard are the app's only screen, and no setting or older saved choice can bring back the old one. If the dark globe ever can't load, a simpler globe with the same dashboard and all your data stands in, and the dark globe is retried automatically until it's back.</p></details>
-  <details><summary>The map flickers or shows lines on my phone</summary><p>Some phone graphics chips, such as the Pixel 10's, draw the map engine's round globe with flicker and lines. Open Settings → Display and choose Smooth globe: from space you get a round globe the app draws itself, and zooming in to a region turns it into the flat map, which those chips draw cleanly; zoom back out and the round globe returns. Phones with that chip are set to Smooth globe automatically. Flat map keeps the flat map at every zoom. Your cameras, layers and data stay exactly the same, and you can switch back any time.</p></details>
+  <details><summary>The map flickers or shows lines on my phone</summary><p>Some phone graphics chips, such as the Pixel 10's, draw the map engine's round globe with flicker and lines. Open Settings → Display and choose Smooth globe: from space you get a round globe the app draws itself, with country and US state borders and names, and zooming in to a region turns it into the flat map, which those chips draw cleanly; zoom back out and the round globe returns. Android phones start on Smooth globe automatically; you can pick Globe in Settings → Display. Flat map keeps the flat map at every zoom. Your cameras, layers and data stay exactly the same, and you can switch back any time.</p></details>
   <details><summary>What if the screen goes black?</summary><p>The app now repairs this itself. If the phone takes the globe's graphics away, the globe redraws within a couple of seconds. If the dark globe can't draw, a simpler globe with the same dashboard and all your data stands in, and the dark globe is retried automatically. If it still happens, send the error report from Briefing → Settings → System check and error report.</p></details>
   <details><summary>Something isn't working</summary><p>In Layers, open Live networks and tap Copy short status. It shows which sources are answering, without your keys, and you can share it with whoever is helping you.</p></details>
 </div></section>
@@ -372,7 +374,7 @@ footer a{color:var(--mut)}
 </main>
 
 <footer><div class="wrap row">
-  <span>Ojos de Dios · Version 82 · © 2026 Mark Joseph</span>
+  <span>Ojos de Dios · Version 85 · © 2026 Mark Joseph</span>
   <span><a href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md">Privacy</a> · <a href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md">Sources and credits</a> · <a href="https://github.com/quuxin2-a11y/dios-prototype.civ">Source code</a></span>
 </div></footer>
 
@@ -455,6 +457,7 @@ footer a{color:var(--mut)}
     ]],
     ["Conflict", "#ff3b6b", [
       ["Conflict reports", "Drone strikes, air strikes, shelling, bombings and clashes from the last 24 hours, placed at the town named in the report, with type, time, coverage and a link to the article. Unverified: machine-coded from news.", "GDELT event files, via the app's data feed", "Worldwide"],
+      ["Military aircraft & drones", "Military aircraft that broadcast their position, with large drones such as the RQ-4 Global Hawk picked out in red. Only aircraft with their transponder on appear; no public source streams video from military drones.", "adsb.lol (public ADS-B)", "Worldwide"],
       ["War and danger zones", "Countries under a US Do not travel (Level 4) advisory, shaded on the dark globe.", "U.S. Department of State", "Worldwide"]
     ]],
     ["Travel and economy", "#ffd84a", [
@@ -485,8 +488,8 @@ footer a{color:var(--mut)}
     ["⌂", "Briefing", "Your daily summary and settings.", "A morning-style overview of alerts and news near you, plus every setting, including Globe look.", "Button row → Briefing"],
     ["⚠", "Emergency mode", "Official alerts, safe places and routes.", "Repeats official alerts word for word, ranks nearby safe places by visible rules, and shows the local emergency number with a call button. Family check-in, SOS and an offline pack are built in.", "Button row → Emergency"],
     ["◎", "The dashboard", "One clean screen for everything.", "A slim top bar with the live camera count, Search, Emergency and Hide menus, and a dock with Layers, Cameras, Events, Conflict and Settings. It's the same on the dark globe, the satellite globe and in 3D.", "Opens by default"],
-    ["▦", "Camera grid", "Every camera in a city, at once.", "Type a city or state (or use the area in view) and all its cameras appear as mini tiles, nearest the centre first. Tap a tile to make it big, tap again to shrink it back; make as many big as you like, and tap Open for the full viewer.", "Dock → Cameras"],
-    ["✹", "Conflict monitor", "Strikes and clashes in the last 24 hours.", "One tap switches on conflict reports and shades Do-not-travel countries, then lists every report newest first with its type, place and time. Filter by type, and tap a report to fly there and read its source. Reports are unverified.", "Dock → Conflict"],
+    ["▦", "Camera grid", "Every camera in a city, at once.", "Type a city or state (or use the area in view) and its cameras appear as mini tiles, nearest the centre first, one screenful per page; ‹ › or a sideways swipe turns the page. Tap a tile to make it big, tap again to shrink it back; make as many big as you like, and tap Open for the full viewer.", "Dock → Cameras"],
+    ["✹", "Conflict monitor", "Strikes and clashes in the last 24 hours.", "One tap switches on conflict reports and shades Do-not-travel countries, then lists every report newest first with its type, place and time. Filter by type, tap a report to fly there and read its source, or tap ▦ beside it for the live public cameras around that place. Military aircraft and drones broadcasting nearby are shown too. Reports are unverified.", "Dock → Conflict"],
     ["⚠", "Help with a photo", "Send where you are, fast.", "In Emergency mode, take a photo of where you are. The app adds your phone's position and how accurate it is, then opens a ready message for your check-in contacts, the share sheet (so the photo goes too), or a text to 911 where your area offers it. Nothing is sent until you press send. Calling is always fastest.", "The red ! in the top bar → Help with a photo"],
     ["📷", "Where is this?", "Name a landmark from a photo.", "Recognises well-known public landmarks and shows the best matches with how sure it is (for example 92%) and a radius, then flies there. Photos showing a person, a home, a hotel room or another private interior are never looked up. Needs your own free Google Cloud Vision key, kept on your phone.", "Search → the camera button"],
     ["◉", "Hide menus", "Just the map and the data.", "Clears every menu, button and ticker off the screen so you can watch cameras, aircraft and layers without anything in the way. One small eye button in the corner brings everything back.", "The eye in the top bar"],

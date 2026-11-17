@@ -338,6 +338,7 @@ function draw3d(t) {
       ctx.restore();
     }
   }
+  hybDraw(R); // Smooth globe's borders and names (module 42)
   // limb ring
   ctx.strokeStyle = "rgba(150,195,255,0.35)";
   ctx.lineWidth = 1;

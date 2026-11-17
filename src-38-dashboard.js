@@ -127,6 +127,7 @@ function rwMode(mode, opt) {
         : [rot.lon, rot.lat, 1.6e7];
   RW.mode = mode;
   RW.t0 = Date.now();
+  RW.back = null; // a switch made here replaces the return from the 3D close-up
   document.body.classList.toggle("rw-globe", mode === "globe");
   document.body.classList.toggle("rw-canvas", mode === "canvas");
   rwDraw();
@@ -267,7 +268,7 @@ document.addEventListener("click", function (e) {
 setInterval(function () {
   if (!RW.on) return;
   // If the engine was closed some other way, leave the dashboard (after time for it to load).
-  if (RW.mode === "globe" && !T3.on && Date.now() - RW.t0 > 25000) {
+  if (RW.mode === "globe" && !T3.on && !T4.on && Date.now() - RW.t0 > 25000) {
     errLog("Dashboard: the dark globe closed; showing the app's own globe");
     rwMode("canvas");
     return;
