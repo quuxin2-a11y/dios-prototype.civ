@@ -3,7 +3,7 @@
  * Projection maths, WebGL and 2D drawing of the globe, camera dots and overlays, and the
  * performance governor.
  *
- * Module 5 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 5 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -212,8 +212,36 @@ function frame(now) {
   rot.lon = ((rot.lon + 540) % 360) - 180;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.clearRect(0, 0, W, H);
-  if (mode === "3d") draw3d(t);
-  else draw2d(t);
+  // One part failing must never leave the globe black: the error is recorded with where it
+  // happened, and after repeated failures the satellite layer (the likeliest cause) is set aside
+  // so the plain globe, cameras and layers keep drawing.
+  try {
+    if (mode === "3d") draw3d(t);
+    else draw2d(t);
+    frame.bad = 0;
+  } catch (e) {
+    frame.bad = (frame.bad || 0) + 1;
+    if (frame.bad === 1 || frame.bad === 30) errLog("Globe drawing: " + errWhere(e));
+    if (frame.bad === 30 && !frame.safe) {
+      frame.safe = true;
+      satSafe = true;
+    }
+  }
+}
+var satSafe = false; // set when drawing keeps failing: the globe is drawn without the satellite layer
+
+// "message at function (line)" from an error, for the error report.
+function errWhere(e) {
+  var st = String((e && e.stack) || "")
+    .split("\n")
+    .slice(1, 4)
+    .map(function (l) {
+      return l
+        .replace(/^\s*at\s+/, "")
+        .replace(/\(?(https?|file|capacitor):\/\/[^)]*?(:\d+:\d+)\)?/, "$2");
+    })
+    .join(" < ");
+  return String((e && e.message) || e) + (st ? " @ " + st : "");
 }
 function draw3d(t) {
   var R = radius(),

@@ -3,7 +3,7 @@
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -1768,7 +1768,11 @@ function t3Cams() {
     f.push({
       type: "Feature",
       geometry: { type: "Point", coordinates: [c.lon, c.lat] },
-      properties: { i: idx[c.u], k: c.t === "hazard" ? 1 : c.t === "nature" ? 2 : c.v ? 3 : 0 }
+      properties: {
+        i: idx[c.u],
+        k: c.t === "hazard" ? 1 : c.t === "nature" ? 2 : c.v ? 3 : 0,
+        n: String(c.n || "").slice(0, 42)
+      }
     });
   }
   var d = { type: "FeatureCollection", features: f },
@@ -1800,6 +1804,28 @@ function t3Cams() {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 2, 0.9, 8, 2, 13, 3.6, 17, 6]
       }
     });
+    // Close in, each camera carries its name, like a control-room map.
+    if (T3.ops)
+      m.addLayer({
+        id: "camlabel",
+        type: "symbol",
+        source: "cams",
+        minzoom: 13.2,
+        layout: {
+          "text-field": ["get", "n"],
+          "text-font": OPS_FONT,
+          "text-size": 10.5,
+          "text-anchor": "left",
+          "text-offset": [0.9, 0],
+          "text-max-width": 16,
+          "text-transform": "uppercase"
+        },
+        paint: {
+          "text-color": "#bff3ff",
+          "text-halo-color": "#021018",
+          "text-halo-width": 1.6
+        }
+      });
     m.on("click", "cams", function (e) {
       var ft = e.features && e.features[0],
         c2 = ft && LIVE[ft.properties.i];
@@ -2054,7 +2080,12 @@ function t3Open(opt) {
             );
           m.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
         } catch (e) {}
-        m.on("error", function () {});
+        m.on("error", function (e) {
+          // Missing tiles are normal; an error before the map has drawn means it can't start.
+          if (T3.ops && !T3.ready && !(e && (e.tile || e.sourceId)))
+            opsFail((e && e.error && e.error.message) || "map error");
+        });
+        if (ops) opsWatch();
         m.on("pointerdown", function () {
           lastInteract = performance.now();
         });
@@ -2372,6 +2403,7 @@ function t3Models() {
 function t3Close() {
   if (!T3.on) return;
   T3.on = false;
+  clearTimeout(T3.watch);
   ls("ojos-view", "globe");
   document.body.classList.remove("tilt");
   var b = $("b3dv");
@@ -2389,6 +2421,14 @@ function t3Close() {
     } catch (e) {}
   }
   target = null;
+  // The dark globe gives its graphics memory back while the 3D city or classic globe is shown.
+  if (T3.ops && m) {
+    try {
+      m.remove();
+    } catch (e) {}
+    T3.map = null;
+    T3.ready = false;
+  }
   setTimeout(resize, 40);
 }
 setInterval(function () {

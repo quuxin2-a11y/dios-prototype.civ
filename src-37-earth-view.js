@@ -5,7 +5,7 @@
  * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
  * globe when the 3D engine or Google's tiles are not available.
  *
- * Module 37 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 37 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -108,22 +108,27 @@ function t4Cables() {
 
 // Start in the Earth view from space, over the place the globe was showing.
 // Start-up follows Globe look, whatever view was open last time (except the standard 3D view).
-if (EMBED_OK && /^(world|replica)$/.test(lookMode()))
+// Every look except "classic" opens the dashboard (module 39) over its view.
+var LOOK_MODE = { world: "globe", replica: "replica", earth: "replica", clear: "canvas" };
+
+// A start that never got a map on screen last time (closed on a black screen, or crashed) opens
+// the satellite globe once instead; module 42 marks the start good once a map has drawn.
+var BOOT_SAFE = ls("ojos-boot") === "pending",
+  BOOT_MODE = LOOK_MODE[lookMode()],
+  BOOT_DASH = EMBED_OK && !!BOOT_MODE && BOOT_MODE !== "canvas" && !BOOT_SAFE;
+ls("ojos-boot", "pending");
+if (EMBED_OK && BOOT_MODE)
   setTimeout(function () {
+    if (lookMode() === "earth") SET.rw3d = "photo";
     rwEnter({
       auto: true,
-      mode: lookMode() === "world" ? "globe" : "replica",
+      mode: BOOT_SAFE ? "canvas" : BOOT_MODE,
       lon: rot.lon,
       lat: rot.lat
     });
+    if (BOOT_SAFE && BOOT_MODE !== "canvas")
+      note(
+        "Safe start",
+        "Last time the map didn't finish loading, so this start uses the satellite globe. Tap the logo to open the dark globe."
+      );
   }, 400);
-else if (EMBED_OK && lookMode() === "earth" && ls("ojos-view") !== "3d")
-  setTimeout(function () {
-    t4Open({
-      auto: true,
-      space: true,
-      lon: rot.lon,
-      lat: rot.lat,
-      replica: lookMode() === "replica"
-    });
-  }, 900);

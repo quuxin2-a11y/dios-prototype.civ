@@ -7,12 +7,14 @@
  * back), on the globe too. Layers, settings and selections are the same ones
  * the globe uses, so a change in one world shows in the other.
  *
- * Module 39 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 39 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-// One dashboard, two map engines: "globe" (the dark globe, module 42) and "replica" (the 3D city,
-// module 38). The logo switches between them, keeping the place in view.
+// One dashboard over every view: "globe" (the dark globe, module 42), "replica" (the 3D city,
+// module 38) and "canvas" (the satellite globe drawn by the app itself, which needs nothing from
+// the network to appear, so it is also the fallback). The logo switches between the dark globe
+// and the 3D city, keeping the place in view.
 var RW = { on: false, mode: "globe" };
 
 var RW_DOCK = [
@@ -23,7 +25,11 @@ var RW_DOCK = [
     '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 10.5l5-2.5v8l-5-2.5"/>'
   ],
   ["events", "Events", '<path d="M3 12h4l2.5-6 4 12 2.5-6h5"/>'],
-  ["search", "Search", '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>'],
+  [
+    "conflict",
+    "Conflict",
+    '<path d="M12 3l2.2 5.6 6 .4-4.6 3.8 1.5 5.9L12 15.5 6.9 18.7l1.5-5.9L3.8 9l6-.4z"/>'
+  ],
   [
     "set",
     "Settings",
@@ -33,13 +39,14 @@ var RW_DOCK = [
 
 // Live counts for the top bar, the same numbers the globe's status strip shows.
 function rwCounts() {
-  var c = function (label, n, on) {
-    return "<span><i>" + label + "</i>" + (on ? n.toLocaleString() : "—") + "</span>";
+  // The camera count always; aircraft and ships only while they are switched on.
+  var c = function (label, n) {
+    return "<span><i>" + label + "</i>" + n.toLocaleString() + "</span>";
   };
   return (
-    c("CAM", visLive.length, true) +
-    c("AIR", PLANES.length, WL.air) +
-    c("SEA", SHIPS.length, WL.ship)
+    c("CAM", visLive.length) +
+    (WL.air ? c("AIR", PLANES.length) : "") +
+    (WL.ship ? c("SEA", SHIPS.length) : "")
   );
 }
 
@@ -52,8 +59,8 @@ function rwDraw() {
       '<div class="rwtop">' +
       '<div class="rwbrand"><svg viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><b id="rwname">GLOBE</b></div>' +
       '<div class="rwcount mono" id="rwcount"></div>' +
+      '<button data-rw="search" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="19" height="19"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>' +
       '<button class="rwemg" data-rw="emg" aria-label="Emergency">!</button>' +
-      '<button class="rwgal" data-rw="galaxy" aria-label="Sky">✦</button>' +
       '<button data-rw="bare" aria-label="Hide menus">' +
       BARE_ICON +
       "</button>" +
@@ -81,8 +88,10 @@ function rwDraw() {
     cnt.innerHTML = h;
   }
   var nm = $("rwname"),
-    label = RW.mode === "replica" ? "REPLICA 3D" : "OJOS DE DIOS";
+    label = "OJOS DE DIOS";
   if (nm && nm.textContent !== label) nm.textContent = label;
+  var cf = el.querySelector('.rwdock [data-rw="conflict"]');
+  if (cf) cf.classList.toggle("on", !!WL.conflict);
   var sb = el.querySelector('[data-rw="search"]');
   if (sb) sb.classList.toggle("on", document.body.classList.contains("rwfind"));
 }
@@ -110,7 +119,7 @@ function rwWhere() {
       return [p.longitude / D, p.latitude / D, p.height];
     }
   } catch (e) {}
-  return [rot.lon, rot.lat, 1.6e7];
+  return [rot.lon, rot.lat, Math.max(800, viewKm() * 900)];
 }
 
 function rwMode(mode, opt) {
@@ -125,7 +134,17 @@ function rwMode(mode, opt) {
   RW.t0 = Date.now();
   document.body.classList.toggle("rw-globe", mode === "globe");
   document.body.classList.toggle("rw-replica", mode === "replica");
+  document.body.classList.toggle("rw-canvas", mode === "canvas");
   rwDraw();
+  if (mode === "canvas") {
+    if (T3.on) t3Close();
+    if (T4.on) t4Close();
+    rot.lon = w[0];
+    rot.lat = Math.max(-85, Math.min(85, w[1]));
+    lastView = "";
+    setTimeout(resize, 40);
+    return;
+  }
   if (mode === "globe") {
     if (T4.on) t4Close();
     t3Open({
@@ -160,9 +179,10 @@ function rwMode(mode, opt) {
 function rwExit() {
   if (!RW.on) return;
   RW.on = false;
-  document.body.classList.remove("rw", "rw-globe", "rw-replica");
+  document.body.classList.remove("rw", "rw-globe", "rw-replica", "rw-canvas");
   if (T4.on) t4Close();
   if (T3.on) t3Close();
+  setTimeout(resize, 40);
 }
 
 document.addEventListener("click", function (e) {
@@ -176,6 +196,7 @@ document.addEventListener("click", function (e) {
   if (k === "exit") rwExit();
   else if (k === "bare") bareSet(true);
   else if (k === "emg") emgAsk();
+  else if (k === "conflict") cfToggle();
   else if (k === "search") {
     var on = !document.body.classList.contains("rwfind");
     document.body.classList.toggle("rwfind", on);
@@ -273,9 +294,13 @@ document.addEventListener("click", function (e) {
 setInterval(function () {
   if (!RW.on) return;
   // If the engine was closed some other way, leave the dashboard (after time for it to load).
-  if (!(RW.mode === "globe" ? T3.on : T4.on) && Date.now() - RW.t0 > 25000) {
-    RW.on = false;
-    document.body.classList.remove("rw", "rw-globe", "rw-replica");
+  if (
+    RW.mode !== "canvas" &&
+    !(RW.mode === "globe" ? T3.on : T4.on) &&
+    Date.now() - RW.t0 > 25000
+  ) {
+    errLog("Dashboard: the " + RW.mode + " view closed; showing the satellite globe");
+    rwMode("canvas");
     return;
   }
   rwDraw();

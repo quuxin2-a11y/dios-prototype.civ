@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 import check_secrets
+import conflict
 import install_native
 
 GENERATED_MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
@@ -111,3 +112,51 @@ class InstallNativeTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def gdelt_row(**over) -> list[str]:
+    r = [""] * 61
+    r[0], r[6], r[16] = "1001", "RUSSIA", "UKRAINE"
+    r[26], r[32], r[33] = "1952", "3", "5"
+    r[51], r[52], r[53] = "4", "Kharkiv, Kharkivs'ka Oblast', Ukraine", "UP"
+    r[56], r[57], r[59], r[60] = "49.9935", "36.2304", "20261116221500", "https://news.example.org/a"
+    for k, v in over.items():
+        r[conflict.COL[k]] = v
+    return r
+
+
+class ConflictTest(unittest.TestCase):
+    def test_drone_strike_becomes_a_map_item(self) -> None:
+        items = conflict.parse_rows([gdelt_row()], 0)
+        self.assertEqual(len(items), 1)
+        it = items[0]
+        self.assertEqual((it["lat"], it["lon"], it["n"]), (49.9935, 36.2304, "Drone strike · Kharkiv"))
+        self.assertIn("UNVERIFIED", it["tag"])
+        self.assertEqual(it["links"][0][1], "https://news.example.org/a")
+        self.assertEqual(dict(it["rows"])["COVERAGE"], "5 articles from 3 sources")
+
+    def test_kinds_and_filters(self) -> None:
+        self.assertEqual(conflict.kind_of("1951")[0], "Air strike")
+        self.assertEqual(conflict.kind_of("194")[0], "Artillery / shelling")
+        self.assertIsNone(conflict.kind_of("042"))
+        rows = [
+            gdelt_row(code="042"),  # a meeting, not violence
+            gdelt_row(geo_type="1"),  # only a country centre
+            gdelt_row(articles="1"),  # a single article
+            gdelt_row(lat="x"),
+            gdelt_row(url="not a link"),
+            ["short", "row"],
+        ]
+        self.assertEqual(conflict.parse_rows(rows, 0), [])
+
+    def test_same_event_type_and_place_is_merged(self) -> None:
+        items = conflict.parse_rows([gdelt_row(id="1", articles="3"), gdelt_row(id="2", articles="9")], 0)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["id"], "conflict:2")
+        self.assertEqual(dict(items[0]["rows"])["EVENTS HERE"], "2 reports in 24 h")
+
+    def test_file_names_cover_a_day_in_15_minute_steps(self) -> None:
+        from datetime import datetime, timezone
+
+        s = conflict.stamps(datetime(2026, 11, 17, 3, 22, tzinfo=timezone.utc), 24)
+        self.assertEqual((len(s), s[0], s[-1]), (96, "20261117030000", "20261116031500"))

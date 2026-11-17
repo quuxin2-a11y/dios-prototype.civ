@@ -3,7 +3,7 @@
  * Tracks dead and live feeds, builds the copyable diagnostics text, refreshes still images, and
  * reads TxDOT camera snapshots.
  *
- * Module 2 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 2 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -98,7 +98,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v73 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v76 status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -121,7 +121,13 @@ function diagText() {
   L.push(
     "LAYERS: " +
       WLDEF.map(function (w) {
-        var n = w[3] ? w[3]() : "";
+        var n = "";
+        try {
+          n = w[3] ? w[3]() : "";
+        } catch (e) {
+          n = "error";
+          errLog("Layer count " + w[0] + ": " + errWhere(e));
+        }
         return (
           w[0] +
           "=" +
@@ -170,6 +176,7 @@ function diagText() {
       " · VOICE: " +
       (voiceKind() || "none")
   );
+  L.push("ERRORS: " + errText().split("\n").slice(-8).join(" | "));
   return L.join("\n");
 }
 function copyText(t) {

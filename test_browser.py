@@ -439,10 +439,10 @@ class AppInBrowser(unittest.TestCase):
         self.page.route("**/*", self._local_only)
         # Skip the first-run introduction so the tests start on the globe.
         self.page.add_init_script("localStorage.setItem('ojos-onb', 'true')")
-        # Most tests exercise the globe; Replica World, the default start, has its own tests.
+        # Most tests exercise the classic screen; the dashboard (the default start) has its own tests.
         self.page.add_init_script(
             "if (!localStorage.getItem('ojos-set'))"
-            " localStorage.setItem('ojos-set', JSON.stringify({look: 'clear', lookV: 3}))"
+            " localStorage.setItem('ojos-set', JSON.stringify({look: 'classic', lookV: 3}))"
         )
         self.page.goto(self.url)
         self.page.wait_for_timeout(SETTLE_MS)
@@ -780,9 +780,65 @@ class AppInBrowser(unittest.TestCase):
             "() => document.body.classList.contains('rw-replica') && window.__cz.google === 1",
             timeout=15000,
         )
-        self.assertEqual(self.page.inner_text("#rwname"), "REPLICA 3D")
         self.page.click(".rwbrand")
         self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=5000)
+        self.assertEqual(self.errors, [])
+
+    def test_dark_globe_that_never_draws_falls_back_to_the_satellite_globe(self):
+        # A map engine that loads but never draws (a black screen on a phone).
+        self.page.add_init_script(MAPLIBRE_STANDIN.replace("setTimeout(() => (this.h.load", "(() => (this.h.noload"))
+        self.page.add_init_script("window.__OPS_WAIT_MS = 1500;")
+        self.page.add_init_script("localStorage.setItem('ojos-set', JSON.stringify({look: 'world', lookV: 3}))")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('rw-canvas') && !document.body.classList.contains('tilt')"
+            " && [...document.querySelectorAll('.toast')].some((t) => /satellite globe/.test(t.textContent))",
+            timeout=8000,
+        )
+        self.assertIn("Dark globe", self.page.evaluate("() => localStorage.getItem('ojos-errs')"))
+        self.assertTrue(self.visible("#gl"))
+        self.assertEqual(self.errors, [])
+
+    def test_a_start_that_never_drew_opens_safely_next_time(self):
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script("localStorage.setItem('ojos-set', JSON.stringify({look: 'world', lookV: 3}))")
+        self.page.add_init_script(
+            "if (!sessionStorage.getItem('once')) { sessionStorage.setItem('once', '1');"
+            " localStorage.setItem('ojos-boot', JSON.stringify('pending')); }"
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => [...document.querySelectorAll('.toast')].some((t) => /safe start/i.test(t.textContent))",
+            timeout=6000,
+        )
+        self.assertTrue(self.page.evaluate("() => document.body.classList.contains('rw-canvas')"))
+        # The start is marked good, so the next one opens the dark globe as usual.
+        self.page.wait_for_function("() => localStorage.getItem('ojos-boot') === JSON.stringify('ok')", timeout=5000)
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=8000)
+        self.assertEqual(self.errors, [])
+
+    def test_globe_recovers_when_the_phone_takes_its_graphics_away(self):
+        lost = self.page.evaluate(
+            """() => {
+                const gl = document.getElementById('gl').getContext('webgl');
+                const ext = gl && gl.getExtension('WEBGL_lose_context');
+                if (!ext) return false;
+                ext.loseContext();
+                window.__restore = () => ext.restoreContext();
+                return true;
+            }"""
+        )
+        if not lost:
+            self.skipTest("this browser can't simulate lost graphics")
+        self.page.wait_for_function(
+            "() => /Globe graphics/.test(localStorage.getItem('ojos-errs') || '')", timeout=5000
+        )
+        self.page.wait_for_timeout(2500)
+        recovered = self.page.evaluate(
+            "() => { const gl = document.getElementById('gl').getContext('webgl'); return !!gl && !gl.isContextLost(); }"
+        )
+        self.assertTrue(recovered)
         self.assertEqual(self.errors, [])
 
     def test_dark_globe_draws_data_layers_and_opens_them(self):
@@ -854,6 +910,42 @@ class AppInBrowser(unittest.TestCase):
         self.assertIn("never looked up", text)
         self.page.click("[data-ph='x']")
         self.assertFalse(self.visible("#php"))
+        self.assertEqual(self.errors, [])
+
+    def test_conflict_panel_lists_reports_from_the_feed(self):
+        now = int(time.time() * 1000)
+        items = [
+            {
+                "id": "conflict:%d" % i,
+                "kind": "info",
+                "layer": "conflict",
+                "lat": 48 + i,
+                "lon": 36,
+                "n": kind + " · Place %d" % i,
+                "color": "#ff3b6b",
+                "tag": "UNVERIFIED NEWS REPORT",
+                "t": now - i * 60000,
+                "rows": [["TYPE", kind]],
+                "links": [["Read the report", "https://example.org/%d" % i]],
+            }
+            for i, kind in enumerate(["Drone strike", "Air strike", "Drone strike"])
+        ]
+        feed = {"v": 1, "t": now, "layers": {"conflict": {"t": now, "items": items}}}
+        self.page.route(
+            "**/dios-prototype.civ/data/layers.json*",
+            lambda r: r.fulfill(body=json.dumps(feed), content_type="application/json"),
+        )
+        self.page.evaluate("() => localStorage.setItem('ojos-set', JSON.stringify({look: 'clear', lookV: 3}))")
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwdock [data-rw='conflict']", state="visible", timeout=8000)
+        self.assertFalse(self.visible(".hud"))
+        self.page.click("#rwdash .rwdock [data-rw='conflict']")
+        self.page.wait_for_function("() => document.querySelectorAll('#cfp .cfrow').length === 3", timeout=8000)
+        self.assertIn("UNVERIFIED", self.page.inner_text("#cfp").upper())
+        self.page.click("#cfp [data-cf='k-Drone strike']")
+        self.assertEqual(self.page.locator("#cfp .cfrow").count(), 2)
+        self.page.click("#cfp .cfrow >> nth=0")
+        self.assertFalse(self.visible("#cfp"))
         self.assertEqual(self.errors, [])
 
     def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):

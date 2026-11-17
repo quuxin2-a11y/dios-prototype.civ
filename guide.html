@@ -334,7 +334,7 @@ footer a{color:var(--mut)}
   <p class="sub" style="margin-bottom:20px">Everything below is in Briefing → Settings, or Layers → Sources &amp; keys.</p>
   <table class="tbl">
     <tr><th>Setting</th><th>Choices</th></tr>
-    <tr><td>Globe look</td><td>Dark globe (default) · Replica 3D · Satellite globe · Google 3D · Classic dark. Chooses how the app opens.</td></tr>
+    <tr><td>Globe look</td><td>Dark globe (default) · 3D city · Satellite globe, all with the same dashboard · Classic (the original screen with every button). Chooses how the app opens.</td></tr>
     <tr><td>3D close-ups</td><td>Photo-real (default) or the open-data model: the PHOTO / MODEL button in 3D. Your choice is kept.</td></tr>
     <tr><td>Performance</td><td>Smooth · Balanced · Sharp. Trades detail for speed on older phones.</td></tr>
     <tr><td>Map style</td><td>Satellite, street and dark styles for the globe.</td></tr>
@@ -382,13 +382,14 @@ footer a{color:var(--mut)}
   <details><summary>Do I have to wait for everything to load?</summary><p>No. Every 20 minutes the project's own data service gathers all the public camera networks and worldwide layers into one compact download, so the app gets everything in a second or two instead of asking each source itself. The phone also keeps the cameras, data layers and 3D cities from your last session, so they appear the moment the app opens and are refreshed in the background. A 3D city you've visited before opens instantly, even with a weak signal. A layer that's being refreshed shows UPDATING… next to it.</p></details>
   <details><summary>Why does the camera count change?</summary><p>Each network's fresh list replaces the saved one as it arrives, and the worldwide webcam list keeps building for a few minutes. Networks that don't answer are retried automatically, and their cameras from last time stay on the map in the meantime.</p></details>
   <details><summary>How do I update?</summary><p>On Android, download the newest file from the same GitHub link and install it over the old one. Your settings and keys stay. The web version updates itself.</p></details>
+  <details><summary>What if the screen goes black?</summary><p>The app now repairs this itself. If the phone takes the globe's graphics away, the globe redraws within a couple of seconds. If the dark globe can't draw, the classic globe appears with all your data and a short note. If the app was ever closed on a black screen, the next start opens safely on the classic globe. If it still happens, send the error report from Briefing → Settings → System check and error report.</p></details>
   <details><summary>Something isn't working</summary><p>In Layers, open Live networks and tap Copy short status. It shows which sources are answering, without your keys, and you can share it with whoever is helping you.</p></details>
 </div></section>
 
 </main>
 
 <footer><div class="wrap row">
-  <span>Ojos de Dios · Version 73 · © 2026 Mark Joseph</span>
+  <span>Ojos de Dios · Version 76 · © 2026 Mark Joseph</span>
   <span><a href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md">Privacy</a> · <a href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md">Sources and credits</a> · <a href="https://github.com/quuxin2-a11y/dios-prototype.civ">Source code</a></span>
 </div></footer>
 
@@ -475,6 +476,10 @@ footer a{color:var(--mut)}
       ["Wildlife sightings", "Verified sightings from the last 30 days, with photos.", "iNaturalist", "Worldwide"],
       ["River and lake levels", "Live flow, gauge height and lake levels.", "U.S. Geological Survey", "United States"]
     ]],
+    ["Conflict", "#ff3b6b", [
+      ["Conflict reports", "Drone strikes, air strikes, shelling, bombings and clashes from the last 24 hours, placed at the town named in the report, with type, time, coverage and a link to the article. Unverified: machine-coded from news.", "GDELT event files, via the app's data feed", "Worldwide"],
+      ["War and danger zones", "Countries under a US Do not travel (Level 4) advisory, shaded on the dark globe.", "U.S. Department of State", "Worldwide"]
+    ]],
     ["Travel and economy", "#ffd84a", [
       ["Airport delays", "Ground stops, ground delays and closures.", "FAA", "United States"],
       ["Travel advisories", "Level 1 to 4 for every country.", "U.S. Department of State", "Worldwide"],
@@ -501,7 +506,8 @@ footer a{color:var(--mut)}
   var TOOLS = [
     ["⌂", "Briefing", "Your daily summary and settings.", "A morning-style overview of alerts and news near you, plus every setting, including Globe look.", "Button row → Briefing"],
     ["⚠", "Emergency mode", "Official alerts, safe places and routes.", "Repeats official alerts word for word, ranks nearby safe places by visible rules, and shows the local emergency number with a call button. Family check-in, SOS and an offline pack are built in.", "Button row → Emergency"],
-    ["◎", "The dashboard", "One screen for everything.", "A slim top bar with live counts, the sky and Hide menus, and a dock with Layers, Cameras, Events, Search and Settings. It's the same on the dark globe and in 3D.", "Opens by default"],
+    ["◎", "The dashboard", "One clean screen for everything.", "A slim top bar with the live camera count, Search, Emergency and Hide menus, and a dock with Layers, Cameras, Events, Conflict and Settings. It's the same on the dark globe, the satellite globe and in 3D.", "Opens by default"],
+    ["✹", "Conflict monitor", "Strikes and clashes in the last 24 hours.", "One tap switches on conflict reports and shades Do-not-travel countries, then lists every report newest first with its type, place and time. Filter by type, and tap a report to fly there and read its source. Reports are unverified.", "Dock → Conflict"],
     ["⚠", "Help with a photo", "Send where you are, fast.", "In Emergency mode, take a photo of where you are. The app adds your phone's position and how accurate it is, then opens a ready message for your check-in contacts, the share sheet (so the photo goes too), or a text to 911 where your area offers it. Nothing is sent until you press send. Calling is always fastest.", "The red ! in the top bar → Help with a photo"],
     ["📷", "Where is this?", "Name a landmark from a photo.", "Recognises well-known public landmarks and shows the best matches with how sure it is (for example 92%) and a radius, then flies there. Photos showing a person, a home, a hotel room or another private interior are never looked up. Needs your own free Google Cloud Vision key, kept on your phone.", "Search → the camera button"],
     ["◆", "3D City", "The real world in 3D, at the same place.", "Buildings in their real colours and roof shapes on aerial photos, trees, named streets and landmarks, glowing borders, and live aircraft, ships and trains. The top bar has live counts, the sky and Hide menus; the dock has Layers, Cameras, Events, Search and Settings.", "Tap the logo, or See this in 3D when zoomed in"],

@@ -3,7 +3,7 @@
  * MeteoAlarm warnings, offline tile packs, check-in messages, the error log and the source health
  * check.
  *
- * Module 22 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 22 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -378,7 +378,7 @@ document.addEventListener("click", function (e) {
 var ERRS = ls("ojos-errs") || [];
 function errLog(m) {
   try {
-    m = String(m || "").slice(0, 180);
+    m = String(m || "").slice(0, 320);
     if (!m || /ResizeObserver|Script error\.?$/.test(m)) return;
     var last = ERRS[ERRS.length - 1];
     if (last && last.m === m) {
@@ -390,12 +390,22 @@ function errLog(m) {
   } catch (e) {}
 }
 window.addEventListener("error", function (e) {
-  if (e && e.message) errLog(e.message + (e.lineno ? " @" + e.lineno : ""));
+  if (e && e.message)
+    errLog(e.error ? errWhere(e.error) : e.message + (e.lineno ? " @" + e.lineno : ""));
 });
 window.addEventListener("unhandledrejection", function (e) {
   var r = e && e.reason;
-  errLog("Promise: " + ((r && r.message) || r));
+  errLog("Promise: " + (r && r.stack ? errWhere(r) : (r && r.message) || r));
 });
+
+// The error log as plain text, for pasting into a message.
+function errText() {
+  return ERRS.length
+    ? ERRS.map(function (x) {
+        return new Date(x.t).toISOString().slice(11, 19) + (x.n > 1 ? " ×" + x.n : "") + "  " + x.m;
+      }).join("\n")
+    : "no errors recorded";
+}
 var CHK = { open: false, busy: false, res: [] };
 var CHK_SRC = [
   [
@@ -474,7 +484,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v73 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v76 system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -565,7 +575,7 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v73 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v76 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
   el.innerHTML = h;
 }
 function chkOpen() {

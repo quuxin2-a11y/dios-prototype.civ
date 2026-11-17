@@ -9,7 +9,7 @@
  * Protections: photos with a face or a person as the subject, and photos of homes, hotel rooms
  * or other interiors, are never looked up, so a picture can't be used to find where someone is.
  *
- * Module 43 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 43 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

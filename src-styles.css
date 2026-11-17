@@ -7545,3 +7545,166 @@ body.bare #czmap .cesium-viewer-bottom {
   color: var(--ink);
   font-size: 18px;
 }
+/* ---------- v76: one interface everywhere, and the Conflict panel ---------- */
+body.rw-canvas .stage {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1;
+}
+body.rw .ticker,
+body.rw .mtabs,
+body.rw #dotsleg,
+body.rw #brandov {
+  display: none !important;
+}
+#rwdash .rwtop {
+  box-shadow:
+    0 10px 30px #0008,
+    inset 0 1px 0 #ffffff10;
+}
+#rwdash .rwcount span {
+  display: inline-flex;
+  align-items: center;
+}
+#rwdash .rwcount span:first-child:before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  margin-right: 6px;
+}
+#rwdash .rwdock button.on[data-rw="conflict"] {
+  color: #ff5a7a;
+  background: #ff3b6b1a;
+}
+#cfp {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+  max-height: 58vh;
+  z-index: 46;
+  display: none;
+  flex-direction: column;
+  border: 1px solid #ff3b6b33;
+  border-radius: 18px;
+  background: #05080cf2;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 -10px 40px #000a;
+  overflow: hidden;
+}
+#cfp .cfhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 8px 16px;
+}
+#cfp .cfhead b {
+  color: #ff5a7a;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+#cfp .cfhead span {
+  flex: 1;
+  font-size: 10px;
+  color: #8fa3b3;
+  letter-spacing: 0.08em;
+}
+#cfp .cfhead button {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 0;
+  background: #ffffff10;
+  color: var(--ink);
+}
+#cfp .cfchips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 0 12px 10px;
+  scrollbar-width: none;
+}
+#cfp .cfchips button {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #ffffff1f;
+  background: transparent;
+  color: #b9c8d4;
+  font-size: 12px;
+}
+#cfp .cfchips button.on {
+  border-color: #ff3b6b;
+  color: #fff;
+  background: #ff3b6b26;
+}
+#cfp .cfchips i {
+  font-style: normal;
+  opacity: 0.6;
+  margin-left: 4px;
+}
+#cfp .cflist {
+  overflow-y: auto;
+  border-top: 1px solid #ffffff12;
+}
+#cfp .cfrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  border-bottom: 1px solid #ffffff0d;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+}
+#cfp .cfrow .cfk {
+  flex: 0 0 auto;
+  font:
+    700 9.5px ui-monospace,
+    Menlo,
+    monospace;
+  letter-spacing: 0.08em;
+  padding: 3px 7px;
+  border: 1px solid;
+  border-radius: 6px;
+}
+#cfp .cfrow b {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#cfp .cfrow em {
+  font-style: normal;
+  font-size: 11px;
+  color: #8fa3b3;
+}
+#cfp .cfnone,
+#cfp .cffoot {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 11.5px;
+  color: #8fa3b3;
+  line-height: 1.45;
+}
+body.bare #cfp {
+  display: none !important;
+}
+@media (max-width: 460px) {
+  #rwdash .rwbrand b {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+  #rwdash .rwcount {
+    gap: 8px;
+    font-size: 10.5px;
+  }
+}

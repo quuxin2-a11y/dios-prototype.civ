@@ -3,7 +3,7 @@
  * A continuous zoom from the 3D city into procedurally drawn cutaways of buildings and aircraft,
  * with labelled facts.
  *
- * Module 12 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 12 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

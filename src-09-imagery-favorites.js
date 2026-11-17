@@ -2,7 +2,7 @@
  * @file Satellite imagery and favourites.
  * Web-Mercator tile maths, the imagery globe texture and detail patches, and saved places.
  *
- * Module 9 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 9 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -99,6 +99,20 @@ function glInit() {
   glTried = true;
   var c = $("gl");
   if (!c) return;
+  if (!c.dataset.watch) {
+    // The phone can take the globe's graphics away when memory runs short (for example while a
+    // heavy 3D view is open). Draw the plain globe meanwhile, and bring the imagery back after.
+    c.dataset.watch = "1";
+    c.addEventListener("webglcontextlost", function (e) {
+      e.preventDefault();
+      gl = null;
+      glShown = false;
+      patchA = patchP = null;
+      errLog("Globe graphics were reset by the phone; recovering");
+      setTimeout(glRecover, 1500);
+    });
+    c.addEventListener("webglcontextrestored", glRecover);
+  }
   try {
     gl =
       c.getContext("webgl", { alpha: true, antialias: false }) ||
@@ -234,6 +248,29 @@ function baseTick() {
     }
   }
 }
+// After the globe's graphics were lost: use the restored context, or a fresh canvas if the phone
+// doesn't give it back, and keep the imagery already gathered.
+function glRecover() {
+  if (gl) return;
+  var c = $("gl"),
+    keep = baseCv;
+  if (!c) return;
+  if (c.getContext("webgl") && c.getContext("webgl").isContextLost()) {
+    var n = c.cloneNode(false);
+    delete n.dataset.watch;
+    c.parentNode.replaceChild(n, c);
+  }
+  glTried = false;
+  glInit();
+  if (gl && keep) {
+    baseCv = keep;
+    baseTick.dirty = true;
+  }
+  lastView = "";
+  try {
+    resize();
+  } catch (e) {}
+}
 // Deepest zoom the current imagery source serves.
 var IMG_MAXZ = 19;
 function tileZ(R) {
@@ -342,11 +379,15 @@ function upPatch(p) {
   } catch (e) {}
 }
 function satDraw(R, cx, cy) {
-  if (!WL || !WL.img || !EMBED_OK) {
+  if (!WL || !WL.img || !EMBED_OK || satSafe) {
     satClear();
     return false;
   }
   if (!glTried) glInit();
+  if (gl && gl.isContextLost && gl.isContextLost()) {
+    gl = null;
+    setTimeout(glRecover, 1500);
+  }
   if (!gl) {
     return false;
   }

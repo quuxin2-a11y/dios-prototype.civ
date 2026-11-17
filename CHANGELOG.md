@@ -2,6 +2,26 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v76
+- **One interface everywhere.** The dashboard (a slim top bar and a five-button dock) is now the only screen in every view: the dark globe, the 3D city, and the satellite globe the app draws itself, which is also the fallback when a map can't load. The old header, button rows, tabs and ticker no longer appear unless you choose Classic (all buttons) in Briefing → Settings → Globe look.
+- **Cleaner top bar:** brand, a live camera count (aircraft and ships appear when switched on), Search, Emergency and Hide menus. The sky is on the logo (hold it).
+- **Conflict monitor** (dock → Conflict, `src-44-conflict.js`, `conflict.py`): drone strikes, air strikes, shelling, bombings and clashes from the last 24 hours, read every 20 minutes from GDELT's event files by the data feed and placed at the town or city named in the report. A panel lists them newest first with type, place and time, filters by type, and flies to a report and opens its source. Countries under a US Do not travel advisory are shaded on the dark globe. Reports are machine-coded from news and labelled unverified.
+- **Camera name tags close in**, like a control-room map: on the dark globe from street zoom, and as cyan tags in 3D.
+- Guide, sources and tests updated: 15 Python tool tests (conflict parsing) and 36 browser tests (the Conflict panel).
+
+## v75
+- **The globe keeps drawing even if one part fails.** An error while drawing used to stop the rest of the frame after the atmosphere, leaving a black globe with no cameras. Each error is now recorded with where it happened, the frame carries on, and if drawing keeps failing the satellite layer is set aside so the plain globe, cameras and layers still show.
+- **Errors say where they happened:** the error log keeps the message and the function and line it came from.
+- **The report can't fail silently:** each part of the live report is protected, the report now includes the error log, and if it still can't be built the error log is copied instead, ready to paste. Copy short status also ends with the latest errors.
+- A layer whose count can't be read no longer breaks the status text.
+
+## v74
+- **Fixed the black globe.** When a phone runs short of graphics memory it can take the globe's drawing surface away; the globe then stayed black with nothing on it. The globe now draws its plain version straight away, recovers its graphics (on a fresh surface if the phone doesn't give it back) and keeps the imagery it had. Since v72 the dark globe and the photo-real 3D both kept their graphics memory while hidden; each now gives it back when closed (reopening reloads from the phone's cache), and the photo tiles use a smaller cache.
+- **The dark globe can't leave a black screen:** if it hasn't drawn within 15 seconds, or reports an error before drawing, the app switches to the classic globe with all its data and says so (the cause goes in the error report).
+- **Safe start:** if a start never got a map on screen (the app was closed on a black screen, or crashed), the next start opens the classic globe once, then returns to normal.
+- Guide: "What if the screen goes black?"
+- Tests: 35 browser tests (lost graphics are recovered, a dark globe that never draws falls back, safe start).
+
 ## v73
 - **Photo-real 3D close-ups by default:** the 3D city opens in Google's photo-real tiles (real scanned buildings and trees), with Google's required credit placed above the dock. Street, district and landmark names from OpenStreetMap, country and state borders, city names, and dark name tags for ships close in are drawn on top, always in front of the real terrain. PHOTO / MODEL switches to the open-data model, and the choice is kept.
 - **Help with a photo** (Emergency mode, and the red ! in the dashboard's top bar): take a photo of where you are; the app adds the phone's position and accuracy and opens a ready message for check-in contacts, the share sheet (with the photo), or a text to 911 where offered. Nothing is sent until you press send. The photo is shrunk and its location tags removed. If the position is missing or rough and a Cloud Vision key is set, a recognised landmark is added.

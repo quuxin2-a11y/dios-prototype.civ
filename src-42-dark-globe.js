@@ -7,7 +7,7 @@
  * Zooming into a city offers the 3D Replica (module 38) for a close-up.
  * Map data: OpenStreetMap via OpenFreeMap; the credit sits behind the map's ⓘ button.
  *
- * Module 42 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 42 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -351,6 +351,49 @@ function t3Info() {
   });
 }
 
+// ---------- Never a black screen ----------
+// If the dark globe hasn't drawn within OPS_WAIT_MS, or reports an error before it draws, the app
+// falls back to the classic globe (which needs nothing from the network to appear) and says so.
+var OPS_WAIT_MS = window.__OPS_WAIT_MS || 15000;
+
+function opsWatch() {
+  clearTimeout(T3.watch);
+  T3.watch = setTimeout(function () {
+    if (T3.on && T3.ops && !T3.ready)
+      opsFail("the map did not draw within " + OPS_WAIT_MS / 1000 + " s");
+  }, OPS_WAIT_MS);
+}
+
+function opsFail(why) {
+  if (!T3.ops) return;
+  clearTimeout(T3.watch);
+  errLog("Dark globe: " + why);
+  try {
+    if (T3.map) T3.map.remove();
+  } catch (e) {}
+  T3.map = null;
+  T3.ready = false;
+  T3.ops = false;
+  if (T3.on) t3Close();
+  if (RW.on) rwMode("canvas");
+  lastView = "";
+  setTimeout(resize, 40);
+  note(
+    "Map",
+    "The dark globe couldn't load right now, so the satellite globe is shown with all your data. Tap the logo to try again."
+  );
+}
+
+// ---------- Safe start ----------
+// A start-up that never got a map on screen (the app was closed on a black screen, or crashed)
+// makes the next start open on the classic globe once, instead of trying the same thing again.
+// BOOT_SAFE and BOOT_DASH are set in module 37, which decides how the app starts.
+(function bootCheck(n) {
+  var drawn = !BOOT_DASH || (T3.on && T3.ready) || (T4.on && T4.ready) || (!RW.on && n >= 2);
+  if (drawn) ls("ojos-boot", "ok");
+  else if (n < 40) setTimeout(bootCheck, 1000, n + 1);
+})(0);
+
 // ---------- Close-up: the 3D city when zoomed in ----------
 function opsCloseTick() {
   var b = $("ops3d"),
@@ -358,6 +401,7 @@ function opsCloseTick() {
     show =
       RW.on &&
       RW.mode === "globe" &&
+      !document.body.classList.contains("bare") &&
       T3.on &&
       T3.ops &&
       m &&

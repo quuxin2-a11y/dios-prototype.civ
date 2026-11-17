@@ -3,7 +3,7 @@
  * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
  * settings restored at start-up.
  *
- * Module 25 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -300,15 +300,26 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v73)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v76)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
-      diagText()
-        .split("\n")
+      var dt;
+      try {
+        dt = diagText();
+      } catch (e) {
+        dt = "\nSTATUS FAILED: " + errWhere(e);
+      }
+      dt.split("\n")
         .slice(1)
         .forEach(function (x) {
           L.push(x);
+        });
+      L.push("ERRORS:");
+      errText()
+        .split("\n")
+        .forEach(function (x) {
+          L.push("  " + x);
         });
       L.push(
         "KEYS SAVED (names only): " +
@@ -427,7 +438,13 @@ function liveReport() {
       }
     })
     .catch(function (e) {
-      note("Report", "Couldn't build the report: " + esc(String((e && e.message) || e)));
+      // The report itself failed: hand over what is needed to fix it instead.
+      errLog("Report: " + errWhere(e));
+      copyText("OJOS DE DIOS v76 error log\n" + errText());
+      note(
+        "Report",
+        "Couldn't build the full report, so the error log was copied instead. Paste it into a message to whoever is helping you."
+      );
     })
     .then(function () {
       repBusy = false;

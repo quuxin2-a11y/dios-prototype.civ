@@ -3,7 +3,7 @@
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -1188,7 +1188,10 @@ function t4Google(opt) {
     dynamicScreenSpaceError: true,
     foveatedScreenSpaceError: true,
     preloadFlightDestinations: true,
-    showCreditsOnScreen: true
+    showCreditsOnScreen: true,
+    // Phones share graphics memory with the rest of the app: keep the tile cache modest.
+    cacheBytes: 192 * 1024 * 1024,
+    maximumCacheOverflowBytes: 96 * 1024 * 1024
   };
   C.createGooglePhotorealistic3DTileset({ key: kG3() }, tsOpt)
     .catch(function () {
@@ -1396,6 +1399,13 @@ function t4Close() {
   } catch (e) {}
   T4.on = false;
   if (typeof repOff === "function") repOff();
+  // Release the photo tiles' graphics memory while the 3D view is closed; reopening reloads them.
+  if (T4.ts && T4.v) {
+    try {
+      T4.v.scene.primitives.remove(T4.ts);
+    } catch (e) {}
+    T4.ts = null;
+  }
   t4OrbitStop();
   if (T4.st) {
     T4.st = false;

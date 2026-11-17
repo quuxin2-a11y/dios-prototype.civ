@@ -4,7 +4,7 @@
  * Black Marble city lights) from NASA GIBS; smoke plumes and fire detections from NOAA's Hazard
  * Mapping System; and modelled air quality from Open-Meteo (Copernicus CAMS).
  *
- * Module 32 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 32 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

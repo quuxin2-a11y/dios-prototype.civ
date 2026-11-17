@@ -6,7 +6,7 @@
  * Runs in the same CesiumJS viewer as the Google view (module 11), so cameras, aircraft, ships,
  * data layers and taps all work the same; Google's tiles are not loaded at all here.
  *
- * Module 38 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 38 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -480,6 +480,48 @@ function repNames(C, v, parts, top) {
   return lab;
 }
 
+// Camera name tags close in: cyan boxes like a control-room map. Tap the camera itself to open it.
+function repCamLabels(cp) {
+  var C = window.Cesium,
+    v = T4.v;
+  if (!cp || cp.height > 6000 || !visLive.length) {
+    if (REP.camLab) REP.camLab.show = false;
+    return;
+  }
+  if (!REP.camLab) REP.camLab = v.scene.primitives.add(new C.LabelCollection());
+  var lab = REP.camLab,
+    la = cp.latitude / D,
+    lo = cp.longitude / D,
+    km = Math.max(1.5, (cp.height / 1000) * 2.5),
+    n = 0;
+  lab.show = true;
+  lab.removeAll();
+  for (var i = 0; i < visLive.length && n < 120; i++) {
+    var c = visLive[i];
+    if (hav(la, lo, c.lat, c.lon) > km) continue;
+    n++;
+    lab.add({
+      position: C.Cartesian3.fromDegrees(c.lon, c.lat, 12),
+      text:
+        "CAM · " +
+        String(c.n || "Camera")
+          .toUpperCase()
+          .slice(0, 34),
+      font: "700 19px ui-monospace, Menlo, monospace",
+      scale: 0.5,
+      fillColor: C.Color.fromCssColorString("#bff3ff"),
+      showBackground: true,
+      backgroundColor: C.Color.fromCssColorString("#03141dd9"),
+      backgroundPadding: new C.Cartesian2(8, 5),
+      horizontalOrigin: C.HorizontalOrigin.LEFT,
+      pixelOffset: new C.Cartesian2(10, 0),
+      distanceDisplayCondition: new C.DistanceDisplayCondition(0, 7000),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
+    });
+  }
+  v.scene.requestRender();
+}
+
 // Ship name tags close in, like a harbour chart: dark boxes with the vessel name.
 function repShipLabels(cp) {
   var C = window.Cesium,
@@ -713,6 +755,7 @@ function repTick() {
   }
   if (!lo || !v) {
     repShipLabels(null);
+    repCamLabels(null);
     return;
   }
   // Areas built for the other mode (geometry vs labels only) are rebuilt for this one.
@@ -727,6 +770,7 @@ function repTick() {
   var cp = v.camera.positionCartographic;
   repCredit(cp);
   repShipLabels(cp);
+  repCamLabels(cp);
   if (REP.busy || document.hidden || Date.now() < (REP.retry || 0)) return;
   if (cp.height > REP_CITY_MIN_M && cp.height < REP_CITY_MAX_M)
     repCities(cp.latitude / D, cp.longitude / D, cp.height);

@@ -5,7 +5,7 @@
  * from star positions (d3-celestial, BSD) and published orbital elements (JPL). "Solar system"
  * shows the eight planets on their orbits today. Opened by holding the logo or the ✦ button.
  *
- * Module 40 of 44. Modules share one scope: build.py concatenates them in order
+ * Module 40 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

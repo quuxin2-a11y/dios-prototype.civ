@@ -78,6 +78,7 @@ This project connects existing libraries and public data. It does not claim them
 | Radio Browser | Internet radio station directory | Public domain directory; streams belong to each station |
 | National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
 | LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
+| GDELT 2.0 event files (data.gdeltproject.org) | Conflict reports: strikes, shelling and clashes from the last 24 hours, read by the data feed | Free and open; cite GDELT. Machine-coded from news and unverified; shown as such |
 | NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe and the Replica globe | NASA open data; no restrictions, attribution requested |
 | EOxCloudless Sentinel-2 mosaic 2024 (EOX IT Services GmbH, contains modified Copernicus Sentinel data 2024) | Satellite imagery under Replica outside the US | CC BY-NC-SA 4.0: **non-commercial use only**; commercial use needs an EOX commercial licence. The credit is shown on the map while this imagery is in view |
 | USGS The National Map, USGSImageryOnly (USDA NAIP orthoimagery) | Aerial photos under Replica in the US | US public domain; credited in the Replica ⓘ panel |

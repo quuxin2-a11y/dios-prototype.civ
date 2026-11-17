@@ -30,6 +30,8 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
+import conflict
+
 ROOT = Path(__file__).resolve().parent
 MIN_CAMS = 5000  # far below a normal run (40,000+); anything less means the run went wrong
 MAX_S = 420  # stop waiting after 7 minutes
@@ -112,6 +114,13 @@ def main(out_dir):
     if n < MIN_CAMS:
         print("too few cameras; the feed is left as it was", file=sys.stderr)
         return 1
+
+    # Conflict reports come straight from GDELT's event files rather than through the app.
+    try:
+        layers["layers"]["conflict"] = conflict.collect()
+        print("conflict reports %d" % len(layers["layers"]["conflict"]["items"]))
+    except Exception as e:  # the rest of the feed is still published
+        print("conflict reports skipped: %s" % e, file=sys.stderr)
 
     out.mkdir(parents=True, exist_ok=True)
     dump = functools.partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
