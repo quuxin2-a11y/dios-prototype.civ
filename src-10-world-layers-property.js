@@ -1757,6 +1757,11 @@ function t3Cams() {
   var m = T3.map;
   if (!m || !T3.ready) return;
   if (T3.n === visLive.length) return;
+  // Camera networks arrive in batches for the first minutes; re-sending every camera to the
+  // graphics chip on each batch made the map stutter. Rebuild at most every 6 s, never mid-gesture.
+  var now = Date.now();
+  if (T3.n >= 0 && (now - (T3.camT || 0) < 6000 || (m.isMoving && m.isMoving()))) return;
+  T3.camT = now;
   T3.n = visLive.length;
   var idx = {},
     i;
@@ -2026,7 +2031,7 @@ function t3Route() {
       duration: 900
     });
 }
-// opt.ops opens the dark globe (module 42) instead of the satellite 3D view: its own style,
+// opt.ops opens the dark globe (module 41) instead of the satellite 3D view: its own style,
 // from space, without terrain; opt.lon, opt.lat and opt.zoom place it.
 function t3Open(opt) {
   opt = opt && opt.target ? {} : opt || {};
@@ -2047,6 +2052,8 @@ function t3Open(opt) {
   if (!ops) btn.textContent = "Loading 3D…";
   t3Load()
     .then(function () {
+      // The dashboard may have moved on while the map engine was loading: don't open over it.
+      if (ops && (!RW.on || RW.mode !== "globe")) return;
       T3.on = true;
       document.body.classList.add("tilt");
       btn.textContent = "⛰ 3D view";
@@ -2059,6 +2066,8 @@ function t3Open(opt) {
             container: "t3map",
             style: t3Style(),
             center: [opt.lon == null ? rot.lon : opt.lon, opt.lat == null ? rot.lat : opt.lat],
+            // Sharp enough on any phone without drawing 2.6× the pixels on high-density screens.
+            pixelRatio: Math.min(window.devicePixelRatio || 1, ops ? 2 : 2.5),
             zoom: ops ? opt.zoom || 1.7 : t3ZoomFor(rot.lat, viewKm()),
             pitch: ops ? 0 : 58,
             bearing: 0,
@@ -2094,7 +2103,12 @@ function t3Open(opt) {
         });
         m.on("load", function () {
           T3.ready = true;
+          // A fresh map has none of the data layers yet: draw them all again.
           T3.n = -1;
+          T3.ik = null;
+          T3.wk = "";
+          if (typeof CF === "object") CF.key = "";
+          if (T3.ops) opsAttach(m);
           try {
             m.setProjection({ type: "globe" });
           } catch (e) {}

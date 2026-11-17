@@ -353,3 +353,220 @@ ilDef({
     });
   }
 });
+
+// ---------- Currencies against the US dollar (ExchangeRate-API, open access) ----------
+// Each country's currency (ISO 4217), grouped by currency to keep the table short.
+var FX_COUNTRIES = {
+  USD: "US EC SV TL PR GU AS VI MP FM MH PW BQ TC VG IO UM",
+  EUR: "AT BE CY DE EE ES FI FR GR HR IE IT LT LU LV MT NL PT SI SK AD MC SM VA ME XK GF GP MQ YT RE BL MF PM AX TF",
+  XOF: "BJ BF CI GW ML NE SN TG",
+  XAF: "CM CF TD CG GQ GA",
+  XCD: "AG DM GD KN LC VC AI MS",
+  AUD: "AU KI NR TV CX CC NF HM",
+  NZD: "NZ CK NU PN TK",
+  GBP: "GB GG JE IM GS",
+  DKK: "DK FO GL",
+  NOK: "NO SJ BV",
+  CHF: "CH LI",
+  ZAR: "ZA",
+  INR: "IN BT",
+  XPF: "PF NC WF",
+  ANG: "CW SX",
+  MAD: "MA EH",
+  ILS: "IL PS",
+  AED: "AE",
+  AFN: "AF",
+  ALL: "AL",
+  AMD: "AM",
+  AOA: "AO",
+  ARS: "AR",
+  AWG: "AW",
+  AZN: "AZ",
+  BAM: "BA",
+  BBD: "BB",
+  BDT: "BD",
+  BGN: "BG",
+  BHD: "BH",
+  BIF: "BI",
+  BMD: "BM",
+  BND: "BN",
+  BOB: "BO",
+  BRL: "BR",
+  BSD: "BS",
+  BWP: "BW",
+  BYN: "BY",
+  BZD: "BZ",
+  CAD: "CA",
+  CDF: "CD",
+  CLP: "CL",
+  CNY: "CN",
+  COP: "CO",
+  CRC: "CR",
+  CUP: "CU",
+  CVE: "CV",
+  CZK: "CZ",
+  DJF: "DJ",
+  DOP: "DO",
+  DZD: "DZ",
+  EGP: "EG",
+  ERN: "ER",
+  ETB: "ET",
+  FJD: "FJ",
+  FKP: "FK",
+  GEL: "GE",
+  GHS: "GH",
+  GIP: "GI",
+  GMD: "GM",
+  GNF: "GN",
+  GTQ: "GT",
+  GYD: "GY",
+  HKD: "HK",
+  HNL: "HN",
+  HTG: "HT",
+  HUF: "HU",
+  IDR: "ID",
+  IQD: "IQ",
+  IRR: "IR",
+  ISK: "IS",
+  JMD: "JM",
+  JOD: "JO",
+  JPY: "JP",
+  KES: "KE",
+  KGS: "KG",
+  KHR: "KH",
+  KMF: "KM",
+  KPW: "KP",
+  KRW: "KR",
+  KWD: "KW",
+  KYD: "KY",
+  KZT: "KZ",
+  LAK: "LA",
+  LBP: "LB",
+  LKR: "LK",
+  LRD: "LR",
+  LSL: "LS",
+  LYD: "LY",
+  MDL: "MD",
+  MGA: "MG",
+  MKD: "MK",
+  MMK: "MM",
+  MNT: "MN",
+  MOP: "MO",
+  MRU: "MR",
+  MUR: "MU",
+  MVR: "MV",
+  MWK: "MW",
+  MXN: "MX",
+  MYR: "MY",
+  MZN: "MZ",
+  NAD: "NA",
+  NGN: "NG",
+  NIO: "NI",
+  NPR: "NP",
+  OMR: "OM",
+  PAB: "PA",
+  PEN: "PE",
+  PGK: "PG",
+  PHP: "PH",
+  PKR: "PK",
+  PLN: "PL",
+  PYG: "PY",
+  QAR: "QA",
+  RON: "RO",
+  RSD: "RS",
+  RUB: "RU",
+  RWF: "RW",
+  SAR: "SA",
+  SBD: "SB",
+  SCR: "SC",
+  SDG: "SD",
+  SEK: "SE",
+  SGD: "SG",
+  SHP: "SH",
+  SLE: "SL",
+  SOS: "SO",
+  SRD: "SR",
+  SSP: "SS",
+  STN: "ST",
+  SYP: "SY",
+  SZL: "SZ",
+  THB: "TH",
+  TJS: "TJ",
+  TMT: "TM",
+  TND: "TN",
+  TOP: "TO",
+  TRY: "TR",
+  TTD: "TT",
+  TWD: "TW",
+  TZS: "TZ",
+  UAH: "UA",
+  UGX: "UG",
+  UYU: "UY",
+  UZS: "UZ",
+  VES: "VE",
+  VND: "VN",
+  VUV: "VU",
+  WST: "WS",
+  YER: "YE",
+  ZMW: "ZM",
+  ZWL: "ZW"
+};
+
+// Rates to map items: one per country, at its centre, with the rate both ways.
+function fxItems(d, j, places) {
+  var rates = (j && j.rates) || {},
+    when = j && j.time_last_update_unix ? j.time_last_update_unix * 1000 : 0,
+    names = null,
+    cur = null,
+    out = [];
+  try {
+    names = new Intl.DisplayNames(["en"], { type: "region" });
+    cur = new Intl.DisplayNames(["en"], { type: "currency" });
+  } catch (e) {}
+  var fmt = function (v) {
+    return v >= 100 ? Math.round(v).toLocaleString() : v >= 1 ? v.toFixed(2) : v.toPrecision(3);
+  };
+  Object.keys(FX_COUNTRIES).forEach(function (code) {
+    var r = rates[code];
+    if (!(r > 0)) return;
+    FX_COUNTRIES[code].split(" ").forEach(function (cc) {
+      var p = places[cc];
+      if (!p) return;
+      var country = (names && names.of(cc)) || cc,
+        cname = (cur && cur.of(code)) || code;
+      out.push(
+        ilItem(d, {
+          id: "fx:" + cc,
+          n: country + " · " + code,
+          label: code === "USD" ? "" : code,
+          lat: p[0],
+          lon: p[1],
+          tag: "Currency · " + cname,
+          rows: [
+            ["CURRENCY", cname + " (" + code + ")"],
+            ["1 US DOLLAR", fmt(r) + " " + code],
+            ["1 " + code, fmt(1 / r) + " USD"],
+            ["UPDATED", when ? ilWhen(when) : "—"],
+            ["SOURCE", "Rates by Exchange Rate API"]
+          ],
+          links: [["Rates by Exchange Rate API", "https://www.exchangerate-api.com"]]
+        })
+      );
+    });
+  });
+  return out;
+}
+
+ilDef({
+  key: "currency",
+  label: "Currencies vs the US dollar",
+  color: "#7dffb3",
+  icon: "$",
+  every: 6 * 3600000,
+  load: function (d) {
+    return getJSON("https://open.er-api.com/v6/latest/USD", 20000).then(function (j) {
+      if (!j || j.result !== "success") throw new Error("no rates");
+      return fxItems(d, j, ioPlaces());
+    });
+  }
+});

@@ -124,6 +124,7 @@ var NAMES = [
   "faaItems",
   "advParse",
   "advItems",
+  "fxItems",
   "wbFmt",
   "econColor",
   "econItems",
@@ -142,19 +143,9 @@ var NAMES = [
   "cableItems",
   "cableRows",
   "windFarms",
-  "repHeight",
   "phVerdict",
   "feedEncode",
   "feedDecode",
-  "repColour",
-  "repFootprint",
-  "repBuilding",
-  "repInside",
-  "repRingLabelAt",
-  "repMinHeight",
-  "repParse",
-  "repArea",
-  "repQuery",
   "skyJD",
   "skyGMST",
   "skyAltAz",
@@ -181,15 +172,8 @@ function grabVar(name) {
 }
 var TABLES = [
   "SKY_PLANETS",
-  "REP_COLORS",
-  "REP_ROADS",
   "PH_PERSON_AREA",
   "PH_PRIVATE",
-  "REP_MATERIAL",
-  "REP_COLOUR_WORDS",
-  "REP_CSS_NAMES",
-  "REP_PITCHED",
-  "REP_PLACES",
   "VOL_CODES",
   "DM_CATS",
   "CT_ALIASES",
@@ -198,7 +182,8 @@ var TABLES = [
   "FAA_ICAO",
   "FAA_COLORS",
   "ADV_LEVELS",
-  "WB_IND"
+  "WB_IND",
+  "FX_COUNTRIES"
 ];
 var code =
   CONSTANTS +
@@ -1544,140 +1529,6 @@ test("wind: turbines group into one farm per project", function () {
   assert.deepStrictEqual(it[0].rows[3], ["TURBINE MODELS", "Mitsubishi MWT95/2.4"]);
 });
 
-test("replica: building heights, parts and the area grid", function () {
-  assert.strictEqual(F.repHeight({ height: "381" }), 381);
-  assert.strictEqual(F.repHeight({ height: "12,5" }), 12.5);
-  assert.strictEqual(F.repHeight({ "building:levels": "10" }), 33);
-  assert.strictEqual(F.repHeight({ building: "house" }), 6);
-  assert.strictEqual(F.repHeight({ building: "yes" }), 10);
-  assert.strictEqual(F.repMinHeight({ "building:min_level": "2" }), 6.4);
-  var sq = [
-    { lat: 40.748, lon: -73.986 },
-    { lat: 40.749, lon: -73.986 },
-    { lat: 40.749, lon: -73.985 },
-    { lat: 40.748, lon: -73.985 },
-    { lat: 40.748, lon: -73.986 }
-  ];
-  var r = F.repParse({
-    elements: [
-      {
-        type: "way",
-        id: 1,
-        tags: { building: "commercial", height: "381", name: "Empire State Building" },
-        geometry: sq
-      },
-      { type: "way", id: 2, tags: { highway: "primary" }, geometry: sq.slice(0, 2) },
-      { type: "way", id: 3, tags: { highway: "footway" }, geometry: sq.slice(0, 2) },
-      { type: "way", id: 4, tags: { natural: "water" }, geometry: sq },
-      { type: "way", id: 5, tags: { leisure: "park", name: "Bryant Park" }, geometry: sq },
-      { type: "way", id: 6, tags: { building: "yes" }, geometry: sq.slice(0, 3) },
-      { type: "node", id: 7, tags: { building: "yes" } }
-    ]
-  });
-  assert.strictEqual(r.buildings.length, 1);
-  assert.strictEqual(r.buildings[0].h, 381);
-  assert.strictEqual(r.buildings[0].color, "#b9c7d8");
-  assert.deepStrictEqual(r.buildings[0].ring[0], [-73.986, 40.748]);
-  assert.strictEqual(r.roads.length, 1);
-  assert.strictEqual(r.roads[0].w, 7);
-  assert.strictEqual(r.water.length, 1);
-  assert.strictEqual(r.parks.length, 1);
-  var a = F.repArea(40.7484, -73.9857),
-    b = F.repArea(40.746, -73.983);
-  assert.strictEqual(a.key, b.key);
-  assert.ok(a.s < 40.7484 && a.n > 40.7484 && a.w < -73.9857 && a.e > -73.9857);
-  assert.ok(F.repQuery(a).indexOf('way["building"]') > 0);
-});
-
-test("replica: real colours, roofs, building parts, trees and place names", function () {
-  assert.strictEqual(F.repColour("#FFF"), "#fff");
-  assert.strictEqual(F.repColour("light grey"), "#c8ccd0");
-  assert.strictEqual(F.repColour("White"), "white");
-  assert.strictEqual(F.repColour("a1b2c3"), "#a1b2c3");
-  assert.strictEqual(F.repColour("url(x)"), "");
-  var sq = [
-    [-77.0368, 38.8975],
-    [-77.0362, 38.8975],
-    [-77.0362, 38.8979],
-    [-77.0368, 38.8979],
-    [-77.0368, 38.8975]
-  ];
-  var fp = F.repFootprint(sq);
-  assert.ok(fp.r > 25 && fp.r < 35, "about 52 m by 44 m");
-  assert.ok(F.repInside(fp.c, sq));
-  assert.ok(!F.repInside([-77.03, 38.89], sq));
-  var b = F.repBuilding({ id: 1 }, sq, {
-    building: "government",
-    height: "21",
-    "building:colour": "white",
-    "roof:shape": "hipped",
-    "roof:height": "4",
-    "roof:colour": "grey"
-  });
-  assert.strictEqual(b.color, "white");
-  assert.strictEqual(b.h, 17);
-  assert.strictEqual(b.top, 21);
-  assert.deepStrictEqual(b.roof, { shape: "pitched", color: "grey" });
-  var brick = F.repBuilding({ id: 2 }, sq, { building: "yes", "building:material": "brick" });
-  assert.strictEqual(brick.color, "#a4553f");
-  assert.strictEqual(brick.roof, null);
-  var dome = F.repBuilding({ id: 3 }, sq, { building: "yes", "roof:shape": "dome" });
-  assert.strictEqual(dome.roof.shape, "dome");
-  assert.ok(dome.top > dome.h);
-  var geom = sq.map(function (p) {
-    return { lon: p[0], lat: p[1] };
-  });
-  var r = F.repParse({
-    elements: [
-      { type: "way", id: 10, tags: { building: "yes", name: "White House" }, geometry: geom },
-      { type: "way", id: 11, tags: { "building:part": "yes", height: "21" }, geometry: geom },
-      {
-        type: "way",
-        id: 12,
-        tags: { highway: "primary", name: "Pennsylvania Avenue" },
-        geometry: geom
-      },
-      { type: "node", id: 13, lat: 38.897, lon: -77.036, tags: { natural: "tree" } },
-      {
-        type: "node",
-        id: 14,
-        lat: 38.9,
-        lon: -77.03,
-        tags: { place: "neighbourhood", name: "Downtown" }
-      },
-      { type: "node", id: 15, lat: 38.9, lon: -77.03, tags: { place: "locality", name: "Skip" } }
-    ]
-  });
-  assert.strictEqual(r.buildings.length, 1, "the outline gives way to its mapped part");
-  assert.strictEqual(r.buildings[0].part, true);
-  assert.strictEqual(r.roads[0].name, "Pennsylvania Avenue");
-  assert.strictEqual(r.trees.length, 1);
-  assert.strictEqual(r.trees[0].h, 9);
-  assert.deepStrictEqual(
-    r.places.map(function (p) {
-      return p.name;
-    }),
-    ["Downtown"]
-  );
-  assert.deepStrictEqual(
-    F.repRingLabelAt([
-      [
-        [0, 0],
-        [2, 0]
-      ],
-      [
-        [10, 10],
-        [12, 10],
-        [12, 12],
-        [10, 12]
-      ]
-    ]),
-    [11, 11]
-  );
-  var q = F.repQuery(F.repArea(38.8977, -77.0365));
-  assert.ok(q.indexOf('node["natural"="tree"]') > 0 && q.indexOf("out 2500;") > 0);
-});
-
 test("feed: camera rows survive the round trip and bad rows are dropped", function () {
   var cams = [
     { src: "A", n: "One", lat: 1, lon: 2, e: "https://x/1.jpg", t: "traffic", snap: true },
@@ -1754,6 +1605,49 @@ test("photo lookup: people, homes and hotel rooms are never looked up; landmarks
   });
   assert.ok(F.phVerdict({ labelAnnotations: [{ description: "Tower", score: 0.9 }] }).matches);
   assert.deepStrictEqual(F.phVerdict({}).matches, []);
+});
+
+test("currencies: every country gets its currency against the dollar, both ways", function () {
+  var places = {
+    MX: [23.6, -102.5],
+    FR: [46.2, 2.2],
+    DE: [51.2, 10.4],
+    US: [37.1, -95.7],
+    ZZ: [0, 0]
+  };
+  var it = F.fxItems(
+    IL_D,
+    { rates: { USD: 1, MXN: 18.544914, EUR: 0.906623 }, time_last_update_unix: 1794787351 },
+    places
+  );
+  var by = {};
+  it.forEach(function (x) {
+    by[x.id] = x;
+  });
+  assert.deepStrictEqual(Object.keys(by).sort(), ["fx:DE", "fx:FR", "fx:MX", "fx:US"]);
+  var mx = {};
+  by["fx:MX"].rows.forEach(function (r) {
+    mx[r[0]] = r[1];
+  });
+  assert.strictEqual(mx["1 US DOLLAR"], "18.54 MXN");
+  assert.strictEqual(mx["1 MXN"], "0.0539 USD");
+  assert.ok(/Exchange Rate API/.test(mx.SOURCE));
+  assert.strictEqual(by["fx:FR"].lat, 46.2);
+  // No country appears under two currencies: with every rate and place, each country appears once.
+  var all = {},
+    rates = {};
+  "AT US MX JP CW PA ZW EH PS XK".split(" ").forEach(function (cc) {
+    all[cc] = [0, 0];
+  });
+  "EUR USD MXN JPY ANG PAB ZWL MAD ILS".split(" ").forEach(function (c) {
+    rates[c] = 2;
+  });
+  var many = F.fxItems(IL_D, { rates: rates }, all),
+    ids = many.map(function (x) {
+      return x.id;
+    });
+  assert.strictEqual(new Set(ids).size, ids.length);
+  assert.strictEqual(ids.length, 10);
 });
 
 test("sky: sidereal time, Polaris and the equinox", function () {

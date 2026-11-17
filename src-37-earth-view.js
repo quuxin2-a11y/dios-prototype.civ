@@ -1,9 +1,8 @@
 /**
- * @file Earth view: the start-up 3D globe.
- * Opens Replica World (the default), or the CesiumJS view from space on its own, the way the app
- * now starts, and draws the data layers and undersea cables in it on the graphics chip: cameras as
- * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
- * globe when the 3D engine or Google's tiles are not available.
+ * @file Start-up and the 3D view's data.
+ * Decides how the app starts (the dashboard on the dark globe, with a safe start after a start
+ * that never drew), and draws the data layers and undersea cables in the CesiumJS 3D view used by
+ * the classic screen's tools: data-layer items as points and cables as lines.
  *
  * Module 37 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
@@ -23,11 +22,18 @@ if (!(SET.lookV >= 3)) {
   setSave();
 }
 
-// The start-up view: "world" (default: the dashboard on the dark globe, modules 39 and 42),
-// "replica" (the dashboard on the 3D Replica), "clear" (the satellite globe), "classic", or
-// "earth" (Google 3D on its own).
+// The dashboard on the dark globe is the app's only screen, and no saved setting can change that:
+// any look saved by an older version is cleared. The original screen exists only for the
+// automated tests, which ask for it with window.__ODD_CLASSIC.
+if (!(SET.lookV >= 5)) {
+  SET.lookV = 5;
+  delete SET.look;
+  delete SET.rw3d;
+  setSave();
+}
+
 function lookMode() {
-  return SET.look || "world";
+  return window.__ODD_CLASSIC ? "classic" : "world";
 }
 
 // Signature of what the data layers hold, so points are rebuilt only when something changed.
@@ -106,29 +112,13 @@ function t4Cables() {
   });
 }
 
-// Start in the Earth view from space, over the place the globe was showing.
-// Start-up follows Globe look, whatever view was open last time (except the standard 3D view).
-// Every look except "classic" opens the dashboard (module 39) over its view.
-var LOOK_MODE = { world: "globe", replica: "replica", earth: "replica", clear: "canvas" };
-
-// A start that never got a map on screen last time (closed on a black screen, or crashed) opens
-// the satellite globe once instead; module 42 marks the start good once a map has drawn.
+// Start-up: the dashboard (module 38) over the dark globe, always. A start that never got a map on
+// screen last time (closed on a black screen, or crashed) gets a shorter wait before the
+// fallback; module 42 marks the start good once a map has drawn.
 var BOOT_SAFE = ls("ojos-boot") === "pending",
-  BOOT_MODE = LOOK_MODE[lookMode()],
-  BOOT_DASH = EMBED_OK && !!BOOT_MODE && BOOT_MODE !== "canvas" && !BOOT_SAFE;
+  BOOT_DASH = EMBED_OK && lookMode() === "world";
 ls("ojos-boot", "pending");
-if (EMBED_OK && BOOT_MODE)
+if (BOOT_DASH)
   setTimeout(function () {
-    if (lookMode() === "earth") SET.rw3d = "photo";
-    rwEnter({
-      auto: true,
-      mode: BOOT_SAFE ? "canvas" : BOOT_MODE,
-      lon: rot.lon,
-      lat: rot.lat
-    });
-    if (BOOT_SAFE && BOOT_MODE !== "canvas")
-      note(
-        "Safe start",
-        "Last time the map didn't finish loading, so this start uses the satellite globe. Tap the logo to open the dark globe."
-      );
+    rwEnter({ auto: true, mode: "globe", lon: rot.lon, lat: rot.lat });
   }, 400);

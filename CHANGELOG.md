@@ -2,6 +2,26 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v78
+- **One world.** The dark globe is the only view. The 3D Replica world and its switch are gone (`src-38-replica.js` removed), nothing 3D loads in the background, and older saved looks open the dark globe. The app's own globe is kept only as the silent fallback if the dark globe can't load.
+- **Zoom in and see it in 3D:** zooming into a city on the dark globe fades in aerial photos (Esri World Imagery, credited behind the map's ⓘ), raises the buildings to their mapped heights and tilts the view; zooming back out levels it again.
+- **The logo opens the sky:** one tap (or holding it) opens the stars, Moon and planets; five quick taps still open the signature.
+- **Currencies vs the US dollar** (Travel and economy): every country's currency, what 1 US dollar buys and what 1 unit is worth in dollars, from ExchangeRate-API's open feed, updated daily.
+- Settings no longer offers globe looks.
+- A start is marked good as soon as the map draws (checked every quarter second), so closing the app quickly after it opens no longer triggers a safe start.
+- **Camera grid** (dock → Cameras, `src-45-camera-grid.js`): type a city or state, or use the area in view, and every camera there appears as a mini tile, nearest the centre first. Tap a tile to enlarge it, tap again to shrink it back; several can be big at once, each with Open for the full viewer. Big tiles refresh every few seconds and small ones about once a minute while on screen; pictures load only as they scroll into view, 90 at a time.
+- **Drive is in the dashboard:** the ➤ button in the camera grid and in Search opens it (route, every camera along it, hazards and weather, and a camera wall of what's ahead).
+- **Locked to the new screen:** the dashboard on the dark globe is the only screen. Saved looks from older versions are cleared and none can bring back the old screen. If the dark globe can't load, the stand-in globe keeps the same dashboard and the dark globe is retried every 30 seconds and whenever the connection returns, so the fallback never sticks. A start after one that never drew still opens the dark globe, with a shorter wait.
+- **Double-tap a layer** in Layers to show only that layer; double-tap it again to bring back exactly the layers that were on. The base map stays as it is.
+- The dashboard is now `src-38-dashboard.js` (it replaces `src-39-replica-world.js`).
+- Guide, sources and tests updated: 65 JavaScript tests (currencies) and 36 browser tests (the camera grid, Drive from the grid, the screen lock, the fallback retrying, double-tap layers).
+
+## v77
+- **Smooth dark globe while cameras load.** Each batch of cameras arriving (dozens of networks over the first minutes) re-sent every camera, nearly 50,000 points, to the graphics chip, which made the map stutter. Cameras are now redrawn at most every 6 seconds and never while you're moving the map; data layers at most every 3 seconds.
+- The dark globe draws at no more than twice the screen's base resolution, instead of 2.6× on high-density phones, for steadier frame rates.
+- If the dashboard moved on while the map engine was still loading (on a slow connection), the late map no longer opens on top of the other view.
+- After switching to 3D and back, the dark globe redraws every data layer, not only the cameras.
+
 ## v76
 - **One interface everywhere.** The dashboard (a slim top bar and a five-button dock) is now the only screen in every view: the dark globe, the 3D city, and the satellite globe the app draws itself, which is also the fallback when a map can't load. The old header, button rows, tabs and ticker no longer appear unless you choose Classic (all buttons) in Briefing → Settings → Globe look.
 - **Cleaner top bar:** brand, a live camera count (aircraft and ships appear when switched on), Search, Emergency and Hide menus. The sky is on the logo (hold it).

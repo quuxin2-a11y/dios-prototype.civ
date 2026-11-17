@@ -7708,3 +7708,129 @@ body.bare #cfp {
     font-size: 10.5px;
   }
 }
+/* ---------- Camera grid ---------- */
+#cgp {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  display: none;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #04070bf7;
+  backdrop-filter: blur(10px);
+}
+body.cg-open #rwdash,
+body.cg-open #cfp {
+  display: none !important;
+}
+#cgp .cghead {
+  display: flex;
+  gap: 8px;
+  padding: 10px 10px 6px;
+}
+#cgp .cghead input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  color: var(--ink);
+  font-size: 15px;
+}
+#cgp .cghead button {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 0;
+  background: var(--accent);
+  color: #02130c;
+  font-weight: 800;
+}
+#cgp .cghead button[data-cg="x"] {
+  width: 44px;
+  padding: 0;
+  background: #ffffff12;
+  color: var(--ink);
+}
+#cgp .cgsub {
+  padding: 2px 14px 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #8fa3b3;
+}
+#cgp .cggrid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: dense;
+  gap: 4px;
+  padding: 0 6px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  align-content: start;
+}
+#cgp .cgt {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0b1219;
+  cursor: pointer;
+}
+#cgp .cgt.big {
+  grid-column: 1 / -1;
+  outline: 2px solid var(--accent);
+}
+#cgp .cgt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+#cgp .cgt span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 6px 3px;
+  font-size: 9px;
+  line-height: 1.2;
+  color: #e8f3f8;
+  background: linear-gradient(transparent, #000c);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#cgp .cgt.big span {
+  font-size: 12px;
+  padding: 16px 10px 8px;
+}
+#cgp .cgopen {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0;
+  background: #060a10cc;
+  color: var(--ink);
+  font-size: 12px;
+}
+#cgp .cgmore {
+  grid-column: 1 / -1;
+  height: 44px;
+  margin: 6px 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+#cgp .cghead button.cgdrive {
+  width: 44px;
+  padding: 0;
+  background: #ffffff12;
+  color: var(--accent);
+  font-size: 17px;
+}

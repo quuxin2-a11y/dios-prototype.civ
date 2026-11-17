@@ -1757,7 +1757,7 @@ if (EMBED_OK && !window.__ODD_HARVEST) {
   setInterval(liveSnapSave, 10 * 60000);
 }
 
-// Started by the data feed (module 41) once it knows which networks the shared feed already
+// Started by the data feed (module 40) once it knows which networks the shared feed already
 // covers; those are not asked again from the phone.
 var LIVE_COVERED = {};
 function liveSourcesStart(covered) {

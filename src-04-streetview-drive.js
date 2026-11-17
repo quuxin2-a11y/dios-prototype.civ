@@ -997,7 +997,7 @@ document.addEventListener("submit", function (e) {
   }
 });
 document.addEventListener("click", function (e) {
-  if (e.target.closest("#bDrive")) {
+  if (e.target.closest("#bDrive, #bDriveRw")) {
     drvPanel();
     return;
   }

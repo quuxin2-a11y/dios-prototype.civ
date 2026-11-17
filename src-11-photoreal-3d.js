@@ -1175,7 +1175,6 @@ function t4Google(opt) {
   var C = window.Cesium,
     v = T4.v;
   if (!v) return;
-  if (typeof repOff === "function") repOff();
   if (T4.ts) {
     T4.ts.show = true;
     T4.ready = true;
@@ -1213,11 +1212,6 @@ function t4Google(opt) {
         t4Close();
         return;
       }
-      if (typeof repOn === "function") {
-        note("Google 3D", "Google refused its 3D tiles for this key, so Replica is shown instead.");
-        repOn();
-        return;
-      }
       t4Close();
     });
 }
@@ -1227,7 +1221,7 @@ function t4Google(opt) {
 function t4Open(opt) {
   opt = opt && opt.target ? {} : opt || {};
   if (T4.on) return;
-  if (!opt.replica && !kG3()) {
+  if (!kG3()) {
     if (opt.auto) return;
     note(
       "Photoreal 3D",
@@ -1287,12 +1281,7 @@ function t4Open(opt) {
             PERF_L[SET.perf == null ? 1 : SET.perf][0]
           );
         } catch (e) {}
-        // Replica needs no Google data; the Google tiles load only for the Google view.
-        if (opt.replica) {
-          T4.ready = true;
-          T4.n = "";
-          repOn();
-        } else t4Google(opt);
+        t4Google(opt);
         v.scene.canvas.addEventListener("pointerdown", t4OrbitStop);
         var hd = new C.ScreenSpaceEventHandler(v.scene.canvas);
         hd.setInputAction(function (m) {
@@ -1351,7 +1340,7 @@ function t4Open(opt) {
           }
         }, C.ScreenSpaceEventType.LEFT_CLICK);
       }
-      if (!fresh) opt.replica ? repOn() : t4Google(opt);
+      if (!fresh) t4Google(opt);
       if (opt.space)
         T4.v.camera.setView({
           destination: C.Cartesian3.fromDegrees(
@@ -1398,7 +1387,6 @@ function t4Close() {
     ckpClose();
   } catch (e) {}
   T4.on = false;
-  if (typeof repOff === "function") repOff();
   // Release the photo tiles' graphics memory while the 3D view is closed; reopening reloads them.
   if (T4.ts && T4.v) {
     try {

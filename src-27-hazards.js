@@ -46,7 +46,7 @@ var WL_GROUP = {};
   ["Earth", "eo_today eo_dnb eo_lights smoke firehot airq"],
   ["Health and public places", "outbreaks pharmacy library toilets evcharge wifi parks"],
   ["Nature", "natpark wildlife water"],
-  ["Travel and economy", "airdelay advisory ferry economy"],
+  ["Travel and economy", "airdelay advisory ferry economy currency"],
   ["Energy and geology", "powerplant fuel volcano"],
   ["Climate", "drought tempnow"],
   ["Culture and area facts", "museum historic unesco places countryfacts"],

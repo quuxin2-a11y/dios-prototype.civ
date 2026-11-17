@@ -439,11 +439,9 @@ class AppInBrowser(unittest.TestCase):
         self.page.route("**/*", self._local_only)
         # Skip the first-run introduction so the tests start on the globe.
         self.page.add_init_script("localStorage.setItem('ojos-onb', 'true')")
-        # Most tests exercise the classic screen; the dashboard (the default start) has its own tests.
-        self.page.add_init_script(
-            "if (!localStorage.getItem('ojos-set'))"
-            " localStorage.setItem('ojos-set', JSON.stringify({look: 'classic', lookV: 3}))"
-        )
+        # Most tests exercise the original screen, which only the tests can ask for; the dashboard
+        # (the app's only screen) has its own tests, which call use_dashboard().
+        self.page.add_init_script("window.__ODD_CLASSIC = true;")
         self.page.goto(self.url)
         self.page.wait_for_timeout(SETTLE_MS)
 
@@ -479,6 +477,9 @@ class AppInBrowser(unittest.TestCase):
             )
         else:
             route.abort()
+
+    def use_dashboard(self):
+        self.page.add_init_script("window.__ODD_CLASSIC = false;")
 
     def visible(self, selector):
         return self.page.is_visible(selector)
@@ -696,22 +697,27 @@ class AppInBrowser(unittest.TestCase):
         )
         self.assertEqual(self.errors, [])
 
-    def test_earth_view_opens_from_space_with_points_and_cables(self):
-        self.page.add_init_script(CESIUM_STANDIN)
-        self.page.add_init_script(
-            "localStorage.setItem('ojos-set', JSON.stringify({look: 'earth', lookV: 2}))"
-        )
-        self.page.add_init_script(
-            "localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))"
-        )
-        self.page.reload()
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('real')", timeout=15000
-        )
-        self.page.wait_for_function(
-            "() => window.__cz && window.__cz.lines >= 1 && Object.values(window.__cz.points).filter(n => n > 0).length >= 2",
-            timeout=40000,
-        )
+    def test_no_saved_setting_can_bring_back_the_old_screen(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        for look in ("classic", "earth", "replica", "clear"):
+            self.page.evaluate(
+                "(l) => localStorage.setItem('ojos-set', JSON.stringify({look: l, lookV: 4, rw3d: 'photo'}))",
+                look,
+            )
+            self.page.reload()
+            self.page.wait_for_function(
+                "() => document.body.classList.contains('rw-globe')", timeout=8000
+            )
+            self.page.wait_for_function(
+                "() => localStorage.getItem('ojos-boot') === JSON.stringify('ok')", timeout=5000
+            )
+            self.assertFalse(self.visible(".hud"))
+            saved = self.page.evaluate("() => JSON.parse(localStorage.getItem('ojos-set'))")
+            self.assertNotIn("look", saved)
+            self.assertNotIn("rw3d", saved)
+        # Nothing 3D is loaded for the dashboard.
+        self.assertFalse(self.page.evaluate("() => !!window.Cesium"))
         self.assertEqual(self.errors, [])
 
     def tap_logo(self, times=1):
@@ -719,45 +725,9 @@ class AppInBrowser(unittest.TestCase):
             self.page.click(".brand", force=True)
             self.page.wait_for_timeout(60)
 
-    def test_logo_opens_photo_real_3d_and_model_switch_is_kept(self):
-        # No map library here: the dashboard falls back from the dark globe to the 3D replica.
-        self.page.add_init_script(CESIUM_STANDIN)
-        self.page.add_init_script("window.__czH = 3000;")
-        self.page.reload()
-        self.page.wait_for_timeout(SETTLE_MS)
-        self.assertFalse(
-            self.page.evaluate("() => document.body.classList.contains('real')")
-        )
-        self.tap_logo()
-        # 3D close-ups open in the photo-real view (Google's tiles) by default.
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('rw-replica') && window.__cz && window.__cz.google === 1",
-            timeout=15000,
-        )
-        self.assertTrue(self.visible("#rwdash .rwdock"))
-        # MODEL switches to the open-data model, and the choice is kept.
-        self.page.click("#bRepSw")
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('replica') && window.__cz.globe && window.__cz.prims >= 4",
-            timeout=20000,
-        )
-        self.assertEqual(
-            self.page.evaluate("() => JSON.parse(localStorage.getItem('ojos-set')).rw3d"), "model"
-        )
-        # Leaving the dashboard (Settings → Classic dark) closes the 3D view.
-        self.page.evaluate("() => document.querySelector('[data-rw=set]').click()")
-        self.page.click("[data-br='lk-classic']")
-        self.page.wait_for_function(
-            "() => !document.body.classList.contains('rw') && !document.body.classList.contains('real')",
-            timeout=5000,
-        )
-        self.assertEqual(self.errors, [])
-
-    def test_starts_on_the_dark_globe_and_the_logo_switches_to_3d(self):
+    def test_starts_on_the_dark_globe_and_the_logo_opens_the_sky(self):
+        self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
-        self.page.add_init_script(CESIUM_STANDIN)
-        self.page.add_init_script("window.__czH = 3000;")
-        self.page.add_init_script("localStorage.removeItem('ojos-set')")
         self.page.reload()
         self.page.wait_for_function(
             "() => document.body.classList.contains('rw-globe') && window.__ml.layers.includes('cams')",
@@ -765,74 +735,78 @@ class AppInBrowser(unittest.TestCase):
         )
         style = self.page.evaluate("() => window.__ml.style")
         ids = [layer["id"] for layer in style["layers"]]
-        for layer_id in ("borders", "borders-glow", "place-country", "place-city", "road-name"):
+        for layer_id in (
+            "borders",
+            "borders-glow",
+            "place-country",
+            "place-city",
+            "road-name",
+        ):
             self.assertIn(layer_id, ids)
         self.assertEqual(style["projection"], {"type": "globe"})
         for layer in style["layers"]:
             self.assertNotIn(None, layer.values(), layer["id"])
+        self.assertIn("camlabel", self.page.evaluate("() => window.__ml.layers"))
         self.assertEqual(self.page.inner_text("#rwname"), "OJOS DE DIOS")
-        # Zoomed into a city, the 3D close-up is offered.
-        self.page.evaluate("() => window.__mlMap.jumpTo({ zoom: 15 })")
-        self.page.wait_for_selector("#ops3d", state="visible", timeout=3000)
-        # One tap on the logo: the photo-real 3D city at the same place.
+        # One tap on the logo opens the sky; closing it returns to the same globe.
         self.page.click(".rwbrand")
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('rw-replica') && window.__cz.google === 1",
-            timeout=15000,
+        self.page.wait_for_selector("#sky", state="visible", timeout=3000)
+        self.page.click("[data-sky='x']")
+        self.assertTrue(
+            self.page.evaluate("() => document.body.classList.contains('rw-globe')")
         )
-        self.page.click(".rwbrand")
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=5000)
+        self.assertFalse(self.page.evaluate("() => !!window.Cesium"))
         self.assertEqual(self.errors, [])
 
-    def test_dark_globe_that_never_draws_falls_back_to_the_satellite_globe(self):
+    def test_dark_globe_that_never_draws_falls_back_then_keeps_retrying(self):
+        self.use_dashboard()
         # A map engine that loads but never draws (a black screen on a phone).
-        self.page.add_init_script(MAPLIBRE_STANDIN.replace("setTimeout(() => (this.h.load", "(() => (this.h.noload"))
-        self.page.add_init_script("window.__OPS_WAIT_MS = 1500;")
-        self.page.add_init_script("localStorage.setItem('ojos-set', JSON.stringify({look: 'world', lookV: 3}))")
+        self.page.add_init_script(
+            MAPLIBRE_STANDIN.replace("setTimeout(() => (this.h.load", "(() => (this.h.noload")
+        )
+        self.page.add_init_script("window.__OPS_WAIT_MS = 1500; window.__OPS_RETRY_MS = 1000;")
         self.page.reload()
         self.page.wait_for_function(
             "() => document.body.classList.contains('rw-canvas') && !document.body.classList.contains('tilt')"
-            " && [...document.querySelectorAll('.toast')].some((t) => /satellite globe/.test(t.textContent))",
+            " && [...document.querySelectorAll('.toast')].some((t) => /switch back by itself/.test(t.textContent))",
             timeout=8000,
         )
-        self.assertIn("Dark globe", self.page.evaluate("() => localStorage.getItem('ojos-errs')"))
         self.assertTrue(self.visible("#gl"))
+        self.assertTrue(self.visible("#rwdash .rwdock"))
+        # The fallback doesn't stick: the dark globe is tried again by itself.
+        self.page.wait_for_function(
+            "() => JSON.parse(localStorage.getItem('ojos-errs') || '[]').some((x) => /Dark globe/.test(x.m) && x.n >= 2)",
+            timeout=10000,
+        )
+        self.assertFalse(self.visible(".hud"))
         self.assertEqual(self.errors, [])
 
-    def test_a_start_that_never_drew_opens_safely_next_time(self):
+    def test_a_start_that_never_drew_still_opens_the_dark_globe(self):
+        self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
-        self.page.add_init_script("localStorage.setItem('ojos-set', JSON.stringify({look: 'world', lookV: 3}))")
         self.page.add_init_script(
             "if (!sessionStorage.getItem('once')) { sessionStorage.setItem('once', '1');"
             " localStorage.setItem('ojos-boot', JSON.stringify('pending')); }"
         )
         self.page.reload()
-        self.page.wait_for_function(
-            "() => [...document.querySelectorAll('.toast')].some((t) => /safe start/i.test(t.textContent))",
-            timeout=6000,
-        )
-        self.assertTrue(self.page.evaluate("() => document.body.classList.contains('rw-canvas')"))
-        # The start is marked good, so the next one opens the dark globe as usual.
-        self.page.wait_for_function("() => localStorage.getItem('ojos-boot') === JSON.stringify('ok')", timeout=5000)
-        self.page.reload()
         self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=8000)
+        self.page.wait_for_function("() => localStorage.getItem('ojos-boot') === JSON.stringify('ok')", timeout=5000)
         self.assertEqual(self.errors, [])
 
     def test_globe_recovers_when_the_phone_takes_its_graphics_away(self):
-        lost = self.page.evaluate(
-            """() => {
+        lost = self.page.evaluate("""() => {
                 const gl = document.getElementById('gl').getContext('webgl');
                 const ext = gl && gl.getExtension('WEBGL_lose_context');
                 if (!ext) return false;
                 ext.loseContext();
                 window.__restore = () => ext.restoreContext();
                 return true;
-            }"""
-        )
+            }""")
         if not lost:
             self.skipTest("this browser can't simulate lost graphics")
         self.page.wait_for_function(
-            "() => /Globe graphics/.test(localStorage.getItem('ojos-errs') || '')", timeout=5000
+            "() => /Globe graphics/.test(localStorage.getItem('ojos-errs') || '')",
+            timeout=5000,
         )
         self.page.wait_for_timeout(2500)
         recovered = self.page.evaluate(
@@ -842,9 +816,11 @@ class AppInBrowser(unittest.TestCase):
         self.assertEqual(self.errors, [])
 
     def test_dark_globe_draws_data_layers_and_opens_them(self):
+        self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
-        self.page.add_init_script("localStorage.setItem('ojos-set', JSON.stringify({look: 'world', lookV: 3}))")
-        self.page.add_init_script("localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))")
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))"
+        )
         self.page.reload()
         self.page.wait_for_function(
             "() => window.__ml && window.__ml.sources.info && window.__ml.sources.infoline"
@@ -855,8 +831,7 @@ class AppInBrowser(unittest.TestCase):
         self.assertEqual(self.errors, [])
 
     def test_cameras_from_the_last_session_show_at_once(self):
-        self.page.evaluate(
-            """() => new Promise((res) => {
+        self.page.evaluate("""() => new Promise((res) => {
                 const r = indexedDB.open('ojos', 1);
                 r.onupgradeneeded = () => r.result.createObjectStore('kv');
                 r.onsuccess = () => {
@@ -868,8 +843,7 @@ class AppInBrowser(unittest.TestCase):
                     tx.objectStore('kv').put({ t: Date.now(), cams }, 'live-snap');
                     tx.oncomplete = res;
                 };
-            })"""
-        )
+            })""")
         self.page.reload()
         self.page.wait_for_function(
             "() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3",
@@ -883,7 +857,10 @@ class AppInBrowser(unittest.TestCase):
             "t": int(time.time() * 1000),
             "srcs": ["Feed network"],
             "keys": ["n", "lat", "lon", "e"],
-            "rows": [[0, "Feed cam %d" % i, 40 + i, -100, "https://example.org/%d.jpg" % i] for i in range(4)],
+            "rows": [
+                [0, "Feed cam %d" % i, 40 + i, -100, "https://example.org/%d.jpg" % i]
+                for i in range(4)
+            ],
         }
         self.page.route(
             "**/dios-prototype.civ/data/cams.json*",
@@ -899,7 +876,9 @@ class AppInBrowser(unittest.TestCase):
     def test_photo_help_is_in_emergency_and_where_is_this_explains_the_key(self):
         self.page.evaluate("() => document.getElementById('bEmg').click()")
         self.page.click("[data-em='yes']")
-        self.page.wait_for_selector("#emgp [data-ph='help']", state="visible", timeout=8000)
+        self.page.wait_for_selector(
+            "#emgp [data-ph='help']", state="visible", timeout=8000
+        )
         self.page.evaluate(
             "() => { const b = document.createElement('button'); b.dataset.ph = 'where';"
             " document.body.appendChild(b); b.click(); }"
@@ -935,12 +914,16 @@ class AppInBrowser(unittest.TestCase):
             "**/dios-prototype.civ/data/layers.json*",
             lambda r: r.fulfill(body=json.dumps(feed), content_type="application/json"),
         )
-        self.page.evaluate("() => localStorage.setItem('ojos-set', JSON.stringify({look: 'clear', lookV: 3}))")
+        self.use_dashboard()
         self.page.reload()
-        self.page.wait_for_selector("#rwdash .rwdock [data-rw='conflict']", state="visible", timeout=8000)
+        self.page.wait_for_selector(
+            "#rwdash .rwdock [data-rw='conflict']", state="visible", timeout=8000
+        )
         self.assertFalse(self.visible(".hud"))
         self.page.click("#rwdash .rwdock [data-rw='conflict']")
-        self.page.wait_for_function("() => document.querySelectorAll('#cfp .cfrow').length === 3", timeout=8000)
+        self.page.wait_for_function(
+            "() => document.querySelectorAll('#cfp .cfrow').length === 3", timeout=8000
+        )
         self.assertIn("UNVERIFIED", self.page.inner_text("#cfp").upper())
         self.page.click("#cfp [data-cf='k-Drone strike']")
         self.assertEqual(self.page.locator("#cfp .cfrow").count(), 2)
@@ -948,19 +931,67 @@ class AppInBrowser(unittest.TestCase):
         self.assertFalse(self.visible("#cfp"))
         self.assertEqual(self.errors, [])
 
+    def test_camera_grid_shows_tiles_that_grow_and_shrink(self):
+        self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
+        # The world view, so every loaded camera is in the area.
+        self.page.evaluate(
+            "() => { const b = document.createElement('button'); b.dataset.rw = 'cams';"
+            " document.body.appendChild(b); b.click(); }"
+        )
+        self.page.wait_for_selector("#cgp", state="visible", timeout=3000)
+        self.page.wait_for_function("() => /CAMERAS|NO LIVE/.test(document.getElementById('cgsub').textContent)", timeout=5000)
+        n = self.page.locator("#cggrid .cgt").count()
+        if n:
+            first = self.page.locator("#cggrid .cgt").first
+            first.click()
+            self.assertIn("big", first.get_attribute("class"))
+            self.assertTrue(self.visible("#cggrid .cgt.big .cgopen"))
+            first.click(position={"x": 10, "y": 10})
+            self.assertNotIn("big", first.get_attribute("class"))
+        # Drive opens from the grid's ➤ button.
+        self.page.click("#cgp [data-cg='drive']")
+        self.page.wait_for_selector("#drvForm", state="visible", timeout=3000)
+        self.assertFalse(self.visible("#cgp"))
+        self.assertEqual(self.errors, [])
+
+    def test_double_tap_a_layer_to_see_only_it_and_again_to_restore(self):
+        self.page.wait_for_selector("#wlayers [data-wl='radio']", state="attached", timeout=5000)
+        state = "() => JSON.parse(localStorage.getItem('ojos-layers') || '{}')"
+        before = self.page.evaluate(state)
+        self.assertTrue(before.get("quake"))
+        self.assertFalse(before.get("radio"))
+        self.page.locator("#wlayers [data-wl='radio']").dispatch_event("click")
+        self.page.locator("#wlayers [data-wl='radio']").dispatch_event("click")
+        solo = self.page.evaluate(state)
+        self.assertTrue(solo["radio"])
+        self.assertFalse(solo["quake"])
+        self.assertTrue(solo.get("img"), "the base map stays on")
+        self.page.wait_for_timeout(500)
+        self.page.locator("#wlayers [data-wl='radio']").dispatch_event("click")
+        self.page.locator("#wlayers [data-wl='radio']").dispatch_event("click")
+        after = self.page.evaluate(state)
+        self.assertTrue(after["quake"])
+        self.assertFalse(after["radio"])
+        self.assertEqual(self.errors, [])
+
     def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):
         self.page.click("#bBare")
-        self.assertTrue(self.page.evaluate("() => document.body.classList.contains('bare')"))
+        self.assertTrue(
+            self.page.evaluate("() => document.body.classList.contains('bare')")
+        )
         self.assertFalse(self.visible(".hud"))
         self.assertTrue(self.visible("#bareX"))
         self.page.click("#bareX")
-        self.assertFalse(self.page.evaluate("() => document.body.classList.contains('bare')"))
+        self.assertFalse(
+            self.page.evaluate("() => document.body.classList.contains('bare')")
+        )
         self.assertTrue(self.visible(".hud"))
 
-    def test_five_logo_taps_still_open_the_signature_not_replica(self):
+    def test_five_logo_taps_still_open_the_signature_not_the_sky(self):
         self.tap_logo(5)
         self.page.wait_for_timeout(700)
         self.assertTrue(self.visible("#sigfx"))
+        self.assertFalse(self.visible("#sky"))
         self.assertFalse(
             self.page.evaluate("() => document.body.classList.contains('rw')")
         )
@@ -980,51 +1011,6 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("[data-sky='sys']")
         self.page.click("[data-sky='x']")
         self.assertFalse(self.visible("#sky"))
-        self.assertEqual(self.errors, [])
-
-    def test_replica_falls_back_to_a_mirror_when_overpass_is_busy(self):
-        self.page.add_init_script(CESIUM_STANDIN)
-        self.page.add_init_script("window.__czH = 3000;")
-        # Opened Google 3D last time: start-up still follows Globe look (here, the 3D model).
-        self.page.add_init_script(
-            "localStorage.setItem('ojos-view', JSON.stringify('real'))"
-        )
-        self.page.add_init_script(
-            "localStorage.setItem('ojos-set', JSON.stringify({look: 'replica', lookV: 3, rw3d: 'model'}))"
-        )
-        self.page.route(
-            "https://overpass-api.de/**",
-            lambda route: route.fulfill(status=429, body="rate limited"),
-        )
-        self.page.route(
-            "https://overpass.kumi.systems/**",
-            lambda route: route.fulfill(
-                body=json.dumps(SAMPLES["overpass-api.de/api/interpreter"]),
-                content_type="application/json",
-                headers={"access-control-allow-origin": "*"},
-            ),
-        )
-        self.page.reload()
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('replica')", timeout=15000
-        )
-        self.page.wait_for_function(
-            r"() => /\d+ buildings?/.test((document.getElementById('repst') || {}).textContent || '')",
-            timeout=25000,
-        )
-        self.assertFalse(self.page.evaluate("() => !!window.__cz.google"))
-        self.assertEqual(self.errors, [])
-
-    def test_classic_look_keeps_the_canvas_globe(self):
-        self.page.add_init_script(CESIUM_STANDIN)
-        self.page.add_init_script(
-            "localStorage.setItem('ojos-set', JSON.stringify({look: 'classic', lookV: 2}))"
-        )
-        self.page.reload()
-        self.page.wait_for_timeout(SETTLE_MS)
-        self.assertFalse(
-            self.page.evaluate("() => document.body.classList.contains('real')")
-        )
         self.assertEqual(self.errors, [])
 
     def test_focus_mode_adds_and_clears_a_state(self):

@@ -7,7 +7,7 @@
  * travel" (Level 4) advisory are shaded as war and danger zones on the dark globe.
  * The Conflict button in the dock switches both on and opens the list of reports.
  *
- * Module 44 of 45. Modules share one scope: build.py concatenates them in order
+ * Module 43 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

@@ -4,16 +4,14 @@
  * module 10), styled for reading data: deep navy land and sea, glowing country borders, quiet
  * state lines, and names that appear as you zoom. Cameras, aircraft, ships, every data layer and
  * the undersea cables are GPU layers on top, so the map stays smooth with 100,000+ points.
- * Zooming into a city offers the 3D Replica (module 38) for a close-up.
  * Map data: OpenStreetMap via OpenFreeMap; the credit sits behind the map's ⓘ button.
  *
- * Module 42 of 45. Modules share one scope: build.py concatenates them in order
+ * Module 41 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
 var OPS_TILES = "https://tiles.openfreemap.org/",
-  OPS_FONT = ["Noto Sans Regular"],
-  OPS_CLOSE_ZOOM = 14; // from here the 3D city is offered
+  OPS_FONT = ["Noto Sans Regular"];
 
 // Label text: English where mapped, otherwise the local name.
 var OPS_NAME = ["coalesce", ["get", "name_en"], ["get", "name:latin"], ["get", "name"]];
@@ -54,7 +52,9 @@ function opsStyle() {
       layout: { "line-cap": "round", "line-join": "round" },
       paint: {
         "line-color": color,
-        "line-width": ["interpolate", ["exponential", 1.6], ["zoom"], min, w[0], 18, w[1]]
+        "line-width": ["interpolate", ["exponential", 1.6], ["zoom"], min, w[0], 18, w[1]],
+        // The photos show the streets close in, so the drawn roads step back.
+        "line-opacity": ["interpolate", ["linear"], ["zoom"], 13, 1, 15, 0.3]
       }
     };
   };
@@ -74,6 +74,17 @@ function opsStyle() {
         type: "vector",
         url: OPS_TILES + "planet",
         attribution: "© OpenStreetMap · OpenFreeMap"
+      },
+      // Aerial photos that fade in as you zoom into a city (credit behind the map's ⓘ).
+      photo: {
+        type: "raster",
+        tiles: [
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        ],
+        tileSize: 256,
+        minzoom: 10,
+        maxzoom: 19,
+        attribution: "Imagery © Esri, Maxar, Earthstar Geographics"
       }
     },
     layers: [
@@ -110,6 +121,18 @@ function opsStyle() {
         minzoom: 7,
         paint: { "line-color": "#0a2236", "line-width": 1 }
       },
+      {
+        id: "photo",
+        type: "raster",
+        source: "photo",
+        minzoom: 10.5,
+        paint: {
+          "raster-opacity": ["interpolate", ["linear"], ["zoom"], 10.5, 0, 13.5, 0.92],
+          "raster-brightness-max": 0.86,
+          "raster-saturation": -0.12,
+          "raster-fade-duration": 200
+        }
+      },
       road("road-minor", ["minor", "service", "tertiary"], 12, "#132634", [0.4, 6]),
       road("road-main", ["primary", "secondary"], 8, "#1a3446", [0.5, 9]),
       road("road-major", ["motorway", "trunk"], 5, "#24475e", [0.6, 12]),
@@ -120,10 +143,28 @@ function opsStyle() {
         "source-layer": "building",
         minzoom: 14,
         paint: {
-          "fill-extrusion-color": "#16232f",
-          "fill-extrusion-height": ["coalesce", ["get", "render_height"], 8],
+          // Dark blocks at first, then light 3D buildings over the photos as you get close.
+          "fill-extrusion-color": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            14,
+            "#1d2c3a",
+            16,
+            "#b9c4d0"
+          ],
+          "fill-extrusion-height": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            14,
+            0,
+            14.6,
+            ["coalesce", ["get", "render_height"], 8]
+          ],
           "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
-          "fill-extrusion-opacity": 0.85
+          "fill-extrusion-vertical-gradient": true,
+          "fill-extrusion-opacity": 0.9
         }
       },
       {
@@ -258,8 +299,12 @@ function t3InfoData() {
 function t3Info() {
   var m = T3.map;
   if (!m || !T3.ready) return;
-  var key = t3InfoKey();
+  var key = t3InfoKey(),
+    now = Date.now();
   if (key === T3.ik) return;
+  // Like the cameras: at most every 3 s, and never while the map is moving.
+  if (T3.ik != null && (now - (T3.infoT || 0) < 3000 || (m.isMoving && m.isMoving()))) return;
+  T3.infoT = now;
   T3.ik = key;
   var d = t3InfoData();
   if (m.getSource("info")) {
@@ -351,10 +396,33 @@ function t3Info() {
   });
 }
 
+// ---------- Zoom in and see it in 3D ----------
+// One world: zooming into a city fades in the aerial photos, raises the buildings and tilts the
+// view; zooming back out levels it again. A tilt or turn you make yourself is left alone.
+var OPS_TILT_ZOOM = 15,
+  OPS_FLAT_ZOOM = 12;
+
+function opsAttach(m) {
+  m.on("zoomend", function () {
+    if (!T3.ops || !T3.map) return;
+    var z = m.getZoom(),
+      p = m.getPitch();
+    if (z >= OPS_TILT_ZOOM && p < 10 && !T3.autoTilt) {
+      T3.autoTilt = true;
+      m.easeTo({ pitch: 52, duration: 900 });
+    } else if (z < OPS_FLAT_ZOOM && T3.autoTilt) {
+      T3.autoTilt = false;
+      if (p > 0) m.easeTo({ pitch: 0, bearing: 0, duration: 700 });
+    }
+  });
+}
+
 // ---------- Never a black screen ----------
 // If the dark globe hasn't drawn within OPS_WAIT_MS, or reports an error before it draws, the app
-// falls back to the classic globe (which needs nothing from the network to appear) and says so.
-var OPS_WAIT_MS = window.__OPS_WAIT_MS || 15000;
+// falls back to the app's own globe (which needs nothing from the network) and says so.
+var OPS_WAIT_MS = window.__OPS_WAIT_MS || (BOOT_SAFE ? 8000 : 15000),
+  OPS_RETRY_MS = window.__OPS_RETRY_MS || 30000, // the dark globe is tried again this often
+  OPS_RETRIES = 8;
 
 function opsWatch() {
   clearTimeout(T3.watch);
@@ -378,47 +446,33 @@ function opsFail(why) {
   if (RW.on) rwMode("canvas");
   lastView = "";
   setTimeout(resize, 40);
-  note(
-    "Map",
-    "The dark globe couldn't load right now, so the satellite globe is shown with all your data. Tap the logo to try again."
-  );
+  // Said once; the dark globe is then retried quietly in the background (opsRetry).
+  if (!RW.retries)
+    note(
+      "Map",
+      "The dark globe couldn't load right now, so a simpler globe is shown with all your data. It will switch back by itself as soon as it can."
+    );
 }
 
-// ---------- Safe start ----------
-// A start-up that never got a map on screen (the app was closed on a black screen, or crashed)
-// makes the next start open on the classic globe once, instead of trying the same thing again.
+// The fallback never sticks: the dark globe is tried again every OPS_RETRY_MS while online,
+// and straight away when the connection comes back.
+function opsRetry() {
+  if (!RW.on || RW.mode !== "canvas" || !navigator.onLine || (RW.retries || 0) >= OPS_RETRIES)
+    return;
+  RW.retries = (RW.retries || 0) + 1;
+  rwMode("globe");
+}
+setInterval(function () {
+  if (RW.on && RW.mode === "globe" && T3.ready) RW.retries = 0;
+  if (RW.on && RW.mode === "canvas" && Date.now() - RW.t0 > OPS_RETRY_MS) opsRetry();
+}, 2000);
+window.addEventListener("online", opsRetry);
+
+// ---------- Marking a good start ----------
 // BOOT_SAFE and BOOT_DASH are set in module 37, which decides how the app starts.
 (function bootCheck(n) {
-  var drawn = !BOOT_DASH || (T3.on && T3.ready) || (T4.on && T4.ready) || (!RW.on && n >= 2);
+  var drawn =
+    !BOOT_DASH || (T3.on && T3.ready) || (RW.on && RW.mode === "canvas") || (!RW.on && n >= 8);
   if (drawn) ls("ojos-boot", "ok");
-  else if (n < 40) setTimeout(bootCheck, 1000, n + 1);
+  else if (n < 160) setTimeout(bootCheck, 250, n + 1);
 })(0);
-
-// ---------- Close-up: the 3D city when zoomed in ----------
-function opsCloseTick() {
-  var b = $("ops3d"),
-    m = T3.map,
-    show =
-      RW.on &&
-      RW.mode === "globe" &&
-      !document.body.classList.contains("bare") &&
-      T3.on &&
-      T3.ops &&
-      m &&
-      T3.ready &&
-      m.getZoom() >= OPS_CLOSE_ZOOM;
-  if (!b) {
-    if (!show) return;
-    b = document.createElement("button");
-    b.id = "ops3d";
-    b.innerHTML = "◆ <b>See this in 3D</b>";
-    document.body.appendChild(b);
-  }
-  b.style.display = show ? "flex" : "none";
-}
-setInterval(opsCloseTick, 600);
-
-document.addEventListener("click", function (e) {
-  if (!e.target.closest("#ops3d")) return;
-  rwMode("replica");
-});

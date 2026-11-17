@@ -502,27 +502,6 @@ function brDraw() {
       .join("") +
     "</div>";
   h +=
-    '<h4 class="mono">GLOBE LOOK</h4><div class="brt">' +
-    [
-      ["world", "Dark globe"],
-      ["replica", "3D city"],
-      ["clear", "Satellite globe"],
-      ["classic", "Classic (all buttons)"]
-    ]
-      .map(function (o) {
-        return (
-          '<button data-br="lk-' +
-          o[0] +
-          '" class="' +
-          (lookMode() === o[0] ? "on" : "") +
-          '">' +
-          o[1] +
-          "</button>"
-        );
-      })
-      .join("") +
-    "</div>";
-  h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
       .map(function (n, i) {
@@ -575,7 +554,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 76 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 78 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -676,21 +655,7 @@ document.addEventListener("click", function (e) {
     brClose();
     opsOpen();
   } else if (k.indexOf("st-") === 0) styleSet(k.slice(3));
-  else if (k.indexOf("lk-") === 0) {
-    SET.look = k.slice(3);
-    setSave();
-    lastView = "";
-    brDraw();
-    // Classic keeps the original screen with every button; every other look is the dashboard.
-    if (SET.look === "classic") {
-      if (RW.on) rwExit();
-      return;
-    }
-    brClose();
-    var md = LOOK_MODE[SET.look] || "globe";
-    if (RW.on) rwMode(md);
-    else rwEnter({ mode: md, lon: rot.lon, lat: rot.lat });
-  } else if (k.indexOf("tx-") === 0) {
+  else if (k.indexOf("tx-") === 0) {
     textSet(i);
     brDraw();
   } else if (k.indexOf("pf-") === 0) {

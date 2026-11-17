@@ -7,7 +7,7 @@
  * covers are not asked again while it is fresh. Each network the phone does load live still
  * replaces its share, and the phone's own copy from the last session (module 08) fills any gap.
  *
- * Module 41 of 45. Modules share one scope: build.py concatenates them in order
+ * Module 40 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

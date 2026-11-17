@@ -69,7 +69,7 @@ This project connects existing libraries and public data. It does not claim them
 | City of Calgary open data | Traffic incidents | Open Government Licence – City of Calgary |
 | U.S. Customs and Border Protection | Land border wait times | US public domain |
 | Bureau of Transportation Statistics (Border Crossing Entry Data) | Border port locations (bundled) | US public domain |
-| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, communication towers, Replica buildings, roads, water and parks, wind farms outside the US, museums, historic sites, World Heritage sites and farm shops | ODbL |
+| OpenStreetMap via Overpass | Hospitals, fire and police stations, pharmacies, libraries, toilets, EV chargers, Wi-Fi, parks, national parks, ferry terminals, power plants, fuel stations, communication towers, wind farms outside the US, museums, historic sites, World Heritage sites and farm shops | ODbL |
 | FEMA National Shelter System | Open emergency shelters | US public domain |
 | IODA (Georgia Tech) | Internet outages by country | IODA terms of use; attribution required |
 | OpenFEMA | Disaster declarations | US public domain; OpenFEMA terms |
@@ -78,10 +78,9 @@ This project connects existing libraries and public data. It does not claim them
 | Radio Browser | Internet radio station directory | Public domain directory; streams belong to each station |
 | National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
 | LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
+| ExchangeRate-API open access (open.er-api.com) | Currencies against the US dollar, updated daily | Free with attribution ("Rates by Exchange Rate API", shown on each item) |
 | GDELT 2.0 event files (data.gdeltproject.org) | Conflict reports: strikes, shelling and clashes from the last 24 hours, read by the data feed | Free and open; cite GDELT. Machine-coded from news and unverified; shown as such |
-| NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe and the Replica globe | NASA open data; no restrictions, attribution requested |
-| EOxCloudless Sentinel-2 mosaic 2024 (EOX IT Services GmbH, contains modified Copernicus Sentinel data 2024) | Satellite imagery under Replica outside the US | CC BY-NC-SA 4.0: **non-commercial use only**; commercial use needs an EOX commercial licence. The credit is shown on the map while this imagery is in view |
-| USGS The National Map, USGSImageryOnly (USDA NAIP orthoimagery) | Aerial photos under Replica in the US | US public domain; credited in the Replica ⓘ panel |
+| NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe | NASA open data; no restrictions, attribution requested |
 | NOAA Hazard Mapping System | Smoke plumes and fire detections | US public domain |
 | Open-Meteo air quality (Copernicus CAMS) | Modelled air quality | CC BY 4.0 |
 | WHO Disease Outbreak News | Outbreak reports | WHO terms of use |
