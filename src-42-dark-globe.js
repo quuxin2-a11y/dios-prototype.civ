@@ -63,7 +63,7 @@ function opsStyle() {
     version: 8,
     glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
     // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
-    projection: { type: displayMode() === "flat" ? "mercator" : "globe" },
+    projection: { type: displayMode() === "globe" ? "globe" : "mercator" },
     sources: {
       omt: {
         type: "vector",
@@ -392,14 +392,38 @@ function t3Info() {
 }
 
 // ---------- Display: how the map is drawn ----------
-// "globe" (default), "flat" (the same map without the globe projection, which some graphics
-// chips draw more reliably) or "simple" (the app's own globe, no map engine at all).
-// Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, draw the round globe
-// with flicker and lines, so they start on the flat map unless the user chose otherwise.
-function displayMode() {
-  if (/^(globe|flat|simple)$/.test(SET.display || "")) return SET.display;
-  return /PowerVR|Imagination|\bIMG\b/i.test(gpuName()) ? "flat" : "globe";
+// "globe" (default): the map engine's round globe.
+// "hybrid" (Smooth globe): from space, the app's own globe drawn in plain 2D; zooming in to a
+//   region switches to the flat map, and zooming back out returns to the globe. For phones whose
+//   graphics chip draws the map engine's globe with flicker and lines.
+// "flat": the flat map at every zoom.
+// Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, have that flicker,
+// so they start on Smooth globe unless the user chose otherwise.
+var HYB_IN_KM = 2200, // the 2D globe hands over to the flat map below this view width
+  HYB_OUT_ZOOM = 3.1, // and the flat map hands back to the globe below this zoom
+  HYB_HOLD_MS = 1500; // no switch back within this long after a switch
+
+function displayFlicky() {
+  return /PowerVR|Imagination|\bIMG\b/i.test(gpuName());
 }
+
+function displayMode() {
+  var d = SET.display === "simple" ? "hybrid" : SET.display;
+  if (/^(globe|hybrid|flat)$/.test(d || "")) return d;
+  return displayFlicky() ? "hybrid" : "globe";
+}
+
+// True while the app's own globe is standing in for the map engine in Smooth globe.
+function hybCanvas() {
+  return typeof RW === "object" && RW.on && RW.mode === "canvas" && displayMode() === "hybrid";
+}
+
+// Zooming in on the 2D globe hands over to the flat map at the same place.
+setInterval(function () {
+  if (!hybCanvas() || document.hidden || Date.now() - (RW.t0 || 0) < HYB_HOLD_MS) return;
+  if (Date.now() - (RW.failT || 0) < OPS_RETRY_MS) return; // the flat map just failed to load
+  if (viewKm() < HYB_IN_KM) rwMode("globe", { lon: rot.lon, lat: rot.lat, h: viewKm() * 900 });
+}, 300);
 
 function displaySet(m) {
   SET.display = m;
@@ -415,7 +439,7 @@ function displaySet(m) {
   T3.map = null;
   T3.ready = false;
   RW.retries = 0;
-  rwMode(m === "simple" ? "canvas" : "globe");
+  rwMode(m === "hybrid" ? "canvas" : "globe");
 }
 
 // ---------- Zoom in and see it in 3D ----------
@@ -429,6 +453,15 @@ function opsAttach(m) {
     if (!T3.ops || !T3.map) return;
     var z = m.getZoom(),
       p = m.getPitch();
+    // Smooth globe: zooming far out on the flat map returns to the 2D globe at the same place.
+    if (displayMode() === "hybrid" && z < HYB_OUT_ZOOM && Date.now() - (RW.t0 || 0) > HYB_HOLD_MS) {
+      var w = rwWhere();
+      // After this event finishes, since the handover removes this map.
+      setTimeout(function () {
+        if (RW.on && RW.mode === "globe") rwMode("canvas", { lon: w[0], lat: w[1], h: w[2] });
+      }, 0);
+      return;
+    }
     if (z >= OPS_TILT_ZOOM && p < 10 && !T3.autoTilt) {
       T3.autoTilt = true;
       m.easeTo({ pitch: 52, duration: 900 });
@@ -458,6 +491,7 @@ function opsFail(why) {
   if (!T3.ops) return;
   clearTimeout(T3.watch);
   errLog("Dark globe: " + why);
+  RW.failT = Date.now();
   try {
     if (T3.map) T3.map.remove();
   } catch (e) {}
@@ -482,7 +516,7 @@ function opsRetry() {
   if (
     !RW.on ||
     RW.mode !== "canvas" ||
-    displayMode() === "simple" ||
+    displayMode() === "hybrid" ||
     !navigator.onLine ||
     (RW.retries || 0) >= OPS_RETRIES
   )

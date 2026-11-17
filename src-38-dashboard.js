@@ -135,6 +135,8 @@ function rwMode(mode, opt) {
     if (T3.on) t3Close();
     rot.lon = w[0];
     rot.lat = Math.max(-85, Math.min(85, w[1]));
+    // Keep the same view width when handing over from the map engine.
+    if (opt.h) zoom = clampZ((zoom * viewKm()) / Math.max(1, opt.h / 900));
     lastView = "";
     setTimeout(resize, 40);
     return;

@@ -2114,7 +2114,7 @@ function t3Open(opt) {
           if (T3.ops) opsAttach(m);
           try {
             m.setProjection({
-              type: T3.ops && displayMode() === "flat" ? "mercator" : "globe"
+              type: T3.ops && displayMode() !== "globe" ? "mercator" : "globe"
             });
           } catch (e) {}
           try {

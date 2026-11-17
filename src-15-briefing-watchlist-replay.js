@@ -506,8 +506,8 @@ function brDraw() {
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
-      ["flat", "Flat map"],
-      ["simple", "Simple globe"]
+      ["hybrid", "Smooth globe"],
+      ["flat", "Flat map"]
     ]
       .map(function (o) {
         return (
@@ -521,7 +521,7 @@ function brDraw() {
         );
       })
       .join("") +
-    '</div><p class="brhint">If the map flickers or shows lines on your phone, try Flat map, then Simple globe. Your data and layers stay the same.</p>';
+    '</div><p class="brhint">If the globe flickers or shows lines on your phone, choose Smooth globe: a round globe from space that turns into the flat map as you zoom in. Your data and layers stay the same.</p>';
   h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
@@ -575,7 +575,7 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 81 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 82 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;

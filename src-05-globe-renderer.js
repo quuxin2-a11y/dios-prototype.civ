@@ -543,6 +543,7 @@ var VX = [],
 // The globe look: "clear" (default) shows imagery at full brightness with coloured points;
 // "classic" keeps the darker look with direction arrows. Chosen in Briefing.
 function lookClear() {
+  if (typeof hybCanvas === "function" && hybCanvas()) return false; // the dark look for Smooth globe
   return !(typeof SET === "object" && SET && SET.look === "classic");
 }
 

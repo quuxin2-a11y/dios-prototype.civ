@@ -987,7 +987,7 @@ class AppInBrowser(unittest.TestCase):
             timeout=5000,
         )
         self.page.click("#rwdash .rwdock [data-rw='set']")
-        self.page.click("[data-br='dp-simple']")
+        self.page.click("[data-br='dp-hybrid']")
         self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=5000)
         self.assertTrue(self.visible("#gl"))
         # The choice is kept, and the next start uses it.
@@ -1001,15 +1001,32 @@ class AppInBrowser(unittest.TestCase):
         )
         self.assertEqual(self.errors, [])
 
-    def test_phones_with_a_powervr_chip_start_on_the_flat_map(self):
+    def test_phones_with_a_powervr_chip_start_on_the_smooth_globe(self):
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
-        # Report an Imagination (PowerVR) chip, like a Pixel 10's.
+        # Report an Imagination (PowerVR) chip, like a Pixel 10's, with Flat map saved from v81.
         self.page.add_init_script("window.__ODD_GPU = 'PowerVR D-Series DXT-48-1536';")
-        self.page.reload()
-        self.page.wait_for_function(
-            "() => window.__ml && window.__ml.style && window.__ml.style.projection.type === 'mercator'", timeout=8000
+        self.page.evaluate(
+            "() => { var s = JSON.parse(localStorage.getItem('ojos-set') || '{}'); s.display = 'flat'; delete s.displayV; localStorage.setItem('ojos-set', JSON.stringify(s)); }"
         )
+        self.page.reload()
+        # From space: the app's own globe, drawn without the graphics chip.
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        self.page.wait_for_timeout(1700)
+        # Zooming in to a region hands over to the flat map at the same place...
+        vp = self.page.viewport_size
+        self.page.mouse.move(vp["width"] / 2, vp["height"] / 2)
+        for _ in range(6):
+            self.page.mouse.wheel(0, -500)
+            self.page.wait_for_timeout(60)
+        self.page.wait_for_function(
+            "() => document.body.classList.contains('rw-globe') && window.__ml && window.__ml.style && window.__ml.style.projection.type === 'mercator'",
+            timeout=5000,
+        )
+        self.page.wait_for_timeout(1700)
+        # ...and zooming far back out returns to the round globe.
+        self.page.evaluate("() => { __mlMap.z = 2; (__mlMap.h.zoomend || []).forEach((f) => f({})); }")
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=5000)
         self.assertEqual(self.errors, [])
 
     def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):

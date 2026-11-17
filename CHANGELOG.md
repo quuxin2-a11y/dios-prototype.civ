@@ -2,6 +2,11 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v82
+- **Smooth globe** (Settings → Display): from space, a round globe drawn by the app in plain 2D, with no graphics-chip drawing, so it cannot flicker; zooming in to a region hands over to the flat map at the same place, and zooming back out returns to the round globe. The two switch points are apart so the view never flips back and forth.
+- Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, now start on Smooth globe, and Flat map saved on those phones by v81 moves to it once. Simple globe is replaced by Smooth globe.
+- If the flat map can't load, the round globe stays and the switch is retried later.
+
 ## v81
 - Map engine updated from MapLibre 5.6.0 to 5.24.1, the latest of the same series, which includes many fixes to globe drawing.
 - Phones with an Imagination (PowerVR) graphics chip, such as the Pixel 10, start on Flat map, where the round globe flickered; a Display choice made in Settings always wins.

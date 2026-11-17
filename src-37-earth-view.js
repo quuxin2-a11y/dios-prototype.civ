@@ -25,6 +25,12 @@ if (!(SET.lookV >= 3)) {
 // The dashboard on the dark globe is the app's only screen, and no saved setting can change that:
 // any look saved by an older version is cleared. The original screen exists only for the
 // automated tests, which ask for it with window.__ODD_CLASSIC.
+// Flat map was chosen to escape the globe's flicker before Smooth globe existed: move to it once.
+if (!(SET.displayV >= 1)) {
+  SET.displayV = 1;
+  if (SET.display === "flat" && displayFlicky()) SET.display = "hybrid";
+  setSave();
+}
 if (!(SET.lookV >= 5)) {
   SET.lookV = 5;
   delete SET.look;
@@ -116,7 +122,7 @@ function t4Cables() {
 // screen last time (closed on a black screen, or crashed) gets a shorter wait before the
 // fallback; module 42 marks the start good once a map has drawn.
 var BOOT_SAFE = ls("ojos-boot") === "pending",
-  BOOT_DASH = EMBED_OK && lookMode() === "world" && SET.display !== "simple";
+  BOOT_DASH = EMBED_OK && lookMode() === "world" && displayMode() !== "hybrid";
 ls("ojos-boot", "pending");
 if (BOOT_DASH)
   setTimeout(function () {

@@ -379,7 +379,8 @@ function upPatch(p) {
   } catch (e) {}
 }
 function satDraw(R, cx, cy) {
-  if (!WL || !WL.img || !EMBED_OK || satSafe) {
+  // Smooth globe draws its globe in plain 2D: no graphics-chip drawing at all.
+  if (!WL || !WL.img || !EMBED_OK || satSafe || hybCanvas()) {
     satClear();
     return false;
   }
