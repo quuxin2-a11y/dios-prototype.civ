@@ -352,6 +352,7 @@ MAPLIBRE_STANDIN = """
     flyTo(o) { this.jumpTo(o); }
     queryRenderedFeatures() { return []; }
     getCanvas() { return document.createElement('canvas'); }
+    project(ll) { const k = 40 * Math.pow(2, this.z - 8); return { x: (ll[0] - this.c.lng) * k + innerWidth / 2, y: (this.c.lat - ll[1]) * k + innerHeight / 2 }; }
     getBounds() { return { getWest: () => this.c.lng - 1, getEast: () => this.c.lng + 1, getSouth: () => this.c.lat - 1, getNorth: () => this.c.lat + 1 }; }
   }
   window.maplibregl = { Map, NavigationControl: function () {}, AttributionControl: function () {} };
@@ -1138,7 +1139,7 @@ class AppInBrowser(unittest.TestCase):
         self.assertTrue(sms.startswith("sms:2145550100?body=Are%20you%20OK%3F"), sms)
         self.page.click("#alertpop [data-am='ok']")
         # It is kept under Recent alerts and opens again from there.
-        self.page.wait_for_function("() => /Tornado Warning/.test(document.querySelector('#brief .amhist').textContent)", timeout=3000)
+        self.page.wait_for_function("() => /Tornado Warning/.test((document.querySelector('#brief .amhist') || {}).textContent || '')", timeout=3000)
         self.assertIn("Mom", self.page.inner_text("#brief .amhist"))
         self.page.click("#brief [data-br='amh-0']")
         self.page.wait_for_selector("#alertpop", state="visible", timeout=3000)
@@ -1173,7 +1174,7 @@ class AppInBrowser(unittest.TestCase):
         self.assertTrue(any("states-10m" in u for u in kept), "borders for the Smooth globe")
         self.assertEqual(self.errors, [])
 
-    def test_camera_web_spreads_the_nearest_cameras_around_one(self):
+    def test_map_pins_float_the_nearest_cameras_beside_their_spots(self):
         self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
         self.page.evaluate(
             "() => { const b = document.createElement('button'); b.dataset.rw = 'cams';"
@@ -1182,29 +1183,53 @@ class AppInBrowser(unittest.TestCase):
         self.page.wait_for_selector("#cggrid .cgt", timeout=5000)
         self.page.locator("#cggrid .cgt").first.click()
         self.page.click("#cggrid .cgt.big .cgweb")
-        self.page.wait_for_selector("#cwp", state="visible", timeout=3000)
+        self.page.wait_for_selector("#cpins", state="visible", timeout=3000)
         self.assertFalse(self.visible("#cgp"))
-        n = self.page.locator("#cwp .cwt:not(.mid)").count()
-        self.assertGreaterEqual(n, 2)
-        self.assertEqual(self.page.locator("#cwp .cwlines line").count(), n)
-        # Every tile on its own: none overlaps another or the middle one.
+        self.page.wait_for_timeout(2500)
+        shown = self.page.locator("#cpins .cpt:visible").count()
+        self.assertGreaterEqual(shown, 3)
+        # Every visible tile has a line to its spot, and no two tiles overlap.
+        self.assertEqual(self.page.locator("#cpins .cplines line").count(), shown)
         overlap = self.page.evaluate(
-            """() => { const r = [...document.querySelectorAll('#cwp .cwt')].map((e) => e.getBoundingClientRect());
+            """() => { const r = [...document.querySelectorAll('#cpins .cpt')].filter((e) => e.style.display === 'block').map((e) => e.getBoundingClientRect());
             for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
               const a = r[i], b = r[j];
-              if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) return true; }
+              if (a.left < b.right - 2 && b.left < a.right - 2 && a.top < b.bottom - 2 && b.top < a.bottom - 2) return true; }
             return false; }"""
         )
-        if overlap:
-            print(self.page.evaluate("() => [...document.querySelectorAll('#cwp .cwt')].map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; })"), self.page.viewport_size)
         self.assertFalse(overlap)
-        self.assertRegex(self.page.inner_text("#cwp .cwt:not(.mid) em >> nth=0"), r"(MI|FT) (N|NE|E|SE|S|SW|W|NW)$")
-        # Tapping a tile moves the web to that camera.
-        before = self.page.inner_text("#cwp .cwt.mid span")
-        self.page.locator("#cwp .cwt:not(.mid)").first.click()
-        self.assertNotEqual(self.page.inner_text("#cwp .cwt.mid span"), before)
-        self.page.click("#cwp [data-cw='x']")
-        self.assertFalse(self.visible("#cwp"))
+        self.assertRegex(self.page.inner_text("#cpins .cpt:not(.mid) em >> nth=0"), r"(MI|FT)$")
+        # Tapping a tile enlarges it where it is; tapping again shrinks it back.
+        t = self.page.locator("#cpins .cpt:not(.mid):visible").first
+        w0 = t.bounding_box()["width"]
+        t.click(position={"x": 10, "y": 10})
+        self.page.wait_for_timeout(400)
+        self.assertGreater(t.bounding_box()["width"], w0 * 1.8)
+        self.assertTrue(self.visible("#cpins .cpt.big .cpopen"))
+        t.click(position={"x": 10, "y": 10})
+        self.page.wait_for_timeout(400)
+        self.assertLess(t.bounding_box()["width"], w0 * 1.2)
+        self.page.click("#cpins [data-cp='x']")
+        self.assertFalse(self.visible("#cpins"))
+        self.assertEqual(self.errors, [])
+
+    def test_zooming_into_a_city_shows_the_camera_pins_by_themselves(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
+        self.assertFalse(self.visible("#cpins"), "not from far out")
+        # Zoomed into Yellowstone, by Mount Washburn's camera.
+        self.page.evaluate("() => { __mlMap.z = 13; __mlMap.c = { lng: -110.44, lat: 44.80 }; }")
+        self.page.wait_for_selector("#cpins", state="visible", timeout=4000)
+        self.assertIn("CAMERAS HERE", self.page.inner_text("#cpname"))
+        self.assertIn("WASHBURN", self.page.inner_text("#cpname").upper())
+        # The map was not moved for them.
+        self.assertEqual(self.page.evaluate("() => __mlMap.c.lng"), -110.44)
+        # Zooming back out takes them away.
+        self.page.evaluate("() => { __mlMap.z = 5; }")
+        self.page.wait_for_selector("#cpins", state="hidden", timeout=4000)
         self.assertEqual(self.errors, [])
 
     def test_the_top_bar_keeps_every_count_readable(self):
@@ -1409,6 +1434,10 @@ class AppInBrowser(unittest.TestCase):
         self.tap_logo(5)
         self.page.wait_for_timeout(700)
         self.assertTrue(self.visible("#sigfx"))
+        # The name, the roles, the promise and where it began.
+        card = self.page.inner_text("#sigfx").upper()
+        for words in ("MARK JOSEPH", "LEAD ENGINEER", "CODER", "OJOS ABIERTOS. FAMILIA PROTEGIDA.", "FOR MY FAMILY", "AUSTIN, TEXAS", "EST. 2026"):
+            self.assertIn(words, card)
         self.assertFalse(self.visible("#sky"))
         self.assertFalse(
             self.page.evaluate("() => document.body.classList.contains('rw')")

@@ -752,6 +752,7 @@ function amRecord(p) {
   });
   AM.hist = AM.hist.slice(0, AM_HIST_MAX);
   ls("ojos-am-hist", AM.hist);
+  if (BR.open) brDraw(); // Settings open underneath: show it under Recent alerts now
 }
 
 // Alerts the Android background check announced while the app was closed join the history.

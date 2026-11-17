@@ -938,7 +938,7 @@ function up(e) {
   if (!Object.keys(ptrs).length) dragging = false;
   if (!moved) {
     var h = hit(e);
-    if (h) select(h);
+    if (h) camTap(h);
     else propHit(e);
   }
 }

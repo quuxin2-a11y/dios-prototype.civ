@@ -2,9 +2,16 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v92
+- **Map pins replace the camera web and the "Nearby" box:** tapping a camera on the map (or 📍 Nearby in a camera's details or on a big tile in the camera grid) frames the map on it and its 8 nearest cameras (16 with one tap). Each gets its own live tile floating beside its real spot, joined to it by a line, with its distance; the tiles follow the map as it moves and push each other apart so none overlaps. Tap a tile to enlarge it where it is and tap again to shrink it back; ⤢ on an enlarged tile opens it full screen.
+- **Pins by themselves when zoomed in:** zoom into a city on the map and the live cameras around the middle of the screen appear as pins without tapping anything; they follow as you pan and go when you zoom back out. ✕ hides them until the next zoom in; Settings → Cameras turns them off.
+- The old floating "Nearby" tile box and its layer are removed.
+- **New signature screen:** five taps on the logo show Mark Joseph's name under the app's eye, his roles (founder, lead engineer, coder, designer, developer), the app's promise "Ojos abiertos. Familia protegida." (Eyes open. Family protected.), and "For my family · Ojos de Dios · Austin, Texas · Est. 2026", each line arriving in turn. It opens with the app's eye opening full screen and the view falling through its pupil into the card; the card's eye then follows your finger, looks around by itself and blinks. Tap anywhere to close.
+- Recent alerts show straight away when an alert arrives while Settings is open.
+
 ## v91
 - **3D space:** the logo now opens a solar system you can fly through (three.js): the Sun, eight planets and Pluto at their real positions today, their bigger moons, Saturn's rings and the Milky Way. Earth turns with the real time of day and carries thousands of live satellites (CelesTrak) with the ISS, Tiangong and Hubble named; JWST and the L1 Sun watchers sit at their Lagrange points; Voyager 1 and 2, New Horizons and the Pioneers are placed from their known course; Mars shows Perseverance (latest NASA position through the data feed), Curiosity and every past lander; the Moon shows the Apollo sites and today's landers. Tap anything for its card with real distances, run time up to a week a second, and the night sky is one tab away. Without a connection the flat solar system stands in.
-- **Camera web:** 🕸 Web in a camera's details (or on a big tile in the camera grid) spreads its 10 or 20 nearest cameras around it, each in its own live tile, joined by a line in its true direction with the distance. Tap a tile to move the web there.
+- **Camera web** (replaced by map pins in v92).
 - **Highlight in 3D:** HIGHLIGHT outlines and circles the building in the middle of the view, flies around it rising and dipping to show every side, and gives its height, floors, year built, architect, style and history from OpenStreetMap, Wikidata and Wikipedia.
 - **Organized crime groups** layer: well-known cartels, gangs and mafias with what they are known for and their US terrorist designation, linking the State Department's list. Groups only.
 - **Leaders and parties** layer: heads of state and government for every country, and US governors and senators with their party, live from Wikidata; US states coloured by the governor's party.

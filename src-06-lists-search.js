@@ -469,7 +469,7 @@ function liveDossier(c) {
     (AI_ON ? " on" : "") +
     '">' +
     (AI_ON ? "◉ AI DETECT: ON" : "◎ AI DETECT: OFF") +
-    '</button></div><div class="acts"><button class="open" data-w="watch">▶ FULL SCREEN</button><button class="ghost" data-w="add">+ Wall</button><button class="ghost" data-cm="pick">⇄ Compare</button><button class="ghost" data-cwo="1">🕸 Web</button><button class="ghost" data-w="fav">' +
+    '</button></div><div class="acts"><button class="open" data-w="watch">▶ FULL SCREEN</button><button class="ghost" data-w="add">+ Wall</button><button class="ghost" data-cm="pick">⇄ Compare</button><button class="ghost" data-cpo="1">📍 Nearby</button><button class="ghost" data-w="fav">' +
     (FAV.indexOf(c.u) >= 0 ? "★ Saved" : "☆ Save") +
     '</button><button class="ghost" data-sv="' +
     c.lat +

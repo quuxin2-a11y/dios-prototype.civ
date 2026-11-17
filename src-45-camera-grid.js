@@ -395,9 +395,9 @@ document.addEventListener("click", function (e) {
         "beforeend",
         '<button class="cgopen" data-cg="open-' +
           i +
-          '" aria-label="Open this camera">⤢ Open</button><button class="cgopen cgweb" data-cwo="g' +
+          '" aria-label="Open this camera">⤢ Open</button><button class="cgopen cgweb" data-cpo="g' +
           i +
-          '" aria-label="Camera web around this camera">🕸 Web</button>'
+          '" aria-label="Show the cameras around this one on the map">📍 Nearby</button>'
       );
     else if (!big && o)
       Array.prototype.forEach.call(b.querySelectorAll(".cgopen"), function (x) {
@@ -411,25 +411,44 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// ---------- Web view: one camera and its nearest neighbours, spread out around it ----------
-// The chosen camera sits in the middle; its 10 or 20 nearest cameras spread out around it, each
-// in its own live tile, joined to it by a line and placed in the direction it really lies (north
-// up), with its distance. Tapping a tile makes it the middle of a new web; tapping the middle
-// opens it full screen. Positions come from a short, fixed relaxation, so tiles never overlap.
-var CW = { open: false, c: null, n: ls("ojos-cw-n") || 10, items: [] },
-  CW_TW = 92, // tile width on a phone, in CSS pixels; height follows 16:10 plus the label
-  CW_DIRS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+// ---------- Map pins: the cameras around one, floating over the map ----------
+// Tapping a camera on the map (or 📍 Nearby on a camera) fits the map to it and its nearest
+// cameras, and each one gets its own live tile floating beside its real spot on the map, joined to
+// it by a line. The tapped camera's tile is larger. The tiles follow the map as it moves and push
+// each other apart so none overlaps. Tapping a tile makes that camera the centre; tapping the
+// centre tile opens it full screen.
+var CP = {
+    open: false,
+    c: null,
+    n: ls("ojos-cp-n") || 8,
+    items: [],
+    pos: [],
+    raf: 0,
+    auto: false,
+    snooze: false,
+    big: {}
+  },
+  CP_AUTO_Z = 12.5, // zoomed in this far on the map, the pins appear by themselves
+  CP_AUTO_KM = 30, // or, on the app's own globe, with a view narrower than this
+  CP_TOP = 96, // the top bar
+  CP_BOTTOM = 96; // the dock
 
-function cwBearing(a, b) {
-  var y = Math.sin((b.lon - a.lon) * D) * Math.cos(b.lat * D),
-    x =
-      Math.cos(a.lat * D) * Math.sin(b.lat * D) -
-      Math.sin(a.lat * D) * Math.cos(b.lat * D) * Math.cos((b.lon - a.lon) * D);
-  return (Math.atan2(y, x) / D + 360) % 360;
+// Screen position (CSS pixels) of a place on whichever map is showing, or null when off the globe.
+function cpScreen(lon, lat) {
+  if (T3.on && T3.map) {
+    var m = T3.map,
+      q = m.project([lon, lat]),
+      ct = m.getContainer && m.getContainer(),
+      box = ct ? ct.getBoundingClientRect() : { left: 0, top: 0 };
+    return q ? [q.x + box.left, q.y + box.top] : null;
+  }
+  var p = proj(lon, lat),
+    r = cv.getBoundingClientRect();
+  return p && p[2] > 0 ? [p[0] + r.left, p[1] + r.top] : null;
 }
 
-// The nearest cameras to c, nearest first, with their distance (km) and bearing (degrees).
-function cwNear(c, n) {
+// The nearest cameras to c, nearest first.
+function cpNear(c, n) {
   var out = [];
   for (var i = 0; i < visLive.length; i++) {
     var o = visLive[i];
@@ -443,230 +462,119 @@ function cwNear(c, n) {
       if (out.length > n) out.pop();
     }
   }
-  out.forEach(function (x) {
-    x.deg = cwBearing(c, x.c);
-  });
   return out;
 }
 
-// Screen positions: each tile starts out in its true direction, nearer cameras closer in, then
-// tiles push each other apart until none overlap, staying inside the free part of the screen.
-function cwLayout(items, w, h, top, bottom) {
-  var tw = w < 520 ? CW_TW : 124,
-    th = Math.round(tw * 0.625) + 16,
-    cw = tw * 1.7,
-    ch = Math.round(cw * 0.625) + 18,
-    cx = w / 2,
-    cy = top + (h - top - bottom) / 2,
-    rx = w / 2 - tw / 2 - 6,
-    ry = (h - top - bottom) / 2 - th / 2 - 6,
-    n = items.length,
-    two = n > 12,
-    // Even slots around the middle, in the cameras' true compass order, turned so each slot sits
-    // as near as it can to its camera's real direction; with many cameras, alternate slots step out.
-    order = items
-      .map(function (x, i) {
-        return i;
+// Frames the map on the camera and its neighbours, with room around them for the tiles.
+function cpFit() {
+  var all = [CP.c].concat(
+      CP.items.map(function (x) {
+        return x.c;
       })
-      .sort(function (a, b) {
-        return items[a].deg - items[b].deg;
-      }),
-    turn = 0,
-    pos = [];
-  order.forEach(function (idx, k) {
-    var d = items[idx].deg - (k * 360) / n;
-    turn += Math.atan2(Math.sin(d * D), Math.cos(d * D));
+    ),
+    w = 180,
+    e = -180,
+    s = 90,
+    n = -90;
+  all.forEach(function (c) {
+    w = Math.min(w, c.lon);
+    e = Math.max(e, c.lon);
+    s = Math.min(s, c.lat);
+    n = Math.max(n, c.lat);
   });
-  turn = turn / Math.max(1, n) / D;
-  order.forEach(function (idx, k) {
-    var ang = ((k * 360) / n + turn) * D,
-      out = two && k % 2 === 1,
-      fx = two ? (out ? 1 : 0.82) : 0.9,
-      fy = two ? (out ? 1 : 0.62) : 0.75;
-    pos[idx] = { x: cx + Math.sin(ang) * rx * fx, y: cy - Math.cos(ang) * ry * fy };
-  });
-  var clamp = function (p) {
-    p.x = Math.max(tw / 2 + 4, Math.min(w - tw / 2 - 4, p.x));
-    p.y = Math.max(top + th / 2 + 4, Math.min(h - bottom - th / 2 - 4, p.y));
-  };
-  pos.forEach(clamp);
-  for (var it = 0; it < 300; it++) {
-    for (var i = 0; i < pos.length; i++) {
-      var a = pos[i];
-      // Keep clear of the middle tile.
-      var dx = a.x - cx,
-        dy = a.y - cy,
-        ox = (tw + cw) / 2 + 8 - Math.abs(dx),
-        oy = (th + ch) / 2 + 8 - Math.abs(dy);
-      if (ox > 0 && oy > 0) {
-        if (ox < oy) a.x += (dx < 0 ? -1 : 1) * ox;
-        else a.y += (dy < 0 ? -1 : 1) * oy;
+  if (T3.on && T3.map && T3.map.fitBounds) {
+    T3.map.fitBounds(
+      [
+        [w, s],
+        [e, n]
+      ],
+      {
+        padding: { top: CP_TOP + 70, bottom: CP_BOTTOM + 70, left: 80, right: 80 },
+        maxZoom: 15.5,
+        duration: 1200
       }
-      for (var j = i + 1; j < pos.length; j++) {
-        var b = pos[j];
-        dx = b.x - a.x;
-        dy = b.y - a.y;
-        ox = tw + 6 - Math.abs(dx);
-        oy = th + 6 - Math.abs(dy);
-        if (ox > 0 && oy > 0) {
-          if (ox < oy) {
-            var sx = ((dx < 0 ? -1 : 1) * ox) / 2;
-            a.x -= sx;
-            b.x += sx;
-          } else {
-            var sy = ((dy < 0 ? -1 : 1) * oy) / 2;
-            a.y -= sy;
-            b.y += sy;
-          }
-        }
-      }
-      clamp(a);
-    }
+    );
+  } else {
+    var km = Math.max(2, hav(s, w, n, e));
+    spin = false;
+    target = { lon: CP.c.lon, lat: CP.c.lat, z: clampZ((zoom * viewKm()) / (km * 2.6)) };
   }
-  return { tiles: pos, tw: tw, th: th, cx: cx, cy: cy, cw: cw, ch: ch };
 }
 
-function cwKm(km) {
-  var mi = km * 0.621;
-  return mi < 0.1
-    ? Math.round(mi * 5280) + " FT"
-    : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " MI";
-}
-
-function cwOpen(c) {
+// auto: shown because the map is zoomed in (the map is left where it is), rather than for a tapped camera.
+function cpOpen(c, auto) {
   if (!c || !c.live) return;
-  var el = $("cwp");
+  CP.auto = !!auto;
+  var el = $("cpins");
   if (!el) {
     el = document.createElement("div");
-    el.id = "cwp";
+    el.id = "cpins";
+    el.innerHTML =
+      '<svg class="cplines"></svg><div class="cptiles"></div><div class="cphead"><b class="mono" id="cpname"></b><button data-cp="n" class="mono"></button><button data-cp="x" aria-label="Close">✕</button></div>';
     document.body.appendChild(el);
     el.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-cw]");
+      var b = e.target.closest("[data-cp]");
       if (!b) return;
-      var k = b.getAttribute("data-cw");
-      if (k === "x") cwClose();
-      else if (k === "n") {
-        CW.n = CW.n === 10 ? 20 : 10;
-        ls("ojos-cw-n", CW.n);
-        cwDraw();
-      } else if (k === "mid") {
-        cwClose();
-        select(CW.c);
-        addWall(CW.c, true);
-      } else if (k.indexOf("t-") === 0) {
-        var nx = CW.items[+k.slice(2)];
-        if (nx) {
-          CW.c = nx.c;
-          cwDraw();
-        }
+      var k = b.getAttribute("data-cp");
+      if (k === "x") {
+        // Closed while they came by themselves: they stay away until the next zoom in.
+        if (CP.auto) CP.snooze = true;
+        cpClose();
+      } else if (k === "n") {
+        CP.n = CP.n === 8 ? 16 : 8;
+        ls("ojos-cp-n", CP.n);
+        cpOpen(CP.c, CP.auto);
+      } else if (k.indexOf("open-") === 0) {
+        // ⤢ on a big tile: that camera full screen.
+        var i = +k.slice(5),
+          oc = i ? CP.items[i - 1] && CP.items[i - 1].c : CP.c;
+        if (!oc) return;
+        cpClose();
+        select(oc);
+        addWall(oc, true);
+      } else if (k === "mid" || k.indexOf("t-") === 0) {
+        // Tap a tile to enlarge it where it is; tap again to shrink it back.
+        var ix = k === "mid" ? 0 : +k.slice(2) + 1;
+        CP.big[ix] = !CP.big[ix];
+        b.classList.toggle("big", CP.big[ix]);
+        var ob = b.querySelector(".cpopen");
+        if (CP.big[ix] && !ob)
+          b.insertAdjacentHTML(
+            "beforeend",
+            '<i class="cpopen" data-cp="open-' + ix + '" aria-label="Open full screen">⤢</i>'
+          );
+        else if (!CP.big[ix] && ob) ob.remove();
+        var im = b.querySelector("img");
+        if (CP.big[ix] && im) snapRefresh(im);
       }
     });
   }
-  CW.c = c;
-  CW.open = true;
+  CP.c = c;
+  CP.open = true;
+  CP.items = cpNear(c, CP.n);
+  CP.pos = [];
+  CP.big = {};
   el.style.display = "block";
-  document.body.classList.add("cw-open");
-  cwDraw();
-}
-
-function cwClose() {
-  CW.open = false;
-  var el = $("cwp");
-  if (el) {
-    el.style.display = "none";
-    el.innerHTML = ""; // stop every picture loading
-  }
-  document.body.classList.remove("cw-open");
-}
-
-function cwTile(c, cls, k, x, y, w, sub) {
-  return (
-    '<button class="cwt ' +
-    cls +
-    '" data-cw="' +
-    k +
-    '" style="left:' +
-    Math.round(x - w / 2) +
-    "px;top:" +
-    Math.round(y) +
-    "px;width:" +
-    Math.round(w) +
-    'px"><img alt="" referrerpolicy="no-referrer" data-u="' +
-    esc(c.u) +
-    '" data-src="' +
-    esc(c.e) +
-    '"><span>' +
-    esc(c.n || "Camera") +
-    "</span>" +
-    (sub ? "<em>" + sub + "</em>" : "") +
-    "</button>"
-  );
-}
-
-function cwDraw() {
-  var el = $("cwp"),
-    c = CW.c;
-  if (!el || !c) return;
-  var w = el.clientWidth || innerWidth,
-    h = el.clientHeight || innerHeight,
-    top = 64,
-    bottom = 18;
-  CW.items = cwNear(c, CW.n);
-  var L = cwLayout(CW.items, w, h, top, bottom),
-    th = L.th,
-    lines = "",
-    tiles = "";
-  CW.items.forEach(function (x, i) {
-    var p = L.tiles[i];
-    lines +=
-      '<line x1="' +
-      L.cx +
-      '" y1="' +
-      L.cy +
-      '" x2="' +
-      p.x.toFixed(1) +
-      '" y2="' +
-      p.y.toFixed(1) +
-      '"/>';
-    tiles += cwTile(
-      x.c,
-      "",
-      "t-" + i,
-      p.x,
-      p.y - th / 2,
-      L.tw,
-      cwKm(x.km) + " " + CW_DIRS[Math.round(x.deg / 45) % 8]
-    );
-  });
-  el.innerHTML =
-    '<div class="cwhead"><b class="mono">CAMERA WEB · ' +
-    esc(
-      String(c.n || "")
-        .toUpperCase()
-        .slice(0, 30)
-    ) +
-    '</b><button data-cw="n" class="mono">' +
-    (CW.n === 10 ? "10 → 20" : "20 → 10") +
-    '</button><button data-cw="x" aria-label="Close">✕</button></div>' +
-    '<svg class="cwlines" width="' +
-    w +
-    '" height="' +
-    h +
-    '">' +
-    lines +
-    "</svg>" +
-    tiles +
-    cwTile(
-      c,
-      "mid",
-      "mid",
-      L.cx,
-      L.cy - L.ch / 2,
-      L.cw,
-      "TAP TO OPEN · TAP ANY TILE TO MOVE THE WEB"
-    ) +
-    (CW.items.length ? "" : '<p class="cwnone">No other live camera near this one.</p>');
-  Array.prototype.forEach.call(el.querySelectorAll("img[data-src]"), function (im) {
+  document.body.classList.add("cp-open");
+  $("cpname").textContent = (auto ? "CAMERAS HERE · " : "") + String(c.n || "Camera").toUpperCase();
+  el.querySelector('[data-cp="n"]').textContent = CP.n === 8 ? "8 → 16" : "16 → 8";
+  var tiles =
+    cpTile(c, "mid", "mid", "TAP TO ENLARGE") +
+    CP.items
+      .map(function (x, i) {
+        var mi = x.km * 0.621;
+        return cpTile(
+          x.c,
+          "",
+          "t-" + i,
+          mi < 0.1
+            ? Math.round(mi * 5280) + " FT"
+            : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " MI"
+        );
+      })
+      .join("");
+  el.querySelector(".cptiles").innerHTML = tiles;
+  Array.prototype.forEach.call(el.querySelectorAll(".cpt img"), function (im) {
     im.onerror = function () {
       im.style.visibility = "hidden";
     };
@@ -677,32 +585,237 @@ function cwDraw() {
     if (isJ(u)) snapRefresh(im);
     else im.src = u;
   });
+  if (!auto) cpFit();
+  cancelAnimationFrame(CP.raf);
+  CP.raf = requestAnimationFrame(cpFrame);
 }
 
-// Live: the middle refreshes every few seconds, the rest about every 20.
+function cpTile(c, cls, k, sub) {
+  return (
+    '<button class="cpt ' +
+    cls +
+    '" data-cp="' +
+    k +
+    '"><img alt="" referrerpolicy="no-referrer" data-u="' +
+    esc(c.u) +
+    '" data-src="' +
+    esc(c.e) +
+    '"><span>' +
+    esc(c.n || "Camera") +
+    "</span><em>" +
+    esc(sub) +
+    "</em></button>"
+  );
+}
+
+function cpClose() {
+  CP.open = false;
+  cancelAnimationFrame(CP.raf);
+  var el = $("cpins");
+  if (el) {
+    el.style.display = "none";
+    el.querySelector(".cptiles").innerHTML = ""; // stop every picture loading
+    el.querySelector(".cplines").innerHTML = "";
+  }
+  document.body.classList.remove("cp-open");
+}
+
+// Each frame: anchor every tile beside its camera's spot, then push overlapping tiles apart,
+// starting from where they were last frame so they move smoothly with the map.
+function cpFrame() {
+  if (!CP.open) return;
+  CP.raf = requestAnimationFrame(cpFrame);
+  var el = $("cpins"),
+    W2 = innerWidth,
+    H2 = innerHeight,
+    nodes = el.querySelectorAll(".cpt"),
+    list = [CP.c].concat(
+      CP.items.map(function (x) {
+        return x.c;
+      })
+    ),
+    a0 = cpScreen(CP.c.lon, CP.c.lat),
+    lines = "";
+  if (!a0) a0 = [W2 / 2, H2 / 2];
+  var P = list.map(function (c, i) {
+    var a = cpScreen(c.lon, c.lat),
+      big = i === 0,
+      w = CP.big[i]
+        ? W2 < 520
+          ? Math.min(W2 - 24, 300)
+          : 380
+        : big
+          ? W2 < 520
+            ? 132
+            : 170
+          : W2 < 520
+            ? 92
+            : 120,
+      h = Math.round(w * 0.625) + 28,
+      prev = CP.pos[i];
+    if (!a) return { hide: true };
+    var dx = a[0] - a0[0],
+      dy = a[1] - a0[1],
+      d = Math.hypot(dx, dy) || 1,
+      want = big
+        ? [a[0], a[1] - h / 2 - 16]
+        : [a[0] + (dx / d) * 64, a[1] + (dy / d) * 64 - (i % 2 ? 24 : -24)];
+    return {
+      a: a,
+      w: w,
+      h: h,
+      x: prev && !prev.hide ? prev.x + (want[0] - prev.x) * 0.35 : want[0],
+      y: prev && !prev.hide ? prev.y + (want[1] - prev.y) * 0.35 : want[1]
+    };
+  });
+  for (var it = 0; it < 30; it++)
+    for (var i = 0; i < P.length; i++) {
+      var A = P[i];
+      if (A.hide) continue;
+      for (var j = i + 1; j < P.length; j++) {
+        var B = P[j];
+        if (B.hide) continue;
+        var ox = (A.w + B.w) / 2 + 6 - Math.abs(B.x - A.x),
+          oy = (A.h + B.h) / 2 + 6 - Math.abs(B.y - A.y);
+        if (ox > 0 && oy > 0) {
+          var wa = i === 0 ? 0.15 : 0.5; // the centre tile gives way least
+          if (ox < oy) {
+            var sx = (B.x >= A.x ? 1 : -1) * ox;
+            A.x -= sx * wa;
+            B.x += sx * (1 - wa);
+          } else {
+            var sy = (B.y >= A.y ? 1 : -1) * oy;
+            A.y -= sy * wa;
+            B.y += sy * (1 - wa);
+          }
+        }
+      }
+      A.x = Math.max(A.w / 2 + 4, Math.min(W2 - A.w / 2 - 4, A.x));
+      A.y = Math.max(CP_TOP + A.h / 2, Math.min(H2 - CP_BOTTOM - A.h / 2, A.y));
+    }
+  P.forEach(function (p, i) {
+    var n = nodes[i];
+    if (!n) return;
+    if (p.hide) {
+      n.style.display = "none";
+      return;
+    }
+    n.style.display = "block";
+    n.style.width = p.w + "px";
+    n.style.transform =
+      "translate(" + Math.round(p.x - p.w / 2) + "px," + Math.round(p.y - p.h / 2) + "px)";
+    // The line runs from the tile's nearest edge to the camera's spot.
+    var ex = Math.max(p.x - p.w / 2, Math.min(p.x + p.w / 2, p.a[0])),
+      ey = Math.max(p.y - p.h / 2, Math.min(p.y + p.h / 2, p.a[1]));
+    lines +=
+      '<line x1="' +
+      ex.toFixed(1) +
+      '" y1="' +
+      ey.toFixed(1) +
+      '" x2="' +
+      p.a[0].toFixed(1) +
+      '" y2="' +
+      p.a[1].toFixed(1) +
+      '"' +
+      (i ? "" : ' class="mid"') +
+      "/>" +
+      '<circle cx="' +
+      p.a[0].toFixed(1) +
+      '" cy="' +
+      p.a[1].toFixed(1) +
+      '" r="' +
+      (i ? 4 : 6) +
+      '"' +
+      (i ? "" : ' class="mid"') +
+      "/>";
+  });
+  CP.pos = P;
+  el.querySelector(".cplines").innerHTML = lines;
+}
+
+// ---------- Pins by themselves when zoomed in ----------
+function cpZoomedIn() {
+  if (T3.on && T3.map) return T3.map.getZoom() >= CP_AUTO_Z;
+  return viewKm() < CP_AUTO_KM;
+}
+
+// The live camera nearest the middle of the screen, among those on screen, with its distance in pixels.
+function cpCentreCam() {
+  var b;
+  if (T3.on && T3.map && T3.map.getBounds) {
+    var bd = T3.map.getBounds();
+    b = { s: bd.getSouth(), n: bd.getNorth(), w: bd.getWest(), e: bd.getEast() };
+  } else b = viewBox(0);
+  var cx = innerWidth / 2,
+    cy = innerHeight / 2,
+    best = null,
+    bd2 = Infinity;
+  for (var i = 0; i < visLive.length; i++) {
+    var c = visLive[i];
+    if (!c.e || c.lat < b.s || c.lat > b.n || c.lon < b.w || c.lon > b.e) continue;
+    var p = cpScreen(c.lon, c.lat);
+    if (!p || p[1] < CP_TOP || p[1] > innerHeight - CP_BOTTOM) continue;
+    var d = Math.hypot(p[0] - cx, p[1] - cy);
+    if (d < bd2) {
+      bd2 = d;
+      best = c;
+    }
+  }
+  return best ? { c: best, d: bd2 } : null;
+}
+
 setInterval(function () {
-  if (!CW.open || document.hidden) return;
+  if (typeof RW !== "object" || !RW.on || document.hidden || SET.cpAuto === false) return;
+  if (CP.open && !CP.auto) return; // a tapped camera's pins stay until closed
+  if ($("sigfx") && $("sigfx").style.display === "flex") return;
+  if (!cpZoomedIn()) {
+    CP.snooze = false;
+    if (CP.open) cpClose();
+    return;
+  }
+  if (CP.snooze || (CG && CG.open)) return;
+  var n = cpCentreCam();
+  if (!n) {
+    if (CP.open) cpClose();
+    return;
+  }
+  // Move the pins to a new centre camera only when it is clearly nearer the middle, so they don't flicker.
+  var cur = CP.open && CP.c ? cpScreen(CP.c.lon, CP.c.lat) : null,
+    curD = cur ? Math.hypot(cur[0] - innerWidth / 2, cur[1] - innerHeight / 2) : Infinity;
+  // An enlarged tile keeps the pins where they are.
+  var anyBig = Object.keys(CP.big).some(function (k) {
+    return CP.big[k];
+  });
+  if (!CP.open || (!anyBig && n.c !== CP.c && n.d < curD * 0.6 - 10)) cpOpen(n.c, true);
+}, 800);
+
+// Live: the centre refreshes every few seconds, the rest about every 20.
+setInterval(function () {
+  if (!CP.open || document.hidden) return;
   var now = Date.now();
-  Array.prototype.forEach.call($("cwp").querySelectorAll(".cwt img[src]"), function (im) {
-    var mid = im.parentNode.classList.contains("mid");
+  Array.prototype.forEach.call($("cpins").querySelectorAll(".cpt img[src]"), function (im) {
+    var mid = im.parentNode.classList.contains("mid") || im.parentNode.classList.contains("big");
     if (now - (im._t || 0) < (mid ? 4000 : 20000)) return;
     im._t = now;
     snapRefresh(im);
   });
 }, 1000);
 
-window.addEventListener("resize", function () {
-  if (CW.open) setTimeout(cwDraw, 80);
-});
+// A camera tapped on the map shows its neighbours as map pins on the dashboard, and the centre tile
+// opens it full screen. Anything else tapped opens as before.
+function camTap(c) {
+  if (c && c.live && typeof RW === "object" && RW.on) cpOpen(c);
+  else select(c);
+}
 
-// "🕸 Web" in a camera's details, and on a big tile in the camera grid.
+// "📍 Nearby" in a camera's details, and on a big tile in the camera grid.
 document.addEventListener("click", function (e) {
-  var b = e.target.closest("[data-cwo]");
+  var b = e.target.closest("[data-cpo]");
   if (!b) return;
-  var v = b.getAttribute("data-cwo"),
+  var v = b.getAttribute("data-cpo"),
     c = v === "1" ? selected : CG.list[+v.slice(1)];
   if (c && c.live) {
     if (CG.open) cgClose();
-    cwOpen(c);
+    cpOpen(c);
   }
 });

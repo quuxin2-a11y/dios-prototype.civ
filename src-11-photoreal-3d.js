@@ -1245,7 +1245,6 @@ function t4Open(opt) {
       t4BarDraw();
       btn.textContent = "◆ Photoreal 3D";
       btn.classList.add("on");
-      $("ftiles").style.display = "none";
       var vk = viewKm(),
         fresh = !T4.v;
       if (fresh) {

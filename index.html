@@ -1019,45 +1019,6 @@ dialog button {
   padding: 7px;
   cursor: pointer;
 }
-#ftiles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 4;
-  overflow: hidden;
-}
-.ft {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 132px;
-  border: 1px solid #39ff6a;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #000;
-  pointer-events: auto;
-  cursor: pointer;
-  box-shadow: 0 0 14px #39ff6a55;
-}
-.ft img {
-  display: block;
-  width: 132px;
-  height: 76px;
-  object-fit: cover;
-  background: #04101c;
-}
-.ft span {
-  display: block;
-  font:
-    600 9px "JetBrains Mono",
-    monospace;
-  color: #39ff6a;
-  padding: 3px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background: #04101c;
-}
 .camview canvas.rw {
   position: absolute;
   inset: 0;
@@ -1767,13 +1728,6 @@ body.sheet .grid[data-tab="cams"] .side {
   width: 30px;
   height: 30px;
 }
-#sigfx .mark {
-  width: 190px;
-  height: 190px;
-  margin: 18px 0;
-  filter: drop-shadow(0 0 22px #5ee6ff);
-  animation: pl 2.6s ease-in-out infinite;
-}
 #sigfx {
   position: fixed;
   inset: 0;
@@ -1781,35 +1735,191 @@ body.sheet .grid[data-tab="cams"] .side {
   display: none;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  background: #02070cf2;
+  padding: 28px;
+  background: radial-gradient(ellipse at 50% 40%, #0a1a26, #03060a 72%);
   cursor: pointer;
-}
-#sigfx b {
-  font:
-    700 13px "JetBrains Mono",
-    monospace;
-  letter-spacing: 0.3em;
-  color: #ffb040;
-}
-#sigfx h2 {
-  font:
-    700 40px Rajdhani,
-    sans-serif;
-  letter-spacing: 0.3em;
-  color: #dff6ff;
-  text-shadow:
-    0 0 18px #5ee6ff,
-    0 0 50px #5ee6ff;
-  margin: 10px 0;
   text-align: center;
 }
-#sigfx span {
+#sigfx .sigcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 460px);
+}
+/* Each line arrives in turn: --d is its delay. */
+#sigfx .sigcard > * {
+  opacity: 0;
+}
+/* The way in: the eye opens, then the view falls through the pupil. */
+#sigfx .sigportal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  pointer-events: none;
+  opacity: 0;
+}
+#sigfx .sigportal svg {
+  width: min(82vw, 460px);
+  overflow: visible;
+}
+#sigfx .sigplids {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scaleY(0.02);
+}
+#sigfx.on .sigportal {
+  animation: sigPortal 1.7s ease-in forwards;
+}
+#sigfx.on .sigplids {
+  animation: sigOpen 0.75s cubic-bezier(0.3, 0.8, 0.3, 1) 0.1s forwards;
+}
+#sigfx.on .sigportal svg {
+  animation: sigThrough 0.8s cubic-bezier(0.6, 0, 0.9, 0.4) 0.95s forwards;
+}
+#sigfx .sigpiris {
+  filter: drop-shadow(0 0 6px #5ee6ff);
+}
+@keyframes sigPortal {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes sigOpen {
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes sigThrough {
+  to {
+    transform: scale(24);
+  }
+}
+#sigfx #sigiris {
+  transition: transform 0.35s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+#sigfx .siglid {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+#sigfx .sigeye.blink .siglid {
+  animation: sigBlink 0.22s ease-in-out;
+}
+@keyframes sigBlink {
+  50% {
+    transform: scaleY(0.08);
+  }
+}
+#sigfx.on .sigcard > * {
+  animation: sigIn 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0s) forwards;
+}
+#sigfx .sigeye {
+  --d: 1.45s;
+  width: 46px;
+  color: var(--accent);
+  margin-bottom: 26px;
+  filter: drop-shadow(0 0 8px #5ee6ff66);
+}
+#sigfx .signame {
+  --d: 1.6s;
+  margin: 0;
+  padding-left: 0.3em;
   font:
-    400 11px "JetBrains Mono",
-    monospace;
-  letter-spacing: 0.2em;
-  color: #5ee6ff;
+    200 clamp(30px, 9vw, 44px) / 1.1 Inter,
+    sans-serif;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #e8f8ff;
+  text-shadow: 0 0 18px #5ee6ff33;
+}
+#sigfx.on .signame {
+  animation-name: sigName;
+  animation-duration: 1.6s;
+}
+#sigfx .sigrule {
+  --d: 2.2s;
+  display: block;
+  width: 120px;
+  height: 1px;
+  margin: 22px 0 20px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+#sigfx .sigroles {
+  --d: 2.4s;
+}
+#sigfx .sigroles span,
+#sigfx .sigfoot span {
+  display: block;
+  font:
+    500 10.5px/2 Inter,
+    sans-serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7fa3b8;
+}
+#sigfx .sigquote {
+  --d: 2.8s;
+  margin: 30px 0 4px;
+  font:
+    italic 300 clamp(20px, 5.6vw, 26px) / 1.3 Georgia,
+    "Times New Roman",
+    serif;
+  color: var(--accent);
+}
+#sigfx .sigtrans {
+  --d: 3s;
+  margin: 0;
+  font:
+    400 12px Inter,
+    sans-serif;
+  color: #6d8798;
+}
+#sigfx .sigfoot {
+  --d: 3.4s;
+  margin: 34px 0 0;
+}
+#sigfx .sigfoot span:first-child {
+  color: var(--accent);
+}
+@keyframes sigIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sigName {
+  from {
+    opacity: 0;
+    letter-spacing: 0.6em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.3em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #sigfx.on .sigcard > * {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+  #sigfx.on .sigportal {
+    animation: none;
+  }
+  #sigfx #sigiris,
+  #sigfx .sigeye.blink .siglid {
+    transition: none;
+    animation: none;
+  }
 }
 /* ---- holographic HUD theme ---- */
 :root {
@@ -1972,8 +2082,7 @@ body.sheet .mtabs button.on {
 }
 .camview,
 .tile,
-.hstats,
-.ft {
+.hstats {
   position: relative;
   border-radius: 0 !important;
   border-color: #1c4459 !important;
@@ -1981,11 +2090,9 @@ body.sheet .mtabs button.on {
 .camview:before,
 .tile:before,
 .hstats:before,
-.ft:before,
 .camview:after,
 .tile:after,
-.hstats:after,
-.ft:after {
+.hstats:after {
   content: "";
   position: absolute;
   width: 14px;
@@ -1996,8 +2103,7 @@ body.sheet .mtabs button.on {
 }
 .camview:before,
 .tile:before,
-.hstats:before,
-.ft:before {
+.hstats:before {
   left: 0;
   top: 0;
   border-right: 0;
@@ -2005,20 +2111,11 @@ body.sheet .mtabs button.on {
 }
 .camview:after,
 .tile:after,
-.hstats:after,
-.ft:after {
+.hstats:after {
   right: 0;
   bottom: 0;
   border-left: 0;
   border-top: 0;
-}
-.ft {
-  border-color: #5ee6ff !important;
-  box-shadow: 0 0 16px #5ee6ff55;
-}
-.ft span {
-  color: #5ee6ff;
-  background: #031018;
 }
 /* multi-view wall */
 #wall {
@@ -2872,9 +2969,6 @@ body:before {
   body.sheet #webbar {
     bottom: calc(50vh + 54px) !important;
   }
-  body.sheet #ftiles {
-    display: none;
-  }
 }
 @media (min-width: 1000px) {
   body.sheet .grid .stage {
@@ -2894,7 +2988,11 @@ body:before {
   }
 }
 
-/* ===== PRO THEME: flat, calm, fast (no blur, no glow, no clipped corners) ===== */
+/* ===== PRO THEME: flat,
+calm,
+fast (no blur,
+no glow,
+no clipped corners) ===== */
 :root {
   --bg: #07090c;
   --panel: #0f1318;
@@ -2961,8 +3059,7 @@ select,
 }
 .camview,
 .tile,
-.hstats,
-.ft {
+.hstats {
   border-radius: 12px !important;
   border-color: var(--line) !important;
   overflow: hidden;
@@ -2970,11 +3067,9 @@ select,
 .camview:before,
 .tile:before,
 .hstats:before,
-.ft:before,
 .camview:after,
 .tile:after,
 .hstats:after,
-.ft:after,
 .tscan,
 #hEnter:after {
   display: none !important;
@@ -3756,90 +3851,6 @@ dialog {
 #svhud {
   top: auto !important;
   bottom: 64px;
-}
-/* tile dock */
-#ftiles {
-  inset: auto !important;
-  left: 0;
-  top: 0;
-  display: none;
-  pointer-events: auto !important;
-  overflow: visible !important;
-  background: #0d1116f2;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 8px 28px #000a;
-  z-index: 5;
-  touch-action: none;
-}
-.fth {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 6px 0 10px;
-  cursor: grab;
-  touch-action: none;
-}
-.fth span {
-  flex: 1;
-  font-size: 12px;
-  color: var(--dim);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.fth b {
-  font:
-    600 13px Inter,
-    Roboto,
-    sans-serif;
-  color: var(--ink);
-  min-width: 12px;
-  text-align: center;
-}
-.fth button {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--panel2);
-  color: var(--ink);
-  font-size: 14px;
-  padding: 0;
-}
-.ftg {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 6px 6px;
-}
-.ft {
-  position: static !important;
-  width: var(--tw) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  background: #000;
-}
-.ft img {
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 5/3;
-  object-fit: cover;
-  display: block;
-}
-.ft span {
-  font:
-    600 11px Inter,
-    Roboto,
-    sans-serif !important;
-  color: var(--ink) !important;
-  background: var(--panel) !important;
-  padding: 4px 7px !important;
-  height: 18px;
-  box-sizing: content-box;
-  line-height: 18px;
 }
 /* draggable sheet */
 body {
@@ -5193,7 +5204,10 @@ body.bcast #flog {
   font-size: 12.5px;
   color: #b8c7d0;
 }
-/* ===== v46 polish: one spacing scale, one radius, one button height, one accent ===== */
+/* ===== v46 polish: one spacing scale,
+one radius,
+one button height,
+one accent ===== */
 :root {
   --ac: #3fe0d0;
   --ac-bg: #0b2a2e;
@@ -5246,7 +5260,9 @@ body.bcast #flog {
   border-color: var(--ac-line) !important;
   color: var(--ac) !important;
 }
-/* layers rail: fixed width, every row the same box, toolbar on an even grid */
+/* layers rail: fixed width,
+every row the same box,
+toolbar on an even grid */
 #lfrail {
   box-sizing: border-box;
 }
@@ -5322,7 +5338,9 @@ body.bcast #flog {
   height: 40px !important;
   border-radius: var(--r) !important;
 }
-/* full-screen panels share one header, one tab style, one row rhythm */
+/* full-screen panels share one header,
+one tab style,
+one row rhythm */
 #newsp .nh,
 #flog .nh {
   padding: 14px 16px 10px !important;
@@ -5419,7 +5437,9 @@ body.bcast #flog {
   padding-left: 16px !important;
   padding-right: 12px !important;
 }
-/* briefing, replay, guide */
+/* briefing,
+replay,
+guide */
 #brief {
   position: fixed;
   inset: 0;
@@ -5764,7 +5784,9 @@ body.tx2 .sheet,
 body.tx2 #lfrail {
   zoom: 1.25;
 }
-/* chatter, compare, settings link */
+/* chatter,
+compare,
+settings link */
 #newsp .chq {
   display: flex;
   gap: var(--g);
@@ -6358,7 +6380,12 @@ body.bcast #ops {
   margin: 0 0 6px;
 }
 
-/* v49: shared full-screen panel, finder, plans, records, route choices, emergency mode */
+/* v49: shared full-screen panel,
+finder,
+plans,
+records,
+route choices,
+emergency mode */
 .pn {
   position: fixed;
   inset: 0;
@@ -6967,7 +6994,6 @@ html.ckp #cmdtk,
 html.ckp #emgpill,
 html.ckp .grid .rail,
 html.ckp .grid .side,
-html.ckp #ftiles,
 html.ckp #insfacts {
   display: none !important;
 }
@@ -7017,7 +7043,9 @@ html.ckp #czmap .cesium-viewer-bottom {
   padding: 0;
 }
 
-/* v50 speed pass: no live blur over the 3D canvas, instant press feedback, cheaper long lists */
+/* v50 speed pass: no live blur over the 3D canvas,
+instant press feedback,
+cheaper long lists */
 *,
 *:before,
 *:after {
@@ -7356,7 +7384,8 @@ body.sky-open #toasts {
 #sky {
   z-index: 95;
 }
-/* ---------- v71: a quieter Replica World, and "hide menus" everywhere ---------- */
+/* ---------- v71: a quieter Replica World,
+and "hide menus" everywhere ---------- */
 body.rw #cmdbar,
 body.rw #cmdtk,
 body.rw .ticker {
@@ -7560,7 +7589,8 @@ body.bare #czmap .cesium-viewer-bottom {
   color: var(--ink);
   font-size: 18px;
 }
-/* ---------- v76: one interface everywhere, and the Conflict panel ---------- */
+/* ---------- v76: one interface everywhere,
+and the Conflict panel ---------- */
 body.rw-canvas .stage {
   position: fixed !important;
   inset: 0 !important;
@@ -7935,7 +7965,8 @@ body.bare #bareX {
   color: #8fa3b3;
 }
 
-/* ---------- v83: See in 3D, offered when zoomed into a city ---------- */
+/* ---------- v83: See in 3D,
+offered when zoomed into a city ---------- */
 #rw3d {
   display: none;
   position: fixed;
@@ -7954,7 +7985,8 @@ body.bare #bareX {
 body.rw.rw3dok:not(.bare):not(.real) #rw3d {
   display: block;
 }
-/* The 3D close-up's way back to the map, shown on the dashboard. */
+/* The 3D close-up's way back to the map,
+shown on the dashboard. */
 body.rw #t4bar [data-t4="x"] {
   display: flex !important;
   align-items: center;
@@ -8311,7 +8343,9 @@ body.radioon #rw3d {
   color: #fff;
 }
 
-/* ---------- v90: offline places, recent alerts, text them ---------- */
+/* ---------- v90: offline places,
+recent alerts,
+text them ---------- */
 #brief .amplaces span i {
   font-style: normal;
   font-size: 11px;
@@ -8385,77 +8419,61 @@ body.rw #cmdbar {
   }
 }
 
-/* ---------- v91: camera web ---------- */
-#cwp {
+/* ---------- v92: map pins ---------- */
+#cpins {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 70;
-  background: radial-gradient(circle at 50% 50%, #0a1a24f0, #02050af7 70%);
-  overflow: hidden;
-}
-#cwp .cwhead {
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 10px);
-  left: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 3;
-}
-#cwp .cwhead b {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--accent);
-}
-#cwp .cwhead button {
-  height: 38px;
-  min-width: 38px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #0d151f;
-  color: var(--ink);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
-#cwp .cwlines {
-  position: absolute;
-  inset: 0;
+  z-index: 45;
   pointer-events: none;
 }
-#cwp .cwlines line {
-  stroke: #36e0ff;
-  stroke-opacity: 0.45;
-  stroke-width: 1.2;
-  stroke-dasharray: 3 4;
-}
-#cwp .cwt {
+#cpins .cplines {
   position: absolute;
-  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#cpins .cplines line {
+  stroke: #36e0ff;
+  stroke-opacity: 0.8;
+  stroke-width: 1.4;
+}
+#cpins .cplines circle {
+  fill: #36e0ff;
+  stroke: #02060a;
+  stroke-width: 1.5;
+}
+#cpins .cplines .mid {
+  stroke-width: 2;
+}
+#cpins .cplines circle.mid {
+  fill: #fff;
+  stroke: #36e0ff;
+  stroke-width: 3;
+}
+#cpins .cpt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
   padding: 0;
   border-radius: 9px;
-  border: 1px solid #36e0ff55;
+  border: 1px solid #36e0ff88;
   background: #08111a;
   color: var(--ink);
   overflow: hidden;
   text-align: left;
-  box-shadow: 0 6px 18px #000a;
+  pointer-events: auto;
+  box-shadow: 0 6px 16px #000b;
 }
-#cwp .cwt img {
+#cpins .cpt img {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   background: #0b1219;
 }
-#cwp .cwt span {
+#cpins .cpt span {
   display: block;
   padding: 3px 6px 0;
   font-size: 9.5px;
@@ -8463,36 +8481,76 @@ body.rw #cmdbar {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-#cwp .cwt em {
+#cpins .cpt em {
   display: block;
   padding: 0 6px 4px;
   font-style: normal;
   font-size: 8.5px;
   letter-spacing: 0.1em;
   color: var(--accent);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-#cwp .cwt.mid {
+#cpins .cpt.big {
   z-index: 3;
   border: 2px solid var(--accent);
-  box-shadow:
-    0 0 0 6px #36e0ff1f,
-    0 10px 30px #000c;
 }
-#cwp .cwt.mid span {
+#cpins .cpopen {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-size: 17px;
+  background: #060a10cc;
+  color: var(--ink);
+}
+#cpins .cpt.mid {
+  border: 2px solid var(--accent);
+  box-shadow:
+    0 0 0 5px #36e0ff22,
+    0 10px 26px #000c;
+  z-index: 2;
+}
+#cpins .cpt.mid span {
   font-size: 11px;
   font-weight: 700;
 }
-#cwp .cwnone {
+#cpins .cphead {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 40px;
-  text-align: center;
+  left: 10px;
+  right: 10px;
+  top: calc(env(safe-area-inset-top, 0px) + 100px);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+#cpins .cphead b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  text-shadow: 0 1px 3px #000;
+}
+#cpins .cphead button {
+  pointer-events: auto;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0d151fe6;
   color: var(--ink);
-  opacity: 0.7;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
 }
 #cgp .cgopen.cgweb {
   right: auto;
@@ -8745,7 +8803,7 @@ body.rw #t4bar [data-hl] {
   <p class="hfoot">Public cameras, aircraft, satellites and natural events on one live globe. No private feeds. No tracking of people or license plates.</p>
   <div class="sig"><svg class="mark" viewBox="0 0 120 120" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M60 6 106.8 33v54L60 114 13.2 87V33Z" stroke="#5ee6ff" stroke-width="2.5" stroke-dasharray="46 8" opacity=".9"/><path d="M32 84V38L60 68 88 38V84Q88 100 70 100" stroke="#dff6ff" stroke-width="6.5"/><path d="M45 40Q60 27 75 40 60 53 45 40Z" stroke="#5ee6ff" stroke-width="2.2"/><circle cx="60" cy="40" r="4.6" stroke="#ffb040" stroke-width="2.4"/><circle cx="60" cy="40" r="1.6" fill="#dff6ff"/></svg></div>
 </div></div>
-<div id="sigfx"><b>// SIGNATURE VERIFIED</b><svg class="mark" viewBox="0 0 120 120" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M60 6 106.8 33v54L60 114 13.2 87V33Z" stroke="#5ee6ff" stroke-width="2.5" stroke-dasharray="46 8" opacity=".9"/><path d="M32 84V38L60 68 88 38V84Q88 100 70 100" stroke="#dff6ff" stroke-width="6.5"/><path d="M45 40Q60 27 75 40 60 53 45 40Z" stroke="#5ee6ff" stroke-width="2.2"/><circle cx="60" cy="40" r="4.6" stroke="#ffb040" stroke-width="2.4"/><circle cx="60" cy="40" r="1.6" fill="#dff6ff"/></svg><h2>MARK JOSEPH</h2><span>ARCHITECT · OJOS DE DIOS</span></div>
+<div id="sigfx" role="dialog" aria-label="Mark Joseph, founder of Ojos de Dios"><div class="sigportal" aria-hidden="true"><svg viewBox="0 0 200 120" fill="none"><defs><clipPath id="sigpc"><path d="M8 60 Q100 -18 192 60 Q100 138 8 60Z"/></clipPath></defs><g class="sigplids"><g clip-path="url(#sigpc)"><rect width="200" height="120" fill="#02080d"/><circle class="sigpiris" cx="100" cy="60" r="27" stroke="#5ee6ff" stroke-width="3"/><circle cx="100" cy="60" r="11" fill="#5ee6ff"/></g><path d="M8 60 Q100 -18 192 60 Q100 138 8 60Z" stroke="#5ee6ff" stroke-width="3"/></g></svg></div><div class="sigcard"><svg class="sigeye" id="sigeye" viewBox="0 0 64 40" aria-hidden="true" fill="none"><g class="siglid"><path d="M3 20 Q32 -6 61 20 Q32 46 3 20Z" stroke="currentColor" stroke-width="2.2"/><g id="sigiris"><circle cx="32" cy="20" r="8.5" stroke="currentColor" stroke-width="2.2"/><circle cx="32" cy="20" r="3" fill="currentColor"/></g></g></svg><h2 class="signame">Mark Joseph</h2><i class="sigrule"></i><div class="sigroles" id="sigroles"></div><p class="sigquote" lang="es">“Ojos abiertos. Familia protegida.”</p><p class="sigtrans">Eyes open. Family protected.</p><p class="sigfoot" id="sigfoot"></p></div></div>
 <div id="zoomv"><div class="zvtop"><b id="zvname"></b><button id="zvclose">✕ Close</button></div><div id="zvstage"><img id="zvimg" class="snap" referrerpolicy="no-referrer" alt=""></div><div class="zvhint">Pinch to zoom · drag to move · double-tap to zoom in</div></div><div id="svfull"><div class="wtop"><h2>Street View</h2><span class="mono" id="svpos"></span><span style="flex:1"></span><button id="svmode">Live guide: Off</button><button id="svclose">✕ Close</button></div><div id="svwrap"><div id="svframe"></div><svg id="svline"></svg><div id="svhud"></div></div><div class="svhint mono">Drag to look · tap the road arrows to walk</div></div>
 <div id="irail"></div><div id="webbar"></div>
 <div class="top">
@@ -8773,7 +8831,7 @@ body.rw #t4bar [data-hl] {
     <h4 style="margin-top:16px">REGIONS</h4><div id="regions"></div>
   </div>
   <div class="stage" id="stage">
-    <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-hl="go" aria-label="Highlight the building in the middle and show it from every side" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">HIGHLIGHT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="ftiles"></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
+    <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-hl="go" aria-label="Highlight the building in the middle and show it from every side" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">HIGHLIGHT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
     <div class="hud">
       <button id="bSky">✦ Sky</button><button id="bBare">◉ Hide menus</button><button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bFocus">◎ Focus</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
       <button id="bSpin" class="on">Auto-rotate</button><button id="bReset">Reset</button><button data-sv="here">◉ Street View</button><button id="bWeb">⬡ Build Web</button><button id="bSun">☀ Chase the Sun</button><button id="bWall" class="on">▦ Multi-View (0)</button><button data-h="fav">★ Favorites</button><button data-h="rand">⤮ Random camera</button><button data-h="quake">◎ Strongest quake</button><button id="bSet">⚙ Settings</button>
@@ -8836,7 +8894,7 @@ body.rw #t4bar [data-hl] {
  */
 
 // The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
-var APP_V = 91;
+var APP_V = 92;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],
@@ -12404,7 +12462,7 @@ function up(e) {
   if (!Object.keys(ptrs).length) dragging = false;
   if (!moved) {
     var h = hit(e);
-    if (h) select(h);
+    if (h) camTap(h);
     else propHit(e);
   }
 }
@@ -12939,7 +12997,7 @@ function liveDossier(c) {
     (AI_ON ? " on" : "") +
     '">' +
     (AI_ON ? "◉ AI DETECT: ON" : "◎ AI DETECT: OFF") +
-    '</button></div><div class="acts"><button class="open" data-w="watch">▶ FULL SCREEN</button><button class="ghost" data-w="add">+ Wall</button><button class="ghost" data-cm="pick">⇄ Compare</button><button class="ghost" data-cwo="1">🕸 Web</button><button class="ghost" data-w="fav">' +
+    '</button></div><div class="acts"><button class="open" data-w="watch">▶ FULL SCREEN</button><button class="ghost" data-w="add">+ Wall</button><button class="ghost" data-cm="pick">⇄ Compare</button><button class="ghost" data-cpo="1">📍 Nearby</button><button class="ghost" data-w="fav">' +
     (FAV.indexOf(c.u) >= 0 ? "★ Saved" : "☆ Save") +
     '</button><button class="ghost" data-sv="' +
     c.lat +
@@ -17276,8 +17334,7 @@ var WL = ls("ojos-layers") || {
   sat: false,
   quake: true,
   event: true,
-  night: true,
-  tiles: false
+  night: true
 };
 if (WL.img === undefined) WL.img = true;
 if (WL.parcel === undefined) WL.parcel = true;
@@ -17286,11 +17343,9 @@ if (WL.labels === undefined) WL.labels = true;
 if (WL.ship === undefined) WL.ship = false;
 if (WL.dots === undefined) WL.dots = true;
 if (WL.radar === undefined) WL.radar = false;
-// v91: the grouped "Nearby" tiles gave way to the camera web; turned off once, still in Layers.
-if (!WL.tilesV) {
-  WL.tilesV = 1;
-  WL.tiles = false;
-}
+// v91: the grouped "Nearby" tiles gave way to the camera web (tap a camera on the map).
+delete WL.tiles;
+delete WL.tilesV;
 var PLANES = [],
   SATREC = [],
   SATS = [],
@@ -17451,181 +17506,7 @@ function drawWorld(t, P) {
       screenPts.push([p[0], p[1], e]);
     }
   }
-  // lines from the tile dock to each camera it is showing
-  if (ftSel.length && FTS.geo) {
-    var g = FTS.geo;
-    for (i = 0; i < ftSel.length; i++) {
-      p = P(ftSel[i].lon, ftSel[i].lat);
-      if (p[2] <= 0) continue;
-      var tx = g.x + (i % g.cols) * (g.tw + 6) + g.tw / 2,
-        ty = g.y + g.hh + Math.floor(i / g.cols) * (g.th + 6) + g.th / 2;
-      ctx.strokeStyle = "rgba(94,230,255,0.75)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(p[0], p[1]);
-      ctx.lineTo(tx, ty);
-      ctx.stroke();
-      ctx.fillStyle = "#5ee6ff";
-      ctx.beginPath();
-      ctx.arc(p[0], p[1], 4, 0, 7);
-      ctx.fill();
-    }
-  }
 }
-var ftSel = [],
-  ftKey = "",
-  FTS = ls("ojos-ft") || {};
-FTS.n = FTS.n || 2;
-FTS.size = FTS.size == null ? 1 : FTS.size;
-function ftLayout() {
-  var box = $("ftiles");
-  if (!box) return;
-  var sw = cv.parentNode.clientWidth,
-    sh = cv.parentNode.clientHeight,
-    tw = Math.min([132, 184, 250, 340][FTS.size], sw - 24),
-    cols = Math.max(1, Math.min(FTS.n, Math.floor((sw - 16) / (tw + 6)) || 1)),
-    th = Math.round(tw * 0.6) + 18;
-  var w = cols * (tw + 6) + 6,
-    x = FTS.x == null ? 8 : FTS.x,
-    y = FTS.y == null ? topInset() + 6 : FTS.y;
-  x = Math.max(0, Math.min(sw - w, x));
-  y = Math.max(0, Math.min(sh - 60, y));
-  box.style.width = w + "px";
-  box.style.transform = "translate(" + x + "px," + y + "px)";
-  box.style.setProperty("--tw", tw + "px");
-  var gg = box.querySelector(".ftg");
-  if (gg) {
-    gg.style.maxHeight = Math.max(80, sh - y - 52) + "px";
-    gg.style.overflowY = "auto";
-  }
-  FTS.geo = { x: x + 6, y: y, hh: 38, tw: tw, th: th, cols: cols };
-}
-function ftBuild(force) {
-  var box = $("ftiles");
-  if (!box) return;
-  if (!WL.tiles || !EMBED_OK || zoom < 2 || T3.on || T4.on || $("wall").style.display === "flex") {
-    if (ftKey || box.firstChild) {
-      ftSel = [];
-      ftKey = "";
-      box.innerHTML = "";
-      box.style.display = "none";
-    }
-    return;
-  }
-  var cx = W / 2,
-    cy = H / 2,
-    pool = [],
-    j;
-  for (j = 0; j < VNUM; j++) {
-    var c0 = VC[j];
-    if (c0 === selected) continue;
-    pool.push([(VX[j] - cx) * (VX[j] - cx) + (VY[j] - cy) * (VY[j] - cy), c0]);
-  }
-  pool.sort(function (a, b) {
-    return a[0] - b[0];
-  });
-  var c = pool.slice(0, FTS.n).map(function (x) {
-    return x[1];
-  });
-  var k =
-    c
-      .map(function (x) {
-        return x.u;
-      })
-      .join("|") +
-    "#" +
-    FTS.n +
-    "#" +
-    FTS.size;
-  if (k === ftKey && !force) return;
-  ftKey = k;
-  ftSel = c;
-  box.style.display = c.length ? "block" : "none";
-  box.innerHTML =
-    '<div class="fth"><span>⠿ Nearby</span><button data-ft="less" aria-label="Fewer">−</button><b>' +
-    FTS.n +
-    '</b><button data-ft="more" aria-label="More">+</button><button data-ft="size" aria-label="Size">' +
-    ["S", "M", "L", "XL"][FTS.size] +
-    '</button><button data-ft="hide" aria-label="Hide">✕</button></div><div class="ftg">' +
-    c
-      .map(function (x) {
-        return (
-          '<div class="ft" data-fl="' +
-          LIVE.indexOf(x) +
-          '"><img class="snap" referrerpolicy="no-referrer" data-u="' +
-          esc(x.u) +
-          '" data-src="' +
-          esc(x.e) +
-          '" src="' +
-          esc(x.e) +
-          '" alt=""><span>' +
-          esc(x.n) +
-          "</span></div>"
-        );
-      })
-      .join("") +
-    "</div>";
-  ftLayout();
-}
-setInterval(function () {
-  ftBuild(false);
-}, 2500);
-document.addEventListener(
-  "click",
-  function (e) {
-    var b = e.target.closest("[data-ft]");
-    if (!b) return;
-    e.stopPropagation();
-    var k = b.getAttribute("data-ft");
-    if (k === "less") FTS.n = Math.max(1, FTS.n - 1);
-    else if (k === "more") FTS.n = Math.min(9, FTS.n + 1);
-    else if (k === "size") FTS.size = (FTS.size + 1) % 4;
-    else if (k === "hide") {
-      setLayer("tiles", false);
-      note("Camera tiles", "Hidden. Turn them back on under Layers → Floating camera tiles.");
-      return;
-    }
-    ls("ojos-ft", { n: FTS.n, size: FTS.size, x: FTS.x, y: FTS.y });
-    ftBuild(true);
-  },
-  true
-);
-(function () {
-  var box = $("ftiles"),
-    d = null;
-  if (!box) return;
-  box.addEventListener("pointerdown", function (e) {
-    if (!e.target.closest(".fth") || e.target.closest("button")) return;
-    var g = FTS.geo || { x: 14, y: topInset() + 6 };
-    d = { px: e.clientX, py: e.clientY, x: g.x - 6, y: g.y };
-    box.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  box.addEventListener("pointermove", function (e) {
-    if (!d) return;
-    FTS.x = d.x + e.clientX - d.px;
-    FTS.y = d.y + e.clientY - d.py;
-    ftLayout();
-  });
-  var up = function () {
-    if (d) {
-      d = null;
-      ls("ojos-ft", { n: FTS.n, size: FTS.size, x: FTS.x, y: FTS.y });
-    }
-  };
-  box.addEventListener("pointerup", up);
-  box.addEventListener("pointercancel", up);
-  window.addEventListener("resize", function () {
-    setTimeout(ftLayout, 60);
-  });
-})();
-document.addEventListener("click", function (e) {
-  var f = e.target.closest(".ft");
-  if (f) {
-    var c = LIVE[+f.getAttribute("data-fl")];
-    if (c) select(c);
-  }
-});
 // Toast text may carry <b> and <br>; it is rebuilt node by node, so no other markup can reach the page.
 function richText(el, html) {
   var ent = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'" },
@@ -18237,8 +18118,7 @@ var WLDEF = [
     },
     loadEvents
   ],
-  ["night", "Day / Night", "#ffe14d", null, null],
-  ["tiles", "Floating camera tiles", "#39ff6a", null, null]
+  ["night", "Day / Night", "#ffe14d", null, null]
 ];
 function wstat() {
   var el = $("wlayers");
@@ -19104,7 +18984,7 @@ function t3Cams() {
       var ft = e.features && e.features[0],
         c2 = ft && LIVE[ft.properties.i];
       if (c2) {
-        select(c2);
+        camTap(c2);
         target = null;
         m.easeTo({
           center: [c2.lon, c2.lat],
@@ -19119,7 +18999,7 @@ function t3Cams() {
       var ft = e.features && e.features[0],
         c2 = ft && LIVE[ft.properties.i];
       if (c2) {
-        select(c2);
+        camTap(c2);
         target = null;
         m.easeTo({
           center: [c2.lon, c2.lat],
@@ -19327,7 +19207,6 @@ function t3Open(opt) {
       document.body.classList.add("tilt");
       btn.textContent = "⛰ 3D view";
       if (!ops && btn.classList) btn.classList.add("on");
-      if ($("ftiles")) $("ftiles").style.display = "none";
       if (!T3.map) {
         var m;
         try {
@@ -21262,7 +21141,6 @@ function t4Open(opt) {
       t4BarDraw();
       btn.textContent = "◆ Photoreal 3D";
       btn.classList.add("on");
-      $("ftiles").style.display = "none";
       var vk = viewKm(),
         fresh = !T4.v;
       if (fresh) {
@@ -24920,6 +24798,7 @@ function amRecord(p) {
   });
   AM.hist = AM.hist.slice(0, AM_HIST_MAX);
   ls("ojos-am-hist", AM.hist);
+  if (BR.open) brDraw(); // Settings open underneath: show it under Recent alerts now
 }
 
 // Alerts the Android background check announced while the app was closed join the history.
@@ -26211,6 +26090,11 @@ function brDraw() {
     '</div><form class="amform" id="amForm"><input id="amQ" type="search" placeholder="Address or city" autocomplete="off"><input id="amN" type="text" placeholder="Name: Home, Mom…" autocomplete="off" maxlength="28"><input id="amP" type="tel" placeholder="Their phone (optional)" autocomplete="off" maxlength="20"><button>Add</button></form><p class="brhint">Warnings for these places reach you wherever you are, up to 8 places. With a phone number, the warning offers a ready text: are you OK? ⇩ OFFLINE saves the map around a place so it still shows without signal. Numbers stay on this phone.</p>' +
     '<h4 class="mono">RECENT ALERTS</h4>' +
     amHistHtml() +
+    '<h4 class="mono">CAMERAS</h4><div class="brt c1"><button data-br="cpauto" class="' +
+    (SET.cpAuto !== false ? "on" : "") +
+    '">' +
+    (SET.cpAuto !== false ? "● " : "○ ") +
+    'Camera tiles when zoomed in</button></div><p class="brhint">Zoom into a city and the nearest live cameras appear as tiles beside their spots on the map.</p>' +
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
@@ -26375,6 +26259,11 @@ document.addEventListener("click", function (e) {
       AM.ask = true; // turning it on is the moment to ask for location
       amCheck();
     } else natCall("setAlertWatch", { on: false, places: [] });
+  } else if (k === "cpauto") {
+    SET.cpAuto = SET.cpAuto === false;
+    setSave();
+    if (!SET.cpAuto && CP.open && CP.auto) cpClose();
+    brDraw();
   } else if (k.indexOf("amh-") === 0) {
     brClose();
     amAgain(+k.slice(4));
@@ -32496,7 +32385,7 @@ function ckpChrome(hide) {
   try {
     [].forEach.call(
       document.querySelectorAll(
-        ".grid>*,.top,.scanbar,.hud,.kpis,.mtabs,#sheetbar,#peek,#lfrail,#irail,#t4bar,#t4places,#brandov,#bcast,#cmdbar,#cmdtk,#emgpill,#ftiles,#insfacts,#dotsleg,#tilt,#attr"
+        ".grid>*,.top,.scanbar,.hud,.kpis,.mtabs,#sheetbar,#peek,#lfrail,#irail,#t4bar,#t4places,#brandov,#bcast,#cmdbar,#cmdtk,#emgpill,#insfacts,#dotsleg,#tilt,#attr"
       ),
       function (e) {
         if (
@@ -33429,9 +33318,78 @@ document.addEventListener("click", function (e) {
   sigT = n;
   if (sigN >= 5) {
     sigN = 0;
-    $("sigfx").style.display = "flex";
+    sigShow();
   }
 });
+
+// The signature screen: Mark's name, his roles, the app's promise in Spanish (the language of its
+// name), and where and when it began. Each line arrives in turn. Tap anywhere to close.
+var SIG_ROLES = ["Founder · Lead Engineer · Coder", "Designer · Developer"],
+  SIG_FOOT = ["For my family", "Ojos de Dios · Austin, Texas · Est. 2026"];
+
+function sigShow() {
+  var el = $("sigfx");
+  $("sigroles").innerHTML = SIG_ROLES.map(function (r) {
+    return "<span>" + esc(r) + "</span>";
+  }).join("");
+  $("sigfoot").innerHTML = SIG_FOOT.map(function (r) {
+    return "<span>" + esc(r) + "</span>";
+  }).join("");
+  // Start the entrance again each time it opens: the eye opens, the view falls through the pupil,
+  // and the card arrives behind it.
+  el.classList.remove("on");
+  el.style.display = "flex";
+  void el.offsetWidth;
+  el.classList.add("on");
+  sigLook(0, 0);
+  sigEyeLife();
+}
+
+// The card's eye is alive: the pupil follows a finger or the pointer, wanders on its own when
+// left alone, and blinks every few seconds.
+var SIGEYE = { tm: 0, last: 0 };
+function sigLook(x, y) {
+  var ir = $("sigiris");
+  if (ir) ir.setAttribute("transform", "translate(" + x.toFixed(1) + " " + y.toFixed(1) + ")");
+}
+
+function sigLookAt(cx, cy) {
+  var r = $("sigeye").getBoundingClientRect(),
+    dx = cx - (r.left + r.width / 2),
+    dy = cy - (r.top + r.height / 2),
+    d = Math.hypot(dx, dy) || 1,
+    k = Math.min(1, d / 160);
+  sigLook((dx / d) * 9 * k, (dy / d) * 4.5 * k);
+  SIGEYE.last = Date.now();
+}
+
+function sigEyeLife() {
+  clearInterval(SIGEYE.tm);
+  var eye = $("sigeye"),
+    n = 0;
+  SIGEYE.tm = setInterval(function () {
+    if ($("sigfx").style.display === "none") return clearInterval(SIGEYE.tm);
+    n++;
+    // A blink about every four seconds, sometimes a double blink.
+    if (n % 8 === 0 || (n % 8 === 1 && Math.random() < 0.3)) {
+      eye.classList.remove("blink");
+      void eye.offsetWidth;
+      eye.classList.add("blink");
+    }
+    // Left alone for a moment, it looks around by itself.
+    if (Date.now() - SIGEYE.last > 2500 && n % 3 === 0)
+      sigLook((Math.random() * 2 - 1) * 8, (Math.random() * 2 - 1) * 3.5);
+  }, 500);
+}
+
+document.addEventListener(
+  "pointermove",
+  function (e) {
+    if ($("sigfx") && $("sigfx").style.display === "flex") sigLookAt(e.clientX, e.clientY);
+  },
+  { passive: true }
+);
+
 function goDash() {
   var h = $("home");
   if (h.style.display === "none") return;
@@ -45035,9 +44993,9 @@ document.addEventListener("click", function (e) {
         "beforeend",
         '<button class="cgopen" data-cg="open-' +
           i +
-          '" aria-label="Open this camera">⤢ Open</button><button class="cgopen cgweb" data-cwo="g' +
+          '" aria-label="Open this camera">⤢ Open</button><button class="cgopen cgweb" data-cpo="g' +
           i +
-          '" aria-label="Camera web around this camera">🕸 Web</button>'
+          '" aria-label="Show the cameras around this one on the map">📍 Nearby</button>'
       );
     else if (!big && o)
       Array.prototype.forEach.call(b.querySelectorAll(".cgopen"), function (x) {
@@ -45051,25 +45009,44 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// ---------- Web view: one camera and its nearest neighbours, spread out around it ----------
-// The chosen camera sits in the middle; its 10 or 20 nearest cameras spread out around it, each
-// in its own live tile, joined to it by a line and placed in the direction it really lies (north
-// up), with its distance. Tapping a tile makes it the middle of a new web; tapping the middle
-// opens it full screen. Positions come from a short, fixed relaxation, so tiles never overlap.
-var CW = { open: false, c: null, n: ls("ojos-cw-n") || 10, items: [] },
-  CW_TW = 92, // tile width on a phone, in CSS pixels; height follows 16:10 plus the label
-  CW_DIRS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+// ---------- Map pins: the cameras around one, floating over the map ----------
+// Tapping a camera on the map (or 📍 Nearby on a camera) fits the map to it and its nearest
+// cameras, and each one gets its own live tile floating beside its real spot on the map, joined to
+// it by a line. The tapped camera's tile is larger. The tiles follow the map as it moves and push
+// each other apart so none overlaps. Tapping a tile makes that camera the centre; tapping the
+// centre tile opens it full screen.
+var CP = {
+    open: false,
+    c: null,
+    n: ls("ojos-cp-n") || 8,
+    items: [],
+    pos: [],
+    raf: 0,
+    auto: false,
+    snooze: false,
+    big: {}
+  },
+  CP_AUTO_Z = 12.5, // zoomed in this far on the map, the pins appear by themselves
+  CP_AUTO_KM = 30, // or, on the app's own globe, with a view narrower than this
+  CP_TOP = 96, // the top bar
+  CP_BOTTOM = 96; // the dock
 
-function cwBearing(a, b) {
-  var y = Math.sin((b.lon - a.lon) * D) * Math.cos(b.lat * D),
-    x =
-      Math.cos(a.lat * D) * Math.sin(b.lat * D) -
-      Math.sin(a.lat * D) * Math.cos(b.lat * D) * Math.cos((b.lon - a.lon) * D);
-  return (Math.atan2(y, x) / D + 360) % 360;
+// Screen position (CSS pixels) of a place on whichever map is showing, or null when off the globe.
+function cpScreen(lon, lat) {
+  if (T3.on && T3.map) {
+    var m = T3.map,
+      q = m.project([lon, lat]),
+      ct = m.getContainer && m.getContainer(),
+      box = ct ? ct.getBoundingClientRect() : { left: 0, top: 0 };
+    return q ? [q.x + box.left, q.y + box.top] : null;
+  }
+  var p = proj(lon, lat),
+    r = cv.getBoundingClientRect();
+  return p && p[2] > 0 ? [p[0] + r.left, p[1] + r.top] : null;
 }
 
-// The nearest cameras to c, nearest first, with their distance (km) and bearing (degrees).
-function cwNear(c, n) {
+// The nearest cameras to c, nearest first.
+function cpNear(c, n) {
   var out = [];
   for (var i = 0; i < visLive.length; i++) {
     var o = visLive[i];
@@ -45083,230 +45060,119 @@ function cwNear(c, n) {
       if (out.length > n) out.pop();
     }
   }
-  out.forEach(function (x) {
-    x.deg = cwBearing(c, x.c);
-  });
   return out;
 }
 
-// Screen positions: each tile starts out in its true direction, nearer cameras closer in, then
-// tiles push each other apart until none overlap, staying inside the free part of the screen.
-function cwLayout(items, w, h, top, bottom) {
-  var tw = w < 520 ? CW_TW : 124,
-    th = Math.round(tw * 0.625) + 16,
-    cw = tw * 1.7,
-    ch = Math.round(cw * 0.625) + 18,
-    cx = w / 2,
-    cy = top + (h - top - bottom) / 2,
-    rx = w / 2 - tw / 2 - 6,
-    ry = (h - top - bottom) / 2 - th / 2 - 6,
-    n = items.length,
-    two = n > 12,
-    // Even slots around the middle, in the cameras' true compass order, turned so each slot sits
-    // as near as it can to its camera's real direction; with many cameras, alternate slots step out.
-    order = items
-      .map(function (x, i) {
-        return i;
+// Frames the map on the camera and its neighbours, with room around them for the tiles.
+function cpFit() {
+  var all = [CP.c].concat(
+      CP.items.map(function (x) {
+        return x.c;
       })
-      .sort(function (a, b) {
-        return items[a].deg - items[b].deg;
-      }),
-    turn = 0,
-    pos = [];
-  order.forEach(function (idx, k) {
-    var d = items[idx].deg - (k * 360) / n;
-    turn += Math.atan2(Math.sin(d * D), Math.cos(d * D));
+    ),
+    w = 180,
+    e = -180,
+    s = 90,
+    n = -90;
+  all.forEach(function (c) {
+    w = Math.min(w, c.lon);
+    e = Math.max(e, c.lon);
+    s = Math.min(s, c.lat);
+    n = Math.max(n, c.lat);
   });
-  turn = turn / Math.max(1, n) / D;
-  order.forEach(function (idx, k) {
-    var ang = ((k * 360) / n + turn) * D,
-      out = two && k % 2 === 1,
-      fx = two ? (out ? 1 : 0.82) : 0.9,
-      fy = two ? (out ? 1 : 0.62) : 0.75;
-    pos[idx] = { x: cx + Math.sin(ang) * rx * fx, y: cy - Math.cos(ang) * ry * fy };
-  });
-  var clamp = function (p) {
-    p.x = Math.max(tw / 2 + 4, Math.min(w - tw / 2 - 4, p.x));
-    p.y = Math.max(top + th / 2 + 4, Math.min(h - bottom - th / 2 - 4, p.y));
-  };
-  pos.forEach(clamp);
-  for (var it = 0; it < 300; it++) {
-    for (var i = 0; i < pos.length; i++) {
-      var a = pos[i];
-      // Keep clear of the middle tile.
-      var dx = a.x - cx,
-        dy = a.y - cy,
-        ox = (tw + cw) / 2 + 8 - Math.abs(dx),
-        oy = (th + ch) / 2 + 8 - Math.abs(dy);
-      if (ox > 0 && oy > 0) {
-        if (ox < oy) a.x += (dx < 0 ? -1 : 1) * ox;
-        else a.y += (dy < 0 ? -1 : 1) * oy;
+  if (T3.on && T3.map && T3.map.fitBounds) {
+    T3.map.fitBounds(
+      [
+        [w, s],
+        [e, n]
+      ],
+      {
+        padding: { top: CP_TOP + 70, bottom: CP_BOTTOM + 70, left: 80, right: 80 },
+        maxZoom: 15.5,
+        duration: 1200
       }
-      for (var j = i + 1; j < pos.length; j++) {
-        var b = pos[j];
-        dx = b.x - a.x;
-        dy = b.y - a.y;
-        ox = tw + 6 - Math.abs(dx);
-        oy = th + 6 - Math.abs(dy);
-        if (ox > 0 && oy > 0) {
-          if (ox < oy) {
-            var sx = ((dx < 0 ? -1 : 1) * ox) / 2;
-            a.x -= sx;
-            b.x += sx;
-          } else {
-            var sy = ((dy < 0 ? -1 : 1) * oy) / 2;
-            a.y -= sy;
-            b.y += sy;
-          }
-        }
-      }
-      clamp(a);
-    }
+    );
+  } else {
+    var km = Math.max(2, hav(s, w, n, e));
+    spin = false;
+    target = { lon: CP.c.lon, lat: CP.c.lat, z: clampZ((zoom * viewKm()) / (km * 2.6)) };
   }
-  return { tiles: pos, tw: tw, th: th, cx: cx, cy: cy, cw: cw, ch: ch };
 }
 
-function cwKm(km) {
-  var mi = km * 0.621;
-  return mi < 0.1
-    ? Math.round(mi * 5280) + " FT"
-    : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " MI";
-}
-
-function cwOpen(c) {
+// auto: shown because the map is zoomed in (the map is left where it is), rather than for a tapped camera.
+function cpOpen(c, auto) {
   if (!c || !c.live) return;
-  var el = $("cwp");
+  CP.auto = !!auto;
+  var el = $("cpins");
   if (!el) {
     el = document.createElement("div");
-    el.id = "cwp";
+    el.id = "cpins";
+    el.innerHTML =
+      '<svg class="cplines"></svg><div class="cptiles"></div><div class="cphead"><b class="mono" id="cpname"></b><button data-cp="n" class="mono"></button><button data-cp="x" aria-label="Close">✕</button></div>';
     document.body.appendChild(el);
     el.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-cw]");
+      var b = e.target.closest("[data-cp]");
       if (!b) return;
-      var k = b.getAttribute("data-cw");
-      if (k === "x") cwClose();
-      else if (k === "n") {
-        CW.n = CW.n === 10 ? 20 : 10;
-        ls("ojos-cw-n", CW.n);
-        cwDraw();
-      } else if (k === "mid") {
-        cwClose();
-        select(CW.c);
-        addWall(CW.c, true);
-      } else if (k.indexOf("t-") === 0) {
-        var nx = CW.items[+k.slice(2)];
-        if (nx) {
-          CW.c = nx.c;
-          cwDraw();
-        }
+      var k = b.getAttribute("data-cp");
+      if (k === "x") {
+        // Closed while they came by themselves: they stay away until the next zoom in.
+        if (CP.auto) CP.snooze = true;
+        cpClose();
+      } else if (k === "n") {
+        CP.n = CP.n === 8 ? 16 : 8;
+        ls("ojos-cp-n", CP.n);
+        cpOpen(CP.c, CP.auto);
+      } else if (k.indexOf("open-") === 0) {
+        // ⤢ on a big tile: that camera full screen.
+        var i = +k.slice(5),
+          oc = i ? CP.items[i - 1] && CP.items[i - 1].c : CP.c;
+        if (!oc) return;
+        cpClose();
+        select(oc);
+        addWall(oc, true);
+      } else if (k === "mid" || k.indexOf("t-") === 0) {
+        // Tap a tile to enlarge it where it is; tap again to shrink it back.
+        var ix = k === "mid" ? 0 : +k.slice(2) + 1;
+        CP.big[ix] = !CP.big[ix];
+        b.classList.toggle("big", CP.big[ix]);
+        var ob = b.querySelector(".cpopen");
+        if (CP.big[ix] && !ob)
+          b.insertAdjacentHTML(
+            "beforeend",
+            '<i class="cpopen" data-cp="open-' + ix + '" aria-label="Open full screen">⤢</i>'
+          );
+        else if (!CP.big[ix] && ob) ob.remove();
+        var im = b.querySelector("img");
+        if (CP.big[ix] && im) snapRefresh(im);
       }
     });
   }
-  CW.c = c;
-  CW.open = true;
+  CP.c = c;
+  CP.open = true;
+  CP.items = cpNear(c, CP.n);
+  CP.pos = [];
+  CP.big = {};
   el.style.display = "block";
-  document.body.classList.add("cw-open");
-  cwDraw();
-}
-
-function cwClose() {
-  CW.open = false;
-  var el = $("cwp");
-  if (el) {
-    el.style.display = "none";
-    el.innerHTML = ""; // stop every picture loading
-  }
-  document.body.classList.remove("cw-open");
-}
-
-function cwTile(c, cls, k, x, y, w, sub) {
-  return (
-    '<button class="cwt ' +
-    cls +
-    '" data-cw="' +
-    k +
-    '" style="left:' +
-    Math.round(x - w / 2) +
-    "px;top:" +
-    Math.round(y) +
-    "px;width:" +
-    Math.round(w) +
-    'px"><img alt="" referrerpolicy="no-referrer" data-u="' +
-    esc(c.u) +
-    '" data-src="' +
-    esc(c.e) +
-    '"><span>' +
-    esc(c.n || "Camera") +
-    "</span>" +
-    (sub ? "<em>" + sub + "</em>" : "") +
-    "</button>"
-  );
-}
-
-function cwDraw() {
-  var el = $("cwp"),
-    c = CW.c;
-  if (!el || !c) return;
-  var w = el.clientWidth || innerWidth,
-    h = el.clientHeight || innerHeight,
-    top = 64,
-    bottom = 18;
-  CW.items = cwNear(c, CW.n);
-  var L = cwLayout(CW.items, w, h, top, bottom),
-    th = L.th,
-    lines = "",
-    tiles = "";
-  CW.items.forEach(function (x, i) {
-    var p = L.tiles[i];
-    lines +=
-      '<line x1="' +
-      L.cx +
-      '" y1="' +
-      L.cy +
-      '" x2="' +
-      p.x.toFixed(1) +
-      '" y2="' +
-      p.y.toFixed(1) +
-      '"/>';
-    tiles += cwTile(
-      x.c,
-      "",
-      "t-" + i,
-      p.x,
-      p.y - th / 2,
-      L.tw,
-      cwKm(x.km) + " " + CW_DIRS[Math.round(x.deg / 45) % 8]
-    );
-  });
-  el.innerHTML =
-    '<div class="cwhead"><b class="mono">CAMERA WEB · ' +
-    esc(
-      String(c.n || "")
-        .toUpperCase()
-        .slice(0, 30)
-    ) +
-    '</b><button data-cw="n" class="mono">' +
-    (CW.n === 10 ? "10 → 20" : "20 → 10") +
-    '</button><button data-cw="x" aria-label="Close">✕</button></div>' +
-    '<svg class="cwlines" width="' +
-    w +
-    '" height="' +
-    h +
-    '">' +
-    lines +
-    "</svg>" +
-    tiles +
-    cwTile(
-      c,
-      "mid",
-      "mid",
-      L.cx,
-      L.cy - L.ch / 2,
-      L.cw,
-      "TAP TO OPEN · TAP ANY TILE TO MOVE THE WEB"
-    ) +
-    (CW.items.length ? "" : '<p class="cwnone">No other live camera near this one.</p>');
-  Array.prototype.forEach.call(el.querySelectorAll("img[data-src]"), function (im) {
+  document.body.classList.add("cp-open");
+  $("cpname").textContent = (auto ? "CAMERAS HERE · " : "") + String(c.n || "Camera").toUpperCase();
+  el.querySelector('[data-cp="n"]').textContent = CP.n === 8 ? "8 → 16" : "16 → 8";
+  var tiles =
+    cpTile(c, "mid", "mid", "TAP TO ENLARGE") +
+    CP.items
+      .map(function (x, i) {
+        var mi = x.km * 0.621;
+        return cpTile(
+          x.c,
+          "",
+          "t-" + i,
+          mi < 0.1
+            ? Math.round(mi * 5280) + " FT"
+            : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " MI"
+        );
+      })
+      .join("");
+  el.querySelector(".cptiles").innerHTML = tiles;
+  Array.prototype.forEach.call(el.querySelectorAll(".cpt img"), function (im) {
     im.onerror = function () {
       im.style.visibility = "hidden";
     };
@@ -45317,33 +45183,238 @@ function cwDraw() {
     if (isJ(u)) snapRefresh(im);
     else im.src = u;
   });
+  if (!auto) cpFit();
+  cancelAnimationFrame(CP.raf);
+  CP.raf = requestAnimationFrame(cpFrame);
 }
 
-// Live: the middle refreshes every few seconds, the rest about every 20.
+function cpTile(c, cls, k, sub) {
+  return (
+    '<button class="cpt ' +
+    cls +
+    '" data-cp="' +
+    k +
+    '"><img alt="" referrerpolicy="no-referrer" data-u="' +
+    esc(c.u) +
+    '" data-src="' +
+    esc(c.e) +
+    '"><span>' +
+    esc(c.n || "Camera") +
+    "</span><em>" +
+    esc(sub) +
+    "</em></button>"
+  );
+}
+
+function cpClose() {
+  CP.open = false;
+  cancelAnimationFrame(CP.raf);
+  var el = $("cpins");
+  if (el) {
+    el.style.display = "none";
+    el.querySelector(".cptiles").innerHTML = ""; // stop every picture loading
+    el.querySelector(".cplines").innerHTML = "";
+  }
+  document.body.classList.remove("cp-open");
+}
+
+// Each frame: anchor every tile beside its camera's spot, then push overlapping tiles apart,
+// starting from where they were last frame so they move smoothly with the map.
+function cpFrame() {
+  if (!CP.open) return;
+  CP.raf = requestAnimationFrame(cpFrame);
+  var el = $("cpins"),
+    W2 = innerWidth,
+    H2 = innerHeight,
+    nodes = el.querySelectorAll(".cpt"),
+    list = [CP.c].concat(
+      CP.items.map(function (x) {
+        return x.c;
+      })
+    ),
+    a0 = cpScreen(CP.c.lon, CP.c.lat),
+    lines = "";
+  if (!a0) a0 = [W2 / 2, H2 / 2];
+  var P = list.map(function (c, i) {
+    var a = cpScreen(c.lon, c.lat),
+      big = i === 0,
+      w = CP.big[i]
+        ? W2 < 520
+          ? Math.min(W2 - 24, 300)
+          : 380
+        : big
+          ? W2 < 520
+            ? 132
+            : 170
+          : W2 < 520
+            ? 92
+            : 120,
+      h = Math.round(w * 0.625) + 28,
+      prev = CP.pos[i];
+    if (!a) return { hide: true };
+    var dx = a[0] - a0[0],
+      dy = a[1] - a0[1],
+      d = Math.hypot(dx, dy) || 1,
+      want = big
+        ? [a[0], a[1] - h / 2 - 16]
+        : [a[0] + (dx / d) * 64, a[1] + (dy / d) * 64 - (i % 2 ? 24 : -24)];
+    return {
+      a: a,
+      w: w,
+      h: h,
+      x: prev && !prev.hide ? prev.x + (want[0] - prev.x) * 0.35 : want[0],
+      y: prev && !prev.hide ? prev.y + (want[1] - prev.y) * 0.35 : want[1]
+    };
+  });
+  for (var it = 0; it < 30; it++)
+    for (var i = 0; i < P.length; i++) {
+      var A = P[i];
+      if (A.hide) continue;
+      for (var j = i + 1; j < P.length; j++) {
+        var B = P[j];
+        if (B.hide) continue;
+        var ox = (A.w + B.w) / 2 + 6 - Math.abs(B.x - A.x),
+          oy = (A.h + B.h) / 2 + 6 - Math.abs(B.y - A.y);
+        if (ox > 0 && oy > 0) {
+          var wa = i === 0 ? 0.15 : 0.5; // the centre tile gives way least
+          if (ox < oy) {
+            var sx = (B.x >= A.x ? 1 : -1) * ox;
+            A.x -= sx * wa;
+            B.x += sx * (1 - wa);
+          } else {
+            var sy = (B.y >= A.y ? 1 : -1) * oy;
+            A.y -= sy * wa;
+            B.y += sy * (1 - wa);
+          }
+        }
+      }
+      A.x = Math.max(A.w / 2 + 4, Math.min(W2 - A.w / 2 - 4, A.x));
+      A.y = Math.max(CP_TOP + A.h / 2, Math.min(H2 - CP_BOTTOM - A.h / 2, A.y));
+    }
+  P.forEach(function (p, i) {
+    var n = nodes[i];
+    if (!n) return;
+    if (p.hide) {
+      n.style.display = "none";
+      return;
+    }
+    n.style.display = "block";
+    n.style.width = p.w + "px";
+    n.style.transform =
+      "translate(" + Math.round(p.x - p.w / 2) + "px," + Math.round(p.y - p.h / 2) + "px)";
+    // The line runs from the tile's nearest edge to the camera's spot.
+    var ex = Math.max(p.x - p.w / 2, Math.min(p.x + p.w / 2, p.a[0])),
+      ey = Math.max(p.y - p.h / 2, Math.min(p.y + p.h / 2, p.a[1]));
+    lines +=
+      '<line x1="' +
+      ex.toFixed(1) +
+      '" y1="' +
+      ey.toFixed(1) +
+      '" x2="' +
+      p.a[0].toFixed(1) +
+      '" y2="' +
+      p.a[1].toFixed(1) +
+      '"' +
+      (i ? "" : ' class="mid"') +
+      "/>" +
+      '<circle cx="' +
+      p.a[0].toFixed(1) +
+      '" cy="' +
+      p.a[1].toFixed(1) +
+      '" r="' +
+      (i ? 4 : 6) +
+      '"' +
+      (i ? "" : ' class="mid"') +
+      "/>";
+  });
+  CP.pos = P;
+  el.querySelector(".cplines").innerHTML = lines;
+}
+
+// ---------- Pins by themselves when zoomed in ----------
+function cpZoomedIn() {
+  if (T3.on && T3.map) return T3.map.getZoom() >= CP_AUTO_Z;
+  return viewKm() < CP_AUTO_KM;
+}
+
+// The live camera nearest the middle of the screen, among those on screen, with its distance in pixels.
+function cpCentreCam() {
+  var b;
+  if (T3.on && T3.map && T3.map.getBounds) {
+    var bd = T3.map.getBounds();
+    b = { s: bd.getSouth(), n: bd.getNorth(), w: bd.getWest(), e: bd.getEast() };
+  } else b = viewBox(0);
+  var cx = innerWidth / 2,
+    cy = innerHeight / 2,
+    best = null,
+    bd2 = Infinity;
+  for (var i = 0; i < visLive.length; i++) {
+    var c = visLive[i];
+    if (!c.e || c.lat < b.s || c.lat > b.n || c.lon < b.w || c.lon > b.e) continue;
+    var p = cpScreen(c.lon, c.lat);
+    if (!p || p[1] < CP_TOP || p[1] > innerHeight - CP_BOTTOM) continue;
+    var d = Math.hypot(p[0] - cx, p[1] - cy);
+    if (d < bd2) {
+      bd2 = d;
+      best = c;
+    }
+  }
+  return best ? { c: best, d: bd2 } : null;
+}
+
 setInterval(function () {
-  if (!CW.open || document.hidden) return;
+  if (typeof RW !== "object" || !RW.on || document.hidden || SET.cpAuto === false) return;
+  if (CP.open && !CP.auto) return; // a tapped camera's pins stay until closed
+  if ($("sigfx") && $("sigfx").style.display === "flex") return;
+  if (!cpZoomedIn()) {
+    CP.snooze = false;
+    if (CP.open) cpClose();
+    return;
+  }
+  if (CP.snooze || (CG && CG.open)) return;
+  var n = cpCentreCam();
+  if (!n) {
+    if (CP.open) cpClose();
+    return;
+  }
+  // Move the pins to a new centre camera only when it is clearly nearer the middle, so they don't flicker.
+  var cur = CP.open && CP.c ? cpScreen(CP.c.lon, CP.c.lat) : null,
+    curD = cur ? Math.hypot(cur[0] - innerWidth / 2, cur[1] - innerHeight / 2) : Infinity;
+  // An enlarged tile keeps the pins where they are.
+  var anyBig = Object.keys(CP.big).some(function (k) {
+    return CP.big[k];
+  });
+  if (!CP.open || (!anyBig && n.c !== CP.c && n.d < curD * 0.6 - 10)) cpOpen(n.c, true);
+}, 800);
+
+// Live: the centre refreshes every few seconds, the rest about every 20.
+setInterval(function () {
+  if (!CP.open || document.hidden) return;
   var now = Date.now();
-  Array.prototype.forEach.call($("cwp").querySelectorAll(".cwt img[src]"), function (im) {
-    var mid = im.parentNode.classList.contains("mid");
+  Array.prototype.forEach.call($("cpins").querySelectorAll(".cpt img[src]"), function (im) {
+    var mid = im.parentNode.classList.contains("mid") || im.parentNode.classList.contains("big");
     if (now - (im._t || 0) < (mid ? 4000 : 20000)) return;
     im._t = now;
     snapRefresh(im);
   });
 }, 1000);
 
-window.addEventListener("resize", function () {
-  if (CW.open) setTimeout(cwDraw, 80);
-});
+// A camera tapped on the map shows its neighbours as map pins on the dashboard, and the centre tile
+// opens it full screen. Anything else tapped opens as before.
+function camTap(c) {
+  if (c && c.live && typeof RW === "object" && RW.on) cpOpen(c);
+  else select(c);
+}
 
-// "🕸 Web" in a camera's details, and on a big tile in the camera grid.
+// "📍 Nearby" in a camera's details, and on a big tile in the camera grid.
 document.addEventListener("click", function (e) {
-  var b = e.target.closest("[data-cwo]");
+  var b = e.target.closest("[data-cpo]");
   if (!b) return;
-  var v = b.getAttribute("data-cwo"),
+  var v = b.getAttribute("data-cpo"),
     c = v === "1" ? selected : CG.list[+v.slice(1)];
   if (c && c.live) {
     if (CG.open) cgClose();
-    cwOpen(c);
+    cpOpen(c);
   }
 });
 /**

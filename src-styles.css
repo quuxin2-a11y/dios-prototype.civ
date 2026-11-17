@@ -1004,45 +1004,6 @@ dialog button {
   padding: 7px;
   cursor: pointer;
 }
-#ftiles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 4;
-  overflow: hidden;
-}
-.ft {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 132px;
-  border: 1px solid #39ff6a;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #000;
-  pointer-events: auto;
-  cursor: pointer;
-  box-shadow: 0 0 14px #39ff6a55;
-}
-.ft img {
-  display: block;
-  width: 132px;
-  height: 76px;
-  object-fit: cover;
-  background: #04101c;
-}
-.ft span {
-  display: block;
-  font:
-    600 9px "JetBrains Mono",
-    monospace;
-  color: #39ff6a;
-  padding: 3px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background: #04101c;
-}
 .camview canvas.rw {
   position: absolute;
   inset: 0;
@@ -1752,13 +1713,6 @@ body.sheet .grid[data-tab="cams"] .side {
   width: 30px;
   height: 30px;
 }
-#sigfx .mark {
-  width: 190px;
-  height: 190px;
-  margin: 18px 0;
-  filter: drop-shadow(0 0 22px #5ee6ff);
-  animation: pl 2.6s ease-in-out infinite;
-}
 #sigfx {
   position: fixed;
   inset: 0;
@@ -1766,35 +1720,191 @@ body.sheet .grid[data-tab="cams"] .side {
   display: none;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  background: #02070cf2;
+  padding: 28px;
+  background: radial-gradient(ellipse at 50% 40%, #0a1a26, #03060a 72%);
   cursor: pointer;
-}
-#sigfx b {
-  font:
-    700 13px "JetBrains Mono",
-    monospace;
-  letter-spacing: 0.3em;
-  color: #ffb040;
-}
-#sigfx h2 {
-  font:
-    700 40px Rajdhani,
-    sans-serif;
-  letter-spacing: 0.3em;
-  color: #dff6ff;
-  text-shadow:
-    0 0 18px #5ee6ff,
-    0 0 50px #5ee6ff;
-  margin: 10px 0;
   text-align: center;
 }
-#sigfx span {
+#sigfx .sigcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 460px);
+}
+/* Each line arrives in turn: --d is its delay. */
+#sigfx .sigcard > * {
+  opacity: 0;
+}
+/* The way in: the eye opens, then the view falls through the pupil. */
+#sigfx .sigportal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  pointer-events: none;
+  opacity: 0;
+}
+#sigfx .sigportal svg {
+  width: min(82vw, 460px);
+  overflow: visible;
+}
+#sigfx .sigplids {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scaleY(0.02);
+}
+#sigfx.on .sigportal {
+  animation: sigPortal 1.7s ease-in forwards;
+}
+#sigfx.on .sigplids {
+  animation: sigOpen 0.75s cubic-bezier(0.3, 0.8, 0.3, 1) 0.1s forwards;
+}
+#sigfx.on .sigportal svg {
+  animation: sigThrough 0.8s cubic-bezier(0.6, 0, 0.9, 0.4) 0.95s forwards;
+}
+#sigfx .sigpiris {
+  filter: drop-shadow(0 0 6px #5ee6ff);
+}
+@keyframes sigPortal {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes sigOpen {
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes sigThrough {
+  to {
+    transform: scale(24);
+  }
+}
+#sigfx #sigiris {
+  transition: transform 0.35s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+#sigfx .siglid {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+#sigfx .sigeye.blink .siglid {
+  animation: sigBlink 0.22s ease-in-out;
+}
+@keyframes sigBlink {
+  50% {
+    transform: scaleY(0.08);
+  }
+}
+#sigfx.on .sigcard > * {
+  animation: sigIn 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0s) forwards;
+}
+#sigfx .sigeye {
+  --d: 1.45s;
+  width: 46px;
+  color: var(--accent);
+  margin-bottom: 26px;
+  filter: drop-shadow(0 0 8px #5ee6ff66);
+}
+#sigfx .signame {
+  --d: 1.6s;
+  margin: 0;
+  padding-left: 0.3em;
   font:
-    400 11px "JetBrains Mono",
-    monospace;
-  letter-spacing: 0.2em;
-  color: #5ee6ff;
+    200 clamp(30px, 9vw, 44px) / 1.1 Inter,
+    sans-serif;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #e8f8ff;
+  text-shadow: 0 0 18px #5ee6ff33;
+}
+#sigfx.on .signame {
+  animation-name: sigName;
+  animation-duration: 1.6s;
+}
+#sigfx .sigrule {
+  --d: 2.2s;
+  display: block;
+  width: 120px;
+  height: 1px;
+  margin: 22px 0 20px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+#sigfx .sigroles {
+  --d: 2.4s;
+}
+#sigfx .sigroles span,
+#sigfx .sigfoot span {
+  display: block;
+  font:
+    500 10.5px/2 Inter,
+    sans-serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7fa3b8;
+}
+#sigfx .sigquote {
+  --d: 2.8s;
+  margin: 30px 0 4px;
+  font:
+    italic 300 clamp(20px, 5.6vw, 26px) / 1.3 Georgia,
+    "Times New Roman",
+    serif;
+  color: var(--accent);
+}
+#sigfx .sigtrans {
+  --d: 3s;
+  margin: 0;
+  font:
+    400 12px Inter,
+    sans-serif;
+  color: #6d8798;
+}
+#sigfx .sigfoot {
+  --d: 3.4s;
+  margin: 34px 0 0;
+}
+#sigfx .sigfoot span:first-child {
+  color: var(--accent);
+}
+@keyframes sigIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sigName {
+  from {
+    opacity: 0;
+    letter-spacing: 0.6em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.3em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #sigfx.on .sigcard > * {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+  #sigfx.on .sigportal {
+    animation: none;
+  }
+  #sigfx #sigiris,
+  #sigfx .sigeye.blink .siglid {
+    transition: none;
+    animation: none;
+  }
 }
 /* ---- holographic HUD theme ---- */
 :root {
@@ -1957,8 +2067,7 @@ body.sheet .mtabs button.on {
 }
 .camview,
 .tile,
-.hstats,
-.ft {
+.hstats {
   position: relative;
   border-radius: 0 !important;
   border-color: #1c4459 !important;
@@ -1966,11 +2075,9 @@ body.sheet .mtabs button.on {
 .camview:before,
 .tile:before,
 .hstats:before,
-.ft:before,
 .camview:after,
 .tile:after,
-.hstats:after,
-.ft:after {
+.hstats:after {
   content: "";
   position: absolute;
   width: 14px;
@@ -1981,8 +2088,7 @@ body.sheet .mtabs button.on {
 }
 .camview:before,
 .tile:before,
-.hstats:before,
-.ft:before {
+.hstats:before {
   left: 0;
   top: 0;
   border-right: 0;
@@ -1990,20 +2096,11 @@ body.sheet .mtabs button.on {
 }
 .camview:after,
 .tile:after,
-.hstats:after,
-.ft:after {
+.hstats:after {
   right: 0;
   bottom: 0;
   border-left: 0;
   border-top: 0;
-}
-.ft {
-  border-color: #5ee6ff !important;
-  box-shadow: 0 0 16px #5ee6ff55;
-}
-.ft span {
-  color: #5ee6ff;
-  background: #031018;
 }
 /* multi-view wall */
 #wall {
@@ -2857,9 +2954,6 @@ body:before {
   body.sheet #webbar {
     bottom: calc(50vh + 54px) !important;
   }
-  body.sheet #ftiles {
-    display: none;
-  }
 }
 @media (min-width: 1000px) {
   body.sheet .grid .stage {
@@ -2879,7 +2973,11 @@ body:before {
   }
 }
 
-/* ===== PRO THEME: flat, calm, fast (no blur, no glow, no clipped corners) ===== */
+/* ===== PRO THEME: flat,
+calm,
+fast (no blur,
+no glow,
+no clipped corners) ===== */
 :root {
   --bg: #07090c;
   --panel: #0f1318;
@@ -2946,8 +3044,7 @@ select,
 }
 .camview,
 .tile,
-.hstats,
-.ft {
+.hstats {
   border-radius: 12px !important;
   border-color: var(--line) !important;
   overflow: hidden;
@@ -2955,11 +3052,9 @@ select,
 .camview:before,
 .tile:before,
 .hstats:before,
-.ft:before,
 .camview:after,
 .tile:after,
 .hstats:after,
-.ft:after,
 .tscan,
 #hEnter:after {
   display: none !important;
@@ -3741,90 +3836,6 @@ dialog {
 #svhud {
   top: auto !important;
   bottom: 64px;
-}
-/* tile dock */
-#ftiles {
-  inset: auto !important;
-  left: 0;
-  top: 0;
-  display: none;
-  pointer-events: auto !important;
-  overflow: visible !important;
-  background: #0d1116f2;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 8px 28px #000a;
-  z-index: 5;
-  touch-action: none;
-}
-.fth {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 6px 0 10px;
-  cursor: grab;
-  touch-action: none;
-}
-.fth span {
-  flex: 1;
-  font-size: 12px;
-  color: var(--dim);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.fth b {
-  font:
-    600 13px Inter,
-    Roboto,
-    sans-serif;
-  color: var(--ink);
-  min-width: 12px;
-  text-align: center;
-}
-.fth button {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--panel2);
-  color: var(--ink);
-  font-size: 14px;
-  padding: 0;
-}
-.ftg {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 6px 6px;
-}
-.ft {
-  position: static !important;
-  width: var(--tw) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  background: #000;
-}
-.ft img {
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 5/3;
-  object-fit: cover;
-  display: block;
-}
-.ft span {
-  font:
-    600 11px Inter,
-    Roboto,
-    sans-serif !important;
-  color: var(--ink) !important;
-  background: var(--panel) !important;
-  padding: 4px 7px !important;
-  height: 18px;
-  box-sizing: content-box;
-  line-height: 18px;
 }
 /* draggable sheet */
 body {
@@ -5178,7 +5189,10 @@ body.bcast #flog {
   font-size: 12.5px;
   color: #b8c7d0;
 }
-/* ===== v46 polish: one spacing scale, one radius, one button height, one accent ===== */
+/* ===== v46 polish: one spacing scale,
+one radius,
+one button height,
+one accent ===== */
 :root {
   --ac: #3fe0d0;
   --ac-bg: #0b2a2e;
@@ -5231,7 +5245,9 @@ body.bcast #flog {
   border-color: var(--ac-line) !important;
   color: var(--ac) !important;
 }
-/* layers rail: fixed width, every row the same box, toolbar on an even grid */
+/* layers rail: fixed width,
+every row the same box,
+toolbar on an even grid */
 #lfrail {
   box-sizing: border-box;
 }
@@ -5307,7 +5323,9 @@ body.bcast #flog {
   height: 40px !important;
   border-radius: var(--r) !important;
 }
-/* full-screen panels share one header, one tab style, one row rhythm */
+/* full-screen panels share one header,
+one tab style,
+one row rhythm */
 #newsp .nh,
 #flog .nh {
   padding: 14px 16px 10px !important;
@@ -5404,7 +5422,9 @@ body.bcast #flog {
   padding-left: 16px !important;
   padding-right: 12px !important;
 }
-/* briefing, replay, guide */
+/* briefing,
+replay,
+guide */
 #brief {
   position: fixed;
   inset: 0;
@@ -5749,7 +5769,9 @@ body.tx2 .sheet,
 body.tx2 #lfrail {
   zoom: 1.25;
 }
-/* chatter, compare, settings link */
+/* chatter,
+compare,
+settings link */
 #newsp .chq {
   display: flex;
   gap: var(--g);
@@ -6343,7 +6365,12 @@ body.bcast #ops {
   margin: 0 0 6px;
 }
 
-/* v49: shared full-screen panel, finder, plans, records, route choices, emergency mode */
+/* v49: shared full-screen panel,
+finder,
+plans,
+records,
+route choices,
+emergency mode */
 .pn {
   position: fixed;
   inset: 0;
@@ -6952,7 +6979,6 @@ html.ckp #cmdtk,
 html.ckp #emgpill,
 html.ckp .grid .rail,
 html.ckp .grid .side,
-html.ckp #ftiles,
 html.ckp #insfacts {
   display: none !important;
 }
@@ -7002,7 +7028,9 @@ html.ckp #czmap .cesium-viewer-bottom {
   padding: 0;
 }
 
-/* v50 speed pass: no live blur over the 3D canvas, instant press feedback, cheaper long lists */
+/* v50 speed pass: no live blur over the 3D canvas,
+instant press feedback,
+cheaper long lists */
 *,
 *:before,
 *:after {
@@ -7341,7 +7369,8 @@ body.sky-open #toasts {
 #sky {
   z-index: 95;
 }
-/* ---------- v71: a quieter Replica World, and "hide menus" everywhere ---------- */
+/* ---------- v71: a quieter Replica World,
+and "hide menus" everywhere ---------- */
 body.rw #cmdbar,
 body.rw #cmdtk,
 body.rw .ticker {
@@ -7545,7 +7574,8 @@ body.bare #czmap .cesium-viewer-bottom {
   color: var(--ink);
   font-size: 18px;
 }
-/* ---------- v76: one interface everywhere, and the Conflict panel ---------- */
+/* ---------- v76: one interface everywhere,
+and the Conflict panel ---------- */
 body.rw-canvas .stage {
   position: fixed !important;
   inset: 0 !important;
@@ -7920,7 +7950,8 @@ body.bare #bareX {
   color: #8fa3b3;
 }
 
-/* ---------- v83: See in 3D, offered when zoomed into a city ---------- */
+/* ---------- v83: See in 3D,
+offered when zoomed into a city ---------- */
 #rw3d {
   display: none;
   position: fixed;
@@ -7939,7 +7970,8 @@ body.bare #bareX {
 body.rw.rw3dok:not(.bare):not(.real) #rw3d {
   display: block;
 }
-/* The 3D close-up's way back to the map, shown on the dashboard. */
+/* The 3D close-up's way back to the map,
+shown on the dashboard. */
 body.rw #t4bar [data-t4="x"] {
   display: flex !important;
   align-items: center;
@@ -8296,7 +8328,9 @@ body.radioon #rw3d {
   color: #fff;
 }
 
-/* ---------- v90: offline places, recent alerts, text them ---------- */
+/* ---------- v90: offline places,
+recent alerts,
+text them ---------- */
 #brief .amplaces span i {
   font-style: normal;
   font-size: 11px;
@@ -8370,77 +8404,61 @@ body.rw #cmdbar {
   }
 }
 
-/* ---------- v91: camera web ---------- */
-#cwp {
+/* ---------- v92: map pins ---------- */
+#cpins {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 70;
-  background: radial-gradient(circle at 50% 50%, #0a1a24f0, #02050af7 70%);
-  overflow: hidden;
-}
-#cwp .cwhead {
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 10px);
-  left: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 3;
-}
-#cwp .cwhead b {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--accent);
-}
-#cwp .cwhead button {
-  height: 38px;
-  min-width: 38px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #0d151f;
-  color: var(--ink);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
-#cwp .cwlines {
-  position: absolute;
-  inset: 0;
+  z-index: 45;
   pointer-events: none;
 }
-#cwp .cwlines line {
-  stroke: #36e0ff;
-  stroke-opacity: 0.45;
-  stroke-width: 1.2;
-  stroke-dasharray: 3 4;
-}
-#cwp .cwt {
+#cpins .cplines {
   position: absolute;
-  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#cpins .cplines line {
+  stroke: #36e0ff;
+  stroke-opacity: 0.8;
+  stroke-width: 1.4;
+}
+#cpins .cplines circle {
+  fill: #36e0ff;
+  stroke: #02060a;
+  stroke-width: 1.5;
+}
+#cpins .cplines .mid {
+  stroke-width: 2;
+}
+#cpins .cplines circle.mid {
+  fill: #fff;
+  stroke: #36e0ff;
+  stroke-width: 3;
+}
+#cpins .cpt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
   padding: 0;
   border-radius: 9px;
-  border: 1px solid #36e0ff55;
+  border: 1px solid #36e0ff88;
   background: #08111a;
   color: var(--ink);
   overflow: hidden;
   text-align: left;
-  box-shadow: 0 6px 18px #000a;
+  pointer-events: auto;
+  box-shadow: 0 6px 16px #000b;
 }
-#cwp .cwt img {
+#cpins .cpt img {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   background: #0b1219;
 }
-#cwp .cwt span {
+#cpins .cpt span {
   display: block;
   padding: 3px 6px 0;
   font-size: 9.5px;
@@ -8448,36 +8466,76 @@ body.rw #cmdbar {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-#cwp .cwt em {
+#cpins .cpt em {
   display: block;
   padding: 0 6px 4px;
   font-style: normal;
   font-size: 8.5px;
   letter-spacing: 0.1em;
   color: var(--accent);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-#cwp .cwt.mid {
+#cpins .cpt.big {
   z-index: 3;
   border: 2px solid var(--accent);
-  box-shadow:
-    0 0 0 6px #36e0ff1f,
-    0 10px 30px #000c;
 }
-#cwp .cwt.mid span {
+#cpins .cpopen {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-size: 17px;
+  background: #060a10cc;
+  color: var(--ink);
+}
+#cpins .cpt.mid {
+  border: 2px solid var(--accent);
+  box-shadow:
+    0 0 0 5px #36e0ff22,
+    0 10px 26px #000c;
+  z-index: 2;
+}
+#cpins .cpt.mid span {
   font-size: 11px;
   font-weight: 700;
 }
-#cwp .cwnone {
+#cpins .cphead {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 40px;
-  text-align: center;
+  left: 10px;
+  right: 10px;
+  top: calc(env(safe-area-inset-top, 0px) + 100px);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+#cpins .cphead b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  text-shadow: 0 1px 3px #000;
+}
+#cpins .cphead button {
+  pointer-events: auto;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0d151fe6;
   color: var(--ink);
-  opacity: 0.7;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
 }
 #cgp .cgopen.cgweb {
   right: auto;

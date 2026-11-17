@@ -535,6 +535,11 @@ function brDraw() {
     '</div><form class="amform" id="amForm"><input id="amQ" type="search" placeholder="Address or city" autocomplete="off"><input id="amN" type="text" placeholder="Name: Home, Mom…" autocomplete="off" maxlength="28"><input id="amP" type="tel" placeholder="Their phone (optional)" autocomplete="off" maxlength="20"><button>Add</button></form><p class="brhint">Warnings for these places reach you wherever you are, up to 8 places. With a phone number, the warning offers a ready text: are you OK? ⇩ OFFLINE saves the map around a place so it still shows without signal. Numbers stay on this phone.</p>' +
     '<h4 class="mono">RECENT ALERTS</h4>' +
     amHistHtml() +
+    '<h4 class="mono">CAMERAS</h4><div class="brt c1"><button data-br="cpauto" class="' +
+    (SET.cpAuto !== false ? "on" : "") +
+    '">' +
+    (SET.cpAuto !== false ? "● " : "○ ") +
+    'Camera tiles when zoomed in</button></div><p class="brhint">Zoom into a city and the nearest live cameras appear as tiles beside their spots on the map.</p>' +
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
@@ -699,6 +704,11 @@ document.addEventListener("click", function (e) {
       AM.ask = true; // turning it on is the moment to ask for location
       amCheck();
     } else natCall("setAlertWatch", { on: false, places: [] });
+  } else if (k === "cpauto") {
+    SET.cpAuto = SET.cpAuto === false;
+    setSave();
+    if (!SET.cpAuto && CP.open && CP.auto) cpClose();
+    brDraw();
   } else if (k.indexOf("amh-") === 0) {
     brClose();
     amAgain(+k.slice(4));

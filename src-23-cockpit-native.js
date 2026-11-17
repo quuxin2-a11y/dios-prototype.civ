@@ -381,7 +381,7 @@ function ckpChrome(hide) {
   try {
     [].forEach.call(
       document.querySelectorAll(
-        ".grid>*,.top,.scanbar,.hud,.kpis,.mtabs,#sheetbar,#peek,#lfrail,#irail,#t4bar,#t4places,#brandov,#bcast,#cmdbar,#cmdtk,#emgpill,#ftiles,#insfacts,#dotsleg,#tilt,#attr"
+        ".grid>*,.top,.scanbar,.hud,.kpis,.mtabs,#sheetbar,#peek,#lfrail,#irail,#t4bar,#t4places,#brandov,#bcast,#cmdbar,#cmdtk,#emgpill,#insfacts,#dotsleg,#tilt,#attr"
       ),
       function (e) {
         if (

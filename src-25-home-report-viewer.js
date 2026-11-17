@@ -23,9 +23,78 @@ document.addEventListener("click", function (e) {
   sigT = n;
   if (sigN >= 5) {
     sigN = 0;
-    $("sigfx").style.display = "flex";
+    sigShow();
   }
 });
+
+// The signature screen: Mark's name, his roles, the app's promise in Spanish (the language of its
+// name), and where and when it began. Each line arrives in turn. Tap anywhere to close.
+var SIG_ROLES = ["Founder · Lead Engineer · Coder", "Designer · Developer"],
+  SIG_FOOT = ["For my family", "Ojos de Dios · Austin, Texas · Est. 2026"];
+
+function sigShow() {
+  var el = $("sigfx");
+  $("sigroles").innerHTML = SIG_ROLES.map(function (r) {
+    return "<span>" + esc(r) + "</span>";
+  }).join("");
+  $("sigfoot").innerHTML = SIG_FOOT.map(function (r) {
+    return "<span>" + esc(r) + "</span>";
+  }).join("");
+  // Start the entrance again each time it opens: the eye opens, the view falls through the pupil,
+  // and the card arrives behind it.
+  el.classList.remove("on");
+  el.style.display = "flex";
+  void el.offsetWidth;
+  el.classList.add("on");
+  sigLook(0, 0);
+  sigEyeLife();
+}
+
+// The card's eye is alive: the pupil follows a finger or the pointer, wanders on its own when
+// left alone, and blinks every few seconds.
+var SIGEYE = { tm: 0, last: 0 };
+function sigLook(x, y) {
+  var ir = $("sigiris");
+  if (ir) ir.setAttribute("transform", "translate(" + x.toFixed(1) + " " + y.toFixed(1) + ")");
+}
+
+function sigLookAt(cx, cy) {
+  var r = $("sigeye").getBoundingClientRect(),
+    dx = cx - (r.left + r.width / 2),
+    dy = cy - (r.top + r.height / 2),
+    d = Math.hypot(dx, dy) || 1,
+    k = Math.min(1, d / 160);
+  sigLook((dx / d) * 9 * k, (dy / d) * 4.5 * k);
+  SIGEYE.last = Date.now();
+}
+
+function sigEyeLife() {
+  clearInterval(SIGEYE.tm);
+  var eye = $("sigeye"),
+    n = 0;
+  SIGEYE.tm = setInterval(function () {
+    if ($("sigfx").style.display === "none") return clearInterval(SIGEYE.tm);
+    n++;
+    // A blink about every four seconds, sometimes a double blink.
+    if (n % 8 === 0 || (n % 8 === 1 && Math.random() < 0.3)) {
+      eye.classList.remove("blink");
+      void eye.offsetWidth;
+      eye.classList.add("blink");
+    }
+    // Left alone for a moment, it looks around by itself.
+    if (Date.now() - SIGEYE.last > 2500 && n % 3 === 0)
+      sigLook((Math.random() * 2 - 1) * 8, (Math.random() * 2 - 1) * 3.5);
+  }, 500);
+}
+
+document.addEventListener(
+  "pointermove",
+  function (e) {
+    if ($("sigfx") && $("sigfx").style.display === "flex") sigLookAt(e.clientX, e.clientY);
+  },
+  { passive: true }
+);
+
 function goDash() {
   var h = $("home");
   if (h.style.display === "none") return;

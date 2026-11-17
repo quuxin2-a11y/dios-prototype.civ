@@ -113,7 +113,7 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 | Path | Language | Purpose |
 |---|---|---|
-| `src-01-start.js` … `src-45-camera-grid.js`, `src-99-start.js` | JavaScript | Application source in 45 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, cables/towers/wind, start-up, dashboard, sky, data feed, dark globe, photo help, conflict monitor, crime groups and leaders, camera grid and camera web, start-up). Formatted with Prettier (`.prettierrc.json`) |
+| `src-01-start.js` … `src-45-camera-grid.js`, `src-99-start.js` | JavaScript | Application source in 45 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, cables/towers/wind, start-up, dashboard, sky, data feed, dark globe, photo help, conflict monitor, crime groups and leaders, camera grid and map pins, start-up). Formatted with Prettier (`.prettierrc.json`) |
 | `src-template.html` | HTML | Document structure, with `/*@include*/` markers filled in by `build.py` |
 | `src-styles.css` | CSS | Design system and component styles |
 | `src-data-*.json` | JSON | Bundled gazetteer, border port locations, country centre points, coastline points, fallback portal list and the generated 3D models |

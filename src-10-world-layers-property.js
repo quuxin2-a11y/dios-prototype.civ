@@ -13,8 +13,7 @@ var WL = ls("ojos-layers") || {
   sat: false,
   quake: true,
   event: true,
-  night: true,
-  tiles: false
+  night: true
 };
 if (WL.img === undefined) WL.img = true;
 if (WL.parcel === undefined) WL.parcel = true;
@@ -23,11 +22,9 @@ if (WL.labels === undefined) WL.labels = true;
 if (WL.ship === undefined) WL.ship = false;
 if (WL.dots === undefined) WL.dots = true;
 if (WL.radar === undefined) WL.radar = false;
-// v91: the grouped "Nearby" tiles gave way to the camera web; turned off once, still in Layers.
-if (!WL.tilesV) {
-  WL.tilesV = 1;
-  WL.tiles = false;
-}
+// v91: the grouped "Nearby" tiles gave way to the camera web (tap a camera on the map).
+delete WL.tiles;
+delete WL.tilesV;
 var PLANES = [],
   SATREC = [],
   SATS = [],
@@ -188,181 +185,7 @@ function drawWorld(t, P) {
       screenPts.push([p[0], p[1], e]);
     }
   }
-  // lines from the tile dock to each camera it is showing
-  if (ftSel.length && FTS.geo) {
-    var g = FTS.geo;
-    for (i = 0; i < ftSel.length; i++) {
-      p = P(ftSel[i].lon, ftSel[i].lat);
-      if (p[2] <= 0) continue;
-      var tx = g.x + (i % g.cols) * (g.tw + 6) + g.tw / 2,
-        ty = g.y + g.hh + Math.floor(i / g.cols) * (g.th + 6) + g.th / 2;
-      ctx.strokeStyle = "rgba(94,230,255,0.75)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(p[0], p[1]);
-      ctx.lineTo(tx, ty);
-      ctx.stroke();
-      ctx.fillStyle = "#5ee6ff";
-      ctx.beginPath();
-      ctx.arc(p[0], p[1], 4, 0, 7);
-      ctx.fill();
-    }
-  }
 }
-var ftSel = [],
-  ftKey = "",
-  FTS = ls("ojos-ft") || {};
-FTS.n = FTS.n || 2;
-FTS.size = FTS.size == null ? 1 : FTS.size;
-function ftLayout() {
-  var box = $("ftiles");
-  if (!box) return;
-  var sw = cv.parentNode.clientWidth,
-    sh = cv.parentNode.clientHeight,
-    tw = Math.min([132, 184, 250, 340][FTS.size], sw - 24),
-    cols = Math.max(1, Math.min(FTS.n, Math.floor((sw - 16) / (tw + 6)) || 1)),
-    th = Math.round(tw * 0.6) + 18;
-  var w = cols * (tw + 6) + 6,
-    x = FTS.x == null ? 8 : FTS.x,
-    y = FTS.y == null ? topInset() + 6 : FTS.y;
-  x = Math.max(0, Math.min(sw - w, x));
-  y = Math.max(0, Math.min(sh - 60, y));
-  box.style.width = w + "px";
-  box.style.transform = "translate(" + x + "px," + y + "px)";
-  box.style.setProperty("--tw", tw + "px");
-  var gg = box.querySelector(".ftg");
-  if (gg) {
-    gg.style.maxHeight = Math.max(80, sh - y - 52) + "px";
-    gg.style.overflowY = "auto";
-  }
-  FTS.geo = { x: x + 6, y: y, hh: 38, tw: tw, th: th, cols: cols };
-}
-function ftBuild(force) {
-  var box = $("ftiles");
-  if (!box) return;
-  if (!WL.tiles || !EMBED_OK || zoom < 2 || T3.on || T4.on || $("wall").style.display === "flex") {
-    if (ftKey || box.firstChild) {
-      ftSel = [];
-      ftKey = "";
-      box.innerHTML = "";
-      box.style.display = "none";
-    }
-    return;
-  }
-  var cx = W / 2,
-    cy = H / 2,
-    pool = [],
-    j;
-  for (j = 0; j < VNUM; j++) {
-    var c0 = VC[j];
-    if (c0 === selected) continue;
-    pool.push([(VX[j] - cx) * (VX[j] - cx) + (VY[j] - cy) * (VY[j] - cy), c0]);
-  }
-  pool.sort(function (a, b) {
-    return a[0] - b[0];
-  });
-  var c = pool.slice(0, FTS.n).map(function (x) {
-    return x[1];
-  });
-  var k =
-    c
-      .map(function (x) {
-        return x.u;
-      })
-      .join("|") +
-    "#" +
-    FTS.n +
-    "#" +
-    FTS.size;
-  if (k === ftKey && !force) return;
-  ftKey = k;
-  ftSel = c;
-  box.style.display = c.length ? "block" : "none";
-  box.innerHTML =
-    '<div class="fth"><span>⠿ Nearby</span><button data-ft="less" aria-label="Fewer">−</button><b>' +
-    FTS.n +
-    '</b><button data-ft="more" aria-label="More">+</button><button data-ft="size" aria-label="Size">' +
-    ["S", "M", "L", "XL"][FTS.size] +
-    '</button><button data-ft="hide" aria-label="Hide">✕</button></div><div class="ftg">' +
-    c
-      .map(function (x) {
-        return (
-          '<div class="ft" data-fl="' +
-          LIVE.indexOf(x) +
-          '"><img class="snap" referrerpolicy="no-referrer" data-u="' +
-          esc(x.u) +
-          '" data-src="' +
-          esc(x.e) +
-          '" src="' +
-          esc(x.e) +
-          '" alt=""><span>' +
-          esc(x.n) +
-          "</span></div>"
-        );
-      })
-      .join("") +
-    "</div>";
-  ftLayout();
-}
-setInterval(function () {
-  ftBuild(false);
-}, 2500);
-document.addEventListener(
-  "click",
-  function (e) {
-    var b = e.target.closest("[data-ft]");
-    if (!b) return;
-    e.stopPropagation();
-    var k = b.getAttribute("data-ft");
-    if (k === "less") FTS.n = Math.max(1, FTS.n - 1);
-    else if (k === "more") FTS.n = Math.min(9, FTS.n + 1);
-    else if (k === "size") FTS.size = (FTS.size + 1) % 4;
-    else if (k === "hide") {
-      setLayer("tiles", false);
-      note("Camera tiles", "Hidden. Turn them back on under Layers → Floating camera tiles.");
-      return;
-    }
-    ls("ojos-ft", { n: FTS.n, size: FTS.size, x: FTS.x, y: FTS.y });
-    ftBuild(true);
-  },
-  true
-);
-(function () {
-  var box = $("ftiles"),
-    d = null;
-  if (!box) return;
-  box.addEventListener("pointerdown", function (e) {
-    if (!e.target.closest(".fth") || e.target.closest("button")) return;
-    var g = FTS.geo || { x: 14, y: topInset() + 6 };
-    d = { px: e.clientX, py: e.clientY, x: g.x - 6, y: g.y };
-    box.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  box.addEventListener("pointermove", function (e) {
-    if (!d) return;
-    FTS.x = d.x + e.clientX - d.px;
-    FTS.y = d.y + e.clientY - d.py;
-    ftLayout();
-  });
-  var up = function () {
-    if (d) {
-      d = null;
-      ls("ojos-ft", { n: FTS.n, size: FTS.size, x: FTS.x, y: FTS.y });
-    }
-  };
-  box.addEventListener("pointerup", up);
-  box.addEventListener("pointercancel", up);
-  window.addEventListener("resize", function () {
-    setTimeout(ftLayout, 60);
-  });
-})();
-document.addEventListener("click", function (e) {
-  var f = e.target.closest(".ft");
-  if (f) {
-    var c = LIVE[+f.getAttribute("data-fl")];
-    if (c) select(c);
-  }
-});
 // Toast text may carry <b> and <br>; it is rebuilt node by node, so no other markup can reach the page.
 function richText(el, html) {
   var ent = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'" },
@@ -974,8 +797,7 @@ var WLDEF = [
     },
     loadEvents
   ],
-  ["night", "Day / Night", "#ffe14d", null, null],
-  ["tiles", "Floating camera tiles", "#39ff6a", null, null]
+  ["night", "Day / Night", "#ffe14d", null, null]
 ];
 function wstat() {
   var el = $("wlayers");
@@ -1841,7 +1663,7 @@ function t3Cams() {
       var ft = e.features && e.features[0],
         c2 = ft && LIVE[ft.properties.i];
       if (c2) {
-        select(c2);
+        camTap(c2);
         target = null;
         m.easeTo({
           center: [c2.lon, c2.lat],
@@ -1856,7 +1678,7 @@ function t3Cams() {
       var ft = e.features && e.features[0],
         c2 = ft && LIVE[ft.properties.i];
       if (c2) {
-        select(c2);
+        camTap(c2);
         target = null;
         m.easeTo({
           center: [c2.lon, c2.lat],
@@ -2064,7 +1886,6 @@ function t3Open(opt) {
       document.body.classList.add("tilt");
       btn.textContent = "⛰ 3D view";
       if (!ops && btn.classList) btn.classList.add("on");
-      if ($("ftiles")) $("ftiles").style.display = "none";
       if (!T3.map) {
         var m;
         try {
