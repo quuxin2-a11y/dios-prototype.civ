@@ -102,8 +102,21 @@ function addLive(src, arr) {
     }
   });
   LIVESTAT[src] = { n: ((LIVESTAT[src] && LIVESTAT[src].n) || 0) + n, s: "ok" };
-  render();
+  renderSoon();
   if ($("wall").style.display === "flex" && !$("wgrid").querySelector(".tile")) drawWall();
+}
+// Networks arrive in many small batches (Windy alone in over a thousand); redrawing the lists and the
+// map for each one made the whole app stutter. Batches are drawn together at most every 1.2 seconds.
+var RENDER_AT = 0,
+  RENDER_T = 0;
+function renderSoon() {
+  if (RENDER_T) return;
+  var wait = Math.max(0, 1200 - (Date.now() - RENDER_AT));
+  RENDER_T = setTimeout(function () {
+    RENDER_T = 0;
+    RENDER_AT = Date.now();
+    render();
+  }, wait);
 }
 function fail(src, e) {
   if (!LIVESTAT[src] || !LIVESTAT[src].n)
@@ -1229,7 +1242,8 @@ var SOURCES = [
     nearby: true,
     load: function () {
       windyNear();
-      setTimeout(windySweep, 8000);
+      // Cameras come first: with the user's own key the full sweep starts almost at once.
+      setTimeout(windySweep, KEYS.windy ? 1500 : 8000);
     }
   }
 ];
@@ -1321,9 +1335,29 @@ function windyAdd(rows) {
   });
   if (out.length) addLive(WN, out);
 }
+// With the user's own key the sweep runs three requests at a time; on the shared key, one. Progress (the
+// cameras found and the tiles still to ask) is saved as it goes, so a sweep cut short by closing the app
+// carries on where it stopped instead of starting over.
+function windyWorkers() {
+  return KEYS.windy ? 3 : 1;
+}
+function windyQueueAll() {
+  WSW.q = [];
+  for (var la = -90; la < 90; la += 45)
+    for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
+}
+function windySave(complete) {
+  idbSet(
+    "windy",
+    complete
+      ? { t: Date.now(), rows: WSW.rows, complete: true }
+      : { t: Date.now() - (KEYS.windy ? 6 : 29) * 864e5, rows: WSW.rows, q: WSW.q.slice() }
+  );
+}
 function windySweep() {
   if (WSW.on || WSW.done || !kWindy() || !EMBED_OK) return;
   WSW.on = true;
+  WSW.active = 0;
   idbGet("windy")
     .then(function (sv) {
       if (
@@ -1339,25 +1373,28 @@ function windySweep() {
         WSW.on = false;
         return;
       }
-      // A sweep that was cut short: show what it found, then sweep again (repeats are skipped).
+      // A sweep that was cut short: show what it found at once, then carry on from where it stopped.
       if (sv && sv.rows && sv.rows.length) windyAdd(sv.rows);
-      for (var la = -90; la < 90; la += 45)
-        for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
-      windyStep();
+      if (sv && !sv.complete && sv.q && sv.q.length) WSW.q = sv.q;
+      else windyQueueAll();
+      windyStart();
     })
     .catch(function () {
-      for (var la = -90; la < 90; la += 45)
-        for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
-      windyStep();
+      windyQueueAll();
+      windyStart();
     });
+}
+function windyStart() {
+  for (var i = 0; i < windyWorkers(); i++) setTimeout(windyStep, i * 250);
 }
 function windyStep() {
   if (!WSW.on) return;
   var t = WSW.q.shift();
   if (!t) {
+    if (WSW.active) return; // the last requests still out finish the sweep
     WSW.on = false;
     WSW.done = true;
-    idbSet("windy", { t: Date.now(), rows: WSW.rows, complete: true });
+    windySave(true);
     liveStatus();
     return;
   }
@@ -1367,6 +1404,7 @@ function windyStep() {
     return;
   }
   WSW.req++;
+  WSW.active++;
   getJSON(
     "https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=" +
       t[4] +
@@ -1382,6 +1420,7 @@ function windyStep() {
     { "x-windy-api-key": kWindy() }
   )
     .then(function (j) {
+      WSW.active--;
       var tot = (j && j.total) || 0,
         ws = (j && j.webcams) || [];
       if (t[4] === 0 && tot > 1000 && t[0] - t[2] > 0.05) {
@@ -1398,25 +1437,23 @@ function windyStep() {
         if (ws.length === 50 && t[4] + 50 < Math.min(tot, 1000))
           WSW.q.unshift([t[0], t[1], t[2], t[3], t[4] + 50]);
       }
-      if (WSW.req % 60 === 0) {
-        idbSet("windy", { t: Date.now() - (KEYS.windy ? 6 : 29) * 864e5, rows: WSW.rows });
+      if (WSW.req % 20 === 0) {
+        windySave(false);
         liveStatus();
       }
-      setTimeout(windyStep, KEYS.windy ? 650 : 1100);
+      setTimeout(windyStep, KEYS.windy ? 300 : 1100);
     })
     .catch(function (e) {
+      WSW.active--;
       WSW.err = String((e && e.message) || e).slice(0, 50);
       if (/401|403/.test(WSW.err)) {
         WSW.on = false;
         fail(WN, e);
         return;
       }
-      if (/429/.test(WSW.err)) {
-        WSW.q.unshift(t);
-        setTimeout(windyStep, 30000);
-        return;
-      }
-      setTimeout(windyStep, 1500);
+      // A tile that keeps failing is given up after three tries so the sweep can finish.
+      if (/429/.test(WSW.err) || (t[5] = (t[5] || 0) + 1) < 3) WSW.q.push(t);
+      setTimeout(windyStep, /429/.test(WSW.err) ? 30000 : 1500);
     });
 }
 // free Windy picture links expire after a few minutes: fetch a fresh one when a picture fails

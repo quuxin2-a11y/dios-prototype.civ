@@ -425,6 +425,7 @@ a.open {
   display: inline-block;
   padding-left: 100%;
   animation: tk 160s linear infinite;
+  will-change: transform;
 }
 .ticker span {
   margin-right: 36px;
@@ -6089,6 +6090,8 @@ body.bcast #cmp {
   padding-left: 12px;
   white-space: pre;
   animation: cmdtk 60s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 @keyframes cmdtk {
   from {
@@ -9426,7 +9429,7 @@ body.rw #t4bar [data-hl] {
  */
 
 // The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
-var APP_V = 93;
+var APP_V = 94;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],
@@ -15509,8 +15512,21 @@ function addLive(src, arr) {
     }
   });
   LIVESTAT[src] = { n: ((LIVESTAT[src] && LIVESTAT[src].n) || 0) + n, s: "ok" };
-  render();
+  renderSoon();
   if ($("wall").style.display === "flex" && !$("wgrid").querySelector(".tile")) drawWall();
+}
+// Networks arrive in many small batches (Windy alone in over a thousand); redrawing the lists and the
+// map for each one made the whole app stutter. Batches are drawn together at most every 1.2 seconds.
+var RENDER_AT = 0,
+  RENDER_T = 0;
+function renderSoon() {
+  if (RENDER_T) return;
+  var wait = Math.max(0, 1200 - (Date.now() - RENDER_AT));
+  RENDER_T = setTimeout(function () {
+    RENDER_T = 0;
+    RENDER_AT = Date.now();
+    render();
+  }, wait);
 }
 function fail(src, e) {
   if (!LIVESTAT[src] || !LIVESTAT[src].n)
@@ -16636,7 +16652,8 @@ var SOURCES = [
     nearby: true,
     load: function () {
       windyNear();
-      setTimeout(windySweep, 8000);
+      // Cameras come first: with the user's own key the full sweep starts almost at once.
+      setTimeout(windySweep, KEYS.windy ? 1500 : 8000);
     }
   }
 ];
@@ -16728,9 +16745,29 @@ function windyAdd(rows) {
   });
   if (out.length) addLive(WN, out);
 }
+// With the user's own key the sweep runs three requests at a time; on the shared key, one. Progress (the
+// cameras found and the tiles still to ask) is saved as it goes, so a sweep cut short by closing the app
+// carries on where it stopped instead of starting over.
+function windyWorkers() {
+  return KEYS.windy ? 3 : 1;
+}
+function windyQueueAll() {
+  WSW.q = [];
+  for (var la = -90; la < 90; la += 45)
+    for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
+}
+function windySave(complete) {
+  idbSet(
+    "windy",
+    complete
+      ? { t: Date.now(), rows: WSW.rows, complete: true }
+      : { t: Date.now() - (KEYS.windy ? 6 : 29) * 864e5, rows: WSW.rows, q: WSW.q.slice() }
+  );
+}
 function windySweep() {
   if (WSW.on || WSW.done || !kWindy() || !EMBED_OK) return;
   WSW.on = true;
+  WSW.active = 0;
   idbGet("windy")
     .then(function (sv) {
       if (
@@ -16746,25 +16783,28 @@ function windySweep() {
         WSW.on = false;
         return;
       }
-      // A sweep that was cut short: show what it found, then sweep again (repeats are skipped).
+      // A sweep that was cut short: show what it found at once, then carry on from where it stopped.
       if (sv && sv.rows && sv.rows.length) windyAdd(sv.rows);
-      for (var la = -90; la < 90; la += 45)
-        for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
-      windyStep();
+      if (sv && !sv.complete && sv.q && sv.q.length) WSW.q = sv.q;
+      else windyQueueAll();
+      windyStart();
     })
     .catch(function () {
-      for (var la = -90; la < 90; la += 45)
-        for (var lo = -180; lo < 180; lo += 45) WSW.q.push([la + 45, lo + 45, la, lo, 0]);
-      windyStep();
+      windyQueueAll();
+      windyStart();
     });
+}
+function windyStart() {
+  for (var i = 0; i < windyWorkers(); i++) setTimeout(windyStep, i * 250);
 }
 function windyStep() {
   if (!WSW.on) return;
   var t = WSW.q.shift();
   if (!t) {
+    if (WSW.active) return; // the last requests still out finish the sweep
     WSW.on = false;
     WSW.done = true;
-    idbSet("windy", { t: Date.now(), rows: WSW.rows, complete: true });
+    windySave(true);
     liveStatus();
     return;
   }
@@ -16774,6 +16814,7 @@ function windyStep() {
     return;
   }
   WSW.req++;
+  WSW.active++;
   getJSON(
     "https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=" +
       t[4] +
@@ -16789,6 +16830,7 @@ function windyStep() {
     { "x-windy-api-key": kWindy() }
   )
     .then(function (j) {
+      WSW.active--;
       var tot = (j && j.total) || 0,
         ws = (j && j.webcams) || [];
       if (t[4] === 0 && tot > 1000 && t[0] - t[2] > 0.05) {
@@ -16805,25 +16847,23 @@ function windyStep() {
         if (ws.length === 50 && t[4] + 50 < Math.min(tot, 1000))
           WSW.q.unshift([t[0], t[1], t[2], t[3], t[4] + 50]);
       }
-      if (WSW.req % 60 === 0) {
-        idbSet("windy", { t: Date.now() - (KEYS.windy ? 6 : 29) * 864e5, rows: WSW.rows });
+      if (WSW.req % 20 === 0) {
+        windySave(false);
         liveStatus();
       }
-      setTimeout(windyStep, KEYS.windy ? 650 : 1100);
+      setTimeout(windyStep, KEYS.windy ? 300 : 1100);
     })
     .catch(function (e) {
+      WSW.active--;
       WSW.err = String((e && e.message) || e).slice(0, 50);
       if (/401|403/.test(WSW.err)) {
         WSW.on = false;
         fail(WN, e);
         return;
       }
-      if (/429/.test(WSW.err)) {
-        WSW.q.unshift(t);
-        setTimeout(windyStep, 30000);
-        return;
-      }
-      setTimeout(windyStep, 1500);
+      // A tile that keeps failing is given up after three tries so the sweep can finish.
+      if (/429/.test(WSW.err) || (t[5] = (t[5] || 0) + 1) < 3) WSW.q.push(t);
+      setTimeout(windyStep, /429/.test(WSW.err) ? 30000 : 1500);
     });
 }
 // free Windy picture links expire after a few minutes: fetch a fresh one when a picture fails
@@ -28059,18 +28099,42 @@ function cmdTick() {
       ),
     k = items.join("     ");
   if (!k) k = "◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES";
-  var tk = $("cmdtk");
-  if (tk._k !== k) {
-    tk._k = k;
-    tk.innerHTML =
-      '<b class="mono">LIVE</b><div><p style="animation-duration:' +
-      Math.max(30, Math.round(k.length / 7)) +
-      's">' +
-      esc(k) +
-      "     " +
-      esc(k) +
-      "</p></div>";
+  cmdTicker($("cmdtk"), k);
+}
+// The scrolling headline strip. It runs on the graphics chip at one steady speed, and new text waits
+// for the end of the current pass, so the strip never jumps back, restarts or changes pace mid-read.
+var CMD_TK_PX = 55; // pixels a second
+function cmdTicker(tk, k) {
+  var p = tk.querySelector("p");
+  if (p && !p._sized) cmdTickerSize(p);
+  if (tk._k === k) return;
+  if (p && tk._k) {
+    tk._next = k;
+    if (!p._wait) {
+      p._wait = true;
+      p.addEventListener("animationiteration", function () {
+        p._wait = false;
+        var n = tk._next;
+        tk._next = null;
+        if (n != null) cmdTickerFill(tk, n);
+      });
+    }
+    return;
   }
+  cmdTickerFill(tk, k);
+}
+function cmdTickerFill(tk, k) {
+  tk._k = k;
+  tk.innerHTML = '<b class="mono">LIVE</b><div><p>' + esc(k) + "     " + esc(k) + "     </p></div>";
+  cmdTickerSize(tk.querySelector("p"));
+}
+// Half the strip (one copy) at a steady speed; measured once per change (or once it is first shown),
+// never per frame.
+function cmdTickerSize(p) {
+  var w = p.scrollWidth;
+  if (!w) return;
+  p._sized = true;
+  p.style.animationDuration = Math.max(20, Math.round(w / 2 / CMD_TK_PX)) + "s";
 }
 function cmdSet(on) {
   SET.cmd = !!on;
@@ -32836,9 +32900,36 @@ document.addEventListener("click", function (e) {
       });
   }
 });
+// The service worker keeps map tiles for use without signal. After an update, the new worker is fetched
+// straight away and the previous version's saved copy of the app is cleared, so the new version is what
+// runs (saved map tiles, settings and places are kept).
 try {
+  var swNew = ls("ojos-app-v") !== APP_V;
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
-    navigator.serviceWorker.register("sw.js").catch(function () {});
+    navigator.serviceWorker
+      .register("sw.js")
+      .then(function (r) {
+        if (swNew && r && r.update) r.update();
+      })
+      .catch(function () {});
+  if (swNew && window.caches)
+    caches
+      .keys()
+      .then(function (k) {
+        return Promise.all(
+          k
+            .filter(function (x) {
+              return /^godeye-v/.test(x) && x !== "godeye-v" + APP_V;
+            })
+            .map(function (x) {
+              return caches.delete(x);
+            })
+        );
+      })
+      .then(function () {
+        ls("ojos-app-v", APP_V);
+      })
+      .catch(function () {});
 } catch (e) {}
 /**
  * @file Cockpit view and native bridge.

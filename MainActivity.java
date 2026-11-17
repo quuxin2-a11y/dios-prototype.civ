@@ -6,6 +6,10 @@ import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
+import android.webkit.ServiceWorkerClient;
+import android.webkit.ServiceWorkerController;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.PluginHandle;
@@ -18,7 +22,8 @@ import java.util.List;
  * <ul>
  *   <li>the {@link OjosNativePlugin} bridge,</li>
  *   <li>long-press shortcuts on the app icon: Emergency, Finder and Briefing,</li>
- *   <li>routing of shortcut and widget taps to the web layer, whether the app was closed or already open.</li>
+ *   <li>routing of shortcut and widget taps to the web layer, whether the app was closed or already open,</li>
+ *   <li>the app's own files for its service worker (see {@link #serveServiceWorkerFromApp()}).</li>
  * </ul>
  */
 public class MainActivity extends BridgeActivity {
@@ -27,6 +32,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(OjosNativePlugin.class);
         super.onCreate(savedInstanceState);
+        serveServiceWorkerFromApp();
         OjosNativePlugin.rememberLaunch(getIntent());
         publishShortcuts();
     }
@@ -38,6 +44,29 @@ public class MainActivity extends BridgeActivity {
         PluginHandle handle = getBridge().getPlugin("OjosNative");
         if (handle != null && handle.getInstance() instanceof OjosNativePlugin) {
             ((OjosNativePlugin) handle.getInstance()).deliverLaunch();
+        }
+    }
+
+    /**
+     * The web layer's service worker (sw.js, which keeps map tiles for use without signal) asks for the app's own
+     * pages over the network first. Capacitor answers the page's requests from the files inside the APK but not
+     * the service worker's, so those requests failed and the worker fell back to the copy it saved, and an updated
+     * app kept showing the old version until it was uninstalled. Its requests now get the same files from the APK,
+     * so an update takes effect the first time it opens.
+     */
+    private void serveServiceWorkerFromApp() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || getBridge() == null) return;
+        try {
+            ServiceWorkerController.getInstance().setServiceWorkerClient(new ServiceWorkerClient() {
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
+                    return getBridge() == null || getBridge().getLocalServer() == null
+                            ? null
+                            : getBridge().getLocalServer().shouldInterceptRequest(request);
+                }
+            });
+        } catch (RuntimeException ignored) {
+            // No service worker support in this WebView: nothing was cached by one, so there is nothing to serve.
         }
     }
 

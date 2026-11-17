@@ -2,6 +2,12 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v94
+- **Updates install over the old app:** the app's service worker (which keeps map tiles for use without signal) asked for the app's own files over the network, which inside the Android app always failed, so it served the copy it had saved and an updated app kept running the old version until it was uninstalled. The Android side now answers the worker from the files inside the APK (`MainActivity`), and on the first start of a new version the previous version's saved copy is cleared (saved tiles, settings, places and checklists are kept). From now on, installing a new APK over the old one is enough.
+- **No more stutter while cameras load:** networks arrive in many small batches (Windy alone in over a thousand) and each one redrew the lists and the map, slowing the whole app, the news strip included. Batches are now drawn together at most every 1.2 seconds.
+- **Cameras come back faster:** with your own Windy key the worldwide sweep starts 1.5 seconds after launch instead of 8, asks three areas at a time, and saves its progress every 20 requests. A sweep cut short by closing the app carries on where it stopped instead of starting over, and the cameras it already found appear at once. A finished sweep is kept for a week, so the full count is there immediately on later starts.
+- **Smooth news strip:** the scrolling LIVE strip moves at one steady speed on the graphics chip, and new headlines wait for the end of the current pass instead of making the strip jump back and restart.
+
 ## v93
 - **Tap ring:** tapping an aircraft, ship, satellite, earthquake or event (or anywhere within a finger's width of one) circles it and shows its name with SELECT, ✈ PILOT VIEW for aircraft, and DESELECT. Select flies to it and opens its details and options; Pilot view opens the cockpit in one tap; the ring follows the object as it moves. Works on the 3D map, the photoreal 3D view and the Smooth globe.
 - **One-tap buttons in details:** an aircraft's details used to redraw when its route arrived, which could swallow the first tap on Cockpit view and other buttons. Redraws now wait until the finger lifts.

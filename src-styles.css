@@ -410,6 +410,7 @@ a.open {
   display: inline-block;
   padding-left: 100%;
   animation: tk 160s linear infinite;
+  will-change: transform;
 }
 .ticker span {
   margin-right: 36px;
@@ -6074,6 +6075,8 @@ body.bcast #cmp {
   padding-left: 12px;
   white-space: pre;
   animation: cmdtk 60s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 @keyframes cmdtk {
   from {

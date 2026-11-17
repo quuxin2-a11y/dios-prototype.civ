@@ -83,18 +83,42 @@ function cmdTick() {
       ),
     k = items.join("     ");
   if (!k) k = "◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES";
-  var tk = $("cmdtk");
-  if (tk._k !== k) {
-    tk._k = k;
-    tk.innerHTML =
-      '<b class="mono">LIVE</b><div><p style="animation-duration:' +
-      Math.max(30, Math.round(k.length / 7)) +
-      's">' +
-      esc(k) +
-      "     " +
-      esc(k) +
-      "</p></div>";
+  cmdTicker($("cmdtk"), k);
+}
+// The scrolling headline strip. It runs on the graphics chip at one steady speed, and new text waits
+// for the end of the current pass, so the strip never jumps back, restarts or changes pace mid-read.
+var CMD_TK_PX = 55; // pixels a second
+function cmdTicker(tk, k) {
+  var p = tk.querySelector("p");
+  if (p && !p._sized) cmdTickerSize(p);
+  if (tk._k === k) return;
+  if (p && tk._k) {
+    tk._next = k;
+    if (!p._wait) {
+      p._wait = true;
+      p.addEventListener("animationiteration", function () {
+        p._wait = false;
+        var n = tk._next;
+        tk._next = null;
+        if (n != null) cmdTickerFill(tk, n);
+      });
+    }
+    return;
   }
+  cmdTickerFill(tk, k);
+}
+function cmdTickerFill(tk, k) {
+  tk._k = k;
+  tk.innerHTML = '<b class="mono">LIVE</b><div><p>' + esc(k) + "     " + esc(k) + "     </p></div>";
+  cmdTickerSize(tk.querySelector("p"));
+}
+// Half the strip (one copy) at a steady speed; measured once per change (or once it is first shown),
+// never per frame.
+function cmdTickerSize(p) {
+  var w = p.scrollWidth;
+  if (!w) return;
+  p._sized = true;
+  p.style.animationDuration = Math.max(20, Math.round(w / 2 / CMD_TK_PX)) + "s";
 }
 function cmdSet(on) {
   SET.cmd = !!on;

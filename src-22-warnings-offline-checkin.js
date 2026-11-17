@@ -620,7 +620,34 @@ document.addEventListener("click", function (e) {
       });
   }
 });
+// The service worker keeps map tiles for use without signal. After an update, the new worker is fetched
+// straight away and the previous version's saved copy of the app is cleared, so the new version is what
+// runs (saved map tiles, settings and places are kept).
 try {
+  var swNew = ls("ojos-app-v") !== APP_V;
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol))
-    navigator.serviceWorker.register("sw.js").catch(function () {});
+    navigator.serviceWorker
+      .register("sw.js")
+      .then(function (r) {
+        if (swNew && r && r.update) r.update();
+      })
+      .catch(function () {});
+  if (swNew && window.caches)
+    caches
+      .keys()
+      .then(function (k) {
+        return Promise.all(
+          k
+            .filter(function (x) {
+              return /^godeye-v/.test(x) && x !== "godeye-v" + APP_V;
+            })
+            .map(function (x) {
+              return caches.delete(x);
+            })
+        );
+      })
+      .then(function () {
+        ls("ojos-app-v", APP_V);
+      })
+      .catch(function () {});
 } catch (e) {}
