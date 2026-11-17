@@ -2,6 +2,7 @@ package com.ojosdedios.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,12 @@ public class OjosNativePluginTest {
         assertNull(OjosNativePlugin.takePending());
         assertNull(OjosNativePlugin.rememberLaunch(null));
         assertNull(OjosNativePlugin.takePending());
+    }
+
+    @Test
+    public void spokenTextStaysUnderAndroidsLimit() {
+        // TextToSpeech.getMaxSpeechInputLength() is 4,000 characters.
+        assertTrue(OjosNativePlugin.MAX_SPEECH_CHARS < 4000);
     }
 
     @Test

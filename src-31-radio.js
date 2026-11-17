@@ -2,7 +2,6 @@
  * @file Radio layers.
  * Internet radio stations that publish their location (Radio Browser), played in the app, and
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
- * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
  * Module 31 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
@@ -422,12 +421,4 @@ function rdoEmgHtml(pos) {
       .join("") +
     "</div>"
   );
-}
-
-// LiveATC listing for an airport code (used from aircraft details).
-function liveAtcUrl(code) {
-  code = String(code || "").toUpperCase();
-  return /^[A-Z0-9]{3,4}$/.test(code)
-    ? "https://www.liveatc.net/search/?icao=" + encodeURIComponent(code)
-    : "";
 }

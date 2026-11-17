@@ -8789,6 +8789,538 @@ body.rw #t4bar [data-hl] {
   letter-spacing: 0.08em;
 }
 
+/* Tap ring (module 46): circles a tapped aircraft, ship or event and offers Select, Pilot view, Deselect. */
+#tring {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+#tring.on {
+  display: block;
+}
+#tring.off {
+  visibility: hidden;
+}
+#tring .trc {
+  position: absolute;
+  left: var(--tx);
+  top: var(--ty);
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 4px rgba(63, 224, 208, 0.15),
+    0 0 18px rgba(63, 224, 208, 0.55);
+  animation: trPulse 1.4s ease-in-out infinite;
+}
+#tring .trc::after {
+  content: "";
+  position: absolute;
+  inset: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+#tring .trchip {
+  position: absolute;
+  left: var(--cx);
+  top: var(--cy);
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 10px 12px;
+  border: 1px solid rgba(63, 224, 208, 0.45);
+  border-radius: 12px;
+  background: rgba(3, 8, 14, 0.94);
+  pointer-events: auto;
+  animation: trIn 0.18s ease-out;
+}
+#tring .trchip b {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+#tring .trchip span {
+  display: block;
+  font-size: 10px;
+  color: var(--accent);
+  margin: 2px 0 8px;
+}
+#tring .trb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+#tring .trb button {
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+@keyframes trPulse {
+  50% {
+    transform: scale(1.12);
+  }
+}
+@keyframes trIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #tring .trc,
+  #tring .trchip {
+    animation: none;
+  }
+}
+
+/* In-app pages (module 47): outside pages rebuilt as the app's own screen. */
+#pgv {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  flex-direction: column;
+  background: radial-gradient(120% 80% at 50% 0%, #0a1a26, #03060a);
+}
+#pgv.on {
+  display: flex;
+}
+#pgv .pgvbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(6px + env(safe-area-inset-top)) 8px 6px 12px;
+  border-bottom: 1px solid rgba(63, 224, 208, 0.25);
+}
+#pgv .pgvbar > div {
+  flex: 1;
+  min-width: 0;
+}
+#pgv .pgvbar b,
+#pgv .pgvbar span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#pgv .pgvbar span {
+  font-size: 10px;
+  color: var(--accent);
+}
+#pgv .pgvbar button {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 18px;
+}
+#pgv .pgvbody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 12px calc(24px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+}
+#pgv .pgvcard {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px 16px 18px;
+  border: 1px solid rgba(63, 224, 208, 0.2);
+  border-radius: 14px;
+  background: rgba(6, 14, 22, 0.88);
+  line-height: 1.55;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+#pgv .pgvcard .tag {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--accent);
+  border: 1px solid rgba(63, 224, 208, 0.45);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+#pgv .pgvcard h2 {
+  margin: 8px 0 10px;
+  font-size: 21px;
+  line-height: 1.25;
+}
+#pgv .pgvcard h3 {
+  margin: 18px 0 6px;
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+#pgv .pgvcard h4 {
+  margin: 14px 0 4px;
+  font-size: 14px;
+}
+#pgv .pgvcard a {
+  color: var(--accent);
+}
+#pgv .pgvcard img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+#pgv .pgvcard .hero {
+  width: calc(100% + 32px);
+  max-width: none;
+  margin: -14px -16px 12px;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 14px 14px 0 0;
+}
+#pgv .pgvcard figure {
+  margin: 12px 0;
+}
+#pgv .pgvcard .cap {
+  font-size: 12px;
+  opacity: 0.7;
+}
+#pgv .pgvcard blockquote {
+  margin: 10px 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--accent);
+}
+#pgv .pgvcard pre {
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+#pgv .pgvcard table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 10px 0;
+}
+#pgv .pgvcard td,
+#pgv .pgvcard th {
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+#pgv .pgvcard .src {
+  margin-top: 18px;
+  font-size: 10px;
+  opacity: 0.6;
+}
+#pgv .pgvload {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+#pgv .pgvload i {
+  display: block;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(
+    90deg,
+    rgba(63, 224, 208, 0.08),
+    rgba(63, 224, 208, 0.22),
+    rgba(63, 224, 208, 0.08)
+  );
+  background-size: 200% 100%;
+  animation: pgvShim 1.2s linear infinite;
+}
+#pgv .pgvload i:first-child {
+  height: 160px;
+  border-radius: 12px;
+}
+#pgv .pgvload span {
+  font-size: 10px;
+  color: var(--accent);
+}
+#pgv .atcrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+#pgv .atcrow button {
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+}
+#pgv .atcrow b,
+#pgv .atcrow span {
+  display: block;
+}
+#pgv .atcrow span {
+  font-size: 10px;
+  opacity: 0.6;
+}
+@keyframes pgvShim {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #pgv .pgvload i {
+    animation: none;
+  }
+}
+
+/* Tower screen (module 48) */
+#pgv .towc {
+  margin-bottom: 10px;
+}
+#pgv .towc h3 {
+  margin: 6px 0 8px;
+}
+#pgv .towc h4 {
+  margin: 12px 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+#pgv .towatis {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+#pgv .towlet {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  font-size: 24px;
+  color: var(--accent);
+}
+#pgv .towatis span,
+#pgv .towrep span,
+#pgv .towair span,
+#pgv .towrow span {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+}
+#pgv .towatis p {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+#pgv .towplay {
+  min-height: 48px;
+  min-width: 140px;
+}
+#pgv .towok {
+  color: #5ee38a;
+}
+#pgv .towwarn {
+  border-left: 3px solid #ffb02e;
+  padding-left: 10px;
+  margin: 8px 0;
+}
+#pgv .towwarn p {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+#pgv .towkv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+#pgv .towkv span {
+  font-size: 10px;
+  opacity: 0.6;
+  align-self: center;
+}
+#pgv .towcat {
+  justify-self: start;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: #02080e;
+  background: #5ee38a;
+}
+#pgv .towcat.mvfr {
+  background: #6fa8ff;
+}
+#pgv .towcat.ifr {
+  background: #ff5a5a;
+}
+#pgv .towcat.lifr {
+  background: #e05bff;
+}
+#pgv .towraw {
+  font-size: 11px;
+  opacity: 0.75;
+  margin: 8px 0 0;
+}
+#pgv .towrep {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+#pgv .towrep p {
+  margin: 2px 0 0;
+  font-size: 11px;
+}
+#pgv .towrep.urgent {
+  border-left: 3px solid #ff5a5a;
+  padding-left: 8px;
+}
+#pgv .towrow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+}
+#pgv .towrow > div {
+  flex: 1;
+  min-width: 0;
+}
+#pgv .towrow em {
+  font-style: normal;
+  font-size: 10px;
+  color: #5ee38a;
+}
+#pgv .towrow em.late {
+  color: #ffb02e;
+}
+#pgv .towrow em.bad {
+  color: #ff5a5a;
+}
+#pgv .towair {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  margin: 4px 0;
+  text-align: left;
+}
+#pgv .towfoot {
+  max-width: 720px;
+  margin: 4px auto 0;
+  font-size: 9px;
+  opacity: 0.5;
+}
+
+/* Emergency checklist: tick items off; ticks are kept on the phone. */
+.emchk .emchkbar {
+  height: 4px;
+  margin-bottom: 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.emchk .emchkbar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s;
+}
+.emchk .emck {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-height: 48px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+}
+.emchk .emck input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+}
+.emchk .emck span b,
+.emchk .emck span em {
+  display: block;
+}
+.emchk .emck span em {
+  font-style: normal;
+  font-size: 12px;
+  opacity: 0.65;
+}
+.emchk .emck.on span b {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.emchk .emck {
+  justify-content: space-between;
+}
+.emchk .emck label {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+}
+.emchk .emck > button {
+  min-width: 40px;
+  min-height: 40px;
+}
+.emchk .emown {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+.emchk .emown input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+}
+.emchk .emnote {
+  display: block;
+  margin: 6px 0 4px;
+}
+.emchk .emnote b {
+  display: block;
+  font-size: 10px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.emchk .emnote textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: inherit;
+  font-size: 14px;
+}
+.emchk .emnote em {
+  font-style: normal;
+  font-size: 11px;
+  opacity: 0.6;
+}
+.emchk .emgo {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  margin: 12px 0 4px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(63, 224, 208, 0.14);
+  color: inherit;
+  text-align: left;
+  padding: 8px 14px;
+}
+.emchk .emgo b {
+  display: block;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.emchk .emgo span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.emchk .emgo0 {
+  font-size: 10px;
+  opacity: 0.55;
+  margin: 10px 0 4px;
+}
+
 </style>
 </head>
 <body>
@@ -8894,7 +9426,7 @@ body.rw #t4bar [data-hl] {
  */
 
 // The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
-var APP_V = 92;
+var APP_V = 93;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],
@@ -9838,7 +10370,9 @@ function voiceKind() {
 }
 function speak(t) {
   try {
-    if (window.speechSynthesis) {
+    // The Android web view has no voice of its own; the app's native side reads it instead.
+    if (natv()) natCall("speak", { text: String(t) });
+    else if (window.speechSynthesis) {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(t);
       u.rate = 1.05;
@@ -12462,9 +12996,35 @@ function up(e) {
   if (!Object.keys(ptrs).length) dragging = false;
   if (!moved) {
     var h = hit(e);
-    if (h) camTap(h);
+    if (!h) h = hitObj(e);
+    if (h && h.kind) ringOnGlobe(h);
+    else if (h) camTap(h);
+    else if (RING.o) ringClose();
     else propHit(e);
   }
+}
+// Aircraft, ships and events are small and moving; a touch anywhere near one catches it.
+function hitObj(e) {
+  var r = cv.getBoundingClientRect(),
+    pts = screenPts.filter(function (p) {
+      return p[2] && p[2].kind;
+    });
+  return ringNearest(pts, e.clientX - r.left, e.clientY - r.top, RING_SLOP);
+}
+function ringOnGlobe(o) {
+  ringTap(
+    o,
+    function () {
+      var r = cv.getBoundingClientRect(),
+        f = ringFresh(o);
+      for (var i = 0; i < screenPts.length; i++) {
+        var p = screenPts[i];
+        if (p[2] === f || p[2] === o) return [p[0] + r.left, p[1] + r.top];
+      }
+      return null;
+    },
+    camTap
+  );
 }
 cv.addEventListener("pointerup", up);
 cv.addEventListener("pointercancel", function (e) {
@@ -17573,16 +18133,10 @@ function sceneToast(e) {
     }
   );
 }
-// Playable audio and outside links for info items, and air traffic audio links for aircraft.
+// Playable audio and outside links for info items; the airports' Tower screens for aircraft (module 48).
 function entExtras(e) {
   var links = [];
   if (e.kind === "info" && e.links) links = e.links.slice();
-  if (e.kind === "plane" && e.route && e.route.o && typeof liveAtcUrl === "function") {
-    [e.route.o.code, e.route.d.code].forEach(function (c) {
-      var u = liveAtcUrl(c);
-      if (u) links.push(["Air traffic audio near " + c + " · LiveATC", u]);
-    });
-  }
   var au = e.kind === "info" && e.audio ? safeUrl(e.audio) : "",
     im = e.kind === "info" && e.img ? safeUrl(e.img) : "";
   return (
@@ -17596,13 +18150,28 @@ function entExtras(e) {
         esc(au) +
         '"></audio></div>'
       : "") +
+    (e.kind === "plane" && e.route && e.route.o
+      ? '<div class="acts">' +
+        ["o", "d"]
+          .map(function (k) {
+            return (
+              '<button class="open" data-tower="' +
+              k +
+              '">✈ TOWER · ' +
+              esc(e.route[k].code) +
+              "</button>"
+            );
+          })
+          .join("") +
+        "</div>"
+      : "") +
     links
       .map(function (l) {
         var u = safeUrl(l[1]);
         return /^https?:\/\//.test(u)
           ? '<div class="acts"><a class="open" target="_blank" rel="noopener" href="' +
               esc(u) +
-              '">↗ ' +
+              '">▸ ' +
               esc(l[0]).toUpperCase() +
               "</a></div>"
           : "";
@@ -17611,7 +18180,35 @@ function entExtras(e) {
   );
 }
 
+// A tap on the details must not be lost because they were redrawn under the finger (a route arriving,
+// a position update): redraws wait until the finger lifts and the button's click has landed.
+var DTAP = { down: false, todo: null };
+$("detail").addEventListener(
+  "pointerdown",
+  function () {
+    DTAP.down = true;
+  },
+  true
+);
+["pointerup", "pointercancel"].forEach(function (k) {
+  document.addEventListener(k, function () {
+    if (!DTAP.down) return;
+    setTimeout(function () {
+      DTAP.down = false;
+      var f = DTAP.todo;
+      DTAP.todo = null;
+      if (f) f();
+    }, 80);
+  });
+});
 function entDossier(e) {
+  if (DTAP.down) {
+    DTAP.todo = function () {
+      if (selected === e || (selected && selected.id != null && selected.id === e.id))
+        entDossier(selected);
+    };
+    return;
+  }
   if (e.kind === "parcel") {
     propDossier(e);
     return;
@@ -17630,6 +18227,8 @@ function entDossier(e) {
       ["SPEED", e.v != null ? Math.round(e.v * 1.944) + " kt" : "—"],
       ["HEADING", e.trk != null ? Math.round(e.trk) + "°" : "—"]
     ];
+    if (e.sq)
+      rows.push(["SQUAWK", e.sq + (SQ_EMERG[e.sq] ? " · " + SQ_EMERG[e.sq].toUpperCase() : "")]);
   }
   if (isP) {
     var R = e.route;
@@ -17857,7 +18456,8 @@ function planeFromAc(a) {
     trk: a.track != null ? a.track : a.true_heading || 0,
     cat: cat,
     reg: a.r || "",
-    typ: a.t || ""
+    typ: a.t || "",
+    sq: a.squawk ? String(a.squawk) : ""
   };
 }
 function planesNear(lat, lon, i) {
@@ -17876,9 +18476,36 @@ function planesNear(lat, lon, i) {
       return planesNear(lat, lon, i + 1);
     });
 }
+// Transponder codes a crew sets in an emergency; each aircraft is announced once per flight.
+var SQ_EMERG = { 7500: "hijack", 7600: "radio failure", 7700: "emergency" },
+  SQ_SEEN = {};
+function sqCheck(L) {
+  L.forEach(function (p) {
+    var what = SQ_EMERG[p.sq],
+      key = p.id + p.sq;
+    if (!what || SQ_SEEN[key]) return;
+    SQ_SEEN[key] = 1;
+    note(
+      "Aircraft squawking " + p.sq,
+      esc(p.n) +
+        " has set " +
+        p.sq +
+        " (" +
+        what +
+        ")" +
+        (p.alt ? " at " + Math.round(p.alt * 3.281).toLocaleString() + " ft" : "") +
+        ". Tap to see it.",
+      function () {
+        ringClose();
+        select(ringFresh(p));
+      }
+    );
+  });
+}
 function planesKeep(L) {
   var sel = selected && selected.kind === "plane" ? selected.id : null;
   PLANES = L;
+  sqCheck(L);
   if (sel) {
     var m = PLANES.filter(function (x) {
       return x.id === sel;
@@ -17924,7 +18551,8 @@ function loadPlanes() {
                 alt: a[7],
                 v: a[9],
                 trk: a[10],
-                cat: a[17] || 0
+                cat: a[17] || 0,
+                sq: a[14] ? String(a[14]) : ""
               };
             })
         );
@@ -18307,6 +18935,8 @@ function apt(a) {
   return a && isFinite(a.latitude) && isFinite(a.longitude)
     ? {
         code: a.iata_code || a.icao_code || "?",
+        icao: a.icao_code || "",
+        iata: a.iata_code || "",
         city: a.municipality || a.name || "",
         name: a.name || "",
         lat: +a.latitude,
@@ -19362,28 +19992,59 @@ function t3World() {
         "circle-stroke-width": 1
       }
     });
-    m.on("click", "world", function (e) {
-      var ft = e.features && e.features[0];
-      if (!ft) return;
-      var a = { p: PLANES, s: SHIPS, q: QUAKES, e: EVENTS }[ft.properties.k],
-        o = a && a[ft.properties.i];
-      if (o) {
-        select(o);
-        target = null;
-        var pk = ft.properties.k;
-        if (pk === "p" || pk === "s") {
-          T3.mt = 0;
-          m.flyTo({
-            center: [o.lon, o.lat],
-            zoom: pk === "p" ? 11.5 : 14.5,
-            pitch: 72,
-            bearing: (pk === "p" ? o.trk : o.cog) || 0,
-            duration: 2200
-          });
-        }
+    // Taps near an aircraft, ship or event circle it first (module 46); cameras and info items keep their own taps.
+    m.on("click", function (e) {
+      var own = ["cams", "camglow", "info", "infoline", "infoshape"].filter(m.getLayer.bind(m));
+      if (own.length && m.queryRenderedFeatures(e.point, { layers: own }).length) return;
+      var o = t3WorldNear(m, e.point);
+      if (!o) {
+        if (RING.o) ringClose();
+        return;
       }
+      ringTap(
+        o,
+        function () {
+          var f = ringFresh(o);
+          return cpScreen(f.lon, f.lat);
+        },
+        function (f) {
+          select(f);
+          target = null;
+          if (f.kind === "plane" || f.kind === "ship") {
+            T3.mt = 0;
+            m.flyTo({
+              center: [f.lon, f.lat],
+              zoom: f.kind === "plane" ? 11.5 : 14.5,
+              pitch: 72,
+              bearing: (f.kind === "plane" ? f.trk : f.cog) || 0,
+              duration: 2200
+            });
+          }
+        }
+      );
     });
   }
+}
+// The aircraft, ship, quake or event drawn closest to a tap on the 3D map, within RING_SLOP pixels.
+function t3WorldNear(m, pt) {
+  if (!m.getLayer("world")) return null;
+  var r = RING_SLOP,
+    fs = m.queryRenderedFeatures(
+      [
+        [pt.x - r, pt.y - r],
+        [pt.x + r, pt.y + r]
+      ],
+      { layers: ["world"] }
+    ),
+    pts = [];
+  fs.forEach(function (ft) {
+    var a = { p: PLANES, s: SHIPS, q: QUAKES, e: EVENTS }[ft.properties.k],
+      o = a && a[ft.properties.i];
+    if (!o) return;
+    var q = m.project([o.lon, o.lat]);
+    if (q) pts.push([q.x, q.y, o]);
+  });
+  return ringNearest(pts, pt.x, pt.y, r);
 }
 // simple solid 3D models for aircraft and ships near the view: built from shapes, flown at their real altitude and heading
 function t3Models() {
@@ -20757,6 +21418,38 @@ function t4FlightOff() {
     T4F.fix = null;
   }
 }
+// Window position of a drawn entity, or null when it is behind the camera.
+function t4EntScreen(e) {
+  var C = window.Cesium,
+    v = T4.v,
+    p = e.position && e.position.getValue(v.clock.currentTime),
+    tw = C.SceneTransforms.worldToWindowCoordinates || C.SceneTransforms.wgs84ToWindowCoordinates,
+    w = p && tw(v.scene, p);
+  if (!w) return null;
+  var r = v.scene.canvas.getBoundingClientRect();
+  return [w.x + r.left, w.y + r.top];
+}
+// Window position of an object drawn in the photoreal view, or null when it is not drawn.
+function t4Screen(o) {
+  if (!window.Cesium || !T4.v || !o) return null;
+  for (var k in T4M) {
+    var e = T4M[k];
+    if (e && e.oj && (e.oj === o || (o.id != null && e.oj.id === o.id && e.oj.kind === o.kind)))
+      return t4EntScreen(e);
+  }
+  return null;
+}
+// The drawn object closest to a tap (pixels relative to the canvas), within RING_SLOP pixels.
+function t4Near(pos) {
+  var r = T4.v.scene.canvas.getBoundingClientRect(),
+    pts = [];
+  for (var k in T4M) {
+    var e = T4M[k],
+      q = e && e.oj ? t4EntScreen(e) : null;
+    if (q) pts.push([q[0] - r.left, q[1] - r.top, e.oj]);
+  }
+  return ringNearest(pts, pos.x, pos.y, RING_SLOP);
+}
 function t4Flight() {
   var C = window.Cesium,
     v = T4.v;
@@ -21222,15 +21915,27 @@ function t4Open(opt) {
           var p = v.scene.pick(m.position),
             c = p && p.id && p.id.u ? p.id : null,
             o = p && p.id && (p.id.oj || (p.id.kind === "info" ? p.id : null));
+          if (!o && !c) o = t4Near(m.position);
           if (o && !c) {
-            select(o);
-            target = null;
-            if (o.kind === "plane") {
-              T4MT = 0;
-              t4Flight();
-              if (W < 1000) sheetSet(34, true);
-            } else if (o.kind !== "info")
-              t4Fly(o.lon, o.lat, o.kind === "sat" ? (o.alt || 400) * 1000 + 2e6 : 900, 0);
+            ringTap(
+              o,
+              function () {
+                return t4Screen(ringFresh(o));
+              },
+              function (f) {
+                select(f);
+                target = null;
+                if (f.kind === "plane") {
+                  T4MT = 0;
+                  t4Flight();
+                } else if (f.kind !== "info")
+                  t4Fly(f.lon, f.lat, f.kind === "sat" ? (f.alt || 400) * 1000 + 2e6 : 900, 0);
+              }
+            );
+            return;
+          }
+          if (RING.o && !c) {
+            ringClose();
             return;
           }
           if (c) {
@@ -24194,7 +24899,8 @@ function newsWorld() {
 }
 function newsCentre() {
   if (selected && selected.lat != null) return [selected.lat, selected.lon];
-  if (T4.on && T4.v) {
+  // T4 is not set up yet when saved layers start loading at launch.
+  if (T4 && T4.on && T4.v) {
     try {
       var c = T4.v.camera.positionCartographic;
       return [c.latitude / D, c.longitude / D];
@@ -30422,7 +31128,8 @@ var EMG_K = {
 function emgDraw() {
   var el = $("emgp");
   if (!el || !EMG.open) return;
-  if (document.activeElement && /^(emgQ|famN|famP)$/.test(document.activeElement.id)) return;
+  if (document.activeElement && /^(emgQ|famN|famP|emgOwn|emgNote)$/.test(document.activeElement.id))
+    return;
   var S = EMG.sit,
     A = S && S.as,
     num = (S && S.num) || emgNum(S && S.cc),
@@ -30694,20 +31401,135 @@ function emgDraw() {
           .join("");
   }
   h += '<h4 class="mono">LIVE RADIO HERE</h4>' + rdoEmgHtml(EMG.pos);
+  var items = emgItems(),
+    done = items.filter(function (x) {
+      return EMG_TICK[x.k];
+    }).length,
+    go = emgGoTo(S);
   h +=
-    '<h4 class="mono">CHECKLIST</h4><div class="brc"><span>' +
+    '<h4 class="mono">CHECKLIST · ' +
+    done +
+    " OF " +
+    items.length +
+    ' READY</h4><div class="brc emchk"><div class="emchkbar"><i style="width:' +
+    Math.round((done / Math.max(1, items.length)) * 100) +
+    '%"></i></div>' +
     (EMG.chk
-      ? "Water, 1 gallon per person per day · Medicines and prescriptions · Phone, charger, power bank · IDs and key documents in a bag · Cash · Flashlight · First-aid kit · Sturdy shoes, warm layer · Full fuel tank · Tell one person outside the area where you are going · Text, do not call, when networks are busy"
-      : "What to grab and do before you move.") +
-    '</span><div class="bra"><button data-em="chk">' +
-    (EMG.chk ? "Hide" : "Show checklist") +
-    '</button><button data-em="off">Exit emergency mode</button></div></div>';
+      ? items
+          .map(function (x) {
+            return (
+              '<div class="emck' +
+              (EMG_TICK[x.k] ? " on" : "") +
+              '"><label><input type="checkbox" data-emck="' +
+              esc(x.k) +
+              '"' +
+              (EMG_TICK[x.k] ? " checked" : "") +
+              "><span><b>" +
+              esc(x.t) +
+              "</b>" +
+              (x.d ? "<em>" + esc(x.d) + "</em>" : "") +
+              "</span></label>" +
+              (x.own
+                ? '<button class="ghost" data-em="ox-' +
+                  esc(x.k.slice(1)) +
+                  '" aria-label="Remove">✕</button>'
+                : "") +
+              "</div>"
+            );
+          })
+          .join("") +
+        '<form id="emgOwnF" class="emown"><input id="emgOwn" maxlength="60" placeholder="Add your own item (baby formula, inhaler…)"><button>+ ADD</button></form>' +
+        '<label class="emnote"><b class="mono">QUICK NOTE</b><textarea id="emgNote" maxlength="600" rows="3" placeholder="Meeting point, who to call, medicines and doses, where the spare key is…">' +
+        esc(EMG_NOTE) +
+        "</textarea><em>Kept on this phone only.</em></label>"
+      : "<span>What to grab and do before you move" +
+        (EMG_NOTE ? " · your note is saved" : "") +
+        ". Ticks are kept on this phone.</span>") +
+    '<div class="bra"><button data-em="chk">' +
+    (EMG.chk ? "Hide checklist" : "Open checklist") +
+    "</button>" +
+    (EMG.chk && done ? '<button data-em="chk0">Clear ticks</button>' : "") +
+    "</div>" +
+    (go
+      ? '<button class="emgo" data-em="go"><b>▶ START ROUTE AND LIVE TRACKING</b><span>' +
+        esc(go.n) +
+        (go.why ? " · " + esc(go.why) : "") +
+        "</span></button>"
+      : '<p class="emgo0 mono">A ROUTE IS OFFERED HERE ONCE YOUR POSITION AND NEARBY SAFE PLACES ARE FOUND</p>') +
+    '<div class="bra"><button data-em="off">Exit emergency mode</button></div></div>';
   h +=
     '</div><div class="nf mono">PUBLIC SOURCES: NWS · USGS · NASA EONET · GDACS · OPEN-METEO · OPENSTREETMAP · YOUR POSITION STAYS ON THIS PHONE</div>';
   el.innerHTML = h;
   var s2 = el.querySelector(".nl");
   if (s2) s2.scrollTop = top;
 }
+// What to grab and do before moving: [item, detail]. Ticks are saved on the phone (ojos-emg-chk).
+var EMG_CHK = [
+  ["Water", "1 gallon per person per day, for 3 days"],
+  ["Medicines and prescriptions", "and glasses or hearing aids"],
+  ["Phone, charger and power bank", ""],
+  ["IDs and key documents", "in one waterproof bag"],
+  ["Cash", "small bills; card machines may be down"],
+  ["Flashlight and spare batteries", ""],
+  ["First-aid kit", ""],
+  ["Sturdy shoes and a warm layer", ""],
+  ["Food that keeps", "and a manual can opener"],
+  ["Pets: food, leash, carrier", ""],
+  ["Full fuel tank", ""],
+  ["Tell one person outside the area", "where you are going"],
+  ["Text, do not call", "when networks are busy"]
+];
+var EMG_TICK = ls("ojos-emg-chk") || {},
+  EMG_OWN = ls("ojos-emg-own") || [],
+  EMG_NOTE = ls("ojos-emg-note") || "";
+// The checklist as shown: the standard items (keys "0", "1"…) then the user's own (keys "o<id>").
+function emgItems() {
+  return EMG_CHK.map(function (x, i) {
+    return { k: String(i), t: x[0], d: x[1] };
+  }).concat(
+    EMG_OWN.map(function (x) {
+      return { k: "o" + x.id, t: x.t, own: true };
+    })
+  );
+}
+// Where Start route goes: the place the user typed, else the best-ranked safe place for the current
+// alert, else the nearest safe place found.
+function emgGoTo(S) {
+  if (EMG.dest && EMG.dest.lat != null)
+    return { lat: EMG.dest.lat, lon: EMG.dest.lon, n: EMG.dest.name, why: "your destination" };
+  var b = S && S.as && S.as.best && S.as.best[0];
+  if (b && b.x)
+    return { lat: b.x.lat, lon: b.x.lon, n: b.x.n || "Safe place", why: "best for this alert" };
+  var p = S && S.places && S.places[0];
+  if (p) return { lat: p.lat, lon: p.lon, n: p.n || "Safe place", why: "nearest safe place" };
+  return null;
+}
+document.addEventListener("submit", function (e) {
+  if (!e.target || e.target.id !== "emgOwnF") return;
+  e.preventDefault();
+  var v = $("emgOwn").value.trim();
+  $("emgOwn").value = "";
+  $("emgOwn").blur();
+  if (v) {
+    EMG_OWN.push({ id: Date.now().toString(36), t: v.slice(0, 60) });
+    ls("ojos-emg-own", EMG_OWN);
+  }
+  emgDraw();
+});
+document.addEventListener("input", function (e) {
+  if (!e.target || e.target.id !== "emgNote") return;
+  EMG_NOTE = e.target.value.slice(0, 600);
+  ls("ojos-emg-note", EMG_NOTE);
+});
+document.addEventListener("change", function (e) {
+  var b = e.target.closest && e.target.closest("[data-emck]");
+  if (!b) return;
+  var i = b.getAttribute("data-emck");
+  if (b.checked) EMG_TICK[i] = 1;
+  else delete EMG_TICK[i];
+  ls("ojos-emg-chk", EMG_TICK);
+  emgDraw();
+});
 function emgOpen() {
   var el = $("emgp");
   if (!el) {
@@ -30911,6 +31733,22 @@ document.addEventListener("click", function (e) {
   } else if (k === "chk") {
     EMG.chk = !EMG.chk;
     emgDraw();
+  } else if (k === "chk0") {
+    EMG_TICK = {};
+    ls("ojos-emg-chk", EMG_TICK);
+    emgDraw();
+  } else if (k.indexOf("ox-") === 0) {
+    var oid = k.slice(3);
+    EMG_OWN = EMG_OWN.filter(function (x) {
+      return x.id !== oid;
+    });
+    delete EMG_TICK["o" + oid];
+    ls("ojos-emg-own", EMG_OWN);
+    ls("ojos-emg-chk", EMG_TICK);
+    emgDraw();
+  } else if (k === "go") {
+    var g = emgGoTo(S);
+    if (g) emgRoute(g.lat, g.lon, g.n);
   } else if (k === "sig") {
     emgSig(!EMG.sig);
     emgDraw();
@@ -36980,7 +37818,6 @@ ilDef({
  * @file Radio layers.
  * Internet radio stations that publish their location (Radio Browser), played in the app, and
  * NOAA Weather Radio transmitters with their frequencies and coverage (National Weather Service).
- * Air traffic audio is offered as a link to LiveATC from aircraft details (module 10).
  *
  * Module 31 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
@@ -37400,14 +38237,6 @@ function rdoEmgHtml(pos) {
       .join("") +
     "</div>"
   );
-}
-
-// LiveATC listing for an airport code (used from aircraft details).
-function liveAtcUrl(code) {
-  code = String(code || "").toUpperCase();
-  return /^[A-Z0-9]{3,4}$/.test(code)
-    ? "https://www.liveatc.net/search/?icao=" + encodeURIComponent(code)
-    : "";
 }
 /**
  * @file Earth data layers.
@@ -40667,7 +41496,7 @@ function skyWhere() {
 function skyDraw() {
   var cv = $("skycv");
   if (!cv || !SKY.on || SKY.mode === "space") return;
-  var dpr = Math.min(2, window.devicePixelRatio || 1),
+  var dpr = Math.min(3, window.devicePixelRatio || 1),
     w = cv.clientWidth,
     h = cv.clientHeight;
   if (cv.width !== Math.round(w * dpr)) {
@@ -41469,6 +42298,82 @@ function spxRing(inner, outer, tex) {
   return m;
 }
 
+// A soft round dot, so stars are discs rather than squares.
+function spxDot() {
+  if (SPX.dot) return SPX.dot;
+  var c = document.createElement("canvas");
+  c.width = c.height = 64;
+  var g = c.getContext("2d"),
+    r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, "rgba(255,255,255,1)");
+  r.addColorStop(0.35, "rgba(255,255,255,0.85)");
+  r.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = r;
+  g.fillRect(0, 0, 64, 64);
+  SPX.dot = new THREE.CanvasTexture(c);
+  return SPX.dot;
+}
+
+// Sharp stars at their real places from the star catalogue (about 5,000 to magnitude 6), in four
+// brightness steps; until the catalogue arrives, a scattering of stars stands in.
+function spxStars(cat) {
+  var T = THREE,
+    steps = [
+      [-2, 1, 5.5],
+      [1, 2.5, 3.6],
+      [2.5, 4, 2.4],
+      [4, 99, 1.5]
+    ],
+    list = cat;
+  if (!list) {
+    list = [];
+    for (var i = 0; i < 4500; i++)
+      list.push([
+        Math.random() * 360,
+        (Math.asin(Math.random() * 2 - 1) * 180) / Math.PI,
+        6 - Math.pow(Math.random(), 0.35) * 7,
+        "#ffffff"
+      ]);
+  }
+  (SPX.starSets || []).forEach(function (o) {
+    SPX.scene.remove(o);
+    o.geometry.dispose();
+    o.material.dispose();
+  });
+  SPX.starSets = steps.map(function (st) {
+    var pos = [],
+      col = [],
+      c = new T.Color();
+    list.forEach(function (s) {
+      if (s[2] < st[0] || s[2] >= st[1]) return;
+      var v = spxScene(spxRaDec(s[0], s[1]));
+      pos.push(v[0] * 8500, v[1] * 8500, v[2] * 8500);
+      c.set(s[3] || "#ffffff");
+      // Fainter stars in a step are dimmed so the step's single size still reads as a range.
+      var k = Math.max(0.35, Math.min(1, 1.15 - (s[2] - st[0]) * 0.25));
+      col.push(c.r * k, c.g * k, c.b * k);
+    });
+    var g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+    g.setAttribute("color", new T.Float32BufferAttribute(col, 3));
+    var o = new T.Points(
+      g,
+      new T.PointsMaterial({
+        size: st[2],
+        sizeAttenuation: false,
+        map: spxDot(),
+        vertexColors: true,
+        transparent: true,
+        depthWrite: false
+      })
+    );
+    o.frustumCulled = false;
+    SPX.scene.add(o);
+    return o;
+  });
+  SPX.catalogue = !!cat;
+}
+
 function spxBuild() {
   var T = THREE,
     host = $("spx"),
@@ -41478,30 +42383,37 @@ function spxBuild() {
     alpha: false,
     powerPreference: "high-performance"
   }));
-  R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1.75 : 2));
+  // Full sharpness on phones' dense screens; the lighter drawing still runs at twice the CSS pixels.
+  R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 2 : 2.5));
   R.setClearColor(0x000000, 1);
   host.insertBefore(R.domElement, host.firstChild);
   R.domElement.id = "spxcv";
   var S = (SPX.scene = new T.Scene());
   SPX.cam = new T.PerspectiveCamera(50, 1, 0.01, 20000);
   var load = new T.TextureLoader(),
+    aniso = R.capabilities.getMaxAnisotropy ? R.capabilities.getMaxAnisotropy() : 1,
     tex = function (u) {
       var t = load.load(u);
       t.colorSpace = T.SRGBColorSpace;
+      t.anisotropy = aniso; // keeps surfaces crisp when seen at a slant
       return t;
     };
   load.setCrossOrigin("anonymous");
-  // The Milky Way all around.
+  // The Milky Way all around, kept dim: it is only the soft glow of the band. A photo stretched around the
+  // whole sky turns its stars into blurry squares, so the stars themselves are drawn sharp on top (spxStars).
   var sky = new T.Mesh(
-    new T.SphereGeometry(9000, 48, 24),
+    new T.SphereGeometry(9000, 64, 32),
     new T.MeshBasicMaterial({
       map: tex(SPX_TXB + "stars_milky_way.jpg"),
+      color: 0x5a5a5a,
       side: T.BackSide,
       depthWrite: false
     })
   );
   sky.rotation.x = -23.44 * D; // the texture is in equatorial coordinates
   S.add(sky);
+  spxStars(null);
+  skyLoad();
   S.add(new T.AmbientLight(0xffffff, 0.11));
   var sunLight = new T.PointLight(0xffffff, 3.2, 0, 0);
   S.add(sunLight);
@@ -41770,6 +42682,45 @@ function spxShow(el, v, w, h, on) {
   el.style.transform = "translate(" + ((p.x + 1) / 2) * w + "px," + ((1 - p.y) / 2) * h + "px)";
 }
 
+// Names of planets and moons that would land on each other are hidden: the chosen body first, then the
+// Sun and the planets biggest first, then moons. Planets packed together from far out show one name
+// until you move closer. Spacecraft and landing-site names are left alone.
+var SPX_RANK = [
+  "sun",
+  "jupiter",
+  "saturn",
+  "uranus",
+  "neptune",
+  "earth",
+  "venus",
+  "mars",
+  "mercury",
+  "pluto"
+];
+function spxDeclutter() {
+  var tgt = SPX.target,
+    els = [],
+    L = SPX.lab || {};
+  Object.keys(L).forEach(function (k) {
+    var el = L[k];
+    if (el.style.display === "none" || !SPX.byId[k]) return;
+    var r = SPX_RANK.indexOf(k),
+      rank = tgt && tgt.id === k ? -1 : r >= 0 ? r : /^[a-z]+$/.test(k) ? 20 : 30;
+    els.push({ el: el, rank: rank, b: el.getBoundingClientRect() });
+  });
+  els.sort(function (a, b) {
+    return a.rank - b.rank;
+  });
+  var kept = [];
+  els.forEach(function (x) {
+    var hit = kept.some(function (b) {
+      return x.b.left < b.right && b.left < x.b.right && x.b.top < b.bottom && b.top < x.b.bottom;
+    });
+    if (hit) x.el.style.display = "none";
+    else kept.push(x.b);
+  });
+}
+
 // Is a point on a sphere facing the camera?
 function spxFacing(o, world) {
   var n = world.clone().sub(o.g.position),
@@ -41810,6 +42761,7 @@ function spxLabels() {
     }
     spxShow(el, at, w, h, on);
   });
+  spxDeclutter();
   // The best-known spacecraft around Earth get names when Earth is close.
   var arr = SPX.satPts.geometry.attributes.position.array;
   ["ISS", "Tiangong", "Hubble"].forEach(function (nm) {
@@ -41883,6 +42835,8 @@ function spxFrame(now) {
     SPX.satAt = now;
     spxSats();
   }
+  if (!SPX.catalogue && SKY.data && SKY.data.stars && SKY.data.stars.length)
+    spxStars(SKY.data.stars);
   spxCamera();
   SPX.renderer.render(SPX.scene, SPX.cam);
   spxLabels();
@@ -41935,7 +42889,7 @@ function spxCard() {
             : "Planet"
           : "Moon of " + SPX.byId[o.parent].name;
     if (f) {
-      if (f[0]) rows.push(["MOONS", f[0]]);
+      if (f[0]) rows.push([o.id === "sun" ? "ABOUT" : "MOONS", f[0]]);
     }
     rows.push(["SIZE", (f && f[1]) || (o.km * 2).toLocaleString() + " km across"]);
     if (el2) {
@@ -45415,6 +46369,1037 @@ document.addEventListener("click", function (e) {
   if (c && c.live) {
     if (CG.open) cgClose();
     cpOpen(c);
+  }
+});
+/*
+ * Tap ring: tapping an aircraft, ship, satellite or event first circles it and offers its choices
+ * (Select, Pilot view for aircraft, Deselect), so a small moving target is easy to catch and nothing
+ * opens by accident.
+ *
+ * Each view reports a tap with ringTap(o, pos, go):
+ *   o    the object tapped
+ *   pos  returns its current [x, y] in window pixels, or null when it is off screen
+ *   go   what Select does in that view (select it and fly to it)
+ * Taps are forgiving: ringNearest finds the closest object within RING_SLOP pixels, not only an exact hit.
+ * Tapping the circled object again selects it; tapping empty ground clears the ring.
+ */
+var RING = { o: null, pos: null, go: null, raf: 0 };
+var RING_SLOP = 44;
+var RING_KIND = {
+  plane: "AIRCRAFT",
+  ship: "VESSEL",
+  sat: "SATELLITE",
+  quake: "EARTHQUAKE",
+  event: "EVENT",
+  info: "PLACE",
+  transit: "VEHICLE"
+};
+
+// The closest of [x, y, obj] entries to (x, y) within r pixels, or null.
+function ringNearest(pts, x, y, r) {
+  var best = null,
+    bd = r * r;
+  for (var i = 0; i < pts.length; i++) {
+    var p = pts[i];
+    if (!p || !p[2]) continue;
+    var d = (p[0] - x) * (p[0] - x) + (p[1] - y) * (p[1] - y);
+    if (d <= bd) {
+      bd = d;
+      best = p[2];
+    }
+  }
+  return best;
+}
+
+// Aircraft and ships are replaced on every refresh; follow the newest copy of the same one.
+function ringFresh(o) {
+  var a = o && { plane: PLANES, ship: SHIPS }[o.kind];
+  if (!a || o.id == null) return o;
+  for (var i = 0; i < a.length; i++) if (a[i].id === o.id) return a[i];
+  return o;
+}
+
+function ringSub(o) {
+  if (o.kind === "plane")
+    return o.alt != null ? Math.round(o.alt * 3.281).toLocaleString() + " FT" : "IN FLIGHT";
+  if (o.kind === "ship") return o.v != null ? Math.round(o.v * 1.944) + " KT" : "AT SEA";
+  if (o.kind === "sat" && o.alt != null) return Math.round(o.alt).toLocaleString() + " KM UP";
+  return "";
+}
+
+function ringTap(o, pos, go) {
+  if (RING.o && (RING.o === o || (o.id != null && RING.o.id === o.id && RING.o.kind === o.kind))) {
+    ringSelect();
+    return;
+  }
+  RING.o = o;
+  RING.pos = pos;
+  RING.go = go;
+  var el = $("tring");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "tring";
+    document.body.appendChild(el);
+  }
+  var sub = ringSub(o);
+  el.innerHTML =
+    '<i class="trc"></i><div class="trchip"><b>' +
+    esc(
+      String(o.n || RING_KIND[o.kind] || "Object")
+        .toUpperCase()
+        .slice(0, 30)
+    ) +
+    '</b><span class="mono">' +
+    esc(RING_KIND[o.kind] || "OBJECT") +
+    (sub ? " · " + esc(sub) : "") +
+    '</span><div class="trb"><button data-tr="sel">SELECT ▸</button>' +
+    (o.kind === "plane" ? '<button data-tr="pilot">✈ PILOT VIEW</button>' : "") +
+    '<button class="ghost" data-tr="x">DESELECT</button></div></div>';
+  el.className = "on";
+  if (!RING.raf) RING.raf = requestAnimationFrame(ringFrame);
+}
+
+function ringFrame() {
+  RING.raf = 0;
+  var el = $("tring");
+  if (!RING.o || !el) return;
+  var q = null;
+  try {
+    q = RING.pos();
+  } catch (x) {}
+  if (q && isFinite(q[0]) && isFinite(q[1])) {
+    var W2 = window.innerWidth,
+      H2 = window.innerHeight,
+      ch = el.querySelector(".trchip"),
+      cw = ch ? ch.offsetWidth : 220,
+      cx = Math.max(8, Math.min(W2 - cw - 8, q[0] - cw / 2)),
+      cy = q[1] + 44 + 110 > H2 ? q[1] - 44 - (ch ? ch.offsetHeight : 90) : q[1] + 44;
+    el.style.setProperty("--tx", q[0] + "px");
+    el.style.setProperty("--ty", q[1] + "px");
+    el.style.setProperty("--cx", cx + "px");
+    el.style.setProperty("--cy", cy + "px");
+    el.classList.remove("off");
+  } else el.classList.add("off");
+  RING.raf = requestAnimationFrame(ringFrame);
+}
+
+function ringClose() {
+  RING.o = null;
+  RING.pos = null;
+  RING.go = null;
+  if (RING.raf) cancelAnimationFrame(RING.raf);
+  RING.raf = 0;
+  var el = $("tring");
+  if (el) el.className = "";
+}
+
+// Select: run the view's own action, then raise the details so its options are in reach.
+function ringSelect() {
+  var o = RING.o,
+    go = RING.go;
+  ringClose();
+  if (!o) return;
+  if (go) go(ringFresh(o));
+  else select(ringFresh(o));
+  if (window.innerWidth < 1000 && typeof sheetSet === "function" && SHH < 46) sheetSet(46, true);
+}
+
+function ringDeselect() {
+  var o = RING.o;
+  ringClose();
+  if (o && selected && selected.kind === o.kind && selected.id === o.id) {
+    selected = null;
+    if (typeof t4FlightOff === "function") t4FlightOff();
+    setButtons();
+    render();
+  }
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-tr]");
+  if (!b) return;
+  var a = b.getAttribute("data-tr");
+  if (a === "sel") ringSelect();
+  else if (a === "x") ringDeselect();
+  else if (a === "pilot") {
+    var o = ringFresh(RING.o);
+    ringClose();
+    if (!o) return;
+    select(o);
+    ckpOpen(o);
+  }
+});
+/*
+ * In-app pages: every outside link (records, sources, credits, news, Wikipedia) opens as one of the app's own
+ * screens. The page is fetched, its article is found and rebuilt from plain text, headings, lists, tables and
+ * pictures in the app's own cards and colours. No website is ever shown and nothing opens another browser.
+ *
+ * Safety: nothing from the page is inserted as HTML. rdBuild walks the article and creates fresh elements from a
+ * short allow-list, copying only text, https picture addresses and link addresses; scripts, styles, forms and
+ * frames never reach the screen.
+ */
+var RD = { stack: [], seq: 0 };
+var RD_DROP =
+  "script,style,noscript,template,iframe,object,embed,form,input,button,select,textarea,svg,canvas,nav,header,footer,aside,dialog,[aria-hidden=true],[hidden]";
+var RD_JUNK =
+  /(^|[\s_-])(nav|navbar|menu|sidebar|footer|masthead|cookie|consent|banner|share|social|comment|promo|advert|ads?|related|subscribe|newsletter|breadcrumbs?|toolbar|popup|modal|skip|mw-editsection|reference|reflist|navbox|infobox_v3|metadata)([\s_-]|$)/i;
+
+function rdWebUrl(u) {
+  return /^https?:\/\//i.test(String(u || ""));
+}
+
+function rdSameApp(u) {
+  try {
+    return new URL(u, location.href).origin === location.origin;
+  } catch (x) {
+    return false;
+  }
+}
+
+function rdHost(u) {
+  try {
+    return new URL(u).hostname.replace(/^www\./, "");
+  } catch (x) {
+    return "";
+  }
+}
+
+// Wikipedia articles come from Wikipedia's own clean article service instead of the full web page.
+function rdSource(u) {
+  var m = /^https?:\/\/([a-z-]+)\.(?:m\.)?wikipedia\.org\/wiki\/([^?#]+)/i.exec(u);
+  return m ? "https://" + m[1] + ".wikipedia.org/api/rest_v1/page/html/" + m[2] : u;
+}
+
+function openPage(url, title) {
+  if (!rdWebUrl(url)) return;
+  RD.stack.push({ url: url, title: title || "" });
+  rdShow();
+}
+
+function rdShell() {
+  var el = $("pgv");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "pgv";
+    el.setAttribute("role", "dialog");
+    document.body.appendChild(el);
+  }
+  el.className = "on";
+  return el;
+}
+
+function rdShow() {
+  var cur = RD.stack[RD.stack.length - 1];
+  if (!cur) return;
+  var el = rdShell(),
+    seq = ++RD.seq,
+    host = rdHost(cur.url);
+  el.innerHTML =
+    '<div class="pgvbar">' +
+    (RD.stack.length > 1 ? '<button class="ghost" data-pgv="b" aria-label="Back">‹</button>' : "") +
+    '<div><b id="pgvt">' +
+    esc(cur.title || host) +
+    '</b><span class="mono">' +
+    esc(host.toUpperCase()) +
+    '</span></div><button class="ghost" data-pgv="x" aria-label="Close">✕</button></div>' +
+    '<div class="pgvbody" id="pgvb"><div class="pgvload"><i></i><i></i><i></i><span class="mono">OPENING ' +
+    esc(host.toUpperCase()) +
+    "…</span></div></div>";
+  netGet(rdSource(cur.url), 20000, { Accept: "text/html,application/xhtml+xml" }, true)
+    .then(function (html) {
+      if (seq !== RD.seq) return;
+      rdRender(rdExtract(String(html || ""), cur.url), cur);
+    })
+    .catch(function () {
+      if (seq !== RD.seq) return;
+      rdRender(null, cur);
+    });
+}
+
+// Finds a page's title, lead picture, summary and main article.
+function rdExtract(html, url) {
+  var doc = new DOMParser().parseFromString(html, "text/html"),
+    meta = function (k) {
+      var m = doc.querySelector('meta[property="' + k + '"],meta[name="' + k + '"]');
+      return m ? String(m.getAttribute("content") || "").trim() : "";
+    },
+    out = {
+      title: meta("og:title") || (doc.title || "").trim(),
+      site: meta("og:site_name"),
+      desc: meta("og:description") || meta("description"),
+      img: "",
+      root: null,
+      base: url
+    };
+  var im = meta("og:image");
+  if (im) {
+    try {
+      im = new URL(im, url).href;
+    } catch (x) {
+      im = "";
+    }
+    if (/^https:\/\//.test(im)) out.img = im;
+  }
+  if (!doc.body) return out;
+  [].forEach.call(doc.querySelectorAll(RD_DROP), function (n) {
+    n.remove();
+  });
+  // Menus, share bars and the like go, but never a block holding most of the page's text.
+  var all = (doc.body.textContent || "").length;
+  [].forEach.call(doc.body.querySelectorAll("[class],[id]"), function (n) {
+    if (
+      n.isConnected &&
+      RD_JUNK.test(String(n.className || "") + " " + (n.id || "")) &&
+      (n.textContent || "").length < all * 0.3
+    )
+      n.remove();
+  });
+  // Each paragraph scores its parent fully and its grandparent by half; the best block is the article.
+  var best = null,
+    bs = 0,
+    sc = new Map();
+  [].forEach.call(doc.body.querySelectorAll("p,pre,li"), function (p) {
+    var t = (p.textContent || "").trim().length;
+    if (t < 25) return;
+    var s = t + (p.textContent.match(/,/g) || []).length * 10,
+      a = p.parentElement,
+      g = a && a.parentElement;
+    if (a) sc.set(a, (sc.get(a) || 0) + s);
+    if (g) sc.set(g, (sc.get(g) || 0) + s / 2);
+  });
+  sc.forEach(function (v, n) {
+    if (v > bs) {
+      bs = v;
+      best = n;
+    }
+  });
+  out.root = best || doc.querySelector("article,main,[role=main]") || doc.body;
+  if (!out.title) {
+    var h = out.root.querySelector("h1") || doc.querySelector("h1");
+    out.title = h ? h.textContent.trim() : "";
+  }
+  return out;
+}
+
+// Rebuilds the article from scratch using only allowed elements, plain text and checked addresses.
+function rdBuild(root, base) {
+  var frag = document.createDocumentFragment(),
+    words = 0,
+    abs = function (u) {
+      try {
+        return new URL(u, base).href;
+      } catch (x) {
+        return "";
+      }
+    },
+    inline = function (src, dst) {
+      [].forEach.call(src.childNodes, function (n) {
+        if (n.nodeType === 3) {
+          dst.appendChild(document.createTextNode(n.nodeValue));
+          return;
+        }
+        if (n.nodeType !== 1) return;
+        var tg = n.tagName,
+          e;
+        if (tg === "A") {
+          var h = abs(n.getAttribute("href") || "");
+          if (rdWebUrl(h)) {
+            e = document.createElement("a");
+            e.href = h;
+          } else e = document.createElement("span");
+        } else if (tg === "B" || tg === "STRONG") e = document.createElement("b");
+        else if (tg === "I" || tg === "EM") e = document.createElement("i");
+        else if (tg === "BR") {
+          dst.appendChild(document.createElement("br"));
+          return;
+        } else if (tg === "SUP" && /^\[?\d+\]?$/.test(n.textContent.trim())) return;
+        else e = document.createElement("span");
+        inline(n, e);
+        dst.appendChild(e);
+      });
+    },
+    pic = function (n) {
+      var s = abs(n.getAttribute("src") || n.getAttribute("data-src") || "");
+      if (!/^https:\/\//.test(s) || +(n.getAttribute("width") || 99) < 60) return;
+      var f = document.createElement("figure"),
+        i = document.createElement("img");
+      i.src = s;
+      i.alt = n.getAttribute("alt") || "";
+      i.loading = "lazy";
+      i.referrerPolicy = "no-referrer";
+      i.onerror = function () {
+        f.remove();
+      };
+      f.appendChild(i);
+      frag.appendChild(f);
+    },
+    walk = function (node) {
+      [].forEach.call(node.children, function (n) {
+        var tg = n.tagName,
+          txt = (n.textContent || "").trim(),
+          e;
+        if (/^H[1-6]$/.test(tg)) {
+          if (!txt || tg === "H1") return;
+          e = document.createElement(tg === "H2" ? "h3" : "h4");
+          e.textContent = txt;
+        } else if (tg === "P" || tg === "BLOCKQUOTE" || tg === "PRE") {
+          if (!txt) {
+            [].forEach.call(n.querySelectorAll("img"), pic);
+            return;
+          }
+          e = document.createElement(tg === "P" ? "p" : tg.toLowerCase());
+          inline(n, e);
+          words += txt.split(/\s+/).length;
+        } else if (tg === "UL" || tg === "OL") {
+          e = document.createElement(tg.toLowerCase());
+          [].forEach.call(n.children, function (li) {
+            if (li.tagName !== "LI" || !li.textContent.trim()) return;
+            var l = document.createElement("li");
+            inline(li, l);
+            e.appendChild(l);
+          });
+          if (!e.children.length) return;
+        } else if (tg === "TABLE") {
+          e = document.createElement("table");
+          [].slice.call(n.querySelectorAll("tr"), 0, 40).forEach(function (tr) {
+            var r = document.createElement("tr");
+            [].slice.call(tr.children, 0, 6).forEach(function (td) {
+              var c = document.createElement(td.tagName === "TH" ? "th" : "td");
+              c.textContent = td.textContent.trim().slice(0, 200);
+              r.appendChild(c);
+            });
+            if (r.children.length) e.appendChild(r);
+          });
+          if (!e.children.length) return;
+        } else if (tg === "IMG") {
+          pic(n);
+          return;
+        } else if (tg === "FIGCAPTION") {
+          e = document.createElement("p");
+          e.className = "cap";
+          e.textContent = txt;
+        } else {
+          walk(n);
+          return;
+        }
+        frag.appendChild(e);
+      });
+    };
+  walk(root);
+  return { frag: frag, words: words };
+}
+
+function rdRender(x, cur) {
+  var b = $("pgvb");
+  if (!b) return;
+  var host = rdHost(cur.url);
+  b.innerHTML = "";
+  var card = document.createElement("article");
+  card.className = "pgvcard";
+  if (x && x.img) {
+    var hi = document.createElement("img");
+    hi.className = "hero";
+    hi.src = x.img;
+    hi.alt = "";
+    hi.referrerPolicy = "no-referrer";
+    hi.onerror = function () {
+      hi.remove();
+    };
+    card.appendChild(hi);
+  }
+  var tag = document.createElement("span");
+  tag.className = "tag mono";
+  tag.textContent = ((x && x.site) || host).toUpperCase();
+  card.appendChild(tag);
+  var h = document.createElement("h2");
+  h.textContent = (x && x.title) || cur.title || host;
+  card.appendChild(h);
+  if ($("pgvt")) $("pgvt").textContent = h.textContent;
+  var built = x && x.root ? rdBuild(x.root, x.base) : { frag: null, words: 0 };
+  if (built.words >= 40) card.appendChild(built.frag);
+  else {
+    var p = document.createElement("p");
+    p.textContent =
+      x && x.desc
+        ? x.desc
+        : x
+          ? "This page is mostly an interactive tool rather than an article, so there is nothing here to show in the app."
+          : "This page could not be loaded right now. Check your connection and try again.";
+    card.appendChild(p);
+    if (!x) {
+      var again = document.createElement("button");
+      again.className = "open";
+      again.setAttribute("data-pgv", "r");
+      again.textContent = "↻ TRY AGAIN";
+      card.appendChild(again);
+    }
+  }
+  var src = document.createElement("p");
+  src.className = "src mono";
+  src.textContent = "SOURCE · " + host.toUpperCase() + " · SHOWN IN OJOS DE DIOS";
+  card.appendChild(src);
+  b.appendChild(card);
+  b.scrollTop = 0;
+}
+
+function closePage() {
+  towStop();
+  RD.stack = [];
+  RD.seq++;
+  var el = $("pgv");
+  if (el) {
+    el.className = "";
+    el.innerHTML = "";
+  }
+}
+
+// Any link to an outside page, wherever it is drawn, opens as an app screen instead of leaving the app.
+document.addEventListener(
+  "click",
+  function (e) {
+    var b = e.target.closest("[data-pgv]");
+    if (b) {
+      e.preventDefault();
+      var k = b.getAttribute("data-pgv");
+      if (k === "x") closePage();
+      else if (k === "b") {
+        RD.stack.pop();
+        rdShow();
+      } else if (k === "r") rdShow();
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    if (!a || a.hasAttribute("download")) return;
+    var u = a.href;
+    if (!rdWebUrl(u) || rdSameApp(u)) return;
+    e.preventDefault();
+    openPage(
+      u,
+      (a.textContent || "")
+        .replace(/^[↗▸\s]+/, "")
+        .trim()
+        .slice(0, 60)
+    );
+  },
+  true
+);
+
+// Code that asks for a new window gets the app screen instead.
+(function () {
+  var wo = window.open;
+  window.open = function (u) {
+    if (rdWebUrl(u) && !rdSameApp(u)) {
+      openPage(u);
+      return null;
+    }
+    return wo.apply(window, arguments);
+  };
+})();
+/*
+ * Tower: one screen per airport with what the tower and pilots are reporting, all from free public sources.
+ *
+ *   ATIS        the airport's recorded broadcast, as the FAA's Digital ATIS text (datis.clowd.io, US airports
+ *               with D-ATIS); the phone reads it aloud with play/pause
+ *   FAA status  ground stops, ground delays, arrival/departure delays and closures (nasstatus.faa.gov)
+ *   Weather     latest observation and forecast (aviationweather.gov METAR and TAF)
+ *   Pilots      pilot reports within 100 nm in the last 3 hours (aviationweather.gov PIREP)
+ *   Board       arrivals and departures (AeroDataBox, only with the user's own key)
+ *   Nearby      live aircraft already on the map within 40 km; a tap rings and selects one
+ *
+ * Opened with ✈ TOWER in an aircraft's details, for its departure and arrival airports.
+ */
+var TOW = { ap: null, seq: 0, atis: "", talking: false, heard: false };
+var TOW_ABC =
+  "Alfa Bravo Charlie Delta Echo Foxtrot Golf Hotel India Juliett Kilo Lima Mike November Oscar Papa Quebec Romeo Sierra Tango Uniform Victor Whiskey X-ray Yankee Zulu".split(
+    " "
+  );
+var TOW_SAY = [
+  [/\bRWYS?\b/g, "runway"],
+  [/\bAPCH\b|\bAPP\b/g, "approach"],
+  [/\bDEP\b/g, "departure"],
+  [/\bARR\b/g, "arrival"],
+  [/\bVIS\b/g, "visibility"],
+  [/\bCLSD\b/g, "closed"],
+  [/\bTWY\b/g, "taxiway"],
+  [/\bNOTAMS?\b/g, "notices"],
+  [/\bWX\b/g, "weather"],
+  [/\bBKN\b/g, "broken"],
+  [/\bOVC\b/g, "overcast"],
+  [/\bSCT\b/g, "scattered"],
+  [/\bFEW\b/g, "few"],
+  [/\bCLR\b|\bSKC\b/g, "clear"],
+  [/\bTEMP\b/g, "temperature"],
+  [/\bALSTG\b|\bALTM\b/g, "altimeter"],
+  [/\bADZ\b|\bADVS\b/g, "advise"],
+  [/\bINFO\b/g, "information"],
+  [/\bINST\b/g, "instrument"],
+  [/\bILS\b/g, "I L S"],
+  [/\bRNAV\b/g, "R nav"],
+  [/\bSM\b/g, "statute miles"]
+];
+
+// Readable, speakable ATIS: "RWY 18L" becomes "runway 18 left", "INFO A" becomes "information Alfa", and so on.
+function towSpeech(t) {
+  var s = String(t || "").toUpperCase();
+  s = s.replace(/\bINFO(?:RMATION)? ([A-Z])\b/g, function (x, l) {
+    return "INFO " + TOW_ABC[l.charCodeAt(0) - 65];
+  });
+  s = s.replace(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT\b/g, function (x, d, v, g) {
+    return (
+      "wind " +
+      (d === "VRB" ? "variable" : d.split("").join(" ")) +
+      " at " +
+      +v +
+      (g ? " gusting " + +g : "") +
+      " knots"
+    );
+  });
+  s = s.replace(/\bA(\d{2})(\d{2})\b/g, "altimeter $1 point $2");
+  s = s.replace(/\b(\d{2})(\d{2})Z\b/g, "$1 $2 zulu");
+  s = s.replace(/\b(\d{1,2})([LRC])\b/g, function (x, n, side) {
+    return n + " " + { L: "left", R: "right", C: "center" }[side];
+  });
+  s = s.replace(/\bM(\d{2})\b/g, "minus $1");
+  TOW_SAY.forEach(function (r) {
+    s = s.replace(r[0], r[1]);
+  });
+  return s
+    .replace(/\.{2,}/g, ".")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// The FAA's three-letter code for an airport (KAUS → AUS), which the FAA status service uses.
+function towFaa(ap) {
+  if (ap.iata && /^[A-Z]{3}$/.test(ap.iata)) return ap.iata;
+  return /^K[A-Z]{3}$/.test(ap.icao) ? ap.icao.slice(1) : "";
+}
+
+// What the FAA reports for one airport, from the national airspace status XML.
+function towFaaStatus(xml, code) {
+  var doc = new DOMParser().parseFromString(String(xml || ""), "text/xml"),
+    out = [];
+  if (!code) return out;
+  [].forEach.call(doc.getElementsByTagName("ARPT"), function (a) {
+    if ((a.textContent || "").trim().toUpperCase() !== code) return;
+    var item = a.parentNode,
+      type = item,
+      bits = [];
+    while (type && type.nodeName !== "Delay_type") type = type.parentNode;
+    var name = type && type.getElementsByTagName("Name")[0];
+    [].forEach.call(item.getElementsByTagName("*"), function (n) {
+      if (n.children.length || n.nodeName === "ARPT") return;
+      var v = (n.textContent || "").trim();
+      if (v) bits.push(n.nodeName.replace(/_/g, " ") + ": " + v);
+    });
+    out.push({ type: name ? name.textContent.trim() : "Delay", text: bits.join(" · ") });
+  });
+  return out;
+}
+
+function towOpen(ap) {
+  if (!ap) return;
+  if (!ap.icao && /^[A-Z]{3}$/.test(ap.iata || "") && ap.lat > 18 && ap.lat < 72 && ap.lon < -60)
+    ap.icao = "K" + ap.iata;
+  TOW.ap = ap;
+  TOW.atis = "";
+  towStop();
+  var seq = ++TOW.seq,
+    el = rdShell(),
+    id = ap.icao || ap.iata || ap.code;
+  RD.stack = [];
+  el.innerHTML =
+    '<div class="pgvbar"><div><b>✈ TOWER · ' +
+    esc(id) +
+    '</b><span class="mono">' +
+    esc(String(ap.name || ap.city || "").toUpperCase()) +
+    '</span></div><button class="ghost" data-pgv="x" aria-label="Close">✕</button></div><div class="pgvbody" id="pgvb">' +
+    ["atis", "faa", "wx", "pirep", "board", "near"]
+      .map(function (k) {
+        return (
+          '<article class="pgvcard towc" id="tow-' +
+          k +
+          '"><div class="pgvload"><i></i></div></article>'
+        );
+      })
+      .join("") +
+    '<p class="towfoot mono">FROM THE FAA, AVIATIONWEATHER.GOV, D-ATIS (DATIS.CLOWD.IO)' +
+    (KEYS.adb ? " AND AERODATABOX" : "") +
+    " · FOR INTEREST ONLY, NOT FOR FLIGHT PLANNING</p></div>";
+  var put = function (k, html) {
+      if (seq === TOW.seq && $("tow-" + k)) $("tow-" + k).innerHTML = html;
+    },
+    head = function (tag, title) {
+      return '<span class="tag mono">' + tag + "</span><h3>" + title + "</h3>";
+    },
+    awc = "https://aviationweather.gov/api/data/";
+
+  // ATIS
+  if (!ap.icao) put("atis", head("ATIS", "Tower broadcast") + "<p>No airport code to look up.</p>");
+  else
+    netGet("https://datis.clowd.io/api/" + ap.icao, 15000)
+      .then(function (j) {
+        var L = (Array.isArray(j) ? j : []).filter(function (x) {
+          return x && x.datis;
+        });
+        if (!L.length) throw new Error("none");
+        TOW.atis = L.map(function (x) {
+          return x.datis;
+        }).join(" ... ");
+        put(
+          "atis",
+          head("ATIS", "Tower broadcast") +
+            L.map(function (x) {
+              return (
+                '<div class="towatis"><b class="towlet">' +
+                esc(x.code || "?") +
+                '</b><div><span class="mono">' +
+                esc(
+                  (x.type === "arr"
+                    ? "ARRIVALS"
+                    : x.type === "dep"
+                      ? "DEPARTURES"
+                      : "ARRIVALS AND DEPARTURES") +
+                    " · INFORMATION " +
+                    (TOW_ABC[(x.code || "A").charCodeAt(0) - 65] || "").toUpperCase()
+                ) +
+                "</span><p>" +
+                esc(x.datis) +
+                "</p></div></div>"
+              );
+            }).join("") +
+            '<button class="open towplay" data-tow="play">▶ LISTEN</button>'
+        );
+      })
+      .catch(function () {
+        put(
+          "atis",
+          head("ATIS", "Tower broadcast") +
+            "<p>" +
+            esc(ap.icao) +
+            " has no digital ATIS. The FAA publishes it in text for about 75 larger US airports.</p>"
+        );
+      });
+
+  // FAA status
+  var fc = towFaa(ap);
+  if (!fc)
+    put(
+      "faa",
+      head("FAA", "Airport status") + "<p>The FAA reports status for US airports only.</p>"
+    );
+  else
+    netGet("https://nasstatus.faa.gov/api/airport-status-information", 15000, null, true)
+      .then(function (x) {
+        var L = towFaaStatus(x, fc);
+        put(
+          "faa",
+          head("FAA", "Airport status") +
+            (L.length
+              ? L.map(function (d) {
+                  return (
+                    '<div class="towwarn"><b>' +
+                    esc(d.type) +
+                    "</b><p>" +
+                    esc(d.text) +
+                    "</p></div>"
+                  );
+                }).join("")
+              : '<p class="towok">● No delays, ground stops or closures reported for ' +
+                esc(fc) +
+                ".</p>")
+        );
+      })
+      .catch(function () {
+        put("faa", head("FAA", "Airport status") + "<p>The FAA status service did not answer.</p>");
+      });
+
+  // Weather
+  if (ap.icao)
+    Promise.all([
+      netGet(awc + "metar?ids=" + ap.icao + "&format=json", 15000).catch(function () {
+        return [];
+      }),
+      netGet(awc + "taf?ids=" + ap.icao + "&format=json", 15000).catch(function () {
+        return [];
+      })
+    ]).then(function (r) {
+      var m = (r[0] || [])[0],
+        t = (r[1] || [])[0];
+      if (!m && !t) {
+        put(
+          "wx",
+          head("WEATHER", "At the field") + "<p>No current report for " + esc(ap.icao) + ".</p>"
+        );
+        return;
+      }
+      var cat = m && m.fltCat ? String(m.fltCat) : "";
+      put(
+        "wx",
+        head("WEATHER", "At the field") +
+          (m
+            ? '<div class="towkv">' +
+              (cat
+                ? '<span>CONDITIONS</span><b class="towcat ' +
+                  esc(cat.toLowerCase()) +
+                  '">' +
+                  esc(cat) +
+                  "</b>"
+                : "") +
+              (m.wspd != null
+                ? "<span>WIND</span><b>" +
+                  (m.wdir === "VRB" ? "Variable" : esc(m.wdir) + "°") +
+                  " at " +
+                  esc(m.wspd) +
+                  " kt" +
+                  (m.wgst ? ", gusts " + esc(m.wgst) : "") +
+                  "</b>"
+                : "") +
+              (m.visib != null ? "<span>VISIBILITY</span><b>" + esc(m.visib) + " mi</b>" : "") +
+              (m.temp != null
+                ? "<span>TEMPERATURE</span><b>" +
+                  Math.round((m.temp * 9) / 5 + 32) +
+                  "°F (" +
+                  Math.round(m.temp) +
+                  "°C)</b>"
+                : "") +
+              '</div><p class="towraw mono">' +
+              esc(m.rawOb || "") +
+              "</p>"
+            : "") +
+          (t && t.rawTAF ? '<p class="towraw mono">FORECAST · ' + esc(t.rawTAF) + "</p>" : "")
+      );
+    });
+  else put("wx", head("WEATHER", "At the field") + "<p>No airport code to look up.</p>");
+
+  // Pilot reports
+  if (ap.icao)
+    netGet(awc + "pirep?id=" + ap.icao + "&distance=100&age=3&format=json", 15000)
+      .then(function (L) {
+        L = (Array.isArray(L) ? L : []).slice(0, 12);
+        put(
+          "pirep",
+          head("PILOTS", "Pilot reports nearby") +
+            (L.length
+              ? L.map(function (p) {
+                  var urgent = /UUA|URGENT/i.test((p.airepType || "") + " " + (p.rawOb || "")),
+                    tm = p.obsTime ? new Date(p.obsTime * 1000) : null;
+                  return (
+                    '<div class="towrep' +
+                    (urgent ? " urgent" : "") +
+                    '"><span class="mono">' +
+                    (urgent ? "URGENT · " : "") +
+                    (tm ? tm.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "") +
+                    '</span><p class="mono">' +
+                    esc(p.rawOb || "") +
+                    "</p></div>"
+                  );
+                }).join("")
+              : "<p>No pilot reports within 100 nautical miles in the last 3 hours.</p>")
+        );
+      })
+      .catch(function () {
+        put(
+          "pirep",
+          head("PILOTS", "Pilot reports nearby") + "<p>The pilot report service did not answer.</p>"
+        );
+      });
+
+  // Arrivals and departures
+  towBoard(ap, seq, head);
+
+  // Aircraft nearby
+  var near = PLANES.map(function (p) {
+    return { p: p, km: hav(ap.lat, ap.lon, p.lat, p.lon) };
+  })
+    .filter(function (x) {
+      return x.km <= 40;
+    })
+    .sort(function (a, b) {
+      return a.km - b.km;
+    })
+    .slice(0, 10);
+  put(
+    "near",
+    head("LIVE", "Aircraft around the airport") +
+      (near.length
+        ? near
+            .map(function (x) {
+              return (
+                '<button class="towair" data-towp="' +
+                esc(x.p.id) +
+                '"><b>' +
+                esc(x.p.n) +
+                '</b><span class="mono">' +
+                (x.p.alt ? Math.round(x.p.alt * 3.281).toLocaleString() + " FT · " : "") +
+                Math.round(x.km * 0.621) +
+                " MI</span></button>"
+              );
+            })
+            .join("")
+        : "<p>No aircraft on the map within 25 miles right now. Turn on the Aircraft layer and look at this area to load them.</p>")
+  );
+}
+
+function towBoard(ap, seq, head) {
+  var put = function (html) {
+    if (seq === TOW.seq && $("tow-board"))
+      $("tow-board").innerHTML = head("BOARD", "Arrivals and departures") + html;
+  };
+  if (!KEYS.adb) {
+    put(
+      "<p>Add your AeroDataBox key under Layers → Sources &amp; keys to see this airport's arrivals and departures.</p>"
+    );
+    return;
+  }
+  if (!ap.icao) {
+    put("<p>No airport code to look up.</p>");
+    return;
+  }
+  netGet(
+    "https://aerodatabox.p.rapidapi.com/flights/airports/icao/" +
+      ap.icao +
+      "?offsetMinutes=-60&durationMinutes=360&withLeg=true&direction=Both&withCancelled=true&withCodeshared=false&withCargo=false&withPrivate=false",
+    20000,
+    { "X-RapidAPI-Key": KEYS.adb, "X-RapidAPI-Host": "aerodatabox.p.rapidapi.com" }
+  )
+    .then(function (j) {
+      var row = function (f, dir) {
+        var m = f.movement || {},
+          when =
+            (m.revisedTime && m.revisedTime.local) ||
+            (m.scheduledTime && m.scheduledTime.local) ||
+            "",
+          hm = /(\d{2}:\d{2})/.exec(when),
+          late =
+            m.revisedTime &&
+            m.scheduledTime &&
+            m.revisedTime.local &&
+            m.revisedTime.local !== m.scheduledTime.local;
+        return (
+          '<div class="towrow"><b class="mono">' +
+          esc(hm ? hm[1] : "--:--") +
+          "</b><div><b>" +
+          esc(f.number || "") +
+          " " +
+          (dir === "dep" ? "to " : "from ") +
+          esc((m.airport && (m.airport.municipalityName || m.airport.name)) || "") +
+          '</b><span class="mono">' +
+          esc(
+            [
+              f.airline && f.airline.name,
+              m.terminal && "T" + m.terminal,
+              m.gate && "GATE " + m.gate
+            ]
+              .filter(Boolean)
+              .join(" · ")
+          ) +
+          '</span></div><em class="mono' +
+          (/cancel/i.test(f.status || "") ? " bad" : late ? " late" : "") +
+          '">' +
+          esc(String(f.status || "").toUpperCase()) +
+          "</em></div>"
+        );
+      };
+      var arr = (j.arrivals || []).slice(0, 12),
+        dep = (j.departures || []).slice(0, 12);
+      put(
+        (arr.length
+          ? "<h4>ARRIVALS</h4>" +
+            arr
+              .map(function (f) {
+                return row(f, "arr");
+              })
+              .join("")
+          : "") +
+          (dep.length
+            ? "<h4>DEPARTURES</h4>" +
+              dep
+                .map(function (f) {
+                  return row(f, "dep");
+                })
+                .join("")
+            : "") || "<p>No flights listed in the next six hours.</p>"
+      );
+    })
+    .catch(function () {
+      put("<p>The flight board did not answer. Check your AeroDataBox key.</p>");
+    });
+}
+
+// ----- reading the ATIS aloud: the phone's own voice in the app, the browser's voice elsewhere -----
+function towListen() {
+  if (!TOW.heard) {
+    TOW.heard = true;
+    var p = natv();
+    if (p && p.addListener)
+      try {
+        p.addListener("speechDone", towDone);
+      } catch (x) {}
+  }
+}
+function towSay() {
+  if (!TOW.atis) return;
+  towListen();
+  TOW.talking = true;
+  towBtn();
+  var text = towSpeech(TOW.atis);
+  if (natv()) natCall("speak", { text: text });
+  else if (window.speechSynthesis) {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.95;
+    u.onend = towDone;
+    u.onerror = towDone;
+    speechSynthesis.speak(u);
+  } else towDone();
+}
+function towStop() {
+  if (!TOW.talking) return;
+  if (natv()) natCall("stopSpeaking");
+  else if (window.speechSynthesis) speechSynthesis.cancel();
+  towDone();
+}
+function towDone() {
+  TOW.talking = false;
+  towBtn();
+}
+function towBtn() {
+  var b = document.querySelector("[data-tow='play']");
+  if (b) b.textContent = TOW.talking ? "❚❚ PAUSE" : "▶ LISTEN";
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-tower]");
+  if (b) {
+    var r = selected && selected.kind === "plane" && selected.route,
+      a = r && r[b.getAttribute("data-tower")];
+    if (a)
+      towOpen({
+        icao: a.icao,
+        iata: a.iata,
+        code: a.code,
+        name: a.name,
+        city: a.city,
+        lat: a.lat,
+        lon: a.lon
+      });
+    return;
+  }
+  if (e.target.closest("[data-tow='play']")) {
+    if (TOW.talking) towStop();
+    else towSay();
+    return;
+  }
+  var t = e.target.closest("[data-towp]");
+  if (t) {
+    var id = t.getAttribute("data-towp"),
+      p = PLANES.filter(function (x) {
+        return x.id === id;
+      })[0];
+    towStop();
+    closePage();
+    if (p) select(p);
   }
 });
 /**

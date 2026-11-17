@@ -78,7 +78,9 @@ This project connects existing libraries and public data. It does not claim them
 | Google DSPL canonical countries | Country centre points (bundled) | Apache License 2.0 |
 | Radio Browser | Internet radio station directory | Public domain directory; streams belong to each station |
 | National Weather Service NOAA Weather Radio listing | Transmitter sites, frequencies and status | US public domain |
-| LiveATC | Air traffic audio (link only) | Opens LiveATC's own site |
+| FAA Digital ATIS (via datis.clowd.io) | Tower broadcast text for the Tower screen | Free, no key; read aloud on the phone |
+| FAA National Airspace System status | Ground stops, delays, closures | Free public service (nasstatus.faa.gov) |
+| aviationweather.gov (NOAA) | METAR, TAF and pilot reports for the Tower screen | Free public API, no key |
 | ExchangeRate-API open access (open.er-api.com) | Currencies against the US dollar, updated daily | Free with attribution ("Rates by Exchange Rate API", shown on each item) |
 | GDELT 2.0 event files (data.gdeltproject.org) | Conflict reports: strikes, shelling and clashes from the last 24 hours, read by the data feed | Free and open; cite GDELT. Machine-coded from news and unverified; shown as such |
 | NASA GIBS (VIIRS Corrected Reflectance, Day/Night Band, Black Marble) | Satellite views of the globe | NASA open data; no restrictions, attribution requested |

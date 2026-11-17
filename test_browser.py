@@ -553,6 +553,40 @@ class AppInBrowser(unittest.TestCase):
         self.assertIn("emg", self.page.evaluate(html_class).split())
         self.assertEqual(self.errors, [])
 
+    def test_emergency_checklist_ticks_off_and_remembers(self):
+        self.page.click("#bEmg")
+        self.page.click("[data-em=yes]")
+        self.page.wait_for_selector("#emgp [data-em='chk']", timeout=5000)
+        self.assertIn("0 OF 13 READY", self.page.inner_text("#emgp"))
+        self.page.click("#emgp [data-em='chk']")
+        self.assertEqual(self.page.locator("#emgp [data-emck]").count(), 13)
+        self.page.click("#emgp .emck:has-text('Water')")
+        self.page.click("#emgp .emck:has-text('Cash')")
+        self.assertIn("2 OF 13 READY", self.page.inner_text("#emgp"))
+        self.assertTrue(self.page.is_checked("#emgp [data-emck='0']"))
+        # My own item and a quick note.
+        self.page.fill("#emgOwn", "Inhaler")
+        self.page.press("#emgOwn", "Enter")
+        self.assertIn("2 OF 14 READY", self.page.inner_text("#emgp"))
+        self.page.click("#emgp .emck:has-text('Inhaler') label")
+        self.assertIn("3 OF 14 READY", self.page.inner_text("#emgp"))
+        self.page.fill("#emgNote", "Meet at the church on 5th")
+        # Without a position there is no route yet, and it says so.
+        self.assertIn("A ROUTE IS OFFERED HERE", self.page.inner_text("#emgp"))
+        # Everything survives closing the app.
+        self.page.reload()
+        ticks = json.loads(self.page.evaluate("() => localStorage.getItem('ojos-emg-chk')"))
+        self.assertEqual(sorted(ticks), sorted(["0", "4", "o" + json.loads(self.page.evaluate("() => localStorage.getItem('ojos-emg-own')"))[0]["id"]]))
+        self.assertEqual(json.loads(self.page.evaluate("() => localStorage.getItem('ojos-emg-note')")), "Meet at the church on 5th")
+        self.page.click("#bEmg")
+        self.page.click("[data-em=yes]")
+        self.page.wait_for_selector("#emgp [data-em='chk']", timeout=5000)
+        self.page.click("#emgp [data-em='chk']")
+        self.assertEqual(self.page.input_value("#emgNote"), "Meet at the church on 5th")
+        self.page.click("#emgp .emck:has-text('Inhaler') [data-em^='ox-']")
+        self.assertIn("2 OF 13 READY", self.page.inner_text("#emgp"))
+        self.assertEqual(self.errors, [])
+
     def test_emergency_mode_plays_live_local_radio_in_the_app(self):
         import io
         import wave
@@ -1230,6 +1264,163 @@ class AppInBrowser(unittest.TestCase):
         # Zooming back out takes them away.
         self.page.evaluate("() => { __mlMap.z = 5; }")
         self.page.wait_for_selector("#cpins", state="hidden", timeout=4000)
+        self.assertEqual(self.errors, [])
+
+    def test_a_tap_near_an_object_circles_it_then_select_opens_it(self):
+        quakes = {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "id": "us7000test", "properties": {"mag": 4.6, "place": "near Ridgecrest, CA", "time": 1763300000000},
+             "geometry": {"type": "Point", "coordinates": [-117.6, 35.7, 8]}},
+        ]}
+        self.page.route(
+            "**/earthquakes/feed/v1.0/summary/*",
+            lambda r: r.fulfill(body=json.dumps(quakes), content_type="application/json", headers={"access-control-allow-origin": "*"}),
+        )
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.page.evaluate("() => { __mlMap.z = 9; }")
+        self.page.wait_for_function(
+            "() => __ml.sources.world && __ml.sources.world.data.features.length", timeout=10000
+        )
+        # The map answers for whatever is drawn near the tap, as MapLibre does.
+        pt = self.page.evaluate(
+            """() => { const f = __ml.sources.world.data.features[0], c = f.geometry.coordinates;
+            __mlMap.c = { lng: c[0], lat: c[1] };
+            __mlMap.queryRenderedFeatures = (g, o) => (o && o.layers && o.layers[0] === 'world' && Array.isArray(g[0]) ? [f] : []);
+            const q = __mlMap.project(c); return { x: q.x + 22, y: q.y + 18 }; }"""
+        )
+        # A tap that misses by a finger's width still catches it, and only circles it.
+        self.page.evaluate("(p) => __mlMap.h.click.forEach((f) => f({ point: p }))", pt)
+        self.page.wait_for_selector("#tring.on .trchip", timeout=3000)
+        name = self.page.inner_text("#tring .trchip b")
+        self.assertTrue(self.visible("#tring [data-tr='sel']"))
+        self.assertTrue(self.visible("#tring [data-tr='x']"))
+        # Deselect lets it go; tapping again and Select opens its details.
+        self.page.click("#tring [data-tr='x']")
+        self.assertFalse(self.visible("#tring .trchip"))
+        self.page.evaluate("(p) => __mlMap.h.click.forEach((f) => f({ point: p }))", pt)
+        self.page.click("#tring [data-tr='sel']")
+        self.assertFalse(self.visible("#tring .trchip"))
+        self.assertIn(name[:12], self.page.inner_text("#detail h3").upper())
+        self.assertEqual(self.errors, [])
+
+    def test_outside_links_open_as_the_apps_own_screen(self):
+        article = (
+            "<html><head><title>Bridge record</title><meta property='og:site_name' content='State Records'>"
+            "<script>window.__ran = 1</script><style>p{color:red}</style></head><body>"
+            "<nav class='menu'><a href='/a'>Home</a> <a href='/b'>About</a></nav>"
+            "<article><h1>Bridge record</h1>"
+            + "".join(
+                "<p onclick='window.__ran=2'>Paragraph %d about the bridge, its builders, its repairs, and the river below it, written out in full.</p>" % i
+                for i in range(6)
+            )
+            + "<h2>Inspections</h2><ul><li>2019: welds flagged</li><li>2026: closed</li></ul>"
+            "<p>More in <a href='https://example.org/next'>the next record</a>, which continues the story at length.</p>"
+            "<iframe src='https://example.org/ad'></iframe><form><input></form></article>"
+            "<footer>Copyright footer text</footer></body></html>"
+        )
+        nxt = "<html><head><title>Next record</title></head><body><main>" + "<p>The next record carries on with plenty more words about the same bridge and river.</p>" * 6 + "</main></body></html>"
+        self.page.route("https://example.org/record", lambda r: r.fulfill(body=article, content_type="text/html", headers={"access-control-allow-origin": "*"}))
+        self.page.route("https://example.org/next", lambda r: r.fulfill(body=nxt, content_type="text/html", headers={"access-control-allow-origin": "*"}))
+        self.page.evaluate(
+            "() => { const a = document.createElement('a'); a.href = 'https://example.org/record';"
+            " a.target = '_blank'; a.id = 'outl'; a.textContent = '↗ Official record'; document.body.appendChild(a); }"
+        )
+        pages = len(self.page.context.pages)
+        self.page.evaluate("() => document.getElementById('outl').click()")
+        self.page.wait_for_selector("#pgv .pgvcard h2", timeout=5000)
+        self.assertEqual(len(self.page.context.pages), pages)
+        self.assertIn("127.0.0.1", self.page.url)
+        # The article is rebuilt in the app's own card: no frames, no page scripts, no menus or footers.
+        self.assertEqual(self.page.locator("#pgv iframe, #pgv form, #pgv script, #pgv style").count(), 0)
+        self.assertEqual(self.page.inner_text("#pgv .pgvcard h2"), "Bridge record")
+        self.assertEqual(self.page.inner_text("#pgv .pgvcard .tag"), "STATE RECORDS")
+        self.assertEqual(self.page.locator("#pgv .pgvcard p").count() >= 7, True)
+        self.assertEqual(self.page.inner_text("#pgv .pgvcard h3"), "Inspections")
+        body = self.page.inner_text("#pgv .pgvcard")
+        self.assertNotIn("Copyright footer", body)
+        self.assertNotIn("About", body)
+        self.page.click("#pgv .pgvcard p >> nth=0")
+        self.assertIsNone(self.page.evaluate("() => window.__ran"))
+        # A link inside opens the next page in the same place, and ‹ comes back.
+        self.page.click("#pgv .pgvcard a[href='https://example.org/next']")
+        self.page.wait_for_function("() => document.querySelector('#pgv .pgvcard h2') && document.querySelector('#pgv .pgvcard h2').textContent === 'Next record'", timeout=5000)
+        self.page.click("#pgv [data-pgv='b']")
+        self.page.wait_for_function("() => document.querySelector('#pgv .pgvcard h2') && document.querySelector('#pgv .pgvcard h2').textContent === 'Bridge record'", timeout=5000)
+        self.page.click("#pgv [data-pgv='x']")
+        self.assertFalse(self.visible("#pgv"))
+        # Pages asked for by code, and air traffic audio, open in the app too.
+        self.page.evaluate("() => window.open('https://example.org/next', '_blank')")
+        self.page.wait_for_selector("#pgv.on", timeout=3000)
+        self.page.click("#pgv [data-pgv='x']")
+        self.assertEqual(len(self.page.context.pages), pages)
+        self.assertEqual(self.errors, [])
+
+    def test_an_aircraft_in_emergency_is_announced_and_its_tower_screen_opens(self):
+        J = "application/json"
+        fix = {
+            "**/api.adsb.lol/v2/point/**": {"ac": [{"hex": "a1b2c3", "flight": "SWA1234 ", "lat": 30.25, "lon": -97.68,
+                                                   "alt_baro": 3000, "gs": 150, "track": 180, "squawk": "7700"}]},
+            "**/api.adsbdb.com/v0/callsign/**": {"response": {"flightroute": {
+                "airline": {"name": "Southwest"},
+                "origin": {"iata_code": "AUS", "icao_code": "KAUS", "name": "Austin-Bergstrom", "municipality": "Austin", "latitude": 30.197, "longitude": -97.666},
+                "destination": {"iata_code": "DAL", "icao_code": "KDAL", "name": "Dallas Love Field", "municipality": "Dallas", "latitude": 32.847, "longitude": -96.852}}}},
+            "**/datis.clowd.io/api/KAUS": [{"airport": "KAUS", "type": "combined", "code": "C",
+                                            "datis": "AUS ATIS INFO C 1453Z. 18010KT 10SM FEW040 23/14 A3001. ILS RWY 18L APCH IN USE."}],
+            "**/aviationweather.gov/api/data/metar**": [{"icaoId": "KAUS", "rawOb": "KAUS 171453Z 18010KT 10SM FEW040 23/14 A3001",
+                                                         "temp": 23, "wdir": 180, "wspd": 10, "visib": "10+", "fltCat": "VFR"}],
+            "**/aviationweather.gov/api/data/taf**": [{"rawTAF": "TAF KAUS 171120Z 1712/1812 18012KT P6SM SCT040"}],
+            "**/aviationweather.gov/api/data/pirep**": [{"rawOb": "AUS UA /OV AUS/TM 1440/FL050/TP B737/TB MOD", "obsTime": 1763390400, "airepType": "PIREP"}],
+        }
+        def answer(b):
+            return lambda r: r.fulfill(body=json.dumps(b), content_type=J, headers={"access-control-allow-origin": "*"})
+        for pat, body in fix.items():
+            self.page.route(pat, answer(body))
+        faa = ("<AIRPORT_STATUS_INFORMATION><Delay_type><Name>Ground Stop Programs</Name><Ground_Stop_List>"
+               "<Program><ARPT>AUS</ARPT><Reason>thunderstorms</Reason><End_Time>4:00 pm CST</End_Time></Program>"
+               "<Program><ARPT>SFO</ARPT><Reason>wind</Reason></Program></Ground_Stop_List></Delay_type></AIRPORT_STATUS_INFORMATION>")
+        self.page.route("**/nasstatus.faa.gov/**", lambda r: r.fulfill(body=faa, content_type="text/xml", headers={"access-control-allow-origin": "*"}))
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({air: true}));"
+            "Object.defineProperty(window, 'speechSynthesis', { value: { speak: (u) => { window.__said = u.text; }, cancel: () => {} } });"
+        )
+        self.page.reload()
+        # The emergency code is announced; tapping the notice opens the aircraft.
+        self.page.wait_for_selector(".toast:has-text('SQUAWKING 7700')", timeout=15000)
+        self.assertIn("SWA1234", self.page.inner_text(".toast"))
+        self.page.click(".toast:has-text('SQUAWKING 7700')")
+        self.page.wait_for_selector("#detail [data-tower='o']", timeout=8000)
+        self.assertIn("7700 · EMERGENCY", self.page.inner_text("#detail"))
+        self.assertIn("TOWER · AUS", self.page.inner_text("#detail [data-tower='o']"))
+        self.page.click("#detail [data-tower='o']")
+        self.page.wait_for_selector("#pgv.on #tow-atis .towlet", timeout=8000)
+        self.assertIn("KAUS", self.page.inner_text("#pgv .pgvbar b"))
+        self.assertEqual(self.page.inner_text("#tow-atis .towlet"), "C")
+        self.assertIn("INFORMATION CHARLIE", self.page.inner_text("#tow-atis"))
+        self.page.wait_for_selector("#tow-faa .towwarn", timeout=5000)
+        faa_text = self.page.inner_text("#tow-faa")
+        self.assertIn("Ground Stop", faa_text)
+        self.assertIn("thunderstorms", faa_text)
+        self.assertNotIn("wind", faa_text)
+        self.page.wait_for_selector("#tow-wx .towcat", timeout=5000)
+        self.assertEqual(self.page.inner_text("#tow-wx .towcat"), "VFR")
+        self.assertIn("TAF KAUS", self.page.inner_text("#tow-wx"))
+        self.page.wait_for_selector("#tow-pirep .towrep", timeout=5000)
+        self.assertIn("Add your AeroDataBox key", self.page.inner_text("#tow-board"))
+        self.assertIn("SWA1234", self.page.inner_text("#tow-near"))
+        # Listen reads the broadcast aloud, and pauses.
+        self.page.click("[data-tow='play']")
+        self.assertEqual(self.page.inner_text("[data-tow='play']"), "❚❚ PAUSE")
+        said = self.page.evaluate("() => window.__said")
+        self.assertIn("information Charlie", said)
+        self.assertIn("runway 18 left", said)
+        self.page.click("[data-tow='play']")
+        self.assertEqual(self.page.inner_text("[data-tow='play']"), "▶ LISTEN")
+        # A nearby aircraft opens on the map.
+        self.page.click("#tow-near [data-towp='a1b2c3']")
+        self.assertFalse(self.visible("#pgv"))
+        self.assertIn("SWA1234", self.page.inner_text("#detail h3"))
         self.assertEqual(self.errors, [])
 
     def test_the_top_bar_keeps_every_count_readable(self):

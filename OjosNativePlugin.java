@@ -8,8 +8,12 @@ import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.view.Window;
 import android.view.WindowManager;
+
+import java.util.Locale;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -31,6 +35,8 @@ import com.getcapacitor.annotation.CapacitorPlugin;
  *       (see {@link AlertChecker})</li>
  *   <li>{@code getAlertLog()}: the alerts announced while the app was closed, for its alert history</li>
  *   <li>{@code setAlertWidget({event, place, until})}: shows an alert on the home-screen widget until it ends</li>
+ *   <li>{@code speak({text})} / {@code stopSpeaking()}: reads text aloud with the phone's own voice (the web view has
+ *       none), for example an airport's ATIS; emits {@code speechDone} when it finishes or is stopped</li>
  * </ul>
  * It also emits a {@code launchAction} event when a shortcut or the widget is tapped while the app is already running.
  *
@@ -48,6 +54,13 @@ public class OjosNativePlugin extends Plugin {
 
     static final String PREFS = "ojos_native";
     static final String KEY_EMERGENCY = "emergency_on";
+
+    /** Longest text we read aloud in one go, in characters (Android's own limit is about 4,000). */
+    static final int MAX_SPEECH_CHARS = 3900;
+
+    private TextToSpeech tts;
+    private boolean ttsReady;
+    private String ttsPending;
 
     /** Longest single vibration we accept from the web layer, in milliseconds. */
     static final int MAX_VIBRATION_MS = 2000;
@@ -188,6 +201,70 @@ public class OjosNativePlugin extends Plugin {
                 .apply();
         EmergencyWidget.refreshAll(getContext());
         call.resolve();
+    }
+
+    /** Reads {@code text} aloud, replacing anything already being read. */
+    @PluginMethod
+    public void speak(PluginCall call) {
+        String text = call.getString("text", "");
+        if (text == null || text.trim().isEmpty()) {
+            call.resolve();
+            return;
+        }
+        String clipped = text.length() > MAX_SPEECH_CHARS ? text.substring(0, MAX_SPEECH_CHARS) : text;
+        getActivity().runOnUiThread(() -> {
+            if (tts == null) {
+                ttsPending = clipped;
+                tts = new TextToSpeech(getContext(), status -> {
+                    ttsReady = status == TextToSpeech.SUCCESS;
+                    if (!ttsReady) {
+                        speechDone();
+                        return;
+                    }
+                    tts.setLanguage(Locale.US);
+                    tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override public void onStart(String id) {}
+                        @Override public void onDone(String id) { speechDone(); }
+                        @Override public void onError(String id) { speechDone(); }
+                        @Override public void onStop(String id, boolean interrupted) { speechDone(); }
+                    });
+                    if (ttsPending != null) say(ttsPending);
+                    ttsPending = null;
+                });
+            } else if (ttsReady) {
+                say(clipped);
+            } else {
+                ttsPending = clipped;
+            }
+        });
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void stopSpeaking(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            ttsPending = null;
+            if (tts != null) tts.stop();
+        });
+        call.resolve();
+    }
+
+    private void say(String text) {
+        tts.setSpeechRate(0.95f);
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ojos-speech");
+    }
+
+    private void speechDone() {
+        notifyListeners("speechDone", new JSObject());
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        if (tts != null) {
+            tts.shutdown();
+            tts = null;
+        }
+        super.handleOnDestroy();
     }
 
     private static Vibrator vibrator(Context context) {

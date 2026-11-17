@@ -580,7 +580,8 @@ var EMG_K = {
 function emgDraw() {
   var el = $("emgp");
   if (!el || !EMG.open) return;
-  if (document.activeElement && /^(emgQ|famN|famP)$/.test(document.activeElement.id)) return;
+  if (document.activeElement && /^(emgQ|famN|famP|emgOwn|emgNote)$/.test(document.activeElement.id))
+    return;
   var S = EMG.sit,
     A = S && S.as,
     num = (S && S.num) || emgNum(S && S.cc),
@@ -852,20 +853,135 @@ function emgDraw() {
           .join("");
   }
   h += '<h4 class="mono">LIVE RADIO HERE</h4>' + rdoEmgHtml(EMG.pos);
+  var items = emgItems(),
+    done = items.filter(function (x) {
+      return EMG_TICK[x.k];
+    }).length,
+    go = emgGoTo(S);
   h +=
-    '<h4 class="mono">CHECKLIST</h4><div class="brc"><span>' +
+    '<h4 class="mono">CHECKLIST · ' +
+    done +
+    " OF " +
+    items.length +
+    ' READY</h4><div class="brc emchk"><div class="emchkbar"><i style="width:' +
+    Math.round((done / Math.max(1, items.length)) * 100) +
+    '%"></i></div>' +
     (EMG.chk
-      ? "Water, 1 gallon per person per day · Medicines and prescriptions · Phone, charger, power bank · IDs and key documents in a bag · Cash · Flashlight · First-aid kit · Sturdy shoes, warm layer · Full fuel tank · Tell one person outside the area where you are going · Text, do not call, when networks are busy"
-      : "What to grab and do before you move.") +
-    '</span><div class="bra"><button data-em="chk">' +
-    (EMG.chk ? "Hide" : "Show checklist") +
-    '</button><button data-em="off">Exit emergency mode</button></div></div>';
+      ? items
+          .map(function (x) {
+            return (
+              '<div class="emck' +
+              (EMG_TICK[x.k] ? " on" : "") +
+              '"><label><input type="checkbox" data-emck="' +
+              esc(x.k) +
+              '"' +
+              (EMG_TICK[x.k] ? " checked" : "") +
+              "><span><b>" +
+              esc(x.t) +
+              "</b>" +
+              (x.d ? "<em>" + esc(x.d) + "</em>" : "") +
+              "</span></label>" +
+              (x.own
+                ? '<button class="ghost" data-em="ox-' +
+                  esc(x.k.slice(1)) +
+                  '" aria-label="Remove">✕</button>'
+                : "") +
+              "</div>"
+            );
+          })
+          .join("") +
+        '<form id="emgOwnF" class="emown"><input id="emgOwn" maxlength="60" placeholder="Add your own item (baby formula, inhaler…)"><button>+ ADD</button></form>' +
+        '<label class="emnote"><b class="mono">QUICK NOTE</b><textarea id="emgNote" maxlength="600" rows="3" placeholder="Meeting point, who to call, medicines and doses, where the spare key is…">' +
+        esc(EMG_NOTE) +
+        "</textarea><em>Kept on this phone only.</em></label>"
+      : "<span>What to grab and do before you move" +
+        (EMG_NOTE ? " · your note is saved" : "") +
+        ". Ticks are kept on this phone.</span>") +
+    '<div class="bra"><button data-em="chk">' +
+    (EMG.chk ? "Hide checklist" : "Open checklist") +
+    "</button>" +
+    (EMG.chk && done ? '<button data-em="chk0">Clear ticks</button>' : "") +
+    "</div>" +
+    (go
+      ? '<button class="emgo" data-em="go"><b>▶ START ROUTE AND LIVE TRACKING</b><span>' +
+        esc(go.n) +
+        (go.why ? " · " + esc(go.why) : "") +
+        "</span></button>"
+      : '<p class="emgo0 mono">A ROUTE IS OFFERED HERE ONCE YOUR POSITION AND NEARBY SAFE PLACES ARE FOUND</p>') +
+    '<div class="bra"><button data-em="off">Exit emergency mode</button></div></div>';
   h +=
     '</div><div class="nf mono">PUBLIC SOURCES: NWS · USGS · NASA EONET · GDACS · OPEN-METEO · OPENSTREETMAP · YOUR POSITION STAYS ON THIS PHONE</div>';
   el.innerHTML = h;
   var s2 = el.querySelector(".nl");
   if (s2) s2.scrollTop = top;
 }
+// What to grab and do before moving: [item, detail]. Ticks are saved on the phone (ojos-emg-chk).
+var EMG_CHK = [
+  ["Water", "1 gallon per person per day, for 3 days"],
+  ["Medicines and prescriptions", "and glasses or hearing aids"],
+  ["Phone, charger and power bank", ""],
+  ["IDs and key documents", "in one waterproof bag"],
+  ["Cash", "small bills; card machines may be down"],
+  ["Flashlight and spare batteries", ""],
+  ["First-aid kit", ""],
+  ["Sturdy shoes and a warm layer", ""],
+  ["Food that keeps", "and a manual can opener"],
+  ["Pets: food, leash, carrier", ""],
+  ["Full fuel tank", ""],
+  ["Tell one person outside the area", "where you are going"],
+  ["Text, do not call", "when networks are busy"]
+];
+var EMG_TICK = ls("ojos-emg-chk") || {},
+  EMG_OWN = ls("ojos-emg-own") || [],
+  EMG_NOTE = ls("ojos-emg-note") || "";
+// The checklist as shown: the standard items (keys "0", "1"…) then the user's own (keys "o<id>").
+function emgItems() {
+  return EMG_CHK.map(function (x, i) {
+    return { k: String(i), t: x[0], d: x[1] };
+  }).concat(
+    EMG_OWN.map(function (x) {
+      return { k: "o" + x.id, t: x.t, own: true };
+    })
+  );
+}
+// Where Start route goes: the place the user typed, else the best-ranked safe place for the current
+// alert, else the nearest safe place found.
+function emgGoTo(S) {
+  if (EMG.dest && EMG.dest.lat != null)
+    return { lat: EMG.dest.lat, lon: EMG.dest.lon, n: EMG.dest.name, why: "your destination" };
+  var b = S && S.as && S.as.best && S.as.best[0];
+  if (b && b.x)
+    return { lat: b.x.lat, lon: b.x.lon, n: b.x.n || "Safe place", why: "best for this alert" };
+  var p = S && S.places && S.places[0];
+  if (p) return { lat: p.lat, lon: p.lon, n: p.n || "Safe place", why: "nearest safe place" };
+  return null;
+}
+document.addEventListener("submit", function (e) {
+  if (!e.target || e.target.id !== "emgOwnF") return;
+  e.preventDefault();
+  var v = $("emgOwn").value.trim();
+  $("emgOwn").value = "";
+  $("emgOwn").blur();
+  if (v) {
+    EMG_OWN.push({ id: Date.now().toString(36), t: v.slice(0, 60) });
+    ls("ojos-emg-own", EMG_OWN);
+  }
+  emgDraw();
+});
+document.addEventListener("input", function (e) {
+  if (!e.target || e.target.id !== "emgNote") return;
+  EMG_NOTE = e.target.value.slice(0, 600);
+  ls("ojos-emg-note", EMG_NOTE);
+});
+document.addEventListener("change", function (e) {
+  var b = e.target.closest && e.target.closest("[data-emck]");
+  if (!b) return;
+  var i = b.getAttribute("data-emck");
+  if (b.checked) EMG_TICK[i] = 1;
+  else delete EMG_TICK[i];
+  ls("ojos-emg-chk", EMG_TICK);
+  emgDraw();
+});
 function emgOpen() {
   var el = $("emgp");
   if (!el) {
@@ -1069,6 +1185,22 @@ document.addEventListener("click", function (e) {
   } else if (k === "chk") {
     EMG.chk = !EMG.chk;
     emgDraw();
+  } else if (k === "chk0") {
+    EMG_TICK = {};
+    ls("ojos-emg-chk", EMG_TICK);
+    emgDraw();
+  } else if (k.indexOf("ox-") === 0) {
+    var oid = k.slice(3);
+    EMG_OWN = EMG_OWN.filter(function (x) {
+      return x.id !== oid;
+    });
+    delete EMG_TICK["o" + oid];
+    ls("ojos-emg-own", EMG_OWN);
+    ls("ojos-emg-chk", EMG_TICK);
+    emgDraw();
+  } else if (k === "go") {
+    var g = emgGoTo(S);
+    if (g) emgRoute(g.lat, g.lon, g.n);
   } else if (k === "sig") {
     emgSig(!EMG.sig);
     emgDraw();

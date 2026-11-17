@@ -104,7 +104,6 @@ var NAMES = [
   "seaTime",
   "rbItems",
   "nwrParse",
-  "liveAtcUrl",
   "eoUrl",
   "hmsTime",
   "firesParse",
@@ -155,7 +154,10 @@ var NAMES = [
   "skySunLon",
   "skyMoonPhase",
   "skyProject",
-  "skyStarColor"
+  "skyStarColor",
+  "rdSource",
+  "towSpeech",
+  "towFaa"
 ];
 // Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
 function grabVar(name) {
@@ -183,7 +185,9 @@ var TABLES = [
   "FAA_COLORS",
   "ADV_LEVELS",
   "WB_IND",
-  "FX_COUNTRIES"
+  "FX_COUNTRIES",
+  "TOW_ABC",
+  "TOW_SAY"
 ];
 var code =
   CONSTANTS +
@@ -1062,8 +1066,6 @@ test("radio: only https streams are kept, and weather radio sites merge their co
   assert.strictEqual(nw.length, 1);
   assert.deepStrictEqual(nw[0].counties, ["Travis", "Hays"]);
   assert.strictEqual(nw[0].wfo, "Austin/San Antonio, TX");
-  assert.strictEqual(F.liveAtcUrl("kaus"), "https://www.liveatc.net/search/?icao=KAUS");
-  assert.strictEqual(F.liveAtcUrl("?"), "");
 });
 
 test("earth: NASA tile paths, HMS times and merged fire detections", function () {
@@ -1676,6 +1678,29 @@ test("sky: Moon phases on known dates and the projection centre", function () {
   assert.strictEqual(F.skyStarColor("1.85"), "#ffaa78");
 });
 
+test("in-app pages: Wikipedia articles come from its article service", function () {
+  assert.strictEqual(
+    F.rdSource("https://en.m.wikipedia.org/wiki/Pyramid_of_Djoser#History"),
+    "https://en.wikipedia.org/api/rest_v1/page/html/Pyramid_of_Djoser"
+  );
+  assert.strictEqual(F.rdSource("https://example.org/a"), "https://example.org/a");
+});
+
+test("tower: ATIS is made speakable and FAA codes are found", function () {
+  var s = F.towSpeech(
+    "AUS ATIS INFO C 1453Z. 18010G18KT 10SM FEW040 23/14 A3001. ILS RWY 18L APCH IN USE. M02"
+  );
+  assert.ok(/information Charlie/i.test(s), s);
+  assert.ok(/14 53 zulu/.test(s), s);
+  assert.ok(/wind 1 8 0 at 10 gusting 18 knots/.test(s), s);
+  assert.ok(/altimeter 30 point 01/.test(s), s);
+  assert.ok(/runway 18 left approach/i.test(s), s);
+  assert.ok(/minus 02/.test(s), s);
+  assert.strictEqual(F.towFaa({ iata: "AUS", icao: "KAUS" }), "AUS");
+  assert.strictEqual(F.towFaa({ iata: "", icao: "KDFW" }), "DFW");
+  assert.strictEqual(F.towFaa({ iata: "", icao: "EGLL" }), "");
+});
+
 // Every module shares one scope, so a top-level name declared in two modules silently replaces the
 // first one (v86 to v88 shipped the radio player's RP over the replay's RP).
 test("modules: no top-level name is declared twice", function () {
@@ -1687,12 +1712,20 @@ test("modules: no top-level name is declared twice", function () {
     })
     .forEach(function (f) {
       var text = fs.readFileSync(path.join(__dirname, f), "utf8"),
+        names = [],
         re = /^(?:var|function)\s+([A-Za-z_$][\w$]*)/gm,
         m;
-      while ((m = re.exec(text))) {
-        if (seen[m[1]] && seen[m[1]] !== f) dup.push(m[1] + " in " + seen[m[1]] + " and " + f);
-        seen[m[1]] = seen[m[1]] || f;
-      }
+      while ((m = re.exec(text))) names.push(m[1]);
+      // Later names in a multi-line "var A = 1,\n  B = 2;" (v93's tap ring briefly reused transit's TR).
+      var stmt = /^var [^\n]*,\n((?:  [^\n]*\n)+?)[^\n]*;$/gm;
+      while ((m = stmt.exec(text)))
+        m[1].replace(/^  ([A-Za-z_$][\w$]*)(?: =|,$)/gm, function (x, nm) {
+          names.push(nm);
+        });
+      names.forEach(function (nm) {
+        if (seen[nm] && seen[nm] !== f) dup.push(nm + " in " + seen[nm] + " and " + f);
+        seen[nm] = seen[nm] || f;
+      });
     });
   assert.deepStrictEqual(dup, []);
 });

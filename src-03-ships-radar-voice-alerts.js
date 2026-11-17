@@ -405,7 +405,9 @@ function voiceKind() {
 }
 function speak(t) {
   try {
-    if (window.speechSynthesis) {
+    // The Android web view has no voice of its own; the app's native side reads it instead.
+    if (natv()) natCall("speak", { text: String(t) });
+    else if (window.speechSynthesis) {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(t);
       u.rate = 1.05;

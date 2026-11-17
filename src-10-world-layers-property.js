@@ -252,16 +252,10 @@ function sceneToast(e) {
     }
   );
 }
-// Playable audio and outside links for info items, and air traffic audio links for aircraft.
+// Playable audio and outside links for info items; the airports' Tower screens for aircraft (module 48).
 function entExtras(e) {
   var links = [];
   if (e.kind === "info" && e.links) links = e.links.slice();
-  if (e.kind === "plane" && e.route && e.route.o && typeof liveAtcUrl === "function") {
-    [e.route.o.code, e.route.d.code].forEach(function (c) {
-      var u = liveAtcUrl(c);
-      if (u) links.push(["Air traffic audio near " + c + " · LiveATC", u]);
-    });
-  }
   var au = e.kind === "info" && e.audio ? safeUrl(e.audio) : "",
     im = e.kind === "info" && e.img ? safeUrl(e.img) : "";
   return (
@@ -275,13 +269,28 @@ function entExtras(e) {
         esc(au) +
         '"></audio></div>'
       : "") +
+    (e.kind === "plane" && e.route && e.route.o
+      ? '<div class="acts">' +
+        ["o", "d"]
+          .map(function (k) {
+            return (
+              '<button class="open" data-tower="' +
+              k +
+              '">✈ TOWER · ' +
+              esc(e.route[k].code) +
+              "</button>"
+            );
+          })
+          .join("") +
+        "</div>"
+      : "") +
     links
       .map(function (l) {
         var u = safeUrl(l[1]);
         return /^https?:\/\//.test(u)
           ? '<div class="acts"><a class="open" target="_blank" rel="noopener" href="' +
               esc(u) +
-              '">↗ ' +
+              '">▸ ' +
               esc(l[0]).toUpperCase() +
               "</a></div>"
           : "";
@@ -290,7 +299,35 @@ function entExtras(e) {
   );
 }
 
+// A tap on the details must not be lost because they were redrawn under the finger (a route arriving,
+// a position update): redraws wait until the finger lifts and the button's click has landed.
+var DTAP = { down: false, todo: null };
+$("detail").addEventListener(
+  "pointerdown",
+  function () {
+    DTAP.down = true;
+  },
+  true
+);
+["pointerup", "pointercancel"].forEach(function (k) {
+  document.addEventListener(k, function () {
+    if (!DTAP.down) return;
+    setTimeout(function () {
+      DTAP.down = false;
+      var f = DTAP.todo;
+      DTAP.todo = null;
+      if (f) f();
+    }, 80);
+  });
+});
 function entDossier(e) {
+  if (DTAP.down) {
+    DTAP.todo = function () {
+      if (selected === e || (selected && selected.id != null && selected.id === e.id))
+        entDossier(selected);
+    };
+    return;
+  }
   if (e.kind === "parcel") {
     propDossier(e);
     return;
@@ -309,6 +346,8 @@ function entDossier(e) {
       ["SPEED", e.v != null ? Math.round(e.v * 1.944) + " kt" : "—"],
       ["HEADING", e.trk != null ? Math.round(e.trk) + "°" : "—"]
     ];
+    if (e.sq)
+      rows.push(["SQUAWK", e.sq + (SQ_EMERG[e.sq] ? " · " + SQ_EMERG[e.sq].toUpperCase() : "")]);
   }
   if (isP) {
     var R = e.route;
@@ -536,7 +575,8 @@ function planeFromAc(a) {
     trk: a.track != null ? a.track : a.true_heading || 0,
     cat: cat,
     reg: a.r || "",
-    typ: a.t || ""
+    typ: a.t || "",
+    sq: a.squawk ? String(a.squawk) : ""
   };
 }
 function planesNear(lat, lon, i) {
@@ -555,9 +595,36 @@ function planesNear(lat, lon, i) {
       return planesNear(lat, lon, i + 1);
     });
 }
+// Transponder codes a crew sets in an emergency; each aircraft is announced once per flight.
+var SQ_EMERG = { 7500: "hijack", 7600: "radio failure", 7700: "emergency" },
+  SQ_SEEN = {};
+function sqCheck(L) {
+  L.forEach(function (p) {
+    var what = SQ_EMERG[p.sq],
+      key = p.id + p.sq;
+    if (!what || SQ_SEEN[key]) return;
+    SQ_SEEN[key] = 1;
+    note(
+      "Aircraft squawking " + p.sq,
+      esc(p.n) +
+        " has set " +
+        p.sq +
+        " (" +
+        what +
+        ")" +
+        (p.alt ? " at " + Math.round(p.alt * 3.281).toLocaleString() + " ft" : "") +
+        ". Tap to see it.",
+      function () {
+        ringClose();
+        select(ringFresh(p));
+      }
+    );
+  });
+}
 function planesKeep(L) {
   var sel = selected && selected.kind === "plane" ? selected.id : null;
   PLANES = L;
+  sqCheck(L);
   if (sel) {
     var m = PLANES.filter(function (x) {
       return x.id === sel;
@@ -603,7 +670,8 @@ function loadPlanes() {
                 alt: a[7],
                 v: a[9],
                 trk: a[10],
-                cat: a[17] || 0
+                cat: a[17] || 0,
+                sq: a[14] ? String(a[14]) : ""
               };
             })
         );
@@ -986,6 +1054,8 @@ function apt(a) {
   return a && isFinite(a.latitude) && isFinite(a.longitude)
     ? {
         code: a.iata_code || a.icao_code || "?",
+        icao: a.icao_code || "",
+        iata: a.iata_code || "",
         city: a.municipality || a.name || "",
         name: a.name || "",
         lat: +a.latitude,
@@ -2041,28 +2111,59 @@ function t3World() {
         "circle-stroke-width": 1
       }
     });
-    m.on("click", "world", function (e) {
-      var ft = e.features && e.features[0];
-      if (!ft) return;
-      var a = { p: PLANES, s: SHIPS, q: QUAKES, e: EVENTS }[ft.properties.k],
-        o = a && a[ft.properties.i];
-      if (o) {
-        select(o);
-        target = null;
-        var pk = ft.properties.k;
-        if (pk === "p" || pk === "s") {
-          T3.mt = 0;
-          m.flyTo({
-            center: [o.lon, o.lat],
-            zoom: pk === "p" ? 11.5 : 14.5,
-            pitch: 72,
-            bearing: (pk === "p" ? o.trk : o.cog) || 0,
-            duration: 2200
-          });
-        }
+    // Taps near an aircraft, ship or event circle it first (module 46); cameras and info items keep their own taps.
+    m.on("click", function (e) {
+      var own = ["cams", "camglow", "info", "infoline", "infoshape"].filter(m.getLayer.bind(m));
+      if (own.length && m.queryRenderedFeatures(e.point, { layers: own }).length) return;
+      var o = t3WorldNear(m, e.point);
+      if (!o) {
+        if (RING.o) ringClose();
+        return;
       }
+      ringTap(
+        o,
+        function () {
+          var f = ringFresh(o);
+          return cpScreen(f.lon, f.lat);
+        },
+        function (f) {
+          select(f);
+          target = null;
+          if (f.kind === "plane" || f.kind === "ship") {
+            T3.mt = 0;
+            m.flyTo({
+              center: [f.lon, f.lat],
+              zoom: f.kind === "plane" ? 11.5 : 14.5,
+              pitch: 72,
+              bearing: (f.kind === "plane" ? f.trk : f.cog) || 0,
+              duration: 2200
+            });
+          }
+        }
+      );
     });
   }
+}
+// The aircraft, ship, quake or event drawn closest to a tap on the 3D map, within RING_SLOP pixels.
+function t3WorldNear(m, pt) {
+  if (!m.getLayer("world")) return null;
+  var r = RING_SLOP,
+    fs = m.queryRenderedFeatures(
+      [
+        [pt.x - r, pt.y - r],
+        [pt.x + r, pt.y + r]
+      ],
+      { layers: ["world"] }
+    ),
+    pts = [];
+  fs.forEach(function (ft) {
+    var a = { p: PLANES, s: SHIPS, q: QUAKES, e: EVENTS }[ft.properties.k],
+      o = a && a[ft.properties.i];
+    if (!o) return;
+    var q = m.project([o.lon, o.lat]);
+    if (q) pts.push([q.x, q.y, o]);
+  });
+  return ringNearest(pts, pt.x, pt.y, r);
 }
 // simple solid 3D models for aircraft and ships near the view: built from shapes, flown at their real altitude and heading
 function t3Models() {

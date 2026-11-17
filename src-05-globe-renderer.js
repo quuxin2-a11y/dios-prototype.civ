@@ -938,9 +938,35 @@ function up(e) {
   if (!Object.keys(ptrs).length) dragging = false;
   if (!moved) {
     var h = hit(e);
-    if (h) camTap(h);
+    if (!h) h = hitObj(e);
+    if (h && h.kind) ringOnGlobe(h);
+    else if (h) camTap(h);
+    else if (RING.o) ringClose();
     else propHit(e);
   }
+}
+// Aircraft, ships and events are small and moving; a touch anywhere near one catches it.
+function hitObj(e) {
+  var r = cv.getBoundingClientRect(),
+    pts = screenPts.filter(function (p) {
+      return p[2] && p[2].kind;
+    });
+  return ringNearest(pts, e.clientX - r.left, e.clientY - r.top, RING_SLOP);
+}
+function ringOnGlobe(o) {
+  ringTap(
+    o,
+    function () {
+      var r = cv.getBoundingClientRect(),
+        f = ringFresh(o);
+      for (var i = 0; i < screenPts.length; i++) {
+        var p = screenPts[i];
+        if (p[2] === f || p[2] === o) return [p[0] + r.left, p[1] + r.top];
+      }
+      return null;
+    },
+    camTap
+  );
 }
 cv.addEventListener("pointerup", up);
 cv.addEventListener("pointercancel", function (e) {

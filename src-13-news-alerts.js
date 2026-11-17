@@ -148,7 +148,8 @@ function newsWorld() {
 }
 function newsCentre() {
   if (selected && selected.lat != null) return [selected.lat, selected.lon];
-  if (T4.on && T4.v) {
+  // T4 is not set up yet when saved layers start loading at launch.
+  if (T4 && T4.on && T4.v) {
     try {
       var c = T4.v.camera.positionCartographic;
       return [c.latitude / D, c.longitude / D];

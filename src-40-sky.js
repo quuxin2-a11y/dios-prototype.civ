@@ -331,7 +331,7 @@ function skyWhere() {
 function skyDraw() {
   var cv = $("skycv");
   if (!cv || !SKY.on || SKY.mode === "space") return;
-  var dpr = Math.min(2, window.devicePixelRatio || 1),
+  var dpr = Math.min(3, window.devicePixelRatio || 1),
     w = cv.clientWidth,
     h = cv.clientHeight;
   if (cv.width !== Math.round(w * dpr)) {
@@ -1133,6 +1133,82 @@ function spxRing(inner, outer, tex) {
   return m;
 }
 
+// A soft round dot, so stars are discs rather than squares.
+function spxDot() {
+  if (SPX.dot) return SPX.dot;
+  var c = document.createElement("canvas");
+  c.width = c.height = 64;
+  var g = c.getContext("2d"),
+    r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, "rgba(255,255,255,1)");
+  r.addColorStop(0.35, "rgba(255,255,255,0.85)");
+  r.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = r;
+  g.fillRect(0, 0, 64, 64);
+  SPX.dot = new THREE.CanvasTexture(c);
+  return SPX.dot;
+}
+
+// Sharp stars at their real places from the star catalogue (about 5,000 to magnitude 6), in four
+// brightness steps; until the catalogue arrives, a scattering of stars stands in.
+function spxStars(cat) {
+  var T = THREE,
+    steps = [
+      [-2, 1, 5.5],
+      [1, 2.5, 3.6],
+      [2.5, 4, 2.4],
+      [4, 99, 1.5]
+    ],
+    list = cat;
+  if (!list) {
+    list = [];
+    for (var i = 0; i < 4500; i++)
+      list.push([
+        Math.random() * 360,
+        (Math.asin(Math.random() * 2 - 1) * 180) / Math.PI,
+        6 - Math.pow(Math.random(), 0.35) * 7,
+        "#ffffff"
+      ]);
+  }
+  (SPX.starSets || []).forEach(function (o) {
+    SPX.scene.remove(o);
+    o.geometry.dispose();
+    o.material.dispose();
+  });
+  SPX.starSets = steps.map(function (st) {
+    var pos = [],
+      col = [],
+      c = new T.Color();
+    list.forEach(function (s) {
+      if (s[2] < st[0] || s[2] >= st[1]) return;
+      var v = spxScene(spxRaDec(s[0], s[1]));
+      pos.push(v[0] * 8500, v[1] * 8500, v[2] * 8500);
+      c.set(s[3] || "#ffffff");
+      // Fainter stars in a step are dimmed so the step's single size still reads as a range.
+      var k = Math.max(0.35, Math.min(1, 1.15 - (s[2] - st[0]) * 0.25));
+      col.push(c.r * k, c.g * k, c.b * k);
+    });
+    var g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
+    g.setAttribute("color", new T.Float32BufferAttribute(col, 3));
+    var o = new T.Points(
+      g,
+      new T.PointsMaterial({
+        size: st[2],
+        sizeAttenuation: false,
+        map: spxDot(),
+        vertexColors: true,
+        transparent: true,
+        depthWrite: false
+      })
+    );
+    o.frustumCulled = false;
+    SPX.scene.add(o);
+    return o;
+  });
+  SPX.catalogue = !!cat;
+}
+
 function spxBuild() {
   var T = THREE,
     host = $("spx"),
@@ -1142,30 +1218,37 @@ function spxBuild() {
     alpha: false,
     powerPreference: "high-performance"
   }));
-  R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1.75 : 2));
+  // Full sharpness on phones' dense screens; the lighter drawing still runs at twice the CSS pixels.
+  R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 2 : 2.5));
   R.setClearColor(0x000000, 1);
   host.insertBefore(R.domElement, host.firstChild);
   R.domElement.id = "spxcv";
   var S = (SPX.scene = new T.Scene());
   SPX.cam = new T.PerspectiveCamera(50, 1, 0.01, 20000);
   var load = new T.TextureLoader(),
+    aniso = R.capabilities.getMaxAnisotropy ? R.capabilities.getMaxAnisotropy() : 1,
     tex = function (u) {
       var t = load.load(u);
       t.colorSpace = T.SRGBColorSpace;
+      t.anisotropy = aniso; // keeps surfaces crisp when seen at a slant
       return t;
     };
   load.setCrossOrigin("anonymous");
-  // The Milky Way all around.
+  // The Milky Way all around, kept dim: it is only the soft glow of the band. A photo stretched around the
+  // whole sky turns its stars into blurry squares, so the stars themselves are drawn sharp on top (spxStars).
   var sky = new T.Mesh(
-    new T.SphereGeometry(9000, 48, 24),
+    new T.SphereGeometry(9000, 64, 32),
     new T.MeshBasicMaterial({
       map: tex(SPX_TXB + "stars_milky_way.jpg"),
+      color: 0x5a5a5a,
       side: T.BackSide,
       depthWrite: false
     })
   );
   sky.rotation.x = -23.44 * D; // the texture is in equatorial coordinates
   S.add(sky);
+  spxStars(null);
+  skyLoad();
   S.add(new T.AmbientLight(0xffffff, 0.11));
   var sunLight = new T.PointLight(0xffffff, 3.2, 0, 0);
   S.add(sunLight);
@@ -1434,6 +1517,45 @@ function spxShow(el, v, w, h, on) {
   el.style.transform = "translate(" + ((p.x + 1) / 2) * w + "px," + ((1 - p.y) / 2) * h + "px)";
 }
 
+// Names of planets and moons that would land on each other are hidden: the chosen body first, then the
+// Sun and the planets biggest first, then moons. Planets packed together from far out show one name
+// until you move closer. Spacecraft and landing-site names are left alone.
+var SPX_RANK = [
+  "sun",
+  "jupiter",
+  "saturn",
+  "uranus",
+  "neptune",
+  "earth",
+  "venus",
+  "mars",
+  "mercury",
+  "pluto"
+];
+function spxDeclutter() {
+  var tgt = SPX.target,
+    els = [],
+    L = SPX.lab || {};
+  Object.keys(L).forEach(function (k) {
+    var el = L[k];
+    if (el.style.display === "none" || !SPX.byId[k]) return;
+    var r = SPX_RANK.indexOf(k),
+      rank = tgt && tgt.id === k ? -1 : r >= 0 ? r : /^[a-z]+$/.test(k) ? 20 : 30;
+    els.push({ el: el, rank: rank, b: el.getBoundingClientRect() });
+  });
+  els.sort(function (a, b) {
+    return a.rank - b.rank;
+  });
+  var kept = [];
+  els.forEach(function (x) {
+    var hit = kept.some(function (b) {
+      return x.b.left < b.right && b.left < x.b.right && x.b.top < b.bottom && b.top < x.b.bottom;
+    });
+    if (hit) x.el.style.display = "none";
+    else kept.push(x.b);
+  });
+}
+
 // Is a point on a sphere facing the camera?
 function spxFacing(o, world) {
   var n = world.clone().sub(o.g.position),
@@ -1474,6 +1596,7 @@ function spxLabels() {
     }
     spxShow(el, at, w, h, on);
   });
+  spxDeclutter();
   // The best-known spacecraft around Earth get names when Earth is close.
   var arr = SPX.satPts.geometry.attributes.position.array;
   ["ISS", "Tiangong", "Hubble"].forEach(function (nm) {
@@ -1547,6 +1670,8 @@ function spxFrame(now) {
     SPX.satAt = now;
     spxSats();
   }
+  if (!SPX.catalogue && SKY.data && SKY.data.stars && SKY.data.stars.length)
+    spxStars(SKY.data.stars);
   spxCamera();
   SPX.renderer.render(SPX.scene, SPX.cam);
   spxLabels();
@@ -1599,7 +1724,7 @@ function spxCard() {
             : "Planet"
           : "Moon of " + SPX.byId[o.parent].name;
     if (f) {
-      if (f[0]) rows.push(["MOONS", f[0]]);
+      if (f[0]) rows.push([o.id === "sun" ? "ABOUT" : "MOONS", f[0]]);
     }
     rows.push(["SIZE", (f && f[1]) || (o.km * 2).toLocaleString() + " km across"]);
     if (el2) {

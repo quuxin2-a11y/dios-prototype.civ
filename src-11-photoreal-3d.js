@@ -861,6 +861,38 @@ function t4FlightOff() {
     T4F.fix = null;
   }
 }
+// Window position of a drawn entity, or null when it is behind the camera.
+function t4EntScreen(e) {
+  var C = window.Cesium,
+    v = T4.v,
+    p = e.position && e.position.getValue(v.clock.currentTime),
+    tw = C.SceneTransforms.worldToWindowCoordinates || C.SceneTransforms.wgs84ToWindowCoordinates,
+    w = p && tw(v.scene, p);
+  if (!w) return null;
+  var r = v.scene.canvas.getBoundingClientRect();
+  return [w.x + r.left, w.y + r.top];
+}
+// Window position of an object drawn in the photoreal view, or null when it is not drawn.
+function t4Screen(o) {
+  if (!window.Cesium || !T4.v || !o) return null;
+  for (var k in T4M) {
+    var e = T4M[k];
+    if (e && e.oj && (e.oj === o || (o.id != null && e.oj.id === o.id && e.oj.kind === o.kind)))
+      return t4EntScreen(e);
+  }
+  return null;
+}
+// The drawn object closest to a tap (pixels relative to the canvas), within RING_SLOP pixels.
+function t4Near(pos) {
+  var r = T4.v.scene.canvas.getBoundingClientRect(),
+    pts = [];
+  for (var k in T4M) {
+    var e = T4M[k],
+      q = e && e.oj ? t4EntScreen(e) : null;
+    if (q) pts.push([q[0] - r.left, q[1] - r.top, e.oj]);
+  }
+  return ringNearest(pts, pos.x, pos.y, RING_SLOP);
+}
 function t4Flight() {
   var C = window.Cesium,
     v = T4.v;
@@ -1326,15 +1358,27 @@ function t4Open(opt) {
           var p = v.scene.pick(m.position),
             c = p && p.id && p.id.u ? p.id : null,
             o = p && p.id && (p.id.oj || (p.id.kind === "info" ? p.id : null));
+          if (!o && !c) o = t4Near(m.position);
           if (o && !c) {
-            select(o);
-            target = null;
-            if (o.kind === "plane") {
-              T4MT = 0;
-              t4Flight();
-              if (W < 1000) sheetSet(34, true);
-            } else if (o.kind !== "info")
-              t4Fly(o.lon, o.lat, o.kind === "sat" ? (o.alt || 400) * 1000 + 2e6 : 900, 0);
+            ringTap(
+              o,
+              function () {
+                return t4Screen(ringFresh(o));
+              },
+              function (f) {
+                select(f);
+                target = null;
+                if (f.kind === "plane") {
+                  T4MT = 0;
+                  t4Flight();
+                } else if (f.kind !== "info")
+                  t4Fly(f.lon, f.lat, f.kind === "sat" ? (f.alt || 400) * 1000 + 2e6 : 900, 0);
+              }
+            );
+            return;
+          }
+          if (RING.o && !c) {
+            ringClose();
             return;
           }
           if (c) {

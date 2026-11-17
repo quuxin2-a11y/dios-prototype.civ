@@ -19,6 +19,8 @@
 - **Shared keys.** When you have not entered your own key, requests for webcams near the area you are viewing go to Windy, and requests for 3D map tiles go to Google, using the app's shared keys. Those providers see the request and the area, as they would with your own key. Nothing about you is attached.
 - **Finder** sends the flight number or registration you type to adsbdb and, if you added a key, AeroDataBox.
 - **Saved places, watchlist and settings** are stored on the device only. Notifications are created on the device; there is no push server.
+- **Pages opened in the app.** When you tap a link, your phone fetches that page directly from its site (Wikipedia articles from Wikipedia's article service) and shows its text and pictures in the app. The site sees your IP address, as it would in a browser; nothing goes through a server of ours and the app keeps no history of pages opened.
+- **Tower screen** sends the airport's code to datis.clowd.io, the FAA, aviationweather.gov and, if you added a key, AeroDataBox. The ATIS is read aloud by the phone's own voice.
 - **The diagnostic report** is created only when you ask, contains feed status and key names (never key values), and goes only where you send it.
 
 - **News desk.** To find headlines, the app sends the coordinates of the map view to OpenStreetMap's Nominatim to get a place name, then sends that place name to GDELT and Google News. Nothing about you is attached. Dismissed broadcasts are remembered on the device only.
