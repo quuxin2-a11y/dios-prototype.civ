@@ -5,7 +5,7 @@
  * Seattle Fire Department 911 dispatches (City of Seattle). Built on the info-layer framework
  * in module 27.
  *
- * Module 30 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 30 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

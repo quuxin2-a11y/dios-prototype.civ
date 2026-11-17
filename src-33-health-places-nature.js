@@ -4,7 +4,7 @@
  * parks and national parks (OpenStreetMap), recent wildlife observations (iNaturalist) and live
  * river and lake levels (USGS). Built on the info-layer framework in module 27.
  *
- * Module 33 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 33 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

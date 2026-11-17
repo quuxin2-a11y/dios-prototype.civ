@@ -3,7 +3,7 @@
  * CesiumJS with Google Photorealistic 3D Tiles, landmark presets, visual presets, and live
  * cameras, aircraft and ships placed in 3D.
  *
- * Module 11 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 11 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -1357,6 +1357,12 @@ function t4Open(opt) {
             opt.h || 1.6e7
           ),
           orientation: { heading: 0, pitch: -90 * D, roll: 0 }
+        });
+      else if (opt.close)
+        // Street-level close-up looking north over the given point (from the dark globe).
+        T4.v.camera.setView({
+          destination: C.Cartesian3.fromDegrees(opt.lon, opt.lat - 0.011, 1300),
+          orientation: { heading: 0, pitch: -38 * D, roll: 0 }
         });
       else
         T4.v.camera.setView({

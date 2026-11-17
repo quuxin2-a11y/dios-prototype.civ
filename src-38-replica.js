@@ -6,7 +6,7 @@
  * Runs in the same CesiumJS viewer as the Google view (module 11), so cameras, aircraft, ships,
  * data layers and taps all work the same; Google's tiles are not loaded at all here.
  *
- * Module 38 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 38 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -318,11 +318,16 @@ function repLabel(C, coll, lon, lat, h, text, o) {
   });
 }
 
-function repBuild(parts) {
+// photo: labels only, drawn on top, for the photo-real 3D tiles.
+function repBuild(parts, photo) {
   var C = window.Cesium,
     v = T4.v,
     prims = [];
   if (!C || !v) return prims;
+  if (photo) {
+    prims.push(repNames(C, v, parts, true));
+    return prims;
+  }
   var batch = function (inst, flat) {
     // Built on the main thread in batches, so no helper scripts have to be fetched from the CDN.
     for (var k = 0; k < inst.length; k += 700)
@@ -426,9 +431,18 @@ function repBuild(parts) {
   });
   batch(trees);
 
-  // Names: streets, landmarks and neighbourhoods, each at the distances where they help.
+  prims.push(repNames(C, v, parts, false));
+  return prims;
+}
+
+// Names: streets, landmarks and neighbourhoods, each at the distances where they help. Over the
+// photos (top) they are always drawn in front, since the real terrain can be above sea level.
+function repNames(C, v, parts, top) {
   var lab = v.scene.primitives.add(new C.LabelCollection()),
-    seen = {};
+    seen = {},
+    over = function (d) {
+      return top ? Number.POSITIVE_INFINITY : d;
+    };
   parts.roads
     .slice()
     .sort(function (a, b) {
@@ -438,7 +452,7 @@ function repBuild(parts) {
       if (!r.name || seen["s" + r.name]) return;
       seen["s" + r.name] = 1;
       var m = r.line[Math.floor(r.line.length / 2)];
-      repLabel(C, lab, m[0], m[1], 3, r.name, { px: 24, far: 1800, over: 300 });
+      repLabel(C, lab, m[0], m[1], top ? 20 : 3, r.name, { px: 24, far: 1800, over: over(300) });
     });
   parts.buildings.forEach(function (b) {
     if (!b.name || seen["b" + b.name]) return;
@@ -448,23 +462,61 @@ function repBuild(parts) {
       weight: 700,
       color: "#ffe7a8",
       far: 5000,
-      over: 800
+      over: over(800)
     });
   });
   parts.places.forEach(function (p) {
     if (seen["p" + p.name]) return;
     seen["p" + p.name] = 1;
-    repLabel(C, lab, p.lon, p.lat, 120, p.name, {
-      px: 32,
+    repLabel(C, lab, p.lon, p.lat, 120, top ? p.name.toUpperCase() : p.name, {
+      px: top ? 26 : 32,
       weight: 700,
-      color: "#d9f6ff",
+      color: top ? "#ffffff" : "#d9f6ff",
       near: 600,
       far: 22000,
       over: 1e6
     });
   });
-  prims.push(lab);
-  return prims;
+  return lab;
+}
+
+// Ship name tags close in, like a harbour chart: dark boxes with the vessel name.
+function repShipLabels(cp) {
+  var C = window.Cesium,
+    v = T4.v;
+  var show = cp && cp.height < 40000 && WL.ship && SHIPS.length;
+  if (!show) {
+    if (REP.shipLab) REP.shipLab.show = false;
+    return;
+  }
+  if (!REP.shipLab) REP.shipLab = v.scene.primitives.add(new C.LabelCollection());
+  var lab = REP.shipLab,
+    la = cp.latitude / D,
+    lo = cp.longitude / D,
+    km = Math.max(4, (cp.height / 1000) * 3),
+    n = 0;
+  lab.show = true;
+  lab.removeAll();
+  for (var i = 0; i < SHIPS.length && n < 150; i++) {
+    var s = SHIPS[i];
+    if (s.lat == null || hav(la, lo, s.lat, s.lon) > km) continue;
+    n++;
+    lab.add({
+      position: C.Cartesian3.fromDegrees(s.lon, s.lat, 6),
+      text: String(s.n || "Vessel").toUpperCase(),
+      font: "700 20px ui-monospace, Menlo, monospace",
+      scale: 0.5,
+      fillColor: C.Color.fromCssColorString("#d7fbff"),
+      showBackground: true,
+      backgroundColor: C.Color.fromCssColorString("#05121bd9"),
+      backgroundPadding: new C.Cartesian2(8, 5),
+      verticalOrigin: C.VerticalOrigin.BOTTOM,
+      pixelOffset: new C.Cartesian2(0, -12),
+      distanceDisplayCondition: new C.DistanceDisplayCondition(0, 30000),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
+    });
+  }
+  v.scene.requestRender();
 }
 
 // What a tapped building shows.
@@ -526,7 +578,9 @@ function repAtlas() {
             lines.add({
               positions: C.Cartesian3.fromDegreesArrayHeights(repFlat(r, 60)),
               width: width,
-              material: mat
+              material: mat,
+              // Borders are for the view from above; close in they would cut through the city.
+              distanceDisplayCondition: new C.DistanceDisplayCondition(120000, Number.MAX_VALUE)
             });
           });
           var at = repRingLabelAt(f.rings);
@@ -559,7 +613,7 @@ function repAtlas() {
       });
       REP.atlas = [lines, names];
       REP.atlas.forEach(function (p) {
-        p.show = REP.on;
+        p.show = repLabelsOn();
       });
       v.scene.requestRender();
     })
@@ -612,7 +666,7 @@ function repCities(lat, lon, height) {
           over: 1e7
         });
       });
-      coll.show = REP.on;
+      coll.show = repLabelsOn();
       REP.cities.push({ key: key, prims: [coll] });
       while (REP.cities.length > 10) repDrop(REP.cities.shift());
       v.scene.requestRender();
@@ -636,17 +690,47 @@ function repDrop(a) {
   });
 }
 
+// Names and borders are drawn in the model and also over the photo-real 3D (Google's tiles) in
+// the dashboard; over the photos only the labels of each area are built, not its geometry.
+function repLabelsOn() {
+  return !!(
+    T4.on &&
+    T4.v &&
+    (REP.on || (T4.ts && T4.ts.show && typeof RW === "object" && RW.on && RW.mode === "replica"))
+  );
+}
+
 // Load the replica for the area under the camera, if it is close enough and not loaded yet.
 function repTick() {
   var C = window.Cesium,
-    v = T4.v;
-  if (!REP.on || !v) return;
+    v = T4.v,
+    lo = repLabelsOn(),
+    photo = lo && !REP.on;
+  if (REP.vis !== lo) {
+    REP.vis = lo;
+    if (lo) repAtlas();
+    repShowAll(lo);
+  }
+  if (!lo || !v) {
+    repShipLabels(null);
+    return;
+  }
+  // Areas built for the other mode (geometry vs labels only) are rebuilt for this one.
+  if (
+    REP.areas.some(function (x) {
+      return !!x.photo !== photo;
+    })
+  ) {
+    REP.areas.forEach(repDrop);
+    REP.areas = [];
+  }
   var cp = v.camera.positionCartographic;
   repCredit(cp);
+  repShipLabels(cp);
   if (REP.busy || document.hidden || Date.now() < (REP.retry || 0)) return;
   if (cp.height > REP_CITY_MIN_M && cp.height < REP_CITY_MAX_M)
     repCities(cp.latitude / D, cp.longitude / D, cp.height);
-  if (Date.now() > (REP.hold || 0)) repStatus(cp.height > REP_MAX_M ? "far" : "");
+  if (Date.now() > (REP.hold || 0)) repStatus(cp.height > REP_MAX_M || photo ? "far" : "");
   if (cp.height > REP_MAX_M) return;
   var mid = null;
   try {
@@ -663,25 +747,46 @@ function repTick() {
   )
     return;
   REP.busy = true;
-  repStatus("loading");
-  overpassGet(repQuery(a), 30000)
-    .then(function (j) {
-      if (!REP.on) return;
-      var parts = repParse(j);
-      a.prims = repBuild(parts);
+  if (!photo) repStatus("loading");
+  repParts(a)
+    .then(function (parts) {
+      if (repLabelsOn() !== lo || REP.on === photo) return;
+      a.photo = photo;
+      a.prims = repBuild(parts, photo);
       REP.areas.push(a);
       while (REP.areas.length > REP_MAX_AREAS) repDrop(REP.areas.shift());
       v.scene.requestRender();
       REP.last = parts.buildings.length;
-      repStatus(parts.buildings.length ? "built" : "empty");
+      repStatus(photo ? "" : parts.buildings.length ? "built" : "empty");
       REP.hold = Date.now() + 2500;
     })
     .catch(function () {
-      repStatus("offline");
+      if (!photo) repStatus("offline");
       REP.retry = Date.now() + 8000;
     })
     .then(function () {
       REP.busy = false;
+    });
+}
+
+// The parsed city for an area: from the phone when it has been built before (buildings rarely
+// change, so a copy is kept for 60 days), otherwise from OpenStreetMap, then kept.
+var REP_CACHE = "rep2:",
+  REP_CACHE_MS = 60 * 864e5;
+
+function repParts(a) {
+  var key = REP_CACHE + a.key;
+  return idbGet(key)
+    .catch(function () {
+      return null;
+    })
+    .then(function (c) {
+      if (c && c.parts && Date.now() - c.t < REP_CACHE_MS) return c.parts;
+      return overpassGet(repQuery(a), 30000).then(function (j) {
+        var parts = repParse(j);
+        idbSet(key, { t: Date.now(), parts: parts });
+        return parts;
+      });
     });
 }
 
@@ -705,7 +810,8 @@ function repStatus(s) {
             : s === "empty"
               ? "No mapped buildings here"
               : "";
-  el.style.display = REP.on && s ? "block" : "none";
+  // Only what needs attention is shown: loading and a busy map server.
+  el.style.display = REP.on && (s === "loading" || s === "offline") ? "block" : "none";
 }
 
 // Imagery under the replica, sharpest last so it sits on top:
@@ -735,7 +841,7 @@ function repImagery() {
   v.scene.globe.show = true;
   if (REP.img) return;
   var tiles = function (url, max, r) {
-    return v.imageryLayers.addImageryProvider(
+    var layer = v.imageryLayers.addImageryProvider(
       new C.UrlTemplateImageryProvider({
         url: url,
         tilingScheme: new C.WebMercatorTilingScheme(),
@@ -743,6 +849,11 @@ function repImagery() {
         maximumLevel: max
       })
     );
+    // A little more contrast and colour than the raw photos, so the ground reads crisply.
+    layer.contrast = 1.12;
+    layer.saturation = 1.15;
+    layer.gamma = 1.05;
+    return layer;
   };
   REP.img = [tiles(REP_S2, 15)].concat(
     REP_USGS_AREAS.map(function (r) {
@@ -788,6 +899,7 @@ function repShowAll(on) {
 function repOn() {
   if (!T4.v) return;
   REP.on = true;
+  REP.vis = undefined;
   document.body.classList.add("replica");
   if (T4.ts) T4.ts.show = false;
   repImagery();
@@ -800,6 +912,7 @@ function repOn() {
 
 function repOff() {
   REP.on = false;
+  REP.vis = undefined;
   document.body.classList.remove("replica");
   if (T4.v && T4.v.scene.globe) T4.v.scene.globe.show = false;
   repShowAll(false);
@@ -819,7 +932,7 @@ function repButton() {
     b.style.cssText = "width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em";
     bar.insertBefore(b, bar.firstChild);
   }
-  b.textContent = REP.on ? "GOOGLE" : "REPLICA";
+  b.textContent = REP.on ? "PHOTO" : "MODEL";
   b.setAttribute("aria-label", REP.on ? "Switch to the Google 3D view" : "Switch to Replica");
   var i = $("bRepInfo");
   if (!i) {
@@ -851,8 +964,14 @@ document.addEventListener("click", function (e) {
       );
       return;
     }
+    SET.rw3d = "photo";
+    setSave();
     t4Google();
-  } else repOn();
+  } else {
+    SET.rw3d = "model";
+    setSave();
+    repOn();
+  }
 });
 
 setInterval(repTick, 1500);

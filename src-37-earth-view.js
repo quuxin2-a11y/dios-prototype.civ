@@ -5,7 +5,7 @@
  * points (module 11), data-layer items as points and cables as lines. Falls back to the classic
  * globe when the 3D engine or Google's tiles are not available.
  *
- * Module 37 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 37 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -23,8 +23,9 @@ if (!(SET.lookV >= 3)) {
   setSave();
 }
 
-// The start-up view: "world" (default, Replica World, module 39), "clear" (the satellite globe),
-// "classic", or the 3D view on its own: "replica" or "earth" (Google 3D).
+// The start-up view: "world" (default: the dashboard on the dark globe, modules 39 and 42),
+// "replica" (the dashboard on the 3D Replica), "clear" (the satellite globe), "classic", or
+// "earth" (Google 3D on its own).
 function lookMode() {
   return SET.look || "world";
 }
@@ -107,11 +108,16 @@ function t4Cables() {
 
 // Start in the Earth view from space, over the place the globe was showing.
 // Start-up follows Globe look, whatever view was open last time (except the standard 3D view).
-if (EMBED_OK && lookMode() === "world" && ls("ojos-view") !== "3d")
+if (EMBED_OK && /^(world|replica)$/.test(lookMode()))
   setTimeout(function () {
-    rwEnter({ auto: true, space: true, lon: rot.lon, lat: rot.lat });
-  }, 900);
-else if (EMBED_OK && /^(replica|earth)$/.test(lookMode()) && ls("ojos-view") !== "3d")
+    rwEnter({
+      auto: true,
+      mode: lookMode() === "world" ? "globe" : "replica",
+      lon: rot.lon,
+      lat: rot.lat
+    });
+  }, 400);
+else if (EMBED_OK && lookMode() === "earth" && ls("ojos-view") !== "3d")
   setTimeout(function () {
     t4Open({
       auto: true,

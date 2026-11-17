@@ -4,7 +4,7 @@
  * (US Tsunami Warning Centers), wildfire perimeters (NIFC WFIGS) and space weather (NOAA SWPC),
  * built on a small framework for public info layers that later data packs reuse.
  *
- * Module 27 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 27 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -135,9 +135,11 @@ function ilLoad(d, force) {
   d.at = Date.now();
   d.area = ak;
   d.st = d.items.length ? d.st : "LOADING…";
+  if (!d.items.length) ilCacheShow(d, ak);
   d.load(d, area)
     .then(function (list) {
       d.items = (list || []).filter(ilValid);
+      ilCacheSave(d, ak);
       d.st = d.status ? d.status(d) : d.items.length ? "" : d.none || "NONE ACTIVE";
       WSTAT[d.key] = "ok";
     })
@@ -151,6 +153,31 @@ function ilLoad(d, force) {
     });
 }
 
+// ---- Instant layers: the last answer for each layer and area is kept on the phone and shown at
+// once while the fresh one loads, so a layer never opens empty when it has been seen before.
+var IL_CACHE_MS = 24 * 3600000,
+  IL_CACHE_MAX = 20000;
+
+function ilCacheShow(d, ak) {
+  idbGet("il:" + d.key + ":" + ak)
+    .then(function (c) {
+      if (!c || !d.busy || d.items.length || Date.now() - c.t > IL_CACHE_MS) return;
+      d.items = (c.items || []).filter(ilValid);
+      d.st = "UPDATING…";
+      wstat();
+    })
+    .catch(function () {});
+}
+
+function ilCacheSave(d, ak) {
+  if (d.items.length && d.items.length <= IL_CACHE_MAX)
+    try {
+      idbSet("il:" + d.key + ":" + ak, { t: Date.now(), items: d.items });
+    } catch (e) {
+      /* an item holds something that cannot be stored; the layer just loads normally next time */
+    }
+}
+
 // Called from module 10 before this module has run, so it must cope with IL being undefined.
 function ilStatus(key) {
   var d = IL && IL[key];
@@ -160,9 +187,10 @@ function ilStatus(key) {
   return d.st || (d.items.length ? d.items.length.toLocaleString() : "…");
 }
 
-// At most three data layers load at once, so camera networks are not starved at start-up.
-var IL_MAX_BUSY = 3;
-setInterval(function () {
+// At most five data layers load at once; cameras come from the phone at start-up, so the network
+// is free for them. Checked every 4 s (a layer only reloads when its time is up or the view moved).
+var IL_MAX_BUSY = 5;
+function ilSchedule() {
   if (document.hidden) return;
   var busy = IL_ORDER.filter(function (k) {
     return IL[k].busy;
@@ -172,7 +200,9 @@ setInterval(function () {
     ilLoad(IL[k], false);
     if (IL[k].busy) busy++;
   });
-}, 15000);
+}
+setTimeout(ilSchedule, 1200);
+setInterval(ilSchedule, 4000);
 
 function ilPoly(P, rings, fill, stroke) {
   ctx.beginPath();

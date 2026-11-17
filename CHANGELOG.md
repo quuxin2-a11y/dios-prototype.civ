@@ -2,6 +2,31 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v73
+- **Photo-real 3D close-ups by default:** the 3D city opens in Google's photo-real tiles (real scanned buildings and trees), with Google's required credit placed above the dock. Street, district and landmark names from OpenStreetMap, country and state borders, city names, and dark name tags for ships close in are drawn on top, always in front of the real terrain. PHOTO / MODEL switches to the open-data model, and the choice is kept.
+- **Help with a photo** (Emergency mode, and the red ! in the dashboard's top bar): take a photo of where you are; the app adds the phone's position and accuracy and opens a ready message for check-in contacts, the share sheet (with the photo), or a text to 911 where offered. Nothing is sent until you press send. The photo is shrunk and its location tags removed. If the position is missing or rough and a Cloud Vision key is set, a recognised landmark is added.
+- **Where is this?** (Search → camera): recognises well-known public landmarks in a photo with Google Cloud Vision under the user's own key, and lists the best matches with how sure it is and a radius; Show flies there. Photos with a face, a person as the subject, or a home, hotel room or other private interior are never looked up; a notice explains why. Without a key it explains how to add one.
+- Guide, privacy notes and sources updated for v73.
+- Tests: 66 JavaScript tests (what may and may not be looked up) and 32 browser tests (Help with a photo in Emergency mode, Where is this? without a key, the photo-real close-up and the MODEL choice).
+
+## v72
+- **Shared data feed** (`harvest.py`, `.github/workflows/data.yml`, `src-41-feed.js`): every 20 minutes a scheduled job opens the app in a headless browser, lets every public camera network and worldwide data layer load, and publishes the result as compact files on the `data` branch. Phones read it at start-up: one download instead of dozens of requests, and networks covered by a fresh feed (under 3 hours old) are not asked again from the phone. The phone's own copy from the last session still shows first, and a network the feed lacks still loads from the phone.
+- **The dark globe is the new start-up view** (`src-42-dark-globe.js`): a dark vector globe drawn by MapLibre on the graphics chip, with glowing country borders, dashed state lines, quiet roads and buildings, and country, state, city, town, neighbourhood and street names as you zoom. Cameras, aircraft, ships, every data layer (points, areas and undersea cables) are GPU layers; tap any of them to open it. Map credit is behind the map's ⓘ button.
+- **One dashboard, two engines:** the top bar and dock now sit over the dark globe by default and over the 3D Replica for close-ups. The logo switches between them at the same place; zoomed into a city, **See this in 3D** opens the 3D city right there. Briefing → Globe look: Dark globe (default), Replica 3D, Satellite globe, Google 3D, Classic dark.
+- If the map engine can't load (offline on the very first run), the dashboard opens on the 3D Replica instead.
+- Guide updated for v72.
+- Tests: 65 JavaScript tests (the feed format) and 31 browser tests (start-up on the dark globe, its style and data layers against a stand-in map engine, switching to 3D and back, the shared feed).
+
+## v71
+- **Instant start.** Every camera from the last session is shown the moment the app opens, from the phone, and each network's fresh list replaces its share as it arrives; networks that don't answer keep their last cameras on the map and are retried. Data layers show their last answer for the same area at once (kept up to 24 hours, marked UPDATING… until the fresh one lands), and the layer scheduler starts after 1.2 s instead of 15 s, checks every 4 s, and runs up to five layers at once.
+- **3D cities open instantly when visited before:** each area's buildings, roads, trees and names are kept on the phone for 60 days, so Overpass is only asked once per area.
+- **Replica World, simplified:** one slim top bar (brand, live counts, sky, hide menus); search opens from the dock only when needed; the dock is Layers, Cameras, Events, Search and Settings (aircraft, ships and trains are switched in Layers); the command strip and ticker are hidden; the 3D side bar is three round buttons (PHOTO, ⓘ, INSPECT), with gestures for zoom, tilt and turn. The map fills the whole screen. The status chip only appears while loading or when the map server is busy.
+- **Hide menus** (the eye in Replica World, ◉ Hide menus on the globe) clears every control off the screen; one small eye in the corner brings them back.
+- Borders show only from above 120 km, so they no longer streak across the horizon close in; imagery has slightly more contrast and colour.
+- The Google switch is labelled PHOTO / MODEL.
+- Guide updated for v71.
+- Tests: 64 JavaScript tests and 29 browser tests (cameras from the last session at start-up, Hide menus).
+
 ## v70
 - Replica imagery outside the US is now the EOxCloudless Sentinel-2 mosaic (2024, 10 m per pixel, cloud-free), about 25 times sharper than the NASA imagery it replaces: city blocks, parks and main roads are clear. US aerial photos stay on top inside the US.
 - The mosaic is licensed CC BY-NC-SA 4.0 (non-commercial use only) and its credit must be visible on the map, so a small text credit shows in the corner while it is in view: from high up anywhere, and close in outside the US. Noted in THIRD-PARTY.md.

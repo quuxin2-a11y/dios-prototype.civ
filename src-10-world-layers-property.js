@@ -3,7 +3,7 @@
  * Day/night terminator, aircraft, earthquakes, events and storms, notifications, entity dossiers
  * and the property view.
  *
- * Module 10 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 10 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -1656,6 +1656,7 @@ function t3ZoomFor(lat, vkm) {
   );
 }
 function t3Style() {
+  if (T3.ops) return opsStyle();
   var E = "https://server.arcgisonline.com/ArcGIS/rest/services/";
   return {
     version: 8,
@@ -1999,28 +2000,41 @@ function t3Route() {
       duration: 900
     });
 }
-function t3Open() {
-  var box = $("tilt");
+// opt.ops opens the dark globe (module 42) instead of the satellite 3D view: its own style,
+// from space, without terrain; opt.lon, opt.lat and opt.zoom place it.
+function t3Open(opt) {
+  opt = opt && opt.target ? {} : opt || {};
+  var box = $("tilt"),
+    ops = !!opt.ops;
   if (!box || T3.on) return;
   if (T4.on) t4Close();
-  var btn = $("b3dv");
-  btn.textContent = "Loading 3D…";
+  if (T3.map && !!T3.ops !== ops) {
+    // The two styles share one map engine; switching rebuilds the map so every layer is fresh.
+    try {
+      T3.map.remove();
+    } catch (e) {}
+    T3.map = null;
+    T3.ready = false;
+  }
+  T3.ops = ops;
+  var btn = $("b3dv") || {};
+  if (!ops) btn.textContent = "Loading 3D…";
   t3Load()
     .then(function () {
       T3.on = true;
       document.body.classList.add("tilt");
       btn.textContent = "⛰ 3D view";
-      btn.classList.add("on");
-      $("ftiles").style.display = "none";
+      if (!ops && btn.classList) btn.classList.add("on");
+      if ($("ftiles")) $("ftiles").style.display = "none";
       if (!T3.map) {
         var m;
         try {
           m = T3.map = new maplibregl.Map({
             container: "t3map",
             style: t3Style(),
-            center: [rot.lon, rot.lat],
-            zoom: t3ZoomFor(rot.lat, viewKm()),
-            pitch: 58,
+            center: [opt.lon == null ? rot.lon : opt.lon, opt.lat == null ? rot.lat : opt.lat],
+            zoom: ops ? opt.zoom || 1.7 : t3ZoomFor(rot.lat, viewKm()),
+            pitch: ops ? 0 : 58,
             bearing: 0,
             maxPitch: 80,
             attributionControl: false,
@@ -2033,7 +2047,11 @@ function t3Open() {
           return;
         }
         try {
-          m.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
+          if (!ops)
+            m.addControl(
+              new maplibregl.NavigationControl({ visualizePitch: true }),
+              "bottom-right"
+            );
           m.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
         } catch (e) {}
         m.on("error", function () {});
@@ -2050,21 +2068,28 @@ function t3Open() {
             m.setProjection({ type: "globe" });
           } catch (e) {}
           try {
-            if (T3.terr) m.setTerrain({ source: "dem", exaggeration: 1.25 });
+            if (T3.terr && !T3.ops) m.setTerrain({ source: "dem", exaggeration: 1.25 });
           } catch (e) {}
           t3Cams();
           t3World();
+          t3Info();
           t3Route();
           t3Foot();
-          ls("ojos-view", "3d");
+          if (!T3.ops) ls("ojos-view", "3d");
         });
       } else {
         T3.map.resize();
-        T3.map.jumpTo({ center: [rot.lon, rot.lat], zoom: t3ZoomFor(rot.lat, viewKm()) });
+        if (!ops) T3.map.jumpTo({ center: [rot.lon, rot.lat], zoom: t3ZoomFor(rot.lat, viewKm()) });
+        else if (opt.lon != null)
+          T3.map.jumpTo({
+            center: [opt.lon, opt.lat],
+            zoom: opt.zoom || T3.map.getZoom(),
+            pitch: 0
+          });
         T3.n = -1;
         t3Cams();
       }
-      if (!ls("ojos-t3tip")) {
+      if (!ops && !ls("ojos-t3tip")) {
         ls("ojos-t3tip", 1);
         note(
           "3D view",
@@ -2074,6 +2099,10 @@ function t3Open() {
     })
     .catch(function () {
       btn.textContent = "⛰ 3D view";
+      if (ops) {
+        if (opt.fail) opt.fail();
+        return;
+      }
       note(
         "3D view",
         "Couldn't load the 3D map. Check your connection and try again; the globe still works."
@@ -2379,13 +2408,14 @@ setInterval(function () {
   }
   t3Cams();
   t3World();
+  t3Info();
   t3Models();
   t3Route();
   t3Foot();
 }, 700);
 document.addEventListener("click", function (e) {
   if (e.target.closest("#b3dv")) {
-    T3.on ? t3Close() : t3Open();
+    T3.on ? t3Close() : t3Open({});
     return;
   }
   var b = e.target.closest("[data-t3]");

@@ -24,10 +24,11 @@ This project connects existing libraries and public data. It does not claim them
 
 | Source | Used for | Terms |
 | --- | --- | --- |
-| Google Maps Platform (Map Tiles API, Street View, Routes) | Photoreal 3D cities, Street View, routing | Google Maps Platform Terms; user's own key |
+| Google Maps Platform (Map Tiles API, Street View, Routes) | Photoreal 3D cities (the default 3D close-up, with Google's required credit on screen), Street View, routing | Google Maps Platform Terms; user's own key |
+| Google Cloud Vision | Where is this? landmark recognition, and a landmark for Help with a photo when the position is rough | Google Cloud Terms; user's own key only |
 | Esri World Imagery, World Street Map, Light and Dark Gray Canvas, World Transportation and World Boundaries and Places | Globe imagery and map styles, road and label overlays | Esri terms of use; attribution required |
 | OpenStreetMap, Nominatim, Overpass | Place search, building outlines | ODbL; attribution required; fair-use limits |
-| OpenFreeMap | Building shapes in the standard 3D view | OpenStreetMap data, ODbL |
+| OpenFreeMap | The dark globe (land, water, roads, buildings, borders and place names) and building shapes in the standard 3D view | OpenStreetMap data, ODbL; credited behind the map's ⓘ button |
 | Terrain tiles on AWS | Terrain in the standard 3D view | Open data; attribution required |
 | OSRM public router | Routing without a Google key | Demo server; fair use only |
 

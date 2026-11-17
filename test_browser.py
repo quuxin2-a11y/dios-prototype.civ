@@ -13,6 +13,7 @@ import functools
 import http.server
 import json
 import threading
+import time
 import unittest
 from pathlib import Path
 
@@ -322,6 +323,41 @@ SAMPLES = {
 
 # A stand-in for CesiumJS: every property and call returns another stand-in, except the
 # collections and camera the Earth view relies on, which record what the app adds.
+MAPLIBRE_STANDIN = """
+(() => {
+  const rec = window.__ml = { sources: {}, layers: [], maps: 0 };
+  const noop = () => {};
+  class Map {
+    constructor(o) {
+      rec.maps++;
+      rec.style = o.style;
+      this.z = o.zoom;
+      this.c = { lng: o.center[0], lat: o.center[1] };
+      this.h = {};
+      setTimeout(() => (this.h.load || []).forEach((f) => f({})), 50);
+      window.__mlMap = this;
+      return new Proxy(this, { get: (t, k) => (k in t ? t[k] : noop) });
+    }
+    on(ev, a, b) { if (!b) (this.h[ev] = this.h[ev] || []).push(a); return this; }
+    addSource(id, d) { rec.sources[id] = d; }
+    getSource(id) { return rec.sources[id] && { setData: (x) => { rec.sources[id].data = x; } }; }
+    addLayer(l) { rec.layers.push(l.id); }
+    getLayer(id) { return rec.layers.includes(id) ? {} : undefined; }
+    getZoom() { return this.z; }
+    getCenter() { return this.c; }
+    getPitch() { return 0; }
+    getBearing() { return 0; }
+    jumpTo(o) { if (o.zoom != null) this.z = o.zoom; if (o.center) this.c = { lng: o.center[0], lat: o.center[1] }; }
+    easeTo(o) { this.jumpTo(o); }
+    flyTo(o) { this.jumpTo(o); }
+    queryRenderedFeatures() { return []; }
+    getCanvas() { return document.createElement('canvas'); }
+    getBounds() { return { getWest: () => this.c.lng - 1, getEast: () => this.c.lng + 1, getSouth: () => this.c.lat - 1, getNorth: () => this.c.lat + 1 }; }
+  }
+  window.maplibregl = { Map, NavigationControl: function () {}, AttributionControl: function () {} };
+})();
+"""
+
 CESIUM_STANDIN = """
 (() => {
   const any = () => new Proxy(function () {}, {
@@ -683,7 +719,8 @@ class AppInBrowser(unittest.TestCase):
             self.page.click(".brand", force=True)
             self.page.wait_for_timeout(60)
 
-    def test_logo_tap_opens_replica_world_without_google_tiles(self):
+    def test_logo_opens_photo_real_3d_and_model_switch_is_kept(self):
+        # No map library here: the dashboard falls back from the dark globe to the 3D replica.
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.add_init_script("window.__czH = 3000;")
         self.page.reload()
@@ -692,45 +729,141 @@ class AppInBrowser(unittest.TestCase):
             self.page.evaluate("() => document.body.classList.contains('real')")
         )
         self.tap_logo()
+        # 3D close-ups open in the photo-real view (Google's tiles) by default.
         self.page.wait_for_function(
-            "() => document.body.classList.contains('rw') && document.body.classList.contains('replica')",
+            "() => document.body.classList.contains('rw-replica') && window.__cz && window.__cz.google === 1",
             timeout=15000,
         )
-        self.page.wait_for_function(
-            "() => window.__cz && window.__cz.globe && window.__cz.prims >= 4",
-            timeout=20000,
-        )
-        self.assertFalse(self.page.evaluate("() => !!window.__cz.google"))
         self.assertTrue(self.visible("#rwdash .rwdock"))
+        # MODEL switches to the open-data model, and the choice is kept.
         self.page.click("#bRepSw")
         self.page.wait_for_function(
-            "() => window.__cz.google === 1 && !document.body.classList.contains('replica')",
-            timeout=10000,
+            "() => document.body.classList.contains('replica') && window.__cz.globe && window.__cz.prims >= 4",
+            timeout=20000,
         )
-        # The Replica logo takes you back to the globe.
-        self.page.click(".rwbrand")
+        self.assertEqual(
+            self.page.evaluate("() => JSON.parse(localStorage.getItem('ojos-set')).rw3d"), "model"
+        )
+        # Leaving the dashboard (Settings → Classic dark) closes the 3D view.
+        self.page.evaluate("() => document.querySelector('[data-rw=set]').click()")
+        self.page.click("[data-br='lk-classic']")
         self.page.wait_for_function(
             "() => !document.body.classList.contains('rw') && !document.body.classList.contains('real')",
             timeout=5000,
         )
         self.assertEqual(self.errors, [])
 
-    def test_starts_in_replica_world_by_default(self):
+    def test_starts_on_the_dark_globe_and_the_logo_switches_to_3d(self):
+        self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.add_init_script("window.__czH = 3000;")
         self.page.add_init_script("localStorage.removeItem('ojos-set')")
         self.page.reload()
         self.page.wait_for_function(
-            "() => document.body.classList.contains('rw') && document.body.classList.contains('replica')",
+            "() => document.body.classList.contains('rw-globe') && window.__ml.layers.includes('cams')",
             timeout=15000,
         )
-        self.assertFalse(self.page.evaluate("() => window.__cz.google || 0"))
-        # One tap on the logo goes to the globe.
+        style = self.page.evaluate("() => window.__ml.style")
+        ids = [layer["id"] for layer in style["layers"]]
+        for layer_id in ("borders", "borders-glow", "place-country", "place-city", "road-name"):
+            self.assertIn(layer_id, ids)
+        self.assertEqual(style["projection"], {"type": "globe"})
+        for layer in style["layers"]:
+            self.assertNotIn(None, layer.values(), layer["id"])
+        self.assertEqual(self.page.inner_text("#rwname"), "OJOS DE DIOS")
+        # Zoomed into a city, the 3D close-up is offered.
+        self.page.evaluate("() => window.__mlMap.jumpTo({ zoom: 15 })")
+        self.page.wait_for_selector("#ops3d", state="visible", timeout=3000)
+        # One tap on the logo: the photo-real 3D city at the same place.
         self.page.click(".rwbrand")
         self.page.wait_for_function(
-            "() => !document.body.classList.contains('rw')", timeout=5000
+            "() => document.body.classList.contains('rw-replica') && window.__cz.google === 1",
+            timeout=15000,
+        )
+        self.assertEqual(self.page.inner_text("#rwname"), "REPLICA 3D")
+        self.page.click(".rwbrand")
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=5000)
+        self.assertEqual(self.errors, [])
+
+    def test_dark_globe_draws_data_layers_and_opens_them(self):
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script("localStorage.setItem('ojos-set', JSON.stringify({look: 'world', lookV: 3}))")
+        self.page.add_init_script("localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => window.__ml && window.__ml.sources.info && window.__ml.sources.infoline"
+            " && window.__ml.sources.infoline.data.features.length >= 1"
+            " && window.__ml.sources.info.data.features.length >= 1",
+            timeout=40000,
         )
         self.assertEqual(self.errors, [])
+
+    def test_cameras_from_the_last_session_show_at_once(self):
+        self.page.evaluate(
+            """() => new Promise((res) => {
+                const r = indexedDB.open('ojos', 1);
+                r.onupgradeneeded = () => r.result.createObjectStore('kv');
+                r.onsuccess = () => {
+                    const tx = r.result.transaction('kv', 'readwrite');
+                    const cams = [1, 2, 3].map((i) => ({
+                        n: 'Cam ' + i, lat: 30 + i, lon: -97, e: 'https://example.org/' + i + '.jpg',
+                        src: 'Saved network', live: true,
+                    }));
+                    tx.objectStore('kv').put({ t: Date.now(), cams }, 'live-snap');
+                    tx.oncomplete = res;
+                };
+            })"""
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3",
+            timeout=5000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_shared_feed_fills_cameras_at_start(self):
+        feed = {
+            "v": 1,
+            "t": int(time.time() * 1000),
+            "srcs": ["Feed network"],
+            "keys": ["n", "lat", "lon", "e"],
+            "rows": [[0, "Feed cam %d" % i, 40 + i, -100, "https://example.org/%d.jpg" % i] for i in range(4)],
+        }
+        self.page.route(
+            "**/dios-prototype.civ/data/cams.json*",
+            lambda r: r.fulfill(body=json.dumps(feed), content_type="application/json"),
+        )
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 4",
+            timeout=6000,
+        )
+        self.assertEqual(self.errors, [])
+
+    def test_photo_help_is_in_emergency_and_where_is_this_explains_the_key(self):
+        self.page.evaluate("() => document.getElementById('bEmg').click()")
+        self.page.click("[data-em='yes']")
+        self.page.wait_for_selector("#emgp [data-ph='help']", state="visible", timeout=8000)
+        self.page.evaluate(
+            "() => { const b = document.createElement('button'); b.dataset.ph = 'where';"
+            " document.body.appendChild(b); b.click(); }"
+        )
+        self.page.wait_for_selector("#php", state="visible", timeout=3000)
+        text = self.page.inner_text("#php")
+        self.assertIn("Cloud Vision", text)
+        self.assertIn("never looked up", text)
+        self.page.click("[data-ph='x']")
+        self.assertFalse(self.visible("#php"))
+        self.assertEqual(self.errors, [])
+
+    def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):
+        self.page.click("#bBare")
+        self.assertTrue(self.page.evaluate("() => document.body.classList.contains('bare')"))
+        self.assertFalse(self.visible(".hud"))
+        self.assertTrue(self.visible("#bareX"))
+        self.page.click("#bareX")
+        self.assertFalse(self.page.evaluate("() => document.body.classList.contains('bare')"))
+        self.assertTrue(self.visible(".hud"))
 
     def test_five_logo_taps_still_open_the_signature_not_replica(self):
         self.tap_logo(5)
@@ -760,12 +893,12 @@ class AppInBrowser(unittest.TestCase):
     def test_replica_falls_back_to_a_mirror_when_overpass_is_busy(self):
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.add_init_script("window.__czH = 3000;")
-        # Opened Google 3D last time: start-up still follows Globe look (here, Replica 3D).
+        # Opened Google 3D last time: start-up still follows Globe look (here, the 3D model).
         self.page.add_init_script(
             "localStorage.setItem('ojos-view', JSON.stringify('real'))"
         )
         self.page.add_init_script(
-            "localStorage.setItem('ojos-set', JSON.stringify({look: 'replica', lookV: 2}))"
+            "localStorage.setItem('ojos-set', JSON.stringify({look: 'replica', lookV: 3, rw3d: 'model'}))"
         )
         self.page.route(
             "https://overpass-api.de/**",
@@ -784,7 +917,7 @@ class AppInBrowser(unittest.TestCase):
             "() => document.body.classList.contains('replica')", timeout=15000
         )
         self.page.wait_for_function(
-            "() => /\d+ buildings?/.test((document.getElementById('repst') || {}).textContent || '')",
+            r"() => /\d+ buildings?/.test((document.getElementById('repst') || {}).textContent || '')",
             timeout=25000,
         )
         self.assertFalse(self.page.evaluate("() => !!window.__cz.google"))

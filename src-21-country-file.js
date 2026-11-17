@@ -2,7 +2,7 @@
  * @file Country file.
  * Travel advisory, emergency numbers, leadership, economy and currency for any country.
  *
- * Module 21 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 21 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

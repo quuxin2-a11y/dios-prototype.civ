@@ -3,7 +3,7 @@
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
  * map, and the ticker.
  *
- * Module 13 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 13 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 

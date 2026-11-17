@@ -143,6 +143,9 @@ var NAMES = [
   "cableRows",
   "windFarms",
   "repHeight",
+  "phVerdict",
+  "feedEncode",
+  "feedDecode",
   "repColour",
   "repFootprint",
   "repBuilding",
@@ -180,6 +183,8 @@ var TABLES = [
   "SKY_PLANETS",
   "REP_COLORS",
   "REP_ROADS",
+  "PH_PERSON_AREA",
+  "PH_PRIVATE",
   "REP_MATERIAL",
   "REP_COLOUR_WORDS",
   "REP_CSS_NAMES",
@@ -1671,6 +1676,84 @@ test("replica: real colours, roofs, building parts, trees and place names", func
   );
   var q = F.repQuery(F.repArea(38.8977, -77.0365));
   assert.ok(q.indexOf('node["natural"="tree"]') > 0 && q.indexOf("out 2500;") > 0);
+});
+
+test("feed: camera rows survive the round trip and bad rows are dropped", function () {
+  var cams = [
+    { src: "A", n: "One", lat: 1, lon: 2, e: "https://x/1.jpg", t: "traffic", snap: true },
+    { src: "B", n: "Two", lat: 3, lon: 4, e: "https://x/2.jpg", v: "https://x/2.m3u8", o: { x: 1 } }
+  ];
+  var f = F.feedEncode(cams, 123);
+  assert.strictEqual(f.t, 123);
+  assert.deepStrictEqual(f.srcs, ["A", "B"]);
+  assert.ok(f.keys.indexOf("snap") < 0 && f.keys.indexOf("o") < 0);
+  var back = F.feedDecode(f);
+  assert.strictEqual(back.length, 2);
+  assert.strictEqual(back[0].src, "A");
+  assert.strictEqual(back[0].t, "traffic");
+  assert.strictEqual(back[1].v, "https://x/2.m3u8");
+  f.rows.push([0, "Bad", "x", 2, "https://x/3.jpg"], "junk", [0, "Plain", 1, 2, "http://x/4.jpg"]);
+  assert.strictEqual(F.feedDecode(f).length, 2);
+  assert.deepStrictEqual(F.feedDecode(null), []);
+});
+
+test("photo lookup: people, homes and hotel rooms are never looked up; landmarks are", function () {
+  var lm = {
+    description: "Tokyo Tower",
+    score: 0.93,
+    locations: [{ latLng: { latitude: 35.6586, longitude: 139.7454 } }]
+  };
+  var ok = F.phVerdict({ landmarkAnnotations: [lm, { description: "No place", score: 0.5 }] });
+  assert.strictEqual(ok.matches.length, 1);
+  assert.deepStrictEqual(ok.matches[0], {
+    name: "Tokyo Tower",
+    lat: 35.6586,
+    lon: 139.7454,
+    pct: 93,
+    radiusM: 150
+  });
+  assert.strictEqual(
+    F.phVerdict({ landmarkAnnotations: [lm], faceAnnotations: [{}] }).blocked,
+    "person"
+  );
+  var box = function (x0, y0, x1, y1) {
+    return {
+      name: "Person",
+      score: 0.9,
+      boundingPoly: {
+        normalizedVertices: [
+          { x: x0, y: y0 },
+          { x: x1, y: y0 },
+          { x: x1, y: y1 },
+          { x: x0, y: y1 }
+        ]
+      }
+    };
+  };
+  assert.strictEqual(
+    F.phVerdict({
+      landmarkAnnotations: [lm],
+      localizedObjectAnnotations: [box(0.3, 0.2, 0.7, 0.9)]
+    }).blocked,
+    "person"
+  );
+  // Small figures far away (tourists at a landmark) don't block it.
+  assert.ok(
+    F.phVerdict({
+      landmarkAnnotations: [lm],
+      localizedObjectAnnotations: [box(0.1, 0.8, 0.13, 0.86)]
+    }).matches
+  );
+  ["Bedroom", "Hotel", "Living room", "House", "Interior design"].forEach(function (d) {
+    assert.strictEqual(
+      F.phVerdict({ landmarkAnnotations: [lm], labelAnnotations: [{ description: d, score: 0.8 }] })
+        .blocked,
+      "private",
+      d
+    );
+  });
+  assert.ok(F.phVerdict({ labelAnnotations: [{ description: "Tower", score: 0.9 }] }).matches);
+  assert.deepStrictEqual(F.phVerdict({}).matches, []);
 });
 
 test("sky: sidereal time, Polaris and the equinox", function () {

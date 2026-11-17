@@ -3,7 +3,7 @@
  * Confirmation, position fix, official alerts and assessment, ranked safe places, cameras nearby
  * and the SOS signal.
  *
- * Module 20 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 20 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -654,6 +654,7 @@ function emgDraw() {
   } else if (EMG.busy || !S)
     h += '<p class="bre">Reading alerts, weather and safe places around you…</p>';
   h +=
+    '<div class="brt c1"><button data-ph="help" class="phhelp">📷 Help with a photo: send where I am</button></div>' +
     '<div class="brt"><button data-em="cams">▦ Cameras around me</button><button data-em="share">➤ Share my location</button><button data-em="sig" class="' +
     (EMG.sig ? "on" : "") +
     '">' +

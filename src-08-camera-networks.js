@@ -3,7 +3,7 @@
  * Native and web HTTP, source adapters for public camera networks, shared keys, and merging feeds
  * into the live list.
  *
- * Module 8 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 8 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -78,6 +78,12 @@ function num(v) {
 }
 function addLive(src, arr) {
   var n = 0;
+  // Fresh data from a network replaces the copy kept from the last session (liveSnapLoad).
+  if (LIVESTAT[src] && LIVESTAT[src].s === "cached") {
+    for (var i = LIVE.length - 1; i >= 0; i--)
+      if (LIVE[i].snap && LIVE[i].src === src) LIVE.splice(i, 1);
+    delete LIVESTAT[src];
+  }
   arr.forEach(function (c) {
     if (
       c &&
@@ -1580,6 +1586,11 @@ function openKeys() {
       "console.cloud.google.com (Maps Embed API)"
     ],
     ["windy", "Windy Webcams — ~65,000 webcams worldwide", "https://api.windy.com/keys"],
+    [
+      "vision",
+      "Google Cloud Vision — Where is this? landmark lookup and a landmark for Help with a photo (optional)",
+      "console.cloud.google.com (Cloud Vision API)"
+    ],
     ["ais", "AISStream — ships worldwide (free key)", "aisstream.io"],
     [
       "x",
@@ -1687,22 +1698,92 @@ document.addEventListener("click", function (e) {
     dl2.close ? dl2.close() : dl2.removeAttribute("open");
   }
 });
-if (EMBED_OK)
+// ---- Instant start: every camera from the last session is shown at once from the phone,
+// then each network's fresh list replaces its share as it arrives.
+var LIVE_SNAP = "live-snap",
+  LIVE_SNAP_DAYS = 14;
+
+// Puts a saved list of cameras on the map, network by network. A network that answered live this
+// session is kept; one shown from an older copy is replaced. Returns the networks it filled.
+function liveApply(cams, t) {
+  var by = {};
+  cams.forEach(function (c) {
+    var st = LIVESTAT[c.src];
+    if (st && (st.s !== "cached" || st.t >= t)) return; // answered live, or a newer copy is shown
+    c.snap = true;
+    c.live = true;
+    c.u = c.u || c.e;
+    (by[c.src] = by[c.src] || []).push(c);
+  });
+  var srcs = Object.keys(by);
+  srcs.forEach(function (src) {
+    if (LIVESTAT[src])
+      for (var i = LIVE.length - 1; i >= 0; i--)
+        if (LIVE[i].snap && LIVE[i].src === src) LIVE.splice(i, 1);
+    Array.prototype.push.apply(LIVE, by[src]);
+    LIVESTAT[src] = { n: by[src].length, s: "cached", t: t };
+  });
+  if (srcs.length) {
+    render();
+    liveStatus();
+  }
+  return srcs;
+}
+
+function liveSnapLoad() {
+  return idbGet(LIVE_SNAP)
+    .then(function (snap) {
+      if (snap && snap.cams && Date.now() - snap.t < LIVE_SNAP_DAYS * 864e5)
+        liveApply(snap.cams, snap.t);
+    })
+    .catch(function () {});
+}
+
+function liveSnapSave() {
+  // Windy keeps its own week-long copy (windySweep), so it is left out here.
+  var cams = LIVE.filter(function (c) {
+    return c.src !== WN;
+  }).map(function (c) {
+    var o = {};
+    for (var k in c) if (k !== "snap" && (typeof c[k] !== "object" || c[k] === null)) o[k] = c[k];
+    return o;
+  });
+  if (cams.length) idbSet(LIVE_SNAP, { t: Date.now(), cams: cams });
+}
+
+if (EMBED_OK && !window.__ODD_HARVEST) {
+  liveSnapLoad();
+  setTimeout(liveSnapSave, 90000);
+  setInterval(liveSnapSave, 10 * 60000);
+}
+
+// Started by the data feed (module 41) once it knows which networks the shared feed already
+// covers; those are not asked again from the phone.
+var LIVE_COVERED = {};
+function liveSourcesStart(covered) {
+  LIVE_COVERED = covered || {};
   SOURCES.forEach(function (s) {
-    if (s.keyName && !keyOf(s.keyName)) return;
+    if (LIVE_COVERED[s.name] || (s.keyName && !keyOf(s.keyName))) return;
     try {
       s.load();
     } catch (e) {
       fail(s.name, e);
     }
   });
+}
 // Networks that did not answer are tried again after 2 and 8 minutes; a busy or slow start-up
 // should not leave them out for the whole session.
 function liveRetry() {
   if (!EMBED_OK || document.hidden) return;
   SOURCES.forEach(function (s) {
     var st = LIVESTAT[s.name];
-    if (!st || st.n || (s.keyName && !keyOf(s.keyName))) return;
+    if (
+      !st ||
+      LIVE_COVERED[s.name] ||
+      (st.n && st.s !== "cached") ||
+      (s.keyName && !keyOf(s.keyName))
+    )
+      return;
     delete LIVESTAT[s.name];
     try {
       s.load();

@@ -7341,3 +7341,207 @@ body.sky-open #toasts {
 #sky {
   z-index: 95;
 }
+/* ---------- v71: a quieter Replica World, and "hide menus" everywhere ---------- */
+body.rw #cmdbar,
+body.rw #cmdtk,
+body.rw .ticker {
+  display: none !important;
+}
+body.rw #rwdash .rwtop {
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  background: #060a10cc;
+}
+#rwdash .rwtop button {
+  border-radius: 999px;
+  border-color: transparent;
+  background: #ffffff0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#rwdash .rwsearch {
+  display: none;
+  top: calc(env(safe-area-inset-top, 0px) + 66px);
+}
+body.rwfind #rwdash .rwsearch {
+  display: flex;
+}
+body.rw #t4bar {
+  top: calc(env(safe-area-inset-top, 0px) + 70px) !important;
+  left: auto !important;
+  right: 10px;
+  gap: 8px;
+}
+body.rwfind #t4bar {
+  top: calc(env(safe-area-inset-top, 0px) + 122px) !important;
+}
+body.rw #t4bar [data-t4] {
+  display: none !important;
+}
+body.rw #t4bar button {
+  width: 42px !important;
+  height: 42px;
+  font-size: 8px !important;
+  padding: 0 !important;
+  border-radius: 999px;
+  border-color: transparent;
+  background: #060a10cc;
+  letter-spacing: 0.04em !important;
+  backdrop-filter: blur(10px);
+}
+body.rw #repst {
+  top: calc(env(safe-area-inset-top, 0px) + 70px);
+  padding: 4px 10px;
+  font-size: 11px;
+  background: #060a10cc;
+}
+body.rw #rwdash .rwdock {
+  border-color: transparent;
+  background: #060a10d9;
+}
+body.bare #rwdash,
+body.bare #t4bar,
+body.bare #repst,
+body.bare #cmdbar,
+body.bare #cmdtk,
+body.bare .ticker,
+body.bare #toasts,
+body.bare .top,
+body.bare .hud,
+body.bare .scanbar,
+body.bare .coords,
+body.bare .mtabs,
+body.bare #peek,
+body.bare #lfrail,
+body.bare #brandov {
+  display: none !important;
+}
+#bareX {
+  display: none;
+}
+body.bare #bareX {
+  position: fixed;
+  right: 14px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid #ffffff22;
+  background: #060a10b3;
+  color: #ffffffcc;
+  backdrop-filter: blur(10px);
+}
+body.bare #repcr {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+  max-width: calc(100% - 80px);
+}
+#repcr {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 8.5px;
+  max-width: calc(100% - 20px);
+}
+body.rw #real {
+  position: fixed;
+  inset: 0;
+}
+body.rw #t4bar #bRepInfo {
+  font-size: 17px !important;
+}
+/* ---------- v72: the dark globe under the dashboard ---------- */
+body.rw #tilt {
+  position: fixed;
+  inset: 0;
+  background: #02050a;
+}
+body.rw #t3bar,
+body.rw .maplibregl-ctrl-bottom-right {
+  display: none !important;
+}
+body.rw .maplibregl-ctrl-bottom-left {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
+}
+body.bare .maplibregl-ctrl-bottom-left {
+  bottom: env(safe-area-inset-bottom, 0px);
+}
+body.rw .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: #060a10b3;
+  color: #9fb4c8;
+}
+body.rw .maplibregl-ctrl-attrib a {
+  color: #9fb4c8;
+}
+#ops3d {
+  display: none;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+  z-index: 45;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid #36f1b566;
+  background: #060a10e6;
+  color: var(--accent);
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+}
+#ops3d b {
+  color: var(--ink);
+  font-weight: 600;
+}
+body.bare #ops3d {
+  display: none !important;
+}
+/* Google's required credit sits above the dock in the dashboard. */
+body.rw #czmap .cesium-viewer-bottom {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
+}
+body.bare #czmap .cesium-viewer-bottom {
+  bottom: 4px;
+}
+/* ---------- Photo help and Where is this? ---------- */
+#php {
+  z-index: 8900;
+}
+#php .nl p {
+  margin: 10px 0;
+  line-height: 1.5;
+}
+.phimg {
+  display: block;
+  width: 100%;
+  max-height: 34vh;
+  object-fit: cover;
+  border-radius: 14px;
+  margin: 6px 0 4px;
+}
+.phhelp {
+  background: #2a0d0d !important;
+  border-color: #ff4040 !important;
+  color: #ffd9d9 !important;
+  font-weight: 700;
+}
+#rwdash .rwtop .rwemg {
+  color: #ff5a5a;
+  font-weight: 800;
+  background: #ff40401a;
+}
+#rwdash .rwsearch .rwwhere {
+  width: 44px;
+  padding: 0;
+  background: #0d151f;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 18px;
+}

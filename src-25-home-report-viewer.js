@@ -3,7 +3,7 @@
  * Home page and recent scans, the PDF report, the zoom viewer, the bottom sheet, and view
  * settings restored at start-up.
  *
- * Module 25 of 41. Modules share one scope: build.py concatenates them in order
+ * Module 25 of 44. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
@@ -300,7 +300,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v70)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v73)");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -606,7 +606,7 @@ if (ls("ojos-static") === true)
     staticSet(true);
     ST2D = false;
   }, 400);
-if (ls("ojos-view") === "3d" && EMBED_OK) setTimeout(t3Open, 1200);
+if (ls("ojos-view") === "3d" && EMBED_OK && lookMode() !== "world") setTimeout(t3Open, 1200);
 // The 3D views ("real") are opened by the start-up code in module 37, which follows Globe look.
 if (WL.dots) {
   spin = false;
