@@ -157,7 +157,8 @@ function focCircle(lat, lon, km) {
 function focLoad() {
   if (FOC.states && FOC.countries) return Promise.resolve();
   if (FOC.loading) return FOC.loading;
-  FOC.loading = Promise.all([getJSON(FOC_SRC.states, 30000), getJSON(FOC_SRC.countries, 40000)])
+  // From the saved copy when there is no signal (offline maps keep one, module 42).
+  FOC.loading = Promise.all([offJSON(FOC_SRC.states, 30000), offJSON(FOC_SRC.countries, 40000)])
     .then(function (r) {
       FOC.states = topoFeatures(r[0], "states");
       FOC.countries = topoFeatures(r[1], "countries");

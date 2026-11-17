@@ -352,3 +352,498 @@ document.addEventListener("click", function (e) {
     select(it);
   }
 });
+
+// ---------- Organized crime groups ----------
+// The best-known criminal groups, placed where they are based, with what public reporting says they
+// are known for, and whether the US State Department has designated them a Foreign Terrorist
+// Organization. Groups only: no individual leaders or photos, since who leads them changes fast and
+// much of it is unproven. Each card links to the group's Wikipedia article for more.
+var CRIME_FTO = "https://www.state.gov/foreign-terrorist-organizations";
+// [name, lat, lon, where it operates, known for, US FTO designation ("" if none), Wikipedia title]
+var CRIME = [
+  [
+    "Sinaloa Cartel",
+    24.8,
+    -107.39,
+    "Mexico, the US and worldwide",
+    "Fentanyl, methamphetamine, cocaine and heroin trafficking; smuggling guns south from the US; money laundering",
+    "February 20, 2025",
+    "Sinaloa_Cartel"
+  ],
+  [
+    "Jalisco New Generation Cartel (CJNG)",
+    20.67,
+    -103.35,
+    "Mexico, the US and worldwide",
+    "Fentanyl, methamphetamine and cocaine trafficking; fuel theft; extortion",
+    "February 20, 2025",
+    "Jalisco_New_Generation_Cartel"
+  ],
+  [
+    "Gulf Cartel",
+    25.87,
+    -97.5,
+    "Tamaulipas, Mexico",
+    "Cocaine and marijuana trafficking; migrant smuggling; extortion",
+    "February 20, 2025",
+    "Gulf_Cartel"
+  ],
+  [
+    "Cartel del Noreste",
+    27.48,
+    -99.51,
+    "Northeast Mexico",
+    "Drug trafficking; migrant smuggling; extortion",
+    "February 20, 2025",
+    "Cartel_del_Noreste"
+  ],
+  [
+    "La Nueva Familia Michoacana",
+    18.35,
+    -100.65,
+    "Guerrero, Michoacán and the State of Mexico",
+    "Methamphetamine; extortion",
+    "February 20, 2025",
+    "La_Nueva_Familia_Michoacana"
+  ],
+  [
+    "Cárteles Unidos",
+    19.09,
+    -102.35,
+    "Michoacán, Mexico",
+    "Methamphetamine; extortion of avocado and lime growers",
+    "February 20, 2025",
+    "Cárteles_Unidos"
+  ],
+  [
+    "Los Viagras",
+    19.0,
+    -102.1,
+    "Michoacán, Mexico",
+    "Extortion; drug trafficking",
+    "Designated",
+    "Los_Viagras"
+  ],
+  [
+    "Juárez Cartel",
+    31.69,
+    -106.42,
+    "Chihuahua, Mexico",
+    "Drug trafficking across the El Paso border",
+    "Designated",
+    "Juárez_Cartel"
+  ],
+  [
+    "MS-13 (Mara Salvatrucha)",
+    13.69,
+    -89.19,
+    "El Salvador, Honduras, Guatemala and the US",
+    "Extortion; drug dealing; violence",
+    "February 20, 2025",
+    "MS-13"
+  ],
+  [
+    "Barrio 18",
+    14.63,
+    -90.51,
+    "Guatemala, Honduras, El Salvador and the US",
+    "Extortion; violence",
+    "Designated",
+    "18th_Street_gang"
+  ],
+  [
+    "Tren de Aragua",
+    10.25,
+    -67.6,
+    "Venezuela, South America and the US",
+    "Human trafficking and migrant smuggling; extortion; drug dealing",
+    "February 20, 2025",
+    "Tren_de_Aragua"
+  ],
+  [
+    "Cartel de los Soles",
+    10.49,
+    -66.88,
+    "Venezuela",
+    "Described by the US government as a cocaine-trafficking network inside Venezuela's state; Venezuela denies it exists",
+    "Designated",
+    "Cartel_of_the_Suns"
+  ],
+  [
+    "Clan del Golfo",
+    8.1,
+    -76.73,
+    "Colombia",
+    "Cocaine production and trafficking; illegal mining",
+    "Designated",
+    "Gulf_Clan"
+  ],
+  [
+    "Los Choneros",
+    -0.95,
+    -80.73,
+    "Ecuador",
+    "Cocaine trafficking through Ecuador's ports; control of prisons; extortion",
+    "Designated",
+    "Los_Choneros"
+  ],
+  [
+    "Los Lobos",
+    -2.19,
+    -79.89,
+    "Ecuador",
+    "Cocaine trafficking; illegal gold mining; extortion",
+    "Designated",
+    "Los_Lobos_(Ecuador)"
+  ],
+  [
+    "Viv Ansanm",
+    18.54,
+    -72.34,
+    "Port-au-Prince, Haiti",
+    "Armed control of neighbourhoods; kidnapping; extortion",
+    "Designated",
+    "Viv_Ansanm"
+  ],
+  [
+    "Gran Grif",
+    19.15,
+    -72.69,
+    "Artibonite, Haiti",
+    "Kidnapping; extortion; attacks on towns",
+    "Designated",
+    "Gran_Grif"
+  ],
+  [
+    "Primeiro Comando da Capital (PCC)",
+    -23.55,
+    -46.63,
+    "Brazil, South America and Europe",
+    "Cocaine trafficking to Europe; control of prisons",
+    "",
+    "Primeiro_Comando_da_Capital"
+  ],
+  [
+    "Comando Vermelho",
+    -22.91,
+    -43.2,
+    "Rio de Janeiro and the Amazon, Brazil",
+    "Drug trafficking; arms; control of favelas",
+    "",
+    "Comando_Vermelho"
+  ],
+  [
+    "'Ndrangheta",
+    38.1,
+    16.0,
+    "Calabria, Italy, and worldwide",
+    "Cocaine import into Europe; money laundering; public contracts",
+    "",
+    "'Ndrangheta"
+  ],
+  [
+    "Camorra",
+    40.85,
+    14.27,
+    "Naples, Italy",
+    "Drug trafficking; extortion; counterfeit goods; illegal waste dumping",
+    "",
+    "Camorra"
+  ],
+  [
+    "Cosa Nostra (Sicilian Mafia)",
+    38.12,
+    13.36,
+    "Sicily, Italy",
+    "Extortion; public contracts; drug trafficking",
+    "",
+    "Sicilian_Mafia"
+  ],
+  [
+    "Mocro Maffia",
+    52.37,
+    4.9,
+    "Netherlands and Belgium",
+    "Cocaine trafficking through Rotterdam and Antwerp",
+    "",
+    "Mocro_Maffia"
+  ],
+  [
+    "Albanian organized crime",
+    41.33,
+    19.82,
+    "Albania and across Europe",
+    "Cocaine and heroin trafficking; cannabis",
+    "",
+    "Albanian_mafia"
+  ],
+  [
+    "Yamaguchi-gumi",
+    34.69,
+    135.19,
+    "Japan",
+    "Japan's largest yakuza group: extortion, gambling, methamphetamine",
+    "",
+    "Yamaguchi-gumi"
+  ],
+  [
+    "Sun Yee On (triad)",
+    22.31,
+    114.17,
+    "Hong Kong and abroad",
+    "Drug trafficking; illegal gambling; money laundering",
+    "",
+    "Sun_Yee_On"
+  ],
+  [
+    "Black Axe",
+    6.45,
+    3.39,
+    "Nigeria and worldwide",
+    "Internet and romance fraud; money laundering",
+    "",
+    "Black_Axe_(confraternity)"
+  ]
+];
+
+ilDef({
+  key: "crime",
+  label: "Organized crime groups",
+  color: "#ff5ab4",
+  icon: "◈",
+  every: 24 * 3600000,
+  none: "NONE",
+  load: function (d) {
+    return Promise.resolve(
+      CRIME.map(function (g) {
+        return ilItem(d, {
+          id: "crime:" + g[6],
+          n: g[0],
+          label: g[0].replace(/ \(.*\)$/, ""),
+          lat: g[1],
+          lon: g[2],
+          size: g[5] ? 6 : 5,
+          color: g[5] ? "#ff3b6b" : "#ff8fcf",
+          tag: g[5] ? "US-DESIGNATED TERRORIST ORGANIZATION" : "ORGANIZED CRIME",
+          rows: [
+            ["OPERATES IN", g[3]],
+            ["KNOWN FOR", g[4]],
+            [
+              "US TERRORIST DESIGNATION",
+              g[5]
+                ? g[5] === "Designated"
+                  ? "Yes, by the State Department"
+                  : "Yes, " + g[5]
+                : "No"
+            ],
+            ["SOURCE", "Public reporting summarized; see the links"]
+          ],
+          links: [
+            [
+              "About this group (Wikipedia)",
+              "https://en.wikipedia.org/wiki/" + encodeURIComponent(g[6])
+            ]
+          ].concat(g[5] ? [["US Foreign Terrorist Organizations", CRIME_FTO]] : [])
+        });
+      })
+    );
+  }
+});
+
+// ---------- Leaders: who runs each country, and each US state ----------
+// Heads of state and government for every country, and each US state's governor and senators with
+// their party, live from Wikidata (community-edited, so it follows elections within days). US states
+// are coloured by the governor's party. Names, offices and parties only.
+var LEAD_D = "Q29552", // Democratic Party (United States)
+  LEAD_R = "Q29468"; // Republican Party (United States)
+
+function leadPoint(wkt) {
+  var m = /Point\(([-\d.]+) ([-\d.]+)\)/.exec(wkt || "");
+  return m ? [+m[2], +m[1]] : null;
+}
+
+function leadSparql(q) {
+  return getJSON(
+    "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(q),
+    30000
+  ).then(function (j) {
+    return (j && j.results && j.results.bindings) || [];
+  });
+}
+
+function leadV(b, k) {
+  return (b[k] && b[k].value) || "";
+}
+
+function leadQ(b, k) {
+  return leadV(b, k).split("/").pop();
+}
+
+// D, R or another party's name, from all the parties listed for a person.
+function leadParty(ids, names) {
+  if (ids.indexOf(LEAD_D) >= 0) return "D";
+  if (ids.indexOf(LEAD_R) >= 0) return "R";
+  return names[0] || "";
+}
+
+function leadWorld(d) {
+  return leadSparql(
+    'SELECT ?iso ?cLabel ?coord ?hs ?hsLabel ?hg ?hgLabel ?hsoLabel ?hgoLabel WHERE{?c wdt:P31 wd:Q6256;wdt:P297 ?iso. FILTER NOT EXISTS{?c wdt:P576 ?x} OPTIONAL{?c wdt:P36 ?cap. ?cap wdt:P625 ?coord} OPTIONAL{?c wdt:P35 ?hs} OPTIONAL{?c wdt:P6 ?hg} OPTIONAL{?c wdt:P1906 ?hso} OPTIONAL{?c wdt:P1313 ?hgo} SERVICE wikibase:label{bd:serviceParam wikibase:language "en"}}'
+  ).then(function (B) {
+    var by = {};
+    B.forEach(function (b) {
+      var k = leadV(b, "iso"),
+        c = (by[k] = by[k] || {
+          name: leadV(b, "cLabel"),
+          at: null,
+          hs: {},
+          hg: {},
+          hso: "",
+          hgo: ""
+        });
+      c.at = c.at || leadPoint(leadV(b, "coord"));
+      if (leadV(b, "hsLabel")) c.hs[leadV(b, "hsLabel")] = 1;
+      if (leadV(b, "hgLabel")) c.hg[leadV(b, "hgLabel")] = 1;
+      c.hso = c.hso || leadV(b, "hsoLabel");
+      c.hgo = c.hgo || leadV(b, "hgoLabel");
+    });
+    return Object.keys(by)
+      .filter(function (k) {
+        return by[k].at && k !== "US";
+      })
+      .map(function (k) {
+        var c = by[k],
+          hs = Object.keys(c.hs).join(", "),
+          hg = Object.keys(c.hg).join(", ");
+        return ilItem(d, {
+          id: "lead:" + k,
+          n: c.name + (hs ? " · " + hs : ""),
+          label: c.name,
+          lat: c.at[0],
+          lon: c.at[1],
+          size: 4,
+          tag: "LEADERS",
+          rows: [
+            [String(c.hso || "Head of state").toUpperCase(), hs || "—"],
+            [
+              String(c.hgo || "Head of government").toUpperCase(),
+              hg && hg !== hs ? hg : hs ? "The same person" : "—"
+            ],
+            ["SOURCE", "Wikidata (community-edited)"]
+          ],
+          links: [
+            [
+              "More (Wikipedia)",
+              "https://en.wikipedia.org/wiki/Politics_of_" +
+                encodeURIComponent(c.name.replace(/ /g, "_"))
+            ]
+          ]
+        });
+      });
+  });
+}
+
+function leadUS(d) {
+  return leadSparql(
+    'SELECT ?s ?sLabel ?coord ?gov ?govLabel ?gp ?gpLabel ?sen ?senLabel ?sp ?spLabel WHERE{?s wdt:P31 wd:Q35657. OPTIONAL{?s wdt:P36 ?cap. ?cap wdt:P625 ?coord} OPTIONAL{?s wdt:P6 ?gov. OPTIONAL{?gov wdt:P102 ?gp}} OPTIONAL{?sen p:P39 ?st. ?st ps:P39 wd:Q4416090; (pq:P768|pq:P1268) ?s. FILTER NOT EXISTS{?st pq:P582 ?e} OPTIONAL{?sen wdt:P102 ?sp}} SERVICE wikibase:label{bd:serviceParam wikibase:language "en"}}'
+  ).then(function (B) {
+    var by = {};
+    B.forEach(function (b) {
+      var k = leadQ(b, "s"),
+        s = (by[k] = by[k] || {
+          name: leadV(b, "sLabel"),
+          at: null,
+          gov: "",
+          gp: [],
+          gpn: [],
+          sen: {}
+        });
+      s.at = s.at || leadPoint(leadV(b, "coord"));
+      if (leadV(b, "govLabel")) s.gov = leadV(b, "govLabel");
+      if (leadQ(b, "gp") && s.gp.indexOf(leadQ(b, "gp")) < 0) {
+        s.gp.push(leadQ(b, "gp"));
+        s.gpn.push(leadV(b, "gpLabel"));
+      }
+      var sn = leadV(b, "senLabel");
+      if (sn) {
+        var x = (s.sen[sn] = s.sen[sn] || { p: [], pn: [] });
+        if (leadQ(b, "sp") && x.p.indexOf(leadQ(b, "sp")) < 0) {
+          x.p.push(leadQ(b, "sp"));
+          x.pn.push(leadV(b, "spLabel"));
+        }
+      }
+    });
+    var count = { D: 0, R: 0 };
+    var items = Object.keys(by)
+      .filter(function (k) {
+        return by[k].at;
+      })
+      .map(function (k) {
+        var s = by[k],
+          gp = leadParty(s.gp, s.gpn),
+          sens = Object.keys(s.sen)
+            .slice(0, 2)
+            .map(function (n) {
+              var p = leadParty(s.sen[n].p, s.sen[n].pn);
+              return n + (p ? " (" + p + ")" : "");
+            });
+        if (gp === "D" || gp === "R") count[gp]++;
+        return ilItem(d, {
+          id: "lead:us:" + k,
+          n: s.name + " · Gov. " + (s.gov || "—") + (gp ? " (" + gp + ")" : ""),
+          label: s.name + (gp === "D" || gp === "R" ? " · " + gp : ""),
+          lat: s.at[0],
+          lon: s.at[1],
+          size: 6,
+          color: gp === "D" ? "#3b82f6" : gp === "R" ? "#ef4444" : "#a3a3a3",
+          tag: gp === "D" ? "DEMOCRATIC GOVERNOR" : gp === "R" ? "REPUBLICAN GOVERNOR" : "GOVERNOR",
+          rows: [
+            [
+              "GOVERNOR",
+              (s.gov || "—") +
+                (gp ? " (" + (gp === "D" ? "Democrat" : gp === "R" ? "Republican" : gp) + ")" : "")
+            ],
+            ["US SENATORS", sens.join(" · ") || "—"],
+            ["SOURCE", "Wikidata (community-edited)"]
+          ],
+          links: [
+            [
+              "More (Wikipedia)",
+              "https://en.wikipedia.org/wiki/" + encodeURIComponent(s.name.replace(/ /g, "_"))
+            ]
+          ]
+        });
+      });
+    LEAD.us = count;
+    return items;
+  });
+}
+
+var LEAD = { us: null };
+
+ilDef({
+  key: "leaders",
+  label: "Leaders and parties",
+  color: "#c9b6ff",
+  icon: "★",
+  every: 12 * 3600000,
+  none: "NOT LOADED",
+  status: function (d) {
+    var u = LEAD.us;
+    return d.items.length
+      ? d.items.length + (u ? " · US GOVERNORS " + u.D + " D · " + u.R + " R" : "")
+      : "NOT LOADED";
+  },
+  load: function (d) {
+    return Promise.all([
+      leadWorld(d).catch(function () {
+        return [];
+      }),
+      leadUS(d).catch(function () {
+        return [];
+      })
+    ]).then(function (r) {
+      return r[0].concat(r[1]);
+    });
+  }
+});

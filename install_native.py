@@ -6,7 +6,8 @@ The Android project is generated in CI by ``npx cap add android``. This script l
 * ``*.java`` files whose package is ``com.ojosdedios.app`` go to ``app/src/main/java/com/ojosdedios/app/``;
   files ending in ``Test.java`` go to the JVM unit-test source set, ``app/src/test/java/com/ojosdedios/app/``.
 * Resource files named ``res-<type>--<name>.xml`` go to ``app/src/main/res/<type>/<name>.xml``.
-* ``AndroidManifest.xml`` gets the vibration permission and the Emergency widget receiver.
+* ``AndroidManifest.xml`` gets the permissions below, the Emergency widget receiver and the background alert
+  check (``AlertChecker``).
 
 Every file it replaces is backed up first, so ``--undo`` restores the generated project exactly.
 
@@ -30,7 +31,12 @@ LEDGER = ".native-install.json"
 BACKUP_SUFFIX = ".orig-native"
 RESOURCE_NAME = re.compile(r"^res-(?P<type>[a-z][a-z0-9_-]*)--(?P<name>[a-z0-9_]+\.xml)$")
 
-MANIFEST_PERMISSION = '<uses-permission android:name="android.permission.VIBRATE" />'
+# Vibration for SOS; notifications and restart for the background alert check (AlertChecker).
+MANIFEST_PERMISSIONS = (
+    "android.permission.VIBRATE",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+)
 MANIFEST_RECEIVER = """
         <receiver
             android:name=".EmergencyWidget"
@@ -42,6 +48,14 @@ MANIFEST_RECEIVER = """
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_emergency_info" />
+        </receiver>
+        <receiver
+            android:name=".AlertChecker"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
         </receiver>
 """
 
@@ -71,11 +85,12 @@ def resource_sources(source_dir: Path = SOURCE_DIR) -> list[tuple[Path, str, str
 
 
 def patch_manifest(text: str) -> str:
-    """Adds the vibration permission and the widget receiver. Running it twice changes nothing."""
+    """Adds the permissions and the two receivers. Running it twice changes nothing."""
     if "</application>" not in text or "</manifest>" not in text:
         raise InstallError("AndroidManifest.xml has no <application> or <manifest> end tag")
-    if "android.permission.VIBRATE" not in text:
-        text = text.replace("</manifest>", "    " + MANIFEST_PERMISSION + "\n</manifest>", 1)
+    for name in MANIFEST_PERMISSIONS:
+        if f'"{name}"' not in text:
+            text = text.replace("</manifest>", f'    <uses-permission android:name="{name}" />\n</manifest>', 1)
     if ".EmergencyWidget" not in text:
         text = text.replace("</application>", MANIFEST_RECEIVER + "    </application>", 1)
     return text

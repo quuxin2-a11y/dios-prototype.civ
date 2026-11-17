@@ -91,7 +91,7 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 ```
             ┌────────────────────────────── Android (Capacitor 6) ──────────────────────────────┐
-            │  MainActivity.java ── OjosNativePlugin.java ── EmergencyWidget.java                │
+            │  MainActivity.java ── OjosNativePlugin.java ── EmergencyWidget.java ── AlertChecker │
             │        │  shortcuts, widget, keep-awake, haptics           (Java, API 22+)        │
             │        ▼                                                                           │
             │  WebView ─ index.html ◄── build.py ◄── src-template.html + src-styles.css          │
@@ -113,13 +113,15 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 | Path | Language | Purpose |
 |---|---|---|
-| `src-01-start.js` … `src-45-camera-grid.js`, `src-99-start.js` | JavaScript | Application source in 45 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, cables/towers/wind, start-up, dashboard, sky, data feed, dark globe, photo help, conflict monitor, camera grid, start-up). Formatted with Prettier (`.prettierrc.json`) |
+| `src-01-start.js` … `src-45-camera-grid.js`, `src-99-start.js` | JavaScript | Application source in 45 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, cables/towers/wind, start-up, dashboard, sky, data feed, dark globe, photo help, conflict monitor, crime groups and leaders, camera grid and camera web, start-up). Formatted with Prettier (`.prettierrc.json`) |
 | `src-template.html` | HTML | Document structure, with `/*@include*/` markers filled in by `build.py` |
 | `src-styles.css` | CSS | Design system and component styles |
 | `src-data-*.json` | JSON | Bundled gazetteer, border port locations, country centre points, coastline points, fallback portal list and the generated 3D models |
 | `MainActivity.java` | Java | Activity: plugin registration, launcher shortcuts, intent routing |
 | `OjosNativePlugin.java` | Java | Capacitor plugin: launch actions, emergency state, keep-awake, vibration |
-| `EmergencyWidget.java` | Java | `AppWidgetProvider` for the home-screen Emergency widget |
+| `EmergencyWidget.java` | Java | `AppWidgetProvider` for the home-screen widget: the current official warning for your places, or one tap into Emergency mode |
+| `AlertChecker.java` | Java | Background check of official NWS alerts for the user's position and saved places, every ~15 minutes and after restart; posts a notification for each new alert that calls for action |
+| `AlertCheckerTest.java` | Java | JUnit tests for which alerts interrupt the user |
 | `OjosNativePluginTest.java` | Java | JUnit tests for launch-action routing |
 | `res-<type>--<name>.xml` | XML | Android resources (widget layout, provider info, drawables) |
 | `build.py` | Python | Assembles `index.html`; `--check` verifies it matches the sources |
@@ -186,7 +188,7 @@ Every push to `main` runs [`apk.yml`](.github/workflows/apk.yml):
 5. Publish the APK with its SHA-256 checksum and a signed build-provenance attestation.
 6. Scan the JavaScript modules, Python tools and Java sources with CodeQL.
 
-Every 20 minutes [`data.yml`](.github/workflows/data.yml) runs [`harvest.py`](harvest.py): it opens the built app in headless Chromium, lets every public camera network and every worldwide data layer load, and publishes the result as `cams.json`, `layers.json` and `meta.json` on the `data` branch (one commit, replaced each run). The app reads these at start-up (`src-41-feed.js`), so a phone gets everything in one download and does not ask the networks the feed covers while it is fresh (3 hours). A run that loads too few cameras publishes nothing, so a bad run never replaces a good feed. Networks needing a user's own key and the Windy catalogue (which the phone keeps itself) are not in the feed.
+Every 20 minutes [`data.yml`](.github/workflows/data.yml) runs [`harvest.py`](harvest.py): it opens the built app in headless Chromium, lets every public camera network and every worldwide data layer load, and publishes the result as `cams.json`, `layers.json` and `meta.json` (which also carries the Mars rovers' latest positions, from `rovers.py`) on the `data` branch (one commit, replaced each run). The app reads these at start-up (`src-41-feed.js`), so a phone gets everything in one download and does not ask the networks the feed covers while it is fresh (3 hours). A run that loads too few cameras publishes nothing, so a bad run never replaces a good feed. Networks needing a user's own key and the Windy catalogue (which the phone keeps itself) are not in the feed.
 
 Workflows run with read-only permissions by default; only the release job and the data feed can write.
 

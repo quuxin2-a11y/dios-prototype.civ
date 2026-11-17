@@ -7963,6 +7963,774 @@ body.rw #t4bar [data-t4="x"] {
   color: var(--ink);
 }
 
+/* ---------- v86: the radio player and emergency radio ---------- */
+#radiobar {
+  display: none;
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+  z-index: 60;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 14px;
+  border: 1px solid #ff6ad566;
+  background: #0a0d14f2;
+}
+#radiobar b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #ffd6f3;
+}
+#radiobar .radiodot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b6b;
+  animation: rpPulse 1.4s ease-in-out infinite;
+}
+@keyframes rpPulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+#radiobar button {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #121822;
+  color: var(--ink);
+  padding: 7px 12px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+#emgp .rplist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+#emgp .rprow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #ffffff14;
+  background: #ffffff08;
+  color: var(--ink);
+}
+#emgp .rprow.on {
+  border-color: #ff6ad5aa;
+  background: #ff6ad51a;
+}
+#emgp .rprow i {
+  font-style: normal;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff6ad533;
+  color: #ffd6f3;
+}
+#emgp .rprow span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+#emgp .rprow b {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+#emgp .rprow em {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+/* In emergency mode the radio bar sits above the emergency pill. */
+html.emg #radiobar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 126px);
+}
+body.radioon #rw3d {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 130px);
+}
+
+/* ---------- v87: emergency alert screen ---------- */
+#alertpop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px
+    calc(env(safe-area-inset-bottom, 0px) + 14px);
+  background: #12030599;
+}
+#alertpop .amcard {
+  width: 100%;
+  max-width: 520px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 20px 18px 16px;
+  border-radius: 18px;
+  border: 2px solid #ff3b4e;
+  background: #120609;
+  color: #fff;
+  box-shadow:
+    0 0 0 6px #ff3b4e22,
+    0 20px 60px #000c;
+}
+#alertpop .amcard > b {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #ff3b4e;
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  animation: rpPulse 1.2s ease-in-out infinite;
+}
+#alertpop h2 {
+  margin: 12px 0 4px;
+  font-size: 26px;
+  line-height: 1.15;
+}
+#alertpop .amwho {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: #ffb3bb;
+}
+#alertpop .amarea {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #ffd9dd;
+}
+#alertpop .amhead {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+#alertpop h4 {
+  margin: 12px 0 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: #ff8b97;
+}
+#alertpop .amtext {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+#alertpop details {
+  margin-top: 10px;
+}
+#alertpop summary {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: #ff8b97;
+}
+#alertpop .ambtn {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 10px;
+}
+#alertpop .ambtn button {
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #ffffff33;
+  background: #ffffff10;
+  color: #fff;
+  font-size: 14px;
+}
+#alertpop .ambtn .amok {
+  background: #ff3b4e;
+  border-color: #ff3b4e;
+  font-weight: 700;
+}
+#alertpop small {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: #ffb3bbaa;
+}
+
+/* ---------- v88: weather radio as text ---------- */
+#emgp .rptext {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #4cc3ff33;
+  background: #4cc3ff0d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+#emgp .rptext > b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #8fd8ff;
+}
+#emgp .rptext p {
+  margin: 0 0 6px;
+}
+#emgp .rptext i {
+  font-style: normal;
+  font-weight: 600;
+}
+#emgp .rpalert {
+  margin: 0 0 8px;
+  padding-left: 8px;
+  border-left: 3px solid #ff3b4e;
+}
+#emgp .rpalert em {
+  font-style: normal;
+  font-weight: 700;
+  color: #ff8b97;
+}
+#emgp .rptext summary {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ---------- v89: saved camera grids and places to watch ---------- */
+#cgp .cgsaved {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#cgp .cgchip {
+  display: flex;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  overflow: hidden;
+}
+#cgp .cgchip.on {
+  border-color: var(--accent);
+}
+#cgp .cgchip button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  height: 32px;
+  padding: 0 4px 0 12px;
+  font-size: 12.5px;
+}
+#cgp .cgchip button + button {
+  padding: 0 10px 0 6px;
+  opacity: 0.55;
+  font-size: 11px;
+}
+#cgp .cgsave {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px dashed var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+#brief .amplaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+#brief .amplaces span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 12px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  font-size: 12.5px;
+}
+#brief .amplaces button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.55;
+  padding: 0 6px;
+}
+#brief .amform {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+#brief .amform input {
+  flex: 1 1 40%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  color: var(--ink);
+  font-size: 14px;
+}
+#brief .amform button {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--accent);
+  color: #02130c;
+  font-weight: 800;
+}
+#alertpop .amfor {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #fff;
+}
+
+/* ---------- v90: offline places, recent alerts, text them ---------- */
+#brief .amplaces span i {
+  font-style: normal;
+  font-size: 11px;
+}
+#brief .amplaces button[data-br^="ampk-"] {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  color: var(--accent);
+}
+#brief .amplaces button.done {
+  color: #39d98a;
+}
+#brief .amform {
+  flex-wrap: wrap;
+}
+#brief .amform input {
+  flex: 1 1 45%;
+}
+#brief .amhist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+#brief .amhist button {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #ff3b4e33;
+  background: #ff3b4e0d;
+  color: var(--ink);
+  text-align: left;
+}
+#brief .amhist b {
+  font-size: 13px;
+}
+#brief .amhist span {
+  font-size: 11px;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+#alertpop .amsms {
+  display: block;
+  margin: 14px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ffffff14;
+  border: 1px solid #ffffff33;
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ---------- v91: a clean top bar ---------- */
+/* The dashboard has its own counts: no command-mode status strip above it. */
+body.rw #cmdbar {
+  display: none !important;
+}
+#rwdash .rwcount {
+  justify-content: flex-start;
+  min-width: 0;
+  gap: 9px;
+}
+@media (max-width: 560px) {
+  #rwdash.rwmany .rwbrand b {
+    display: none;
+  }
+}
+
+/* ---------- v91: camera web ---------- */
+#cwp {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: radial-gradient(circle at 50% 50%, #0a1a24f0, #02050af7 70%);
+  overflow: hidden;
+}
+#cwp .cwhead {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+#cwp .cwhead b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+#cwp .cwhead button {
+  height: 38px;
+  min-width: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0d151f;
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+#cwp .cwlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+#cwp .cwlines line {
+  stroke: #36e0ff;
+  stroke-opacity: 0.45;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 4;
+}
+#cwp .cwt {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
+  border-radius: 9px;
+  border: 1px solid #36e0ff55;
+  background: #08111a;
+  color: var(--ink);
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 6px 18px #000a;
+}
+#cwp .cwt img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #0b1219;
+}
+#cwp .cwt span {
+  display: block;
+  padding: 3px 6px 0;
+  font-size: 9.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#cwp .cwt em {
+  display: block;
+  padding: 0 6px 4px;
+  font-style: normal;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#cwp .cwt.mid {
+  z-index: 3;
+  border: 2px solid var(--accent);
+  box-shadow:
+    0 0 0 6px #36e0ff1f,
+    0 10px 30px #000c;
+}
+#cwp .cwt.mid span {
+  font-size: 11px;
+  font-weight: 700;
+}
+#cwp .cwnone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  text-align: center;
+  color: var(--ink);
+  opacity: 0.7;
+}
+#cgp .cgopen.cgweb {
+  right: auto;
+  left: 8px;
+}
+
+/* ---------- v91: highlight in the 3D view ---------- */
+body.rw #t4bar [data-insp],
+body.rw #t4bar [data-hl] {
+  width: auto !important;
+  padding: 0 12px !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+}
+#hlcard {
+  display: none;
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+  z-index: 30;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid #36e0ff55;
+  background: #060a10ee;
+  color: var(--ink);
+}
+#hlcard > b,
+#hlcard .hlh b {
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+#hlcard .hlh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#hlcard .hlh b {
+  flex: 1;
+}
+#hlcard .hlh button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0d151f;
+  color: var(--ink);
+}
+#hlcard h3 {
+  margin: 6px 0 8px;
+  font-size: 19px;
+}
+#hlcard .hlkv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 12px;
+  font-size: 12.5px;
+}
+#hlcard .hlkv span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #8fa3b3;
+  padding-top: 2px;
+}
+#hlcard .hlx {
+  margin: 10px 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+#hlcard small {
+  display: block;
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+/* ---------- v91: 3D space ---------- */
+#sky.space #skycv,
+#sky.space .skybot,
+#sky.space #skyinfo {
+  display: none;
+}
+#spx {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: #000;
+}
+#spxcv {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+#spxlabels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+#spx .spxl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
+  height: auto !important;
+  margin: -9px 0 0 0;
+  padding: 2px 7px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: #00000066 !important;
+  color: #e9f3ff !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap;
+  pointer-events: auto;
+  translate: -50% -100%;
+  text-shadow: 0 1px 3px #000;
+}
+#spx .spxl.planet {
+  font-size: 12px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+}
+#spx .spxl.moon {
+  color: #c9d3de !important;
+  font-weight: 500 !important;
+}
+#spx .spxl.site {
+  color: #ffd36b !important;
+}
+#spx .spxl.site::before,
+#spx .spxl.sat::before,
+#spx .spxl.lpoint::before,
+#spx .spxl.probe::before {
+  content: "◆ ";
+  font-size: 8px;
+}
+#spx .spxl.probe,
+#spx .spxl.lpoint {
+  color: #8fe9ff !important;
+}
+#spx .spxl.sat {
+  color: #8fe9ff !important;
+}
+#spx .spxbar,
+#spx .spxgo {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#spx .spxbar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#spx .spxbar span {
+  flex: 1 0 100%;
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: #9fb6c9;
+}
+#spx .spxgo {
+  top: calc(env(safe-area-inset-top, 0px) + 88px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#spx .spxgo button,
+#spx .spxbar button {
+  flex: 0 0 auto;
+  height: 32px !important;
+  padding: 0 11px !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+  background: #070d18cc !important;
+}
+#spxcard {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+  display: none;
+  max-height: 44vh;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid #ffffff26;
+  background: #050a14e8;
+  color: #dfe9f5;
+  font-size: 13px;
+}
+#spxcard .spxch {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+#spxcard .spxch div {
+  flex: 1;
+}
+#spxcard .spxch b {
+  display: block;
+  font-size: 19px;
+  color: #fff;
+}
+#spxcard .spxch i {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+#spxcard .spxch button {
+  height: 32px !important;
+  width: 32px;
+  padding: 0 !important;
+}
+#spxcard > div:not(.spxch) {
+  padding: 3px 0;
+  border-top: 1px solid #ffffff10;
+}
+#spxcard span {
+  display: inline-block;
+  min-width: 128px;
+  color: var(--accent);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+
 </style>
 </head>
 <body>
@@ -8005,7 +8773,7 @@ body.rw #t4bar [data-t4="x"] {
     <h4 style="margin-top:16px">REGIONS</h4><div id="regions"></div>
   </div>
   <div class="stage" id="stage">
-    <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="ftiles"></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
+    <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-hl="go" aria-label="Highlight the building in the middle and show it from every side" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">HIGHLIGHT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="ftiles"></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
     <div class="hud">
       <button id="bSky">✦ Sky</button><button id="bBare">◉ Hide menus</button><button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bFocus">◎ Focus</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
       <button id="bSpin" class="on">Auto-rotate</button><button id="bReset">Reset</button><button data-sv="here">◉ Street View</button><button id="bWeb">⬡ Build Web</button><button id="bSun">☀ Chase the Sun</button><button id="bWall" class="on">▦ Multi-View (0)</button><button data-h="fav">★ Favorites</button><button data-h="rand">⤮ Random camera</button><button data-h="quake">◎ Strongest quake</button><button id="bSet">⚙ Settings</button>
@@ -8067,6 +8835,8 @@ body.rw #t4bar [data-t4="x"] {
  * inside a single closure. See README, "Architecture".
  */
 
+// The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
+var APP_V = 91;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],
@@ -8178,7 +8948,7 @@ function diagText() {
     else if (st.n) ok.push(s.name + " " + st.n);
     else bad.push(s.name + " [" + (st.err || st.s || "?") + "]");
   });
-  L.push("OJOS DE DIOS v81 status · " + new Date().toISOString());
+  L.push("OJOS DE DIOS v" + APP_V + " status · " + new Date().toISOString());
   L.push(
     "app=" +
       (nativeHttp() ? "installed" : "browser") +
@@ -10766,7 +11536,8 @@ function CY() {
   return H / 2 + (topInset() / 2) * (H > topInset() * 2.2 ? 1 : 0.6);
 }
 function radius() {
-  return Math.min(W, H - lowF() * (topInset() + 14)) * 0.43 * zoom;
+  // Never below 1: while the app is in the background the screen can report no height.
+  return Math.max(1, Math.min(W, H - lowF() * (topInset() + 14)) * 0.43 * zoom);
 }
 var PC = {};
 function pcu() {
@@ -12168,7 +12939,7 @@ function liveDossier(c) {
     (AI_ON ? " on" : "") +
     '">' +
     (AI_ON ? "◉ AI DETECT: ON" : "◎ AI DETECT: OFF") +
-    '</button></div><div class="acts"><button class="open" data-w="watch">▶ FULL SCREEN</button><button class="ghost" data-w="add">+ Wall</button><button class="ghost" data-cm="pick">⇄ Compare</button><button class="ghost" data-w="fav">' +
+    '</button></div><div class="acts"><button class="open" data-w="watch">▶ FULL SCREEN</button><button class="ghost" data-w="add">+ Wall</button><button class="ghost" data-cm="pick">⇄ Compare</button><button class="ghost" data-cwo="1">🕸 Web</button><button class="ghost" data-w="fav">' +
     (FAV.indexOf(c.u) >= 0 ? "★ Saved" : "☆ Save") +
     '</button><button class="ghost" data-sv="' +
     c.lat +
@@ -16432,11 +17203,11 @@ function ago(ms) {
       ? Math.round(m / 60) + "h ago"
       : Math.round(m / 1440) + "d ago";
 }
-var FEED = [];
+var EVFEED = [];
 function feed() {
   var el = $("feed");
   if (!el) return;
-  FEED = QUAKES.slice()
+  EVFEED = QUAKES.slice()
     .sort(function (a, b) {
       return b.time - a.time;
     })
@@ -16456,13 +17227,13 @@ function feed() {
     "<h4>EVENT FEED</h4>" +
     (big
       ? '<div class="fbig" data-ev="' +
-        FEED.indexOf(big) +
+        EVFEED.indexOf(big) +
         '"><b class="mono">STRONGEST · 24H</b><span>' +
         esc(big.n) +
         "</span></div>"
       : "") +
-    (FEED.length
-      ? FEED.map(function (e, i) {
+    (EVFEED.length
+      ? EVFEED.map(function (e, i) {
           var q = e.kind === "quake",
             c = q ? "#ff5533" : EVCOL[e.cat] || "#4cc3ff";
           return (
@@ -16488,7 +17259,7 @@ function feed() {
 }
 document.addEventListener("click", function (e) {
   var r = e.target.closest("[data-ev]");
-  if (r && FEED[+r.getAttribute("data-ev")]) select(FEED[+r.getAttribute("data-ev")]);
+  if (r && EVFEED[+r.getAttribute("data-ev")]) select(EVFEED[+r.getAttribute("data-ev")]);
 });
 /**
  * @file World layers, toasts and property records.
@@ -16506,7 +17277,7 @@ var WL = ls("ojos-layers") || {
   quake: true,
   event: true,
   night: true,
-  tiles: true
+  tiles: false
 };
 if (WL.img === undefined) WL.img = true;
 if (WL.parcel === undefined) WL.parcel = true;
@@ -16515,6 +17286,11 @@ if (WL.labels === undefined) WL.labels = true;
 if (WL.ship === undefined) WL.ship = false;
 if (WL.dots === undefined) WL.dots = true;
 if (WL.radar === undefined) WL.radar = false;
+// v91: the grouped "Nearby" tiles gave way to the camera web; turned off once, still in Layers.
+if (!WL.tilesV) {
+  WL.tilesV = 1;
+  WL.tiles = false;
+}
 var PLANES = [],
   SATREC = [],
   SATS = [],
@@ -20508,7 +21284,14 @@ function t4Open(opt) {
             globe: false,
             // Draw only when something changed (camera, tiles, data): far less work per second.
             requestRenderMode: true,
-            maximumRenderTimeChange: Infinity
+            maximumRenderTimeChange: Infinity,
+            // Smooth display (Android, and graphics chips that flicker): no multisampling and a
+            // plain WebGL surface, which those chips draw without tearing.
+            msaaSamples: displayMode() === "globe" ? 4 : 1,
+            contextOptions:
+              displayMode() === "globe"
+                ? undefined
+                : { webgl: { alpha: false, antialias: false, powerPreference: "high-performance" } }
           });
         } catch (e) {
           t4Close();
@@ -20516,6 +21299,13 @@ function t4Open(opt) {
           return;
         }
         try {
+          if (displayMode() !== "globe") {
+            // The logarithmic depth buffer writes depth per pixel, which some phone chips get wrong
+            // (flicker and lines); the ordinary depth buffer is fine at city distances.
+            v.scene.logarithmicDepthBuffer = false;
+            v.scene.highDynamicRange = false;
+            v.scene.postProcessStages.fxaa.enabled = false;
+          }
           v.scene.skyAtmosphere.show = true;
           v.resolutionScale = Math.min(
             window.devicePixelRatio || 1,
@@ -20527,6 +21317,18 @@ function t4Open(opt) {
         var hd = new C.ScreenSpaceEventHandler(v.scene.canvas);
         hd.setInputAction(function (m) {
           lastInteract = performance.now();
+          // While a building is highlighted, tapping another one highlights that one instead.
+          if (HL.on) {
+            var hp = null;
+            try {
+              hp = v.scene.pickPosition(m.position);
+            } catch (x) {}
+            if (hp) {
+              var hc = C.Cartographic.fromCartesian(hp);
+              hlGo(hc.latitude / D, hc.longitude / D, hc.height || 0);
+              return;
+            }
+          }
           if (T4.pick) {
             T4.pick = false;
             var wp = null;
@@ -20623,6 +21425,7 @@ function t4Open(opt) {
     });
 }
 function t4Close() {
+  if (HL.on) hlClose(); // the highlight belongs to this view
   if (!T4.on) return;
   try {
     ckpClose();
@@ -22949,6 +23752,420 @@ document.addEventListener("click", function (e) {
       selected && selected.lon != null ? selected.lon : rot.lon
     );
 });
+
+// ---------- Highlight: circle a building, show it from every side, and tell its story ----------
+// In the 3D view, HIGHLIGHT takes the building in the middle of the screen (or the next one
+// tapped), outlines its real footprint and roofline from OpenStreetMap, circles it, and flies
+// slowly around it, rising and dipping to show every side. A card gives its height, floors, when
+// it was built, who designed it and its history, from OpenStreetMap, Wikidata and Wikipedia when
+// they have them. Touching the view stops the tour; ⟳ starts it again.
+var HL = { on: false, ents: [], geo: null, seq: 0 };
+
+function hlClear() {
+  var v = T4.v;
+  HL.ents.forEach(function (e) {
+    try {
+      v.entities.remove(e);
+    } catch (x) {}
+  });
+  HL.ents = [];
+}
+
+function hlClose() {
+  HL.on = false;
+  HL.seq++;
+  t4OrbitStop();
+  if (T4.v) hlClear();
+  var el = $("hlcard");
+  if (el) el.style.display = "none";
+}
+
+// The point in the middle of the screen, on the 3D city if it is there.
+function hlCentre() {
+  var C = window.Cesium,
+    v = T4.v,
+    cv2 = v.scene.canvas,
+    wp = null;
+  try {
+    wp = v.scene.pickPosition(new C.Cartesian2(cv2.clientWidth / 2, cv2.clientHeight / 2));
+  } catch (e) {}
+  if (!wp) return null;
+  var g = C.Cartographic.fromCartesian(wp);
+  return { lat: g.latitude / D, lon: g.longitude / D, h: g.height || 0 };
+}
+
+function hlLine(pts, gh, width, color, glow) {
+  var C = window.Cesium,
+    flat = [];
+  pts.forEach(function (p) {
+    flat.push(p[0], p[1], gh);
+  });
+  return T4.v.entities.add({
+    polyline: {
+      positions: C.Cartesian3.fromDegreesArrayHeights(flat),
+      width: width,
+      material: glow
+        ? new C.PolylineGlowMaterialProperty({
+            glowPower: 0.3,
+            color: C.Color.fromCssColorString(color)
+          })
+        : C.Color.fromCssColorString(color)
+    }
+  });
+}
+
+// Draws the outline: footprint at the ground and the roof, the corners, and a circle around it.
+function hlDraw(g, ring, H, r) {
+  hlClear();
+  var gh = g.h,
+    k = Math.cos(g.lat * D),
+    circle = [];
+  for (var a = 0; a <= 64; a++) {
+    var t = (a / 64) * 2 * Math.PI;
+    circle.push([g.lon + (Math.sin(t) * r) / (111320 * k), g.lat + (Math.cos(t) * r) / 110540]);
+  }
+  HL.ents.push(hlLine(circle, gh + 1.5, 10, "#36e0ff", true));
+  if (ring) {
+    HL.ents.push(hlLine(ring, gh + 1, 3, "#ffd36b", false));
+    HL.ents.push(hlLine(ring, gh + H, 3, "#ffd36b", false));
+    // The corners, as uprights, when the outline is simple enough to read.
+    if (ring.length <= 14) {
+      var C = window.Cesium;
+      ring.forEach(function (p) {
+        HL.ents.push(
+          T4.v.entities.add({
+            polyline: {
+              positions: C.Cartesian3.fromDegreesArrayHeights([
+                p[0],
+                p[1],
+                gh + 1,
+                p[0],
+                p[1],
+                gh + H
+              ]),
+              width: 2,
+              material: C.Color.fromCssColorString("#ffd36b")
+            }
+          })
+        );
+      });
+    }
+  }
+}
+
+// The tour: once around, rising and dipping and moving in and out, so every side is seen.
+function hlTour(g, H, r) {
+  var C = window.Cesium,
+    v = T4.v;
+  t4OrbitStop();
+  var ctr = C.Cartesian3.fromDegrees(g.lon, g.lat, g.h + H * 0.45),
+    range = Math.max(160, Math.max(H, r) * 3.2),
+    h0 = v.camera.heading,
+    t0 = 0;
+  try {
+    v.camera.flyToBoundingSphere(new C.BoundingSphere(ctr, 1), {
+      offset: new C.HeadingPitchRange(h0, -30 * D, range),
+      duration: 1.6,
+      complete: function () {
+        t0 = Date.now();
+        T4.orb = setInterval(function () {
+          var s = (Date.now() - t0) / 1000;
+          if (s > 60 || !T4.on) {
+            t4OrbitStop();
+            return;
+          }
+          try {
+            v.camera.lookAt(
+              ctr,
+              new C.HeadingPitchRange(
+                h0 + s * 0.16,
+                -(30 + 16 * Math.sin(s * 0.33)) * D,
+                range * (1 + 0.22 * Math.sin(s * 0.21))
+              )
+            );
+            v.scene.requestRender();
+          } catch (e) {}
+        }, 33);
+      }
+    });
+  } catch (e) {}
+}
+
+// A Wikidata quantity in metres, or null.
+function hlMetres(claim) {
+  var q = claim && claim.mainsnak && claim.mainsnak.datavalue && claim.mainsnak.datavalue.value;
+  if (!q || q.amount == null) return null;
+  var n = parseFloat(q.amount),
+    unit = String(q.unit || "");
+  if (/Q3710$/.test(unit))
+    n *= 0.3048; // feet
+  else if (/Q174728$/.test(unit)) n /= 100; // centimetres
+  return isFinite(n) ? n : null;
+}
+
+// A Wikidata date as words: "2560 BC", "1931", "March 1931" is reduced to the year.
+function hlYear(claim) {
+  var t = claim && claim.mainsnak && claim.mainsnak.datavalue && claim.mainsnak.datavalue.value;
+  var m = t && /^([+-])0*(\d+)-/.exec(t.time || "");
+  if (!m) return "";
+  return m[1] === "-" ? m[2] + " BC" : m[2];
+}
+
+function hlFeet(m) {
+  return Math.round(m) + " m · " + Math.round(m * 3.281).toLocaleString() + " ft";
+}
+
+// Wikidata and Wikipedia for the building: by its OSM tags, else the nearest article.
+function hlStory(g, tags) {
+  var wd = tags.wikidata || "",
+    wp = /^en:(.+)$/.exec(tags.wikipedia || "");
+  var pick = wd
+    ? Promise.resolve({ q: wd, title: wp ? wp[1] : "" })
+    : getJSON(
+        "https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=120&gslimit=1&format=json&origin=*&gscoord=" +
+          g.lat.toFixed(5) +
+          "|" +
+          g.lon.toFixed(5),
+        15000
+      ).then(function (j) {
+        var hit = j && j.query && j.query.geosearch && j.query.geosearch[0];
+        if (!hit) return null;
+        return getJSON(
+          "https://en.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&format=json&origin=*&pageids=" +
+            hit.pageid,
+          15000
+        ).then(function (p) {
+          var pg = p && p.query && p.query.pages && p.query.pages[hit.pageid];
+          return { q: (pg && pg.pageprops && pg.pageprops.wikibase_item) || "", title: hit.title };
+        });
+      });
+  return pick.then(function (id) {
+    if (!id) return {};
+    var out = { title: id.title };
+    var wdP = id.q
+      ? getJSON(
+          "https://www.wikidata.org/w/api.php?action=wbgetentities&props=claims|sitelinks|labels&languages=en&format=json&origin=*&ids=" +
+            encodeURIComponent(id.q),
+          15000
+        ).then(function (j) {
+          var e = j && j.entities && j.entities[id.q],
+            c = (e && e.claims) || {};
+          if (!e) return;
+          out.name = e.labels && e.labels.en && e.labels.en.value;
+          out.title =
+            out.title || (e.sitelinks && e.sitelinks.enwiki && e.sitelinks.enwiki.title) || "";
+          out.height = hlMetres((c.P2048 || [])[0]);
+          out.built = hlYear((c.P571 || [])[0]) || hlYear((c.P1619 || [])[0]);
+          var fl = (c.P1101 || [])[0];
+          out.floors =
+            fl && fl.mainsnak.datavalue ? parseFloat(fl.mainsnak.datavalue.value.amount) : null;
+          var ids = (c.P84 || [])
+            .concat(c.P149 || [])
+            .map(function (x) {
+              return x.mainsnak && x.mainsnak.datavalue && x.mainsnak.datavalue.value.id;
+            })
+            .filter(Boolean)
+            .slice(0, 6);
+          out.archIds = (c.P84 || []).length;
+          if (!ids.length) return;
+          return getJSON(
+            "https://www.wikidata.org/w/api.php?action=wbgetentities&props=labels&languages=en&format=json&origin=*&ids=" +
+              ids.join("|"),
+            15000
+          ).then(function (l) {
+            var names = ids.map(function (q) {
+              var x = l && l.entities && l.entities[q];
+              return (x && x.labels && x.labels.en && x.labels.en.value) || "";
+            });
+            out.architect = names.slice(0, out.archIds).filter(Boolean).join(", ");
+            out.style = names.slice(out.archIds).filter(Boolean).join(", ");
+          });
+        })
+      : Promise.resolve();
+    return wdP
+      .catch(function () {})
+      .then(function () {
+        if (!out.title) return out;
+        return getJSON(
+          "https://en.wikipedia.org/api/rest_v1/page/summary/" +
+            encodeURIComponent(out.title.replace(/ /g, "_")),
+          15000
+        )
+          .then(function (s) {
+            out.extract = (s && s.extract) || "";
+            out.link =
+              (s && s.content_urls && s.content_urls.mobile && s.content_urls.mobile.page) || "";
+            out.name = out.name || (s && s.title);
+          })
+          .catch(function () {})
+          .then(function () {
+            return out;
+          });
+      });
+  });
+}
+
+function hlCard(f) {
+  var el = $("hlcard");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "hlcard";
+    $("real").appendChild(el);
+  }
+  el.style.display = "block";
+  if (!f) {
+    el.innerHTML =
+      '<b class="mono">◎ HIGHLIGHT</b><p>Finding this building on the public record…</p>';
+    return;
+  }
+  var row = function (k, v) {
+    return v ? "<span>" + k + "</span><b>" + esc(String(v)) + "</b>" : "";
+  };
+  el.innerHTML =
+    '<div class="hlh"><b class="mono">◎ HIGHLIGHT</b><button data-hl="tour" aria-label="Show every side again">⟳</button><button data-hl="ins" aria-label="Inspect inside">◆</button><button data-hl="x" aria-label="Close">✕</button></div>' +
+    "<h3>" +
+    esc(f.name || "Building") +
+    "</h3>" +
+    '<div class="hlkv">' +
+    row("HEIGHT", f.height ? hlFeet(f.height) + (f.hEst ? " (estimated)" : "") : "") +
+    row("FLOORS", f.floors) +
+    row("BUILT", f.built) +
+    row("DESIGNED BY", f.architect) +
+    row("STYLE", f.style) +
+    row("USE", f.use) +
+    row("ADDRESS", f.addr) +
+    "</div>" +
+    (f.extract ? '<p class="hlx">' + esc(f.extract) + "</p>" : "") +
+    (f.link
+      ? '<a class="brl" href="' +
+        esc(f.link) +
+        '" target="_blank" rel="noopener">Read the full history</a>'
+      : "") +
+    '<small class="mono">' +
+    esc(f.src) +
+    " · TOUCH THE VIEW TO TAKE OVER</small>";
+}
+
+// Highlights the building at a point: outline, circle, tour and card.
+function hlGo(lat, lon, gh) {
+  if (!T4.on || !T4.v) return;
+  var seq = ++HL.seq;
+  HL.on = true;
+  var g = { lat: lat, lon: lon, h: gh || 0 };
+  HL.geo = g;
+  hlDraw(g, null, 0, 40);
+  hlCard(null);
+  var a = lat.toFixed(6) + "," + lon.toFixed(6);
+  overpassGet(
+    "[out:json][timeout:20];(way(around:30," +
+      a +
+      ")[building];relation(around:30," +
+      a +
+      ")[building];);out tags geom 6;",
+    24000
+  )
+    .catch(function () {
+      return { elements: [] };
+    })
+    .then(function (j) {
+      if (seq !== HL.seq) return;
+      var k = Math.cos(lat * D),
+        best = null,
+        bd = 1e9;
+      (j.elements || []).forEach(function (w) {
+        var gm = w.geometry || (w.members && w.members[0] && w.members[0].geometry);
+        if (!gm || gm.length < 4) return;
+        var cx = 0,
+          cy = 0;
+        gm.forEach(function (p) {
+          cx += p.lon;
+          cy += p.lat;
+        });
+        var d = Math.hypot((cx / gm.length - lon) * 111320 * k, (cy / gm.length - lat) * 110540);
+        if (d < bd) {
+          bd = d;
+          best = { w: w, gm: gm };
+        }
+      });
+      var t = (best && best.w.tags) || {},
+        ring = best
+          ? best.gm.map(function (p) {
+              return [p.lon, p.lat];
+            })
+          : null,
+        H =
+          parseFloat(t.height) ||
+          (parseFloat(t["building:levels"]) ? parseFloat(t["building:levels"]) * 3.2 : 0),
+        r = 40;
+      if (ring) {
+        var cx2 = 0,
+          cy2 = 0;
+        ring.forEach(function (p) {
+          cx2 += p[0];
+          cy2 += p[1];
+        });
+        g.lon = cx2 / ring.length;
+        g.lat = cy2 / ring.length;
+        r =
+          Math.max.apply(
+            0,
+            ring.map(function (p) {
+              return Math.hypot((p[0] - g.lon) * 111320 * k, (p[1] - g.lat) * 110540);
+            })
+          ) + 12;
+      }
+      var f = {
+        name: t.name || t["name:en"] || "",
+        height: H || null,
+        hEst: !t.height && !!H,
+        floors: t["building:levels"] || null,
+        built: t.start_date || "",
+        architect: t.architect || "",
+        use: t.building && t.building !== "yes" ? t.building.replace(/_/g, " ") : "",
+        addr: [t["addr:housenumber"], t["addr:street"], t["addr:city"]].filter(Boolean).join(" "),
+        src: best ? "OPENSTREETMAP" : "NO BUILDING MAPPED HERE"
+      };
+      return hlStory(g, t)
+        .catch(function () {
+          return {};
+        })
+        .then(function (s) {
+          if (seq !== HL.seq) return;
+          f.name = f.name || s.name || "Building";
+          f.height = s.height || f.height;
+          if (s.height) f.hEst = false;
+          f.floors = f.floors || s.floors;
+          f.built = f.built || s.built;
+          f.architect = f.architect || s.architect;
+          f.style = s.style || "";
+          f.extract = s.extract || "";
+          f.link = s.link || "";
+          if (s.extract || s.height) f.src += " · WIKIDATA · WIKIPEDIA";
+          var HH = f.height || 30;
+          HL.geo = { g: g, ring: ring, H: HH, r: r };
+          hlDraw(g, ring, HH, r);
+          hlCard(f);
+          hlTour(g, HH, r);
+        });
+    });
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-hl]");
+  if (!b) return;
+  var k = b.getAttribute("data-hl");
+  if (k === "go") {
+    var g = T4.v && hlCentre();
+    if (g) hlGo(g.lat, g.lon, g.h);
+    else note("Highlight", "Point the middle of the view at a building, then tap Highlight.");
+  } else if (k === "x") hlClose();
+  else if (k === "tour" && HL.geo && HL.geo.g) hlTour(HL.geo.g, HL.geo.H, HL.geo.r);
+  else if (k === "ins" && HL.geo && HL.geo.g) {
+    var gg = HL.geo.g;
+    hlClose();
+    insBuilding(gg.lat, gg.lon, gg.h);
+  }
+});
 /**
  * @file News desk and official alerts.
  * RSS and official feeds (FAA, NWS, GDACS, USGS), de-duplication and placement of stories on the
@@ -23376,6 +24593,420 @@ function newsAlerts() {
     })
     .catch(function () {});
 }
+// ----- Emergency alerts for my location: a full-screen alert, like a phone's own -----
+// Official National Weather Service alerts for the phone's position (US). Alerts that call for action
+// (the same rule as the Android background check, AlertChecker.java) take over the screen once, with the
+// official wording, a tone and vibration. The background check posts them as notifications while the app
+// is closed, using the position last seen here.
+var AM = {
+    seen: ls("ojos-am-seen") || [],
+    hist: ls("ojos-am-hist") || [], // alerts shown, newest first, for Settings → Recent alerts
+    q: [],
+    pos: null,
+    at: 0,
+    natAt: 0,
+    natPos: null
+  },
+  AM_HIST_MAX = 40,
+  AM_EVERY = 3 * 60000,
+  AM_ACT =
+    /^(tornado warning|flash flood warning|extreme wind warning|evacuation immediate|civil emergency message|civil danger warning|shelter in place warning|law enforcement warning|hazardous materials warning|nuclear power plant warning|radiological hazard warning|fire warning|tsunami warning|hurricane warning|storm surge warning|earthquake warning|child abduction emergency|local area emergency|911 telephone outage emergency|blizzard warning|ice storm warning|severe thunderstorm warning|dust storm warning)$/;
+
+function amOn() {
+  return SET.alertMe !== false;
+}
+
+// Whether an alert should take over the screen (kept in step with AlertChecker.callsForAction).
+function amActs(p) {
+  var e = String(p.event || "")
+    .trim()
+    .toLowerCase();
+  if (!e || /test/.test(e)) return false;
+  if (AM_ACT.test(e)) return true;
+  return (
+    /^(extreme|severe)$/i.test(p.severity || "") && /^(immediate|expected)$/i.test(p.urgency || "")
+  );
+}
+
+// The position to watch: emergency mode's live fix, else a recent fix if location is already allowed.
+function amWhere() {
+  if (EMG.on && EMG.pos) return Promise.resolve(EMG.pos);
+  if (!navigator.geolocation) return Promise.resolve(AM.pos);
+  return (
+    navigator.permissions
+      ? navigator.permissions.query({ name: "geolocation" })
+      : Promise.resolve({ state: "prompt" })
+  )
+    .then(function (st) {
+      if (st.state !== "granted" && !AM.ask) return AM.pos;
+      AM.ask = false;
+      return new Promise(function (res) {
+        navigator.geolocation.getCurrentPosition(
+          function (p) {
+            res({ lat: p.coords.latitude, lon: p.coords.longitude });
+          },
+          function () {
+            res(AM.pos);
+          },
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 10 * 60000 }
+        );
+      });
+    })
+    .catch(function () {
+      return AM.pos;
+    });
+}
+
+function amCheck() {
+  if (!amOn() || !EMBED_OK) return;
+  AM.at = Date.now();
+  amWhere().then(function (pos) {
+    if (pos) AM.pos = pos;
+    amNative();
+    // The phone first, then each saved place; an alert covering several is shown once.
+    var spots = (pos ? [{ lat: pos.lat, lon: pos.lon, n: "" }] : []).concat(amPlaces());
+    spots.reduce(function (chain, s) {
+      return chain.then(function () {
+        return getJSON(
+          "https://api.weather.gov/alerts/active?status=actual&point=" +
+            s.lat.toFixed(4) +
+            "," +
+            s.lon.toFixed(4),
+          20000
+        )
+          .then(function (j) {
+            ((j && j.features) || []).forEach(function (f) {
+              var p = f.properties || {};
+              if (!p.id || AM.seen.indexOf(p.id) >= 0) return;
+              AM.seen.push(p.id);
+              if (amActs(p))
+                AM.q.push(
+                  Object.assign({ forPlace: s.n, forPhone: s.ph, lat: s.lat, lon: s.lon }, p)
+                );
+            });
+            AM.seen = AM.seen.slice(-300);
+            ls("ojos-am-seen", AM.seen);
+            amShow();
+          })
+          .catch(function () {});
+      });
+    }, Promise.resolve());
+  });
+}
+
+// The places watched besides the phone: the saved places of Smart alerts (module 03), up to 8.
+function amPlaces() {
+  return (AL.places || []).slice(0, 8).map(function (p) {
+    return { lat: p.lat, lon: p.lon, n: p.name, ph: p.phone || "" };
+  });
+}
+
+// Hand the places to the Android background check when they change, the phone has moved, or hourly.
+function amNative() {
+  var p = AM.pos,
+    places = (p ? [{ lat: p.lat, lon: p.lon, n: "My location" }] : []).concat(
+      amPlaces().map(function (x) {
+        return { lat: x.lat, lon: x.lon, n: x.n }; // phone numbers stay in the app
+      })
+    ),
+    key = JSON.stringify(amPlaces()),
+    moved = p && (!AM.natPos || hav(p.lat, p.lon, AM.natPos.lat, AM.natPos.lon) > 2);
+  if (!moved && key === AM.natKey && Date.now() - AM.natAt < 3600000) return;
+  AM.natAt = Date.now();
+  AM.natPos = p || AM.natPos;
+  AM.natKey = key;
+  natCall("setAlertWatch", { on: amOn() && places.length > 0, places: places });
+}
+
+// Settings → Emergency alerts → ⇩ OFFLINE: saves the map around a saved place (module 42).
+var OFF = { busy: -1 };
+function offPlace(i) {
+  var p = AL.places[i];
+  if (!p || OFF.busy >= 0) return;
+  OFF.busy = i;
+  brDraw();
+  note("Offline map", "Saving the map around " + esc(p.name) + "…");
+  offSave(p.lat, p.lon, function (ok, total) {
+    OFF.busy = -1;
+    if (ok >= total * 0.8) {
+      p.off = Date.now();
+      alSave();
+      note(
+        "Offline map",
+        "The map around " + esc(p.name) + " is saved. It shows even without signal."
+      );
+    } else
+      note(
+        "Offline map",
+        "Only part of the map could be saved. Check the connection and try again."
+      );
+    brDraw();
+  });
+}
+
+// Settings → Emergency alerts → add a place by address or city, with a name of your own.
+function amAdd(q, name, phone) {
+  if ((AL.places || []).length >= 8) {
+    note("Places", "You can watch up to 8 places. Remove one first.");
+    return Promise.resolve();
+  }
+  return geo1(q)
+    .then(function (r) {
+      AL.places.push({
+        name: String(name || r.name || q)
+          .trim()
+          .slice(0, 28),
+        lat: r.lat,
+        lon: r.lon,
+        phone: String(phone || "")
+          .replace(/[^\d+]/g, "")
+          .slice(0, 16)
+      });
+      alSave();
+      AM.natKey = "";
+      amCheck();
+      brDraw();
+    })
+    .catch(function () {
+      note("Places", "Couldn't find that place. Try an address or a city and state.");
+    });
+}
+
+document.addEventListener("submit", function (e) {
+  if (e.target.id !== "amForm") return;
+  e.preventDefault();
+  var q = $("amQ").value.trim();
+  if (q) amAdd(q, $("amN").value, $("amP").value);
+});
+
+function amTone() {
+  try {
+    var ac = EMG.ac || (EMG.ac = new (window.AudioContext || window.webkitAudioContext)()),
+      t = ac.currentTime;
+    for (var i = 0; i < 6; i++) {
+      var o = ac.createOscillator(),
+        g = ac.createGain();
+      o.type = "square";
+      o.frequency.value = i % 2 ? 1300 : 1050;
+      g.gain.setValueAtTime(0.0001, t + i * 0.35);
+      g.gain.exponentialRampToValueAtTime(0.35, t + i * 0.35 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.35 + 0.3);
+      o.connect(g);
+      g.connect(ac.destination);
+      o.start(t + i * 0.35);
+      o.stop(t + i * 0.35 + 0.32);
+    }
+  } catch (e) {}
+  try {
+    if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 900]);
+  } catch (e) {}
+  natCall("vibrate", { ms: 1500 });
+}
+
+function amTime(s) {
+  var d = Date.parse(s);
+  return isNaN(d)
+    ? ""
+    : new Date(d).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" });
+}
+
+// Shows the next alert in the queue; each is shown once.
+function amShow() {
+  var el = $("alertpop"),
+    p = AM.q[0];
+  if (!p || (el && el.style.display === "flex")) return;
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "alertpop";
+    el.setAttribute("role", "alertdialog");
+    el.setAttribute("aria-modal", "true");
+    document.documentElement.appendChild(el);
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-am]");
+      if (!b) return;
+      var k = b.getAttribute("data-am"),
+        cur = AM.q.shift();
+      el.style.display = "none";
+      var at = cur && cur.lat != null ? cur : AM.pos; // the saved place it is for, else the phone
+      if (k === "map" && at) {
+        if (typeof RW === "object" && RW.on && RW.mode === "globe" && T3.map)
+          T3.map.flyTo({ center: [at.lon, at.lat], zoom: 9 });
+        else target = { lon: at.lon, lat: at.lat, z: clampZ((zoom * viewKm()) / 120) };
+      }
+      setTimeout(amShow, 400);
+    });
+  }
+  var test = !!p.test,
+    area = String(p.areaDesc || "")
+      .split(";")
+      .slice(0, 4)
+      .join(", "),
+    when = [
+      p.onset || p.effective ? "From " + amTime(p.onset || p.effective) : "",
+      p.ends || p.expires ? "until " + amTime(p.ends || p.expires) : ""
+    ]
+      .filter(Boolean)
+      .join(" "),
+    what = String(p.instruction || "").trim(),
+    more = String(p.description || "").trim();
+  el.innerHTML =
+    '<div class="amcard"><b class="mono">' +
+    (test ? "TEST · NOT A REAL ALERT" : "⚠ EMERGENCY ALERT") +
+    "</b><h2>" +
+    esc(p.event || "Official alert") +
+    "</h2>" +
+    (p.forPlace ? '<p class="amfor mono">FOR ' + esc(p.forPlace.toUpperCase()) + "</p>" : "") +
+    '<p class="amwho mono">' +
+    esc((p.senderName || "National Weather Service").toUpperCase()) +
+    (when ? " · " + esc(when.toUpperCase()) : "") +
+    "</p>" +
+    (area ? '<p class="amarea">' + esc(area) + "</p>" : "") +
+    (p.headline ? '<p class="amhead">' + esc(p.headline) + "</p>" : "") +
+    (what ? '<h4 class="mono">WHAT TO DO</h4><p class="amtext">' + esc(what) + "</p>" : "") +
+    (more
+      ? '<details><summary class="mono">FULL MESSAGE</summary><p class="amtext">' +
+        esc(more) +
+        "</p></details>"
+      : "") +
+    (p.forPhone
+      ? '<a class="amsms" href="sms:' +
+        esc(p.forPhone.replace(/[^\d+]/g, "")) +
+        "?body=" +
+        encodeURIComponent(
+          "Are you OK? There's a " + (p.event || "warning") + " for your area. Reply when you can."
+        ) +
+        '">💬 Text ' +
+        esc(p.forPlace) +
+        ": are you OK?</a>"
+      : "") +
+    '<div class="ambtn"><button data-am="map">Show on map</button><button data-am="ok" class="amok">I understand</button></div>' +
+    '<small class="mono">OFFICIAL TEXT FROM THE ISSUING AGENCY · IN DANGER, CALL ' +
+    esc(emgNum((EMG.sit && EMG.sit.cc) || "US").split(" ")[0]) +
+    "</small></div>";
+  el.style.display = "flex";
+  if (!p.again) amTone();
+  if (test || p.again) return;
+  speak((p.event || "Emergency alert") + ". " + (p.headline || ""));
+  amRecord(p);
+  // The home-screen widget shows it until it ends.
+  natCall("setAlertWidget", {
+    event: p.event || "Official alert",
+    place: p.forPlace || "",
+    until: Date.parse(p.ends || p.expires) || Date.now() + 6 * 3600000
+  });
+}
+
+// ---------- Recent alerts ----------
+function amRecord(p) {
+  AM.hist = AM.hist.filter(function (h) {
+    return h.id !== p.id;
+  });
+  AM.hist.unshift({
+    id: p.id || "a" + Date.now(),
+    t: Date.now(),
+    p: {
+      event: p.event,
+      headline: p.headline,
+      instruction: p.instruction,
+      areaDesc: p.areaDesc,
+      senderName: p.senderName,
+      effective: p.effective,
+      ends: p.ends || p.expires,
+      forPlace: p.forPlace,
+      forPhone: p.forPhone,
+      lat: p.lat,
+      lon: p.lon
+    }
+  });
+  AM.hist = AM.hist.slice(0, AM_HIST_MAX);
+  ls("ojos-am-hist", AM.hist);
+}
+
+// Alerts the Android background check announced while the app was closed join the history.
+function amNativeLog() {
+  natCall("getAlertLog").then(function (r) {
+    var list = [];
+    try {
+      list = JSON.parse((r && r.log) || "[]");
+    } catch (e) {}
+    var have = {};
+    AM.hist.forEach(function (h) {
+      have[h.id] = 1;
+    });
+    list.forEach(function (x) {
+      if (!x || !x.id || have[x.id]) return;
+      AM.hist.push({
+        id: x.id,
+        t: x.t,
+        p: { event: x.event, headline: x.headline, forPlace: x.place }
+      });
+      if (AM.seen.indexOf(x.id) < 0) AM.seen.push(x.id); // already announced: no second pop-up
+    });
+    AM.hist.sort(function (a, b) {
+      return b.t - a.t;
+    });
+    AM.hist = AM.hist.slice(0, AM_HIST_MAX);
+    ls("ojos-am-hist", AM.hist);
+    ls("ojos-am-seen", AM.seen);
+  });
+}
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) amNativeLog();
+});
+
+function amHistHtml() {
+  if (!AM.hist.length)
+    return '<p class="brhint">No alerts yet. Warnings that reached you show here.</p>';
+  return (
+    '<div class="amhist">' +
+    AM.hist
+      .slice(0, 10)
+      .map(function (h, i) {
+        return (
+          '<button data-br="amh-' +
+          i +
+          '"><b>' +
+          esc(h.p.event || "Alert") +
+          "</b><span>" +
+          esc([h.p.forPlace || "Where you were", ago(h.t)].join(" · ")) +
+          "</span></button>"
+        );
+      })
+      .join("") +
+    "</div>"
+  );
+}
+
+// Opens a past alert again, without the tone.
+function amAgain(i) {
+  var h = AM.hist[i];
+  if (!h) return;
+  AM.q.unshift(Object.assign({ again: true }, h.p));
+  amShow();
+}
+
+// Settings → "Test the alert screen".
+function amTest() {
+  AM.q.unshift({
+    test: true,
+    event: "Tornado Warning",
+    senderName: "NWS (example)",
+    areaDesc: "Your county",
+    headline: "This is how an emergency alert for your position will look.",
+    instruction:
+      "When this is real: go to a basement or an interior room on the lowest floor, away from windows."
+  });
+  amShow();
+}
+
+setTimeout(function () {
+  amNativeLog();
+  amCheck();
+  setInterval(function () {
+    if (!document.hidden && Date.now() - AM.at > AM_EVERY) amCheck();
+  }, 30000);
+}, 4000);
+
 // ----- broadcast: one bar across every view (globe, static, 3D, Inspect stays above it) -----
 function bcDraw() {
   var el = $("bcast");
@@ -24548,6 +26179,38 @@ function brDraw() {
     "</div>";
   // How the map is drawn: for phones whose graphics chip flickers with one of them.
   h +=
+    '<h4 class="mono">EMERGENCY ALERTS</h4><div class="brt c1"><button data-br="am" class="' +
+    (amOn() ? "on" : "") +
+    '">' +
+    (amOn() ? "● " : "○ ") +
+    'Alerts for my location</button><button data-br="amtest">Test the alert screen</button></div><p class="brhint">Official National Weather Service warnings for where you are (US) take over the screen with a tone, and arrive as notifications while the app is closed. Your phone\'s own Wireless Emergency Alerts still come from your carrier.</p>' +
+    '<h4 class="mono">PLACES I CARE ABOUT</h4><div class="amplaces">' +
+    AL.places
+      .map(function (p, i) {
+        var busy = OFF.busy === i;
+        return (
+          "<span>" +
+          esc(p.name) +
+          (p.phone ? ' <i title="Has a phone number">💬</i>' : "") +
+          '<button data-br="ampk-' +
+          i +
+          '" aria-label="Save the map of ' +
+          esc(p.name) +
+          ' for use without signal" class="' +
+          (p.off ? "done" : "") +
+          '">' +
+          (busy ? "…" : p.off ? "✓ OFFLINE" : "⇩ OFFLINE") +
+          '</button><button data-br="amrm-' +
+          i +
+          '" aria-label="Stop watching ' +
+          esc(p.name) +
+          '">✕</button></span>'
+        );
+      })
+      .join("") +
+    '</div><form class="amform" id="amForm"><input id="amQ" type="search" placeholder="Address or city" autocomplete="off"><input id="amN" type="text" placeholder="Name: Home, Mom…" autocomplete="off" maxlength="28"><input id="amP" type="tel" placeholder="Their phone (optional)" autocomplete="off" maxlength="20"><button>Add</button></form><p class="brhint">Warnings for these places reach you wherever you are, up to 8 places. With a phone number, the warning offers a ready text: are you OK? ⇩ OFFLINE saves the map around a place so it still shows without signal. Numbers stay on this phone.</p>' +
+    '<h4 class="mono">RECENT ALERTS</h4>' +
+    amHistHtml() +
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
@@ -24620,7 +26283,9 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 85 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version ' +
+    APP_V +
+    ' · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -24701,6 +26366,29 @@ document.addEventListener("click", function (e) {
     ls("ojos-bc", {});
     newsMerge();
     note("Alerts", "Dismissed broadcasts will show again if they are still active.");
+  } else if (k === "am") {
+    SET.alertMe = !amOn();
+    setSave();
+    brDraw();
+    AM.natAt = 0;
+    if (SET.alertMe) {
+      AM.ask = true; // turning it on is the moment to ask for location
+      amCheck();
+    } else natCall("setAlertWatch", { on: false, places: [] });
+  } else if (k.indexOf("amh-") === 0) {
+    brClose();
+    amAgain(+k.slice(4));
+  } else if (k.indexOf("ampk-") === 0) {
+    offPlace(+k.slice(5));
+  } else if (k.indexOf("amrm-") === 0) {
+    AL.places.splice(+k.slice(5), 1);
+    alSave();
+    AM.natKey = "";
+    amNative();
+    brDraw();
+  } else if (k === "amtest") {
+    brClose();
+    amTest();
   } else if (k === "bg") {
     if (SET.bg) {
       SET.bg = false;
@@ -25723,7 +27411,8 @@ function cmdTick() {
     $("cmdtk").style.display = "none";
     return;
   }
-  el.style.display = "flex";
+  // The dashboard carries its own counts, so the status strip is not shown over it.
+  el.style.display = typeof RW === "object" && RW.on ? "none" : "flex";
   $("cmdtk").style.display = "flex";
   var d = new Date(),
     z = function (n) {
@@ -29115,10 +30804,7 @@ function emgDraw() {
           })
           .join("");
   }
-  h +=
-    '<h4 class="mono">RADIO</h4><div class="brc"><span>Public-safety radio that is broadcast in the clear is streamed by volunteers. Many agencies now encrypt theirs, so coverage depends on where you are. NOAA Weather Radio is the official 24-hour hazard broadcast in the US.</span><div class="bra"><a class="brl" href="https://www.broadcastify.com/listen/" target="_blank" rel="noopener">Scanner feeds</a><a class="brl" href="https://openmhz.com/systems" target="_blank" rel="noopener">Radio archive</a></div><div class="bra"><a class="brl" href="https://www.weather.gov/nwr/" target="_blank" rel="noopener">NOAA Weather Radio</a><a class="brl" href="https://www.google.com/search?q=' +
-    encodeURIComponent(((S && S.place) || "") + " fire police scanner live feed") +
-    '" target="_blank" rel="noopener">Find my area</a></div></div>';
+  h += '<h4 class="mono">LIVE RADIO HERE</h4>' + rdoEmgHtml(EMG.pos);
   h +=
     '<h4 class="mono">CHECKLIST</h4><div class="brc"><span>' +
     (EMG.chk
@@ -29338,6 +31024,13 @@ document.addEventListener("click", function (e) {
     emgDraw();
   } else if (k === "sig") {
     emgSig(!EMG.sig);
+    emgDraw();
+  } else if (k.indexOf("rp-") === 0) {
+    // Play a local station in the app; tapping the one playing stops it.
+    var st = RDO.near && RDO.near[+k.slice(3)];
+    if (!st) return;
+    if (RDO.id === st.id) rdoStop();
+    else rdoPlay(st.id, st.audio, st.n);
     emgDraw();
   } else if (k === "news") {
     newsOpen("here");
@@ -30280,7 +31973,7 @@ function chkText() {
       return KEYS[k];
     }),
     L = [
-      "Ojos de Dios v81 system check · " + new Date().toLocaleString(),
+      "Ojos de Dios v" + APP_V + " system check · " + new Date().toLocaleString(),
       "Sources answering: " + ok + " of " + CHK.res.length
     ];
   CHK.res.forEach(function (r) {
@@ -30371,7 +32064,9 @@ function chkDraw() {
         "</div>"
       : '<p class="bre">None.</p>');
   h +=
-    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v81 · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>';
+    '<div class="brt"><button data-ck="share">➤ Share the report</button><button data-ck="clr">Clear errors</button></div><h4 class="mono">DAILY TEST</h4><div class="brc"><span>1 · Search a place, open a camera · 2 · Finder: a flight number · 3 · Drive: a route with each choice · 4 · Records: an address · 5 · Country file · 6 · Emergency mode on, then off · 7 · Photoreal 3D and Inspect · 8 · News and alerts</span></div></div><div class="nf mono">v' +
+    APP_V +
+    " · NOTHING LEAVES THIS PHONE UNLESS YOU SHARE THE REPORT</div>";
   el.innerHTML = h;
 }
 function chkOpen() {
@@ -30975,6 +32670,7 @@ function natLaunch(a) {
     else emgAsk();
   } else if (a === "finder") fndOpen();
   else if (a === "briefing") brOpen("brief");
+  else if (a === "alert") amCheck(); // a background alert notification was tapped
 }
 setTimeout(function () {
   var p = natv();
@@ -32010,7 +33706,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v81)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v" + APP_V + ")");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -32150,7 +33846,7 @@ function liveReport() {
     .catch(function (e) {
       // The report itself failed: hand over what is needed to fix it instead.
       errLog("Report: " + errWhere(e));
-      copyText("OJOS DE DIOS v81 error log\n" + errText());
+      copyText("OJOS DE DIOS v" + APP_V + " error log\n" + errText());
       note(
         "Report",
         "Couldn't build the full report, so the error log was copied instead. Paste it into a message to whoever is helping you."
@@ -33065,7 +34761,8 @@ var WL_GROUP = {};
   ["Culture and area facts", "museum historic unesco places countryfacts"],
   ["Farming", "farming farmshop"],
   ["Networks and wind", "cables towers windfarm"],
-  ["Conflict", "conflict military"]
+  ["Conflict and security", "conflict military crime"],
+  ["Politics", "leaders"]
 ].forEach(function (g) {
   g[1].split(" ").forEach(function (k) {
     WL_GROUP[k] = g[0];
@@ -33962,7 +35659,8 @@ function focCircle(lat, lon, km) {
 function focLoad() {
   if (FOC.states && FOC.countries) return Promise.resolve();
   if (FOC.loading) return FOC.loading;
-  FOC.loading = Promise.all([getJSON(FOC_SRC.states, 30000), getJSON(FOC_SRC.countries, 40000)])
+  // From the saved copy when there is no signal (offline maps keep one, module 42).
+  FOC.loading = Promise.all([offJSON(FOC_SRC.states, 30000), offJSON(FOC_SRC.countries, 40000)])
     .then(function (r) {
       FOC.states = topoFeatures(r[0], "states");
       FOC.countries = topoFeatures(r[1], "countries");
@@ -35486,6 +37184,265 @@ ilDef({
     );
   }
 });
+
+// ---------- Radio player: one station at a time, kept playing across the app ----------
+// A small bar above the dock shows what is on and stops it. The audio element is made once, so
+// redrawing a panel never cuts the sound.
+var RDO = {
+    audio: null,
+    id: "",
+    name: "",
+    near: null,
+    nearAt: 0,
+    nearPos: null,
+    busy: false,
+    nwr: null,
+    wx: null
+  },
+  RDO_NEWS = /news|talk|public|npr|emergency|weather|information|community|local/i;
+
+function rdoPlay(id, url, name) {
+  if (!RDO.audio) {
+    RDO.audio = new window.Audio();
+    RDO.audio.preload = "none";
+    RDO.audio.addEventListener("error", function () {
+      if (!RDO.id) return;
+      note("Radio", RDO.name + " isn't answering right now. Try another station.");
+      rdoStop();
+    });
+  }
+  RDO.id = id;
+  RDO.name = name;
+  RDO.audio.src = url;
+  var p = RDO.audio.play();
+  if (p && p.catch) p.catch(function () {}); // the error listener reports a station that fails
+  rdoBar();
+}
+
+function rdoStop() {
+  RDO.id = "";
+  if (RDO.audio) {
+    RDO.audio.pause();
+    RDO.audio.removeAttribute("src");
+    RDO.audio.load();
+  }
+  rdoBar();
+  if (typeof emgDraw === "function") emgDraw();
+}
+
+function rdoBar() {
+  var el = $("radiobar");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "radiobar";
+    el.innerHTML =
+      '<span class="radiodot"></span><b class="mono" id="radioname"></b><button aria-label="Stop the radio">■ STOP</button>';
+    el.querySelector("button").onclick = rdoStop;
+    document.body.appendChild(el);
+  }
+  $("radioname").textContent = RDO.name ? "LIVE · " + RDO.name.toUpperCase() : "";
+  el.style.display = RDO.id ? "flex" : "none";
+  document.body.classList.toggle("radioon", !!RDO.id); // lifts "See in 3D" above the bar
+}
+
+// Stations near a position, news and talk first, nearest first within each. Asked again once the
+// person has moved about 20 km or after half an hour.
+function rdoNear(lat, lon) {
+  var fresh =
+    RDO.near &&
+    RDO.nearPos &&
+    Date.now() - RDO.nearAt < 1800000 &&
+    hav(lat, lon, RDO.nearPos[0], RDO.nearPos[1]) < 20;
+  if (fresh || RDO.busy) return;
+  RDO.busy = true;
+  var ask = function (km) {
+    return rbGet(
+      "/json/stations/search?has_geo_info=true&hidebroken=true&order=clickcount&reverse=true&limit=120" +
+        "&geo_lat=" +
+        lat.toFixed(3) +
+        "&geo_long=" +
+        lon.toFixed(3) +
+        "&geo_distance=" +
+        km * 1000
+    ).then(function (list) {
+      return rbItems({ key: "radio" }, list);
+    });
+  };
+  ask(150)
+    .then(function (l) {
+      return l.length >= 4 ? l : ask(500);
+    })
+    .then(function (l) {
+      l.forEach(function (x) {
+        x.km = hav(lat, lon, x.lat, x.lon);
+        x.newsy = RDO_NEWS.test(x.n + " " + ((x.rows && x.rows[0] && x.rows[0][1]) || ""));
+      });
+      l.sort(function (a, b) {
+        return b.newsy - a.newsy || a.km - b.km;
+      });
+      RDO.near = l.slice(0, 8);
+      RDO.nearAt = Date.now();
+      RDO.nearPos = [lat, lon];
+    })
+    .catch(function () {
+      RDO.near = RDO.near || [];
+    })
+    .then(function () {
+      RDO.busy = false;
+      if (typeof emgDraw === "function") emgDraw();
+    });
+  // The nearest NOAA Weather Radio transmitter, for a battery or car radio (US only).
+  if (!RDO.nwr)
+    netGet("https://www.weather.gov/source/nwr/JS/CCL.js", 40000, null, true)
+      .then(function (t) {
+        RDO.nwr = nwrParse(t);
+        if (typeof emgDraw === "function") emgDraw();
+      })
+      .catch(function () {});
+}
+
+// What NOAA Weather Radio is reading for this place, as the National Weather Service's own text: its
+// active alerts, then the forecast. The broadcast is a computer voice reading these same products, so
+// this is the exact wording rather than a transcription. Fetched again after ten minutes.
+function rdoWx(lat, lon) {
+  var w = RDO.wx;
+  if (w && (w.busy || (Date.now() - w.at < 600000 && hav(lat, lon, w.lat, w.lon) < 10))) return;
+  w = RDO.wx = {
+    busy: true,
+    at: Date.now(),
+    lat: lat,
+    lon: lon,
+    alerts: (w && w.alerts) || [],
+    fc: (w && w.fc) || []
+  };
+  var pt = lat.toFixed(4) + "," + lon.toFixed(4);
+  Promise.all([
+    getJSON("https://api.weather.gov/alerts/active?status=actual&point=" + pt, 20000)
+      .then(function (j) {
+        w.alerts = ((j && j.features) || [])
+          .map(function (f) {
+            return f.properties || {};
+          })
+          .filter(function (p) {
+            return p.event && !/test/i.test(p.event);
+          });
+      })
+      .catch(function () {}),
+    getJSON("https://api.weather.gov/points/" + pt, 20000)
+      .then(function (j) {
+        var u = j && j.properties && j.properties.forecast;
+        return /^https:\/\/api\.weather\.gov\//.test(u || "") ? getJSON(u, 20000) : null;
+      })
+      .then(function (j) {
+        if (j && j.properties) w.fc = (j.properties.periods || []).slice(0, 3);
+      })
+      .catch(function () {})
+  ]).then(function () {
+    w.busy = false;
+    w.ok = true;
+    if (typeof emgDraw === "function") emgDraw();
+  });
+}
+
+function rdoWxHtml() {
+  var w = RDO.wx;
+  if (!w || (!w.ok && !w.alerts.length && !w.fc.length)) return "";
+  var h =
+    '<div class="rptext"><b class="mono">WHAT THE WEATHER RADIO IS READING · NWS TEXT</b>' +
+    w.alerts
+      .slice(0, 4)
+      .map(function (p) {
+        return (
+          '<div class="rpalert"><em>' +
+          esc(p.event) +
+          "</em><p>" +
+          esc(p.headline || "") +
+          "</p>" +
+          (p.description
+            ? "<details><summary>Full message</summary><p>" + esc(p.description) + "</p></details>"
+            : "") +
+          "</div>"
+        );
+      })
+      .join("") +
+    w.fc
+      .map(function (f) {
+        return (
+          "<p><i>" +
+          esc(f.name || "") +
+          ":</i> " +
+          esc(f.detailedForecast || f.shortForecast || "") +
+          "</p>"
+        );
+      })
+      .join("");
+  if (!w.alerts.length && !w.fc.length)
+    h += "<p>No National Weather Service text for this spot right now.</p>";
+  return h + "</div>";
+}
+
+function rdoNwrNear(lat, lon) {
+  var best = null,
+    bk = 160; // a transmitter reaches about 40 miles; beyond 100 it's no help
+  (RDO.nwr || []).forEach(function (s) {
+    var k = hav(lat, lon, s.lat, s.lon);
+    if (k < bk && /normal/i.test(s.status)) {
+      bk = k;
+      best = s;
+    }
+  });
+  return best;
+}
+
+// The RADIO section of emergency mode: live local stations that play right here, and the
+// weather-radio frequency to tune.
+function rdoEmgHtml(pos) {
+  if (!pos) return '<div class="brc"><span>Waiting for your position.</span></div>';
+  rdoNear(pos.lat, pos.lon);
+  var h = "",
+    w = rdoNwrNear(pos.lat, pos.lon);
+  if (w)
+    h +=
+      '<div class="brc"><span><b>NOAA Weather Radio ' +
+      esc(w.freq) +
+      " MHz</b> · " +
+      esc(w.site) +
+      ". Official hazard warnings around the clock: tune any weather or emergency radio here, it works when phones and internet don't.</span></div>";
+  if (w || (pos.lat > 17 && pos.lat < 72 && pos.lon < -64)) {
+    rdoWx(pos.lat, pos.lon); // US and territories, where the National Weather Service publishes
+    h += rdoWxHtml();
+  }
+  if (!RDO.near) return h + '<div class="brc"><span>Finding live stations near you…</span></div>';
+  if (!RDO.near.length)
+    return (
+      h + '<div class="brc"><span>No live station near you lists a stream we can play.</span></div>'
+    );
+  return (
+    h +
+    '<div class="rplist">' +
+    RDO.near
+      .map(function (x, i) {
+        var on = RDO.id === x.id;
+        return (
+          '<button class="rprow' +
+          (on ? " on" : "") +
+          '" data-em="rp-' +
+          i +
+          '"><i>' +
+          (on ? "■" : "▶") +
+          "</i><span><b>" +
+          esc(x.n) +
+          "</b><em>" +
+          (x.newsy ? "NEWS · " : "") +
+          Math.round(x.km * 0.621) +
+          " MI" +
+          "</em></span></button>"
+        );
+      })
+      .join("") +
+    "</div>"
+  );
+}
 
 // LiveATC listing for an airport code (used from aircraft details).
 function liveAtcUrl(code) {
@@ -38088,10 +40045,19 @@ var RW_DOCK = [
 ];
 
 // Live counts for the top bar, the same numbers the globe's status strip shows.
+// 92,883 → 92.9K: short enough that every count fits beside the logo on a phone.
+function rwShort(n) {
+  return n >= 1e6
+    ? (n / 1e6).toFixed(n < 1e7 ? 1 : 0) + "M"
+    : n >= 1e4
+      ? (n / 1e3).toFixed(n < 1e5 ? 1 : 0) + "K"
+      : n.toLocaleString();
+}
+
 function rwCounts() {
   // The camera count always; aircraft and ships only while they are switched on.
   var c = function (label, n) {
-    return "<span><i>" + label + "</i>" + n.toLocaleString() + "</span>";
+    return '<span title="' + n.toLocaleString() + '"><i>' + label + "</i>" + rwShort(n) + "</span>";
   };
   return (
     c("CAM", visLive.length) +
@@ -38136,6 +40102,8 @@ function rwDraw() {
   if (cnt && cnt._h !== h) {
     cnt._h = h;
     cnt.innerHTML = h;
+    // With aircraft or ships on, the counts take the name's place so nothing is cut off.
+    el.classList.toggle("rwmany", !!(WL.air || WL.ship));
   }
   var nm = $("rwname"),
     label = "OJOS DE DIOS";
@@ -38409,11 +40377,14 @@ document.addEventListener(
   true
 );
 /**
- * @file Sky: the night sky right now and the solar system, from either world.
- * "Sky now" shows the stars, constellations (Orion and the rest), the Moon with its phase, the
- * Sun and the planets as they stand at this moment over the place in view, computed on the phone
- * from star positions (d3-celestial, BSD) and published orbital elements (JPL). "Solar system"
- * shows the eight planets on their orbits today. Opened by holding the logo or the ✦ button.
+ * @file Space and sky: the solar system in 3D, and the night sky right now.
+ * "3D space" (the default) is a solar system you can fly through: planets, moons, rings, the
+ * Milky Way, Earth's satellites, spacecraft and the landers and rovers on Mars and the Moon,
+ * all where they are today (see "3D space" below). "Night sky" shows the stars, constellations,
+ * the Moon with its phase, the Sun and the planets as they stand now over the place in view,
+ * computed on the phone from star positions (d3-celestial, BSD) and published orbital elements
+ * (JPL). Without a connection for the 3D engine, a flat solar system stands in. Opened by
+ * tapping the logo.
  *
  * Module 39 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
@@ -38421,7 +40392,7 @@ document.addEventListener(
 
 var SKY = {
   on: false,
-  mode: "sky",
+  mode: "space",
   az: 180,
   alt: 35,
   zoom: 1,
@@ -38737,7 +40708,7 @@ function skyWhere() {
 
 function skyDraw() {
   var cv = $("skycv");
-  if (!cv || !SKY.on) return;
+  if (!cv || !SKY.on || SKY.mode === "space") return;
   var dpr = Math.min(2, window.devicePixelRatio || 1),
     w = cv.clientWidth,
     h = cv.clientHeight;
@@ -39092,14 +41063,27 @@ function skyInfo() {
   el.style.display = "block";
 }
 
+// The logo opens space in 3D.
 function galOpen() {
+  skyOpen();
+  spxOpen();
+}
+
+function skyTabs() {
+  Array.prototype.forEach.call(document.querySelectorAll(".skytop [data-sky]"), function (x) {
+    var k = x.getAttribute("data-sky");
+    x.classList.toggle("on", k === SKY.mode || (k === "space" && SKY.mode === "sys"));
+  });
+}
+
+function skyOpen() {
   var el = $("sky");
   if (!el) {
     el = document.createElement("div");
     el.id = "sky";
     el.innerHTML =
       '<canvas id="skycv"></canvas>' +
-      '<div class="skytop"><button data-sky="sky" class="on">SKY NOW</button><button data-sky="sys">SOLAR SYSTEM</button><span style="flex:1"></span><button data-sky="x" aria-label="Back">✕</button></div>' +
+      '<div class="skytop"><button data-sky="space" class="on">3D SPACE</button><button data-sky="sky">NIGHT SKY</button><span style="flex:1"></span><button data-sky="x" aria-label="Back">✕</button></div>' +
       '<div id="skyinfo"></div>' +
       '<div class="skybot"><button data-sky="back">−1 h</button><button data-sky="now">NOW</button><button data-sky="fwd">+1 h</button><button data-sky="day">+1 day</button></div>';
     document.body.appendChild(el);
@@ -39114,6 +41098,7 @@ function galOpen() {
 }
 
 function galClose() {
+  spxClose();
   SKY.on = false;
   document.body.classList.remove("sky-open");
   var el = $("sky");
@@ -39129,12 +41114,14 @@ document.addEventListener("click", function (e) {
   if (!b) return;
   var k = b.getAttribute("data-sky");
   if (k === "x") galClose();
-  else if (k === "sky" || k === "sys") {
+  else if (k === "space") {
+    spxOpen();
+    return;
+  } else if (k === "sky") {
+    spxClose();
     SKY.mode = k;
     SKY.sel = null;
-    Array.prototype.forEach.call(document.querySelectorAll(".skytop [data-sky]"), function (x) {
-      x.classList.toggle("on", x.getAttribute("data-sky") === k);
-    });
+    skyTabs();
   } else if (k === "now") SKY.t = 0;
   else if (k === "back") SKY.t -= 60;
   else if (k === "fwd") SKY.t += 60;
@@ -39236,6 +41223,1052 @@ setInterval(function () {
 window.addEventListener("resize", function () {
   if (SKY.on) skyDraw();
 });
+
+// ---------- 3D space: the solar system you can fly through ----------
+// The Sun, the eight planets and Pluto where they really are today (the same JPL elements as
+// above), with their larger moons, Saturn's rings, the Milky Way behind, and the spacecraft and
+// landers we know of: thousands of live Earth satellites with the ISS (CelesTrak), the telescopes
+// at the Lagrange points, the probes leaving the solar system, and the rovers and landers on Mars
+// and the Moon. Drag to turn, pinch to zoom, tap anything to fly there; time can run faster.
+// Distances are squeezed (the square root of the real ones) and the planets enlarged, or almost
+// everything would be invisible; the card for each object gives the real numbers.
+// Drawn with three.js (MIT). Planet maps: Solar System Scope (CC BY 4.0), USGS, NASA/JPL and
+// Björn Jónsson, by way of threex.planets; credits in THIRD-PARTY.md.
+var SPX = {
+    on: false,
+    ready: false,
+    loading: null,
+    T: 0, // simulated time (ms) at the last frame
+    rate: 1, // simulated seconds per real second
+    paused: false,
+    yaw: 0.6,
+    pitch: 0.42,
+    dist: 120,
+    target: null, // body followed by the camera
+    fly: null, // camera move in progress
+    sel: null,
+    bodies: [],
+    byId: {},
+    marks: [], // labelled points: spacecraft, landers, satellites with names
+    tab: "sys"
+  },
+  SPX_THREE = "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js",
+  SPX_TXA = "https://cdn.jsdelivr.net/gh/ofrohn/threex.planets@master/images/maps/",
+  SPX_TXB = "https://cdn.jsdelivr.net/gh/homer-jay/solar-system-textures@master/",
+  SPX_RATES = [
+    ["LIVE", 1],
+    ["1 HR/S", 3600],
+    ["1 DAY/S", 86400],
+    ["1 WK/S", 604800]
+  ],
+  SPX_EARTH_R = 0.9; // Earth's radius in scene units
+
+// Squeezed distance from the Sun: real AU to scene units.
+function spxSqueeze(au) {
+  return 26 * Math.sqrt(Math.max(0, au));
+}
+
+// Planet size in scene units from its real radius.
+function spxSize(km) {
+  return SPX_EARTH_R * Math.pow(km / 6371, 0.45);
+}
+
+// Ecliptic (x, y, z with z north) to scene (y up).
+function spxScene(v) {
+  return [v[0], v[2], -v[1]];
+}
+
+// Heliocentric ecliptic AU vector to a squeezed scene position.
+function spxHelioScene(v) {
+  var r = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]) || 1,
+    k = spxSqueeze(r) / r;
+  return spxScene([v[0] * k, v[1] * k, v[2] * k]);
+}
+
+// Equatorial (Earth's equator and pole) to ecliptic.
+function spxEqToEcl(v) {
+  var ob = 23.43928 * D,
+    c = Math.cos(ob),
+    s = Math.sin(ob);
+  return [v[0], v[1] * c + v[2] * s, -v[1] * s + v[2] * c];
+}
+
+function spxRaDec(ra, dec) {
+  return spxEqToEcl([
+    Math.cos(dec * D) * Math.cos(ra * D),
+    Math.cos(dec * D) * Math.sin(ra * D),
+    Math.sin(dec * D)
+  ]);
+}
+
+// Facts for the card: known moons, surface gravity (m/s²), temperature.
+var SPX_FACTS = {
+  Sun: [
+    "A G-type star, 4.6 billion years old",
+    "1,392,700 km across",
+    "274 m/s²",
+    "5,500 °C surface · 15 million °C core"
+  ],
+  Mercury: ["0 moons", null, "3.7 m/s²", "−180 to 430 °C"],
+  Venus: ["0 moons", null, "8.9 m/s²", "465 °C, the hottest planet"],
+  Earth: ["1 moon", null, "9.8 m/s²", "15 °C average"],
+  Mars: ["2 moons", null, "3.7 m/s²", "−65 °C average"],
+  Jupiter: ["95+ moons", null, "24.8 m/s²", "−110 °C cloud tops"],
+  Saturn: ["274 moons", null, "10.4 m/s²", "−140 °C cloud tops"],
+  Uranus: ["29 moons", null, "8.7 m/s²", "−195 °C"],
+  Neptune: ["16 moons", null, "11.2 m/s²", "−200 °C"],
+  Pluto: ["5 moons · a dwarf planet", "2,377 km across", "0.6 m/s²", "−230 °C"]
+};
+
+// Pluto's elements (JPL approximate, J2000), in the same layout as SKY_PLANETS.
+var SPX_PLUTO = [
+  "Pluto",
+  "#c9b29a",
+  1188,
+  [39.48211675, 0.2488273, 17.14001206, 238.92903833, 224.06891629, 110.30393684],
+  [-0.00031596, 0.0000517, 0.00004818, 145.20780515, -0.04062942, -0.01183482],
+  "248 years",
+  "6.4 days (backwards)"
+];
+
+// Bodies: [id, name, parent, radius km, map, axial tilt°, day (hours, negative backwards), colour,
+//          orbit around the parent for moons: [visual radius in parent radii, period days]].
+var SPX_BODIES = [
+  ["sun", "Sun", null, 696000, SPX_TXB + "sun.jpg", 7.25, 609, "#ffcc66"],
+  ["mercury", "Mercury", "sun", 2440, SPX_TXA + "mercurymap.jpg", 0.03, 1408, "#b5b1aa"],
+  ["venus", "Venus", "sun", 6052, SPX_TXA + "venusmap.jpg", 177.4, -5832, "#e8d6a8"],
+  ["earth", "Earth", "sun", 6371, SPX_TXB + "earth_daymap.jpg", 23.44, 23.93, "#4c8dff"],
+  ["moon", "Moon", "earth", 1737, SPX_TXB + "moon.jpg", 6.7, 655.7, "#cfcfcf"],
+  ["mars", "Mars", "sun", 3390, SPX_TXA + "marsmap.jpg", 25.19, 24.62, "#d9673f"],
+  ["phobos", "Phobos", "mars", 11, SPX_TXA + "phobosmap.jpg", 0, 7.65, "#9a8c80", [1.6, 0.319]],
+  ["deimos", "Deimos", "mars", 6, SPX_TXA + "deimosmap.jpg", 0, 30.3, "#a99c8c", [2.3, 1.263]],
+  ["jupiter", "Jupiter", "sun", 69911, SPX_TXA + "jupitermap.jpg", 3.13, 9.93, "#d8b48a"],
+  ["io", "Io", "jupiter", 1822, SPX_TXA + "iomap.jpg", 0, 42.5, "#e6d27a", [1.7, 1.769]],
+  [
+    "europa",
+    "Europa",
+    "jupiter",
+    1561,
+    SPX_TXA + "europamap.jpg",
+    0,
+    85.2,
+    "#d8c9b0",
+    [2.2, 3.551]
+  ],
+  [
+    "ganymede",
+    "Ganymede",
+    "jupiter",
+    2634,
+    SPX_TXA + "ganymedemap.jpg",
+    0,
+    171.7,
+    "#a49a8e",
+    [2.9, 7.155]
+  ],
+  [
+    "callisto",
+    "Callisto",
+    "jupiter",
+    2410,
+    SPX_TXA + "callistomap.jpg",
+    0,
+    400.5,
+    "#7f766c",
+    [3.7, 16.689]
+  ],
+  ["saturn", "Saturn", "sun", 58232, SPX_TXA + "saturnmap.jpg", 26.73, 10.7, "#e3cf98"],
+  ["titan", "Titan", "saturn", 2575, SPX_TXA + "titanmap.jpg", 0, 382.7, "#d8a85a", [3.2, 15.945]],
+  ["uranus", "Uranus", "sun", 25362, null, 97.77, -17.2, "#9fd8e0"],
+  ["neptune", "Neptune", "sun", 24622, SPX_TXA + "neptunemap.jpg", 28.32, 16.1, "#5b7fe8"],
+  [
+    "triton",
+    "Triton",
+    "neptune",
+    1353,
+    SPX_TXA + "tritonmap.jpg",
+    0,
+    -141,
+    "#c9c2b8",
+    [2.2, -5.877]
+  ],
+  ["pluto", "Pluto", "sun", 1188, SPX_TXA + "plutomap.jpg", 122.5, -153.3, "#c9b29a"],
+  ["charon", "Charon", "pluto", 606, SPX_TXA + "charonmap.jpg", 0, 153.3, "#9c968f", [2.6, 6.387]]
+];
+
+// Places on the surface: [body, name, lat, lon (east), what].
+var SPX_SITES = [
+  [
+    "mars",
+    "Perseverance",
+    18.45,
+    77.37,
+    "NASA rover, exploring Jezero crater since 2021 (with the Ingenuity helicopter, retired 2024)",
+    "m20"
+  ],
+  [
+    "mars",
+    "Curiosity",
+    -4.73,
+    137.38,
+    "NASA rover, climbing Mount Sharp in Gale crater since 2012",
+    "msl"
+  ],
+  ["mars", "Zhurong", 25.07, 109.93, "China's rover, Utopia Planitia, 2021–2022 (asleep since)"],
+  ["mars", "Opportunity", -2.0, -5.53, "NASA rover, Meridiani Planum, 2004–2018"],
+  ["mars", "Spirit", -14.57, 175.47, "NASA rover, Gusev crater, 2004–2010"],
+  ["mars", "Sojourner", 19.13, -33.22, "The first Mars rover, 1997"],
+  ["mars", "InSight", 4.5, 135.62, "NASA lander that listened for marsquakes, 2018–2022"],
+  ["mars", "Viking 1", 22.27, -47.95, "The first successful Mars landing, 1976"],
+  ["mars", "Viking 2", 47.67, 134.28, "NASA lander, Utopia Planitia, 1976–1980"],
+  ["mars", "Phoenix", 68.22, -125.75, "NASA lander that found water ice, 2008"],
+  ["moon", "Apollo 11", 0.67, 23.47, "First people on the Moon, July 20, 1969"],
+  ["moon", "Apollo 12", -3.01, -23.42, "November 1969"],
+  ["moon", "Apollo 14", -3.65, -17.47, "February 1971"],
+  ["moon", "Apollo 15", 26.13, 3.63, "July 1971, the first lunar rover"],
+  ["moon", "Apollo 16", -8.97, 15.5, "April 1972"],
+  ["moon", "Apollo 17", 20.19, 30.77, "December 1972, the last crewed landing so far"],
+  ["moon", "Chang'e 4 · Yutu-2", -45.44, 177.6, "The first landing on the far side, 2019"],
+  ["moon", "Chang'e 6", -41.64, -153.99, "Brought back the first far-side samples, 2024"],
+  ["moon", "Chandrayaan-3", -69.37, 32.32, "India's lander near the south pole, 2023"],
+  ["moon", "SLIM", -13.32, 25.25, "Japan's precision lander, 2024"],
+  ["moon", "Odysseus", -80.13, 1.44, "The first private landing, 2024"],
+  ["moon", "Blue Ghost", 18.56, 61.81, "Firefly's lander, Mare Crisium, 2025"],
+  ["moon", "Lunokhod 1", 38.32, -35.0, "The first robot rover on another world, 1970"]
+];
+
+// Probes far from home, placed from their known course: [name, RA°, Dec°, AU on 2025-01-01,
+// AU per year, what]. Their direction barely changes, so this stays within a few percent.
+var SPX_PROBES = [
+  [
+    "Voyager 1",
+    257.8,
+    12.0,
+    164.8,
+    3.58,
+    "The farthest human-made object, in interstellar space since 2012"
+  ],
+  ["Voyager 2", 302.1, -58.7, 138.0, 3.25, "In interstellar space since 2018"],
+  ["New Horizons", 289.9, -20.6, 61.8, 2.95, "Flew past Pluto in 2015 and Arrokoth in 2019"],
+  ["Pioneer 10", 78.0, 26.0, 136.8, 2.51, "Silent since 2003"],
+  ["Pioneer 11", 283.0, -8.5, 114.5, 2.37, "Silent since 1995"]
+];
+
+function spxJd() {
+  return skyJD(SPX.T);
+}
+
+// Where a planet is now, in scene units.
+function spxPlanetPos(name, jd) {
+  if (name === "Pluto") return spxHelioScene(skyHelio(SPX_PLUTO, jd));
+  for (var i = 0; i < SKY_PLANETS.length; i++)
+    if (SKY_PLANETS[i][0] === name) return spxHelioScene(skyHelio(SKY_PLANETS[i], jd));
+  return [0, 0, 0];
+}
+
+function spxElements(name) {
+  if (name === "Pluto") return SPX_PLUTO;
+  for (var i = 0; i < SKY_PLANETS.length; i++)
+    if (SKY_PLANETS[i][0] === name) return SKY_PLANETS[i];
+  return null;
+}
+
+// A soft round glow drawn once into a canvas, for the Sun and the planets' atmospheres.
+function spxGlow(color) {
+  var c = document.createElement("canvas");
+  c.width = c.height = 128;
+  var g = c.getContext("2d"),
+    gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, color);
+  gr.addColorStop(0.25, color.replace(/[\d.]+\)$/, "0.35)"));
+  gr.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gr;
+  g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+}
+
+// Saturn's ring map is a radial strip: lay it across a flat ring.
+function spxRing(inner, outer, tex) {
+  var geo = new THREE.RingGeometry(inner, outer, 128, 1),
+    pos = geo.attributes.position,
+    uv = geo.attributes.uv,
+    v = new THREE.Vector3();
+  for (var i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    uv.setXY(i, (v.length() - inner) / (outer - inner), 0.5);
+  }
+  var m = new THREE.Mesh(
+    geo,
+    new THREE.MeshBasicMaterial({
+      map: tex,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false
+    })
+  );
+  m.rotation.x = -Math.PI / 2;
+  return m;
+}
+
+function spxBuild() {
+  var T = THREE,
+    host = $("spx"),
+    lite = displayMode() !== "globe"; // the phones that flicker get the plainest drawing
+  var R = (SPX.renderer = new T.WebGLRenderer({
+    antialias: !lite,
+    alpha: false,
+    powerPreference: "high-performance"
+  }));
+  R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1.75 : 2));
+  R.setClearColor(0x000000, 1);
+  host.insertBefore(R.domElement, host.firstChild);
+  R.domElement.id = "spxcv";
+  var S = (SPX.scene = new T.Scene());
+  SPX.cam = new T.PerspectiveCamera(50, 1, 0.01, 20000);
+  var load = new T.TextureLoader(),
+    tex = function (u) {
+      var t = load.load(u);
+      t.colorSpace = T.SRGBColorSpace;
+      return t;
+    };
+  load.setCrossOrigin("anonymous");
+  // The Milky Way all around.
+  var sky = new T.Mesh(
+    new T.SphereGeometry(9000, 48, 24),
+    new T.MeshBasicMaterial({
+      map: tex(SPX_TXB + "stars_milky_way.jpg"),
+      side: T.BackSide,
+      depthWrite: false
+    })
+  );
+  sky.rotation.x = -23.44 * D; // the texture is in equatorial coordinates
+  S.add(sky);
+  S.add(new T.AmbientLight(0xffffff, 0.11));
+  var sunLight = new T.PointLight(0xffffff, 3.2, 0, 0);
+  S.add(sunLight);
+  SPX_BODIES.forEach(function (b) {
+    var r =
+        b[0] === "sun" ? 6 : b[2] && b[2] !== "sun" ? Math.max(0.08, spxSize(b[3])) : spxSize(b[3]),
+      mat =
+        b[0] === "sun"
+          ? new T.MeshBasicMaterial({ map: tex(b[4]) })
+          : new T.MeshStandardMaterial({
+              map: b[4] ? tex(b[4]) : null,
+              color: b[4] ? 0xffffff : b[7],
+              roughness: 1,
+              metalness: 0
+            }),
+      mesh = new T.Mesh(new T.SphereGeometry(1, 64, 32), mat),
+      g = new T.Group();
+    mesh.scale.setScalar(r);
+    mesh.userData.id = b[0];
+    g.add(mesh);
+    S.add(g);
+    var o = {
+      id: b[0],
+      name: b[1],
+      parent: b[2],
+      km: b[3],
+      r: r,
+      tilt: b[5],
+      day: b[6],
+      color: b[7],
+      orbit: b[8],
+      g: g,
+      mesh: mesh,
+      label: null
+    };
+    if (b[0] === "sun") {
+      var glow = new T.Sprite(
+        new T.SpriteMaterial({
+          map: spxGlow("rgba(255,190,90,1)"),
+          blending: T.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      glow.scale.setScalar(r * 6);
+      g.add(glow);
+    }
+    if (b[0] === "earth") {
+      var atm = new T.Sprite(
+        new T.SpriteMaterial({
+          map: spxGlow("rgba(90,160,255,1)"),
+          blending: T.AdditiveBlending,
+          depthWrite: false,
+          opacity: 0.55
+        })
+      );
+      atm.scale.setScalar(r * 2.7);
+      g.add(atm);
+    }
+    if (b[0] === "saturn") g.add(spxRing(r * 1.24, r * 2.27, tex(SPX_TXA + "saturnrings.png")));
+    SPX.bodies.push(o);
+    SPX.byId[o.id] = o;
+  });
+  // Orbits of the planets, traced from the same elements.
+  SPX.bodies.forEach(function (o) {
+    if (o.parent !== "sun") return;
+    var el = spxElements(o.name);
+    if (!el) return;
+    var per = 365.25 * Math.pow(el[3][0], 1.5),
+      pts = [],
+      jd0 = spxJd();
+    for (var i = 0; i <= 256; i++) pts.push.apply(pts, spxPlanetPos(o.name, jd0 + (per * i) / 256));
+    var geo = new T.BufferGeometry();
+    geo.setAttribute("position", new T.Float32BufferAttribute(pts, 3));
+    S.add(
+      new T.Line(geo, new T.LineBasicMaterial({ color: o.color, transparent: true, opacity: 0.32 }))
+    );
+  });
+  // Surface sites ride on their body's sphere.
+  SPX_SITES.forEach(function (s) {
+    var b = SPX.byId[s[0]],
+      la = s[2] * D,
+      lo = s[3] * D;
+    if (!b) return;
+    var p = new T.Object3D();
+    p.position.set(Math.cos(la) * Math.cos(lo), Math.sin(la), -Math.cos(la) * Math.sin(lo));
+    b.mesh.add(p);
+    SPX.marks.push({
+      kind: "site",
+      body: s[0],
+      name: s[1],
+      what: s[4],
+      live: s[5] || "",
+      obj: p,
+      lat: s[2],
+      lon: s[3]
+    });
+  });
+  // Probes, telescopes and the satellites' points.
+  SPX_PROBES.forEach(function (p) {
+    SPX.marks.push({
+      kind: "probe",
+      name: p[0],
+      what: p[5],
+      ra: p[1],
+      dec: p[2],
+      au0: p[3],
+      auy: p[4],
+      pos: new T.Vector3()
+    });
+  });
+  [
+    [
+      "JWST",
+      -1,
+      "James Webb Space Telescope, at the Sun–Earth L2 point 1.5 million km beyond Earth"
+    ],
+    ["SOHO · Aditya-L1", 1, "Sun watchers at the Sun–Earth L1 point, 1.5 million km sunward"]
+  ].forEach(function (l) {
+    SPX.marks.push({ kind: "lpoint", name: l[0], side: l[1], what: l[2], pos: new T.Vector3() });
+  });
+  var sg = new T.BufferGeometry();
+  sg.setAttribute("position", new T.Float32BufferAttribute(new Float32Array(3 * 2000), 3));
+  sg.setDrawRange(0, 0);
+  SPX.satPts = new T.Points(
+    sg,
+    new T.PointsMaterial({
+      color: 0x8fe9ff,
+      size: 0.035,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.85
+    })
+  );
+  SPX.satPts.frustumCulled = false; // its points move every second; never culled on a stale bound
+  S.add(SPX.satPts);
+  SPX.ray = new T.Raycaster();
+  SPX.sunLight = sunLight;
+  SPX.ready = true;
+}
+
+// Moves every body to where it is at the simulated time.
+function spxPlace() {
+  var jd = spxJd(),
+    d2000 = jd - 2451545,
+    T = THREE;
+  SPX.bodies.forEach(function (o) {
+    var p;
+    if (o.id === "sun") p = [0, 0, 0];
+    else if (o.parent === "sun") p = spxPlanetPos(o.name, jd);
+    else if (o.id === "moon") {
+      var m = skyMoon(jd),
+        e = SPX.byId.earth.g.position,
+        k = SPX.byId.earth.r * 7, // 60 Earth radii in life
+        v = spxScene([
+          Math.cos(m[1] * D) * Math.cos(m[0] * D) * k,
+          Math.cos(m[1] * D) * Math.sin(m[0] * D) * k,
+          Math.sin(m[1] * D) * k
+        ]);
+      p = [e.x + v[0], e.y + v[1], e.z + v[2]];
+    } else {
+      var par = SPX.byId[o.parent],
+        a = (2 * Math.PI * d2000) / o.orbit[1],
+        rr = par.r * o.orbit[0] + o.r;
+      p = [
+        par.g.position.x + Math.cos(a) * rr,
+        par.g.position.y,
+        par.g.position.z - Math.sin(a) * rr
+      ];
+    }
+    o.g.position.set(p[0], p[1], p[2]);
+    if (o.id === "earth") {
+      // Earth turns for real: Greenwich faces the sky at the current sidereal time.
+      var gm = skyGMST(jd) * D,
+        ax = new T.Vector3().fromArray(spxScene(spxEqToEcl([Math.cos(gm), Math.sin(gm), 0]))),
+        ay = new T.Vector3().fromArray(spxScene(spxEqToEcl([0, 0, 1]))),
+        az = new T.Vector3().crossVectors(ax, ay);
+      o.mesh.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(ax, ay, az));
+    } else if (o.id === "moon") {
+      // The same face always toward Earth.
+      var to = new T.Vector3().subVectors(SPX.byId.earth.g.position, o.g.position).normalize(),
+        up = new T.Vector3(0, 1, 0),
+        z = new T.Vector3().crossVectors(to, up).normalize(),
+        y = new T.Vector3().crossVectors(z, to);
+      o.mesh.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(to, y, z));
+    } else {
+      o.mesh.rotation.set(0, 0, 0);
+      o.mesh.rotation.z = o.tilt * D;
+      o.mesh.rotateY(((d2000 * 24) / o.day) * 2 * Math.PI);
+    }
+  });
+  var E = SPX.byId.earth.g.position,
+    sunDir = E.clone().normalize();
+  SPX.marks.forEach(function (m) {
+    if (m.kind === "probe") {
+      var au = m.au0 + (m.auy * (SPX.T - Date.UTC(2025, 0, 1))) / 31557600000,
+        v = spxRaDec(m.ra, m.dec);
+      m.pos.fromArray(spxHelioScene([v[0] * au, v[1] * au, v[2] * au]));
+      m.au = au;
+    } else if (m.kind === "lpoint") m.pos.copy(E).addScaledVector(sunDir, -m.side * 2.2);
+  });
+}
+
+// Earth satellites from the satellite layer's elements (module 10), in Earth's frame.
+function spxSats() {
+  if (!SATREC.length || !window.satellite) {
+    if (!SPX.satAsked) {
+      SPX.satAsked = true;
+      loadSats();
+    }
+    return;
+  }
+  var when = new Date(SPX.T),
+    E = SPX.byId.earth.g.position,
+    k = SPX_EARTH_R / 6371,
+    arr = SPX.satPts.geometry.attributes.position.array,
+    n = 0;
+  SPX.named = [];
+  for (var i = 0; i < SATREC.length && n < 2000; i++) {
+    try {
+      var pv = satellite.propagate(SATREC[i].rec, when);
+      if (!pv || !pv.position) continue;
+      var q = pv.position,
+        v = spxScene(spxEqToEcl([q.x * k, q.y * k, q.z * k]));
+      arr[n * 3] = E.x + v[0];
+      arr[n * 3 + 1] = E.y + v[1];
+      arr[n * 3 + 2] = E.z + v[2];
+      var nm = SATREC[i].ent.n;
+      if (/^(ISS \(ZARYA\)|CSS \(TIANHE\)|HST)$/.test(nm))
+        SPX.named.push({
+          name: nm === "HST" ? "Hubble" : nm === "CSS (TIANHE)" ? "Tiangong" : "ISS",
+          at: n
+        });
+      n++;
+    } catch (e) {}
+  }
+  SPX.satN = n;
+  SPX.satPts.geometry.setDrawRange(0, n);
+  SPX.satPts.geometry.attributes.position.needsUpdate = true;
+}
+
+// ---------- Labels ----------
+function spxLabel(key, text, cls) {
+  var L = (SPX.lab = SPX.lab || {}),
+    el = L[key];
+  if (!el) {
+    el = L[key] = document.createElement("button");
+    el.className = "spxl " + (cls || "");
+    el.setAttribute("data-spx", "l-" + key);
+    el.textContent = text;
+    $("spxlabels").appendChild(el);
+  }
+  return el;
+}
+
+function spxShow(el, v, w, h, on) {
+  if (!on) {
+    el.style.display = "none";
+    return;
+  }
+  var p = v.clone().project(SPX.cam);
+  if (p.z > 1 || p.x < -1.2 || p.x > 1.2 || p.y < -1.2 || p.y > 1.2) {
+    el.style.display = "none";
+    return;
+  }
+  el.style.display = "block";
+  el.style.transform = "translate(" + ((p.x + 1) / 2) * w + "px," + ((1 - p.y) / 2) * h + "px)";
+}
+
+// Is a point on a sphere facing the camera?
+function spxFacing(o, world) {
+  var n = world.clone().sub(o.g.position),
+    c = SPX.cam.position.clone().sub(world);
+  return n.dot(c) > 0;
+}
+
+function spxLabels() {
+  var w = SPX.w,
+    h = SPX.h,
+    tgt = SPX.target,
+    near = tgt ? SPX.cam.position.distanceTo(tgt.g.position) / tgt.r : 999;
+  SPX.bodies.forEach(function (o) {
+    var moonish = o.parent && o.parent !== "sun",
+      on = !moonish || (tgt && (tgt.id === o.parent || tgt.parent === o.parent || tgt.id === o.id));
+    spxShow(
+      spxLabel(o.id, o.name, moonish ? "moon" : "planet"),
+      o.g.position.clone().add(new THREE.Vector3(0, o.r * 1.25, 0)),
+      w,
+      h,
+      on
+    );
+  });
+  SPX.marks.forEach(function (m, i) {
+    var el = spxLabel("m" + i, m.name, m.kind),
+      on = false,
+      at = null;
+    if (m.kind === "site") {
+      var b = SPX.byId[m.body];
+      at = m.obj.getWorldPosition(new THREE.Vector3());
+      on = tgt === b && near < 14 && spxFacing(b, at);
+    } else {
+      at = m.pos;
+      on =
+        m.kind === "probe"
+          ? !tgt || tgt.id === "sun" || SPX.dist > 200
+          : tgt && tgt.id === "earth" && near < 60;
+    }
+    spxShow(el, at, w, h, on);
+  });
+  // The best-known spacecraft around Earth get names when Earth is close.
+  var arr = SPX.satPts.geometry.attributes.position.array;
+  ["ISS", "Tiangong", "Hubble"].forEach(function (nm) {
+    var s = (SPX.named || []).filter(function (x) {
+        return x.name === nm;
+      })[0],
+      el = spxLabel("s-" + nm, nm, "sat");
+    if (!s || !tgt || tgt.id !== "earth" || near > 20) return spxShow(el, null, w, h, false);
+    spxShow(el, new THREE.Vector3(arr[s.at * 3], arr[s.at * 3 + 1], arr[s.at * 3 + 2]), w, h, true);
+  });
+}
+
+// ---------- Camera ----------
+function spxCamera() {
+  var c = SPX.cam,
+    f = SPX.fly,
+    goal = SPX.target ? SPX.target.g.position : new THREE.Vector3();
+  if (f) {
+    var t = Math.min(1, (performance.now() - f.t0) / f.ms),
+      e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    SPX.look = f.from.clone().lerp(goal, e);
+    SPX.dist = f.d0 + (f.d1 - f.d0) * e;
+    if (t >= 1) SPX.fly = null;
+  } else SPX.look = goal.clone();
+  var cp = Math.cos(SPX.pitch);
+  c.position.set(
+    SPX.look.x + SPX.dist * cp * Math.sin(SPX.yaw),
+    SPX.look.y + SPX.dist * Math.sin(SPX.pitch),
+    SPX.look.z + SPX.dist * cp * Math.cos(SPX.yaw)
+  );
+  c.near = Math.max(0.002, SPX.dist * 0.004);
+  c.far = 20000;
+  c.updateProjectionMatrix();
+  c.lookAt(SPX.look);
+}
+
+// Flies to a body (or back out to the whole system with no body).
+function spxGo(id, d) {
+  var o = SPX.byId[id] || null;
+  SPX.fly = {
+    from: SPX.look ? SPX.look.clone() : new THREE.Vector3(),
+    d0: SPX.dist,
+    d1: d || (o ? Math.max(o.r * (o.id === "sun" ? 6 : 4.2), 0.6) : 150),
+    t0: performance.now(),
+    ms: 1800
+  };
+  SPX.target = o;
+  SPX.sel = o ? { kind: "body", o: o } : null;
+  spxCard();
+}
+
+// ---------- Frame ----------
+function spxFrame(now) {
+  if (!SPX.on) return;
+  SPX.raf = requestAnimationFrame(spxFrame);
+  if (document.hidden) return;
+  var dt = Math.min(0.1, (now - (SPX.last || now)) / 1000);
+  SPX.last = now;
+  if (!SPX.paused) SPX.T += dt * 1000 * SPX.rate;
+  var host = $("spx"),
+    w = host.clientWidth,
+    h = host.clientHeight;
+  if (w !== SPX.w || h !== SPX.h) {
+    SPX.w = w;
+    SPX.h = h;
+    SPX.renderer.setSize(w, h);
+    SPX.cam.aspect = w / Math.max(1, h);
+  }
+  spxPlace();
+  if (now - (SPX.satAt || 0) > (SPX.rate > 60 ? 120 : 1000)) {
+    SPX.satAt = now;
+    spxSats();
+  }
+  spxCamera();
+  SPX.renderer.render(SPX.scene, SPX.cam);
+  spxLabels();
+  if (now - (SPX.clockAt || 0) > 500) {
+    SPX.clockAt = now;
+    $("spxclock").textContent = new Date(SPX.T).toLocaleString([], {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  }
+}
+
+// ---------- Card ----------
+function spxKm(au) {
+  var km = au * 149597870.7;
+  return km > 1e9
+    ? (km / 1e9).toFixed(2) + " billion km"
+    : km > 1e6
+      ? Math.round(km / 1e6).toLocaleString() + " million km"
+      : Math.round(km).toLocaleString() + " km";
+}
+
+function spxCard() {
+  var el = $("spxcard"),
+    s = SPX.sel;
+  if (!el) return;
+  if (!s) {
+    el.style.display = "none";
+    return;
+  }
+  var rows = [],
+    title = "",
+    sub = "",
+    jd = spxJd(),
+    earth = skyHelio(SKY_PLANETS[2], jd);
+  if (s.kind === "body") {
+    var o = s.o,
+      f = SPX_FACTS[o.name],
+      el2 = spxElements(o.name);
+    title = o.name;
+    sub =
+      o.id === "sun"
+        ? "Star"
+        : o.parent === "sun"
+          ? o.id === "pluto"
+            ? "Dwarf planet"
+            : "Planet"
+          : "Moon of " + SPX.byId[o.parent].name;
+    if (f) {
+      if (f[0]) rows.push(["MOONS", f[0]]);
+    }
+    rows.push(["SIZE", (f && f[1]) || (o.km * 2).toLocaleString() + " km across"]);
+    if (el2) {
+      rows.push(["YEAR", el2[7] || el2[5]], ["DAY", el2[8] || el2[6]]);
+      var hv = o.id === "pluto" ? skyHelio(SPX_PLUTO, jd) : skyHelio(el2, jd),
+        rs = Math.hypot(hv[0], hv[1], hv[2]);
+      rows.push(["FROM THE SUN", spxKm(rs)]);
+      if (o.id !== "earth")
+        rows.push([
+          "FROM EARTH NOW",
+          spxKm(Math.hypot(hv[0] - earth[0], hv[1] - earth[1], hv[2] - earth[2]))
+        ]);
+    }
+    if (o.id === "moon")
+      rows.push(["FROM EARTH NOW", Math.round(skyMoon(jd)[2]).toLocaleString() + " km"]);
+    if (f) rows.push(["GRAVITY", f[2]], ["TEMPERATURE", f[3]]);
+    if (o.id === "earth")
+      rows.push(["SATELLITES SHOWN", (SPX.satN || 0).toLocaleString() + " · live from CelesTrak"]);
+  } else {
+    var m = s.m;
+    title = m.name;
+    sub =
+      m.kind === "site"
+        ? "On " + SPX.byId[m.body].name
+        : m.kind === "probe"
+          ? "Spacecraft"
+          : "Space telescope";
+    rows.push(["WHAT", m.what]);
+    if (m.kind === "site")
+      rows.push([
+        "WHERE",
+        Math.abs(m.lat).toFixed(2) +
+          "° " +
+          (m.lat >= 0 ? "N" : "S") +
+          ", " +
+          Math.abs(m.lon).toFixed(2) +
+          "° " +
+          (m.lon >= 0 ? "E" : "W") +
+          (m.live === "fixed" ? " · from NASA's latest drive" : "")
+      ]);
+    if (m.kind === "probe")
+      rows.push([
+        "FROM THE SUN",
+        spxKm(m.au) + " (" + m.au.toFixed(1) + " AU) · estimated from its course"
+      ]);
+  }
+  el.innerHTML =
+    '<div class="spxch"><div><b>' +
+    esc(title) +
+    '</b><i class="mono">' +
+    esc(sub.toUpperCase()) +
+    '</i></div><button data-spx="x" aria-label="Close">✕</button></div>' +
+    rows
+      .map(function (r) {
+        return "<div><span>" + r[0] + "</span>" + esc(String(r[1])) + "</div>";
+      })
+      .join("");
+  el.style.display = "block";
+}
+
+// ---------- Open, close, controls ----------
+function spxOpen(tab) {
+  var el = $("sky");
+  if (!el) {
+    galOpen();
+    el = $("sky");
+  }
+  SKY.mode = "space";
+  skyTabs();
+  var host = $("spx");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "spx";
+    host.innerHTML =
+      '<div id="spxlabels"></div><div id="spxcard"></div>' +
+      '<div class="spxbar"><span class="mono" id="spxclock"></span>' +
+      SPX_RATES.map(function (r, i) {
+        return '<button data-spx="r-' + i + '" class="mono">' + r[0] + "</button>";
+      }).join("") +
+      '</div><div class="spxgo">' +
+      [
+        ["all", "SOLAR SYSTEM"],
+        ["earth", "EARTH ORBIT"],
+        ["moon", "MOON"],
+        ["mars", "MARS"],
+        ["jupiter", "JUPITER"],
+        ["saturn", "SATURN"],
+        ["far", "DEEP SPACE"]
+      ]
+        .map(function (t) {
+          return '<button data-spx="go-' + t[0] + '" class="mono">' + t[1] + "</button>";
+        })
+        .join("") +
+      "</div>";
+    el.insertBefore(host, el.firstChild);
+    spxGestures(host);
+  }
+  host.style.display = "block";
+  el.classList.add("space");
+  SPX.on = true;
+  SPX.T = SPX.T || Date.now();
+  (window.THREE ? Promise.resolve() : SPX.loading || (SPX.loading = loadScript(SPX_THREE)))
+    .then(function () {
+      if (!SPX.on) return;
+      if (!SPX.ready) spxBuild();
+      spxRates();
+      // Arrive from deep space.
+      if (!SPX.arrived) {
+        SPX.arrived = true;
+        SPX.dist = 2200;
+        SPX.look = new THREE.Vector3();
+        spxGo(tab || null, tab ? null : 150);
+        SPX.fly.ms = 3200;
+      } else if (tab) spxGo(tab);
+      SPX.last = 0;
+      cancelAnimationFrame(SPX.raf);
+      SPX.raf = requestAnimationFrame(spxFrame);
+    })
+    .catch(function () {
+      SPX.loading = null;
+      note(
+        "Space",
+        "The 3D view needs a connection the first time. Showing the flat solar system for now."
+      );
+      spxClose();
+      SKY.mode = "sys";
+      skyTabs();
+      skyDraw();
+    });
+}
+
+function spxClose() {
+  SPX.on = false;
+  cancelAnimationFrame(SPX.raf);
+  var host = $("spx");
+  if (host) host.style.display = "none";
+  var el = $("sky");
+  if (el) el.classList.remove("space");
+}
+
+function spxRates() {
+  Array.prototype.forEach.call(document.querySelectorAll("#spx [data-spx^='r-']"), function (b) {
+    b.classList.toggle("on", SPX_RATES[+b.getAttribute("data-spx").slice(2)][1] === SPX.rate);
+  });
+}
+
+// Mars rovers' latest positions from the app's data feed (harvest.py reads NASA's rover maps).
+function spxRovers() {
+  if (SPX.roversAsked) return;
+  SPX.roversAsked = true;
+  getJSON(feedUrl("meta.json"), 9000)
+    .then(function (m) {
+      var r = (m && m.rovers) || {};
+      SPX.marks.forEach(function (k) {
+        var p = k.live && r[k.live];
+        if (!p || !isFinite(p.lat) || !isFinite(p.lon)) return;
+        k.lat = p.lat;
+        k.lon = p.lon;
+        k.live = "fixed";
+        var la = p.lat * D,
+          lo = p.lon * D;
+        k.obj.position.set(Math.cos(la) * Math.cos(lo), Math.sin(la), -Math.cos(la) * Math.sin(lo));
+      });
+    })
+    .catch(function () {});
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-spx]");
+  if (!b || !SPX.ready) return;
+  var k = b.getAttribute("data-spx");
+  if (k === "x") {
+    SPX.sel = null;
+    spxCard();
+  } else if (k.indexOf("r-") === 0) {
+    var r = SPX_RATES[+k.slice(2)][1];
+    if (r === 1) SPX.T = Date.now(); // LIVE also returns to now
+    SPX.rate = r;
+    spxRates();
+  } else if (k.indexOf("go-") === 0) {
+    var t = k.slice(3);
+    if (t === "all") spxGo(null, 150);
+    else if (t === "far") {
+      spxGo("sun", 900);
+    } else {
+      spxGo(t);
+      if (t === "mars") spxRovers();
+    }
+  } else if (k.indexOf("l-") === 0) spxPick(k.slice(2));
+});
+
+function spxPick(key) {
+  if (SPX.byId[key]) {
+    spxGo(key);
+    if (key === "mars") spxRovers();
+    return;
+  }
+  var m = key.charAt(0) === "m" ? SPX.marks[+key.slice(1)] : null;
+  if (m) {
+    SPX.sel = { kind: "mark", m: m };
+    spxCard();
+  } else if (key.indexOf("s-") === 0) {
+    SPX.sel = {
+      kind: "mark",
+      m: {
+        kind: "sat",
+        name: key.slice(2),
+        what:
+          key === "s-ISS"
+            ? "International Space Station, about 420 km up, with a crew aboard"
+            : key === "s-Tiangong"
+              ? "China's space station, about 390 km up"
+              : "Hubble Space Telescope, about 520 km up"
+      }
+    };
+    spxCard();
+  }
+}
+
+// Drag to turn, pinch or scroll to zoom, tap a planet to fly to it.
+function spxGestures(host) {
+  var pts = {},
+    last = null,
+    pinch = null,
+    moved = 0;
+  host.addEventListener("pointerdown", function (e) {
+    if (e.target.closest("button, #spxcard")) return;
+    pts[e.pointerId] = [e.clientX, e.clientY];
+    host.setPointerCapture(e.pointerId);
+    last = [e.clientX, e.clientY];
+    moved = 0;
+    var ids = Object.keys(pts);
+    if (ids.length === 2)
+      pinch = [
+        Math.hypot(pts[ids[0]][0] - pts[ids[1]][0], pts[ids[0]][1] - pts[ids[1]][1]),
+        SPX.dist
+      ];
+  });
+  host.addEventListener("pointermove", function (e) {
+    if (!pts[e.pointerId]) return;
+    pts[e.pointerId] = [e.clientX, e.clientY];
+    var ids = Object.keys(pts);
+    if (ids.length === 2 && pinch) {
+      var d = Math.hypot(pts[ids[0]][0] - pts[ids[1]][0], pts[ids[0]][1] - pts[ids[1]][1]);
+      spxZoom((pinch[1] * pinch[0]) / Math.max(10, d));
+      moved = 99;
+      return;
+    }
+    var dx = e.clientX - last[0],
+      dy = e.clientY - last[1];
+    last = [e.clientX, e.clientY];
+    moved += Math.abs(dx) + Math.abs(dy);
+    SPX.yaw -= dx * 0.006;
+    SPX.pitch = Math.max(-1.45, Math.min(1.45, SPX.pitch + dy * 0.005));
+  });
+  var up = function (e) {
+    delete pts[e.pointerId];
+    if (Object.keys(pts).length < 2) pinch = null;
+    if (moved < 8 && e.type === "pointerup" && SPX.ready) {
+      var r = host.getBoundingClientRect(),
+        v = new THREE.Vector2(
+          ((e.clientX - r.left) / r.width) * 2 - 1,
+          -((e.clientY - r.top) / r.height) * 2 + 1
+        );
+      SPX.ray.setFromCamera(v, SPX.cam);
+      var hit = SPX.ray.intersectObjects(
+        SPX.bodies.map(function (o) {
+          return o.mesh;
+        }),
+        false
+      )[0];
+      if (hit) spxPick(hit.object.userData.id);
+    }
+  };
+  host.addEventListener("pointerup", up);
+  host.addEventListener("pointercancel", up);
+  host.addEventListener(
+    "wheel",
+    function (e) {
+      e.preventDefault();
+      spxZoom(SPX.dist * (e.deltaY < 0 ? 0.88 : 1.14));
+    },
+    { passive: false }
+  );
+}
+
+function spxZoom(d) {
+  var min = SPX.target ? SPX.target.r * 1.15 : 5;
+  SPX.dist = Math.max(min, Math.min(4000, d));
+  SPX.fly = null;
+}
 /**
  * @file Data feed: everything ready the moment the app opens.
  * A scheduled job in the repository (.github/workflows/data.yml, harvest.py) opens this app in a
@@ -39431,7 +42464,188 @@ if (window.__ODD_HARVEST)
  */
 
 var OPS_TILES = "https://tiles.openfreemap.org/",
-  OPS_FONT = ["Noto Sans Regular"];
+  OPS_FONT = ["Noto Sans Regular"],
+  OFF_CACHE = "ojos-tiles", // the same store as the emergency offline pack (module 22)
+  OFF_PROTO = "oddmap";
+
+// ---------- Offline maps ----------
+// The dark map's files load through the "oddmap://" scheme: from the network when there is
+// signal, and from the phone's saved copy when there isn't. The tile index and the fonts are
+// kept on every load (they are small); a place's map tiles are kept when the user saves that
+// place for offline use (Settings → Emergency alerts → ⇩).
+function offStore() {
+  return "caches" in window ? caches.open(OFF_CACHE) : Promise.reject(new Error("no storage"));
+}
+
+function offGet(url, signal) {
+  return fetch(url, { signal: signal, mode: "cors" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r;
+    })
+    .catch(function (err) {
+      if (signal && signal.aborted) throw err;
+      return offStore()
+        .then(function (c) {
+          return c.match(url);
+        })
+        .then(function (m) {
+          if (!m) throw err;
+          return m;
+        });
+    });
+}
+
+function offKeep(url, r) {
+  offStore()
+    .then(function (c) {
+      return c.put(url, r);
+    })
+    .catch(function () {});
+}
+
+// JSON from the network, or the saved copy when there is no signal.
+function offJSON(url, ms) {
+  return getJSON(url, ms)
+    .then(function (j) {
+      offKeep(
+        url,
+        new window.Response(JSON.stringify(j), { headers: { "content-type": "application/json" } })
+      );
+      return j;
+    })
+    .catch(function (err) {
+      return offStore()
+        .then(function (c) {
+          return c.match(url);
+        })
+        .then(function (m) {
+          if (!m) throw err;
+          return m.json();
+        });
+    });
+}
+
+// Tile indexes name https tile addresses; send those through the scheme too.
+function offRewrite(j) {
+  if (j && j.tiles)
+    j.tiles = j.tiles.map(function (u) {
+      return String(u).replace(/^https:\/\//, OFF_PROTO + "://");
+    });
+  return j;
+}
+
+function offProtocol() {
+  if (offProtocol.on) return true;
+  if (!window.maplibregl || !maplibregl.addProtocol || !("caches" in window)) return false;
+  maplibregl.addProtocol(OFF_PROTO, function (params, abort) {
+    var url = params.url.replace(OFF_PROTO + "://", "https://"),
+      json = params.type === "json";
+    return offGet(url, abort && abort.signal).then(function (r) {
+      if (json || /\/fonts\//.test(url)) offKeep(url, r.clone());
+      return json
+        ? r.json().then(function (j) {
+            return { data: offRewrite(j) };
+          })
+        : r.arrayBuffer().then(function (b) {
+            return { data: b };
+          });
+    });
+  });
+  offProtocol.on = true;
+  return true;
+}
+
+// Map tiles around a place: the world at low zoom, then ever smaller squares down to street level.
+var OFF_ZOOMS = [
+  [0, 180],
+  [1, 180],
+  [2, 180],
+  [3, 180],
+  [5, 8],
+  [7, 2.5],
+  [9, 0.8],
+  [10, 0.45],
+  [11, 0.25],
+  [12, 0.14],
+  [13, 0.08],
+  [14, 0.05]
+];
+
+function offTiles(lat, lon) {
+  var out = [];
+  OFF_ZOOMS.forEach(function (zs) {
+    var z = zs[0],
+      span = zs[1],
+      n = Math.pow(2, z),
+      tx = function (l) {
+        return Math.max(0, Math.min(n - 1, Math.floor(((l + 180) / 360) * n)));
+      },
+      ty = function (l) {
+        var r = Math.max(-85, Math.min(85, l)) * D;
+        return Math.max(
+          0,
+          Math.min(
+            n - 1,
+            Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n)
+          )
+        );
+      };
+    for (var x = tx(lon - span); x <= tx(lon + span); x++)
+      for (var y = ty(lat + span); y <= ty(lat - span); y++) out.push([z, x, y]);
+  });
+  return out;
+}
+
+// Saves the map around a place for use without signal. done(saved, total) is called at the end.
+function offSave(lat, lon, done) {
+  var index = OPS_TILES + "planet";
+  offJSON(index, 20000)
+    .then(function (j) {
+      var tpl = j && j.tiles && j.tiles[0];
+      if (!/^https:\/\/tiles\.openfreemap\.org\//.test(tpl || ""))
+        throw new Error("no tile address");
+      var urls = offTiles(lat, lon).map(function (t) {
+        return tpl.replace("{z}", t[0]).replace("{x}", t[1]).replace("{y}", t[2]);
+      });
+      ["0-255", "256-511", "8192-8447"].forEach(function (r) {
+        urls.push(OPS_TILES + "fonts/" + encodeURIComponent(OPS_FONT[0]) + "/" + r + ".pbf");
+      });
+      urls.push(FOC_SRC.states, FOC_SRC.countries); // the Smooth globe's borders and names
+      return offStore().then(function (c) {
+        var i = 0,
+          ok = 0,
+          next = function () {
+            if (i >= urls.length) return Promise.resolve();
+            var u = urls[i++];
+            return c
+              .match(u)
+              .then(function (m) {
+                if (m) return true;
+                return fetch(u, { mode: "cors" }).then(function (r) {
+                  if (!r.ok) return false;
+                  return c.put(u, r).then(function () {
+                    return true;
+                  });
+                });
+              })
+              .catch(function () {
+                return false;
+              })
+              .then(function (good) {
+                if (good) ok++;
+                return next();
+              });
+          };
+        return Promise.all([next(), next(), next(), next(), next(), next()]).then(function () {
+          done(ok, urls.length);
+        });
+      });
+    })
+    .catch(function () {
+      done(0, 1);
+    });
+}
 
 // Label text: English where mapped, otherwise the local name.
 var OPS_NAME = ["coalesce", ["get", "name_en"], ["get", "name:latin"], ["get", "name"]];
@@ -39481,13 +42695,15 @@ function opsStyle() {
   var land2 = ["all", ["==", ["get", "admin_level"], 2], ["!=", ["get", "maritime"], 1]];
   return {
     version: 8,
-    glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
+    glyphs:
+      (offProtocol() ? OFF_PROTO + "://tiles.openfreemap.org/" : OPS_TILES) +
+      "fonts/{fontstack}/{range}.pbf",
     // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
     projection: { type: displayMode() === "globe" ? "globe" : "mercator" },
     sources: {
       omt: {
         type: "vector",
-        url: OPS_TILES + "planet",
+        url: (offProtocol() ? OFF_PROTO + "://tiles.openfreemap.org/" : OPS_TILES) + "planet",
         attribution: "© OpenStreetMap · OpenFreeMap"
       },
       // Aerial photos that fade in as you zoom into a city (credit behind the map's ⓘ).
@@ -40927,6 +44143,501 @@ document.addEventListener("click", function (e) {
     select(it);
   }
 });
+
+// ---------- Organized crime groups ----------
+// The best-known criminal groups, placed where they are based, with what public reporting says they
+// are known for, and whether the US State Department has designated them a Foreign Terrorist
+// Organization. Groups only: no individual leaders or photos, since who leads them changes fast and
+// much of it is unproven. Each card links to the group's Wikipedia article for more.
+var CRIME_FTO = "https://www.state.gov/foreign-terrorist-organizations";
+// [name, lat, lon, where it operates, known for, US FTO designation ("" if none), Wikipedia title]
+var CRIME = [
+  [
+    "Sinaloa Cartel",
+    24.8,
+    -107.39,
+    "Mexico, the US and worldwide",
+    "Fentanyl, methamphetamine, cocaine and heroin trafficking; smuggling guns south from the US; money laundering",
+    "February 20, 2025",
+    "Sinaloa_Cartel"
+  ],
+  [
+    "Jalisco New Generation Cartel (CJNG)",
+    20.67,
+    -103.35,
+    "Mexico, the US and worldwide",
+    "Fentanyl, methamphetamine and cocaine trafficking; fuel theft; extortion",
+    "February 20, 2025",
+    "Jalisco_New_Generation_Cartel"
+  ],
+  [
+    "Gulf Cartel",
+    25.87,
+    -97.5,
+    "Tamaulipas, Mexico",
+    "Cocaine and marijuana trafficking; migrant smuggling; extortion",
+    "February 20, 2025",
+    "Gulf_Cartel"
+  ],
+  [
+    "Cartel del Noreste",
+    27.48,
+    -99.51,
+    "Northeast Mexico",
+    "Drug trafficking; migrant smuggling; extortion",
+    "February 20, 2025",
+    "Cartel_del_Noreste"
+  ],
+  [
+    "La Nueva Familia Michoacana",
+    18.35,
+    -100.65,
+    "Guerrero, Michoacán and the State of Mexico",
+    "Methamphetamine; extortion",
+    "February 20, 2025",
+    "La_Nueva_Familia_Michoacana"
+  ],
+  [
+    "Cárteles Unidos",
+    19.09,
+    -102.35,
+    "Michoacán, Mexico",
+    "Methamphetamine; extortion of avocado and lime growers",
+    "February 20, 2025",
+    "Cárteles_Unidos"
+  ],
+  [
+    "Los Viagras",
+    19.0,
+    -102.1,
+    "Michoacán, Mexico",
+    "Extortion; drug trafficking",
+    "Designated",
+    "Los_Viagras"
+  ],
+  [
+    "Juárez Cartel",
+    31.69,
+    -106.42,
+    "Chihuahua, Mexico",
+    "Drug trafficking across the El Paso border",
+    "Designated",
+    "Juárez_Cartel"
+  ],
+  [
+    "MS-13 (Mara Salvatrucha)",
+    13.69,
+    -89.19,
+    "El Salvador, Honduras, Guatemala and the US",
+    "Extortion; drug dealing; violence",
+    "February 20, 2025",
+    "MS-13"
+  ],
+  [
+    "Barrio 18",
+    14.63,
+    -90.51,
+    "Guatemala, Honduras, El Salvador and the US",
+    "Extortion; violence",
+    "Designated",
+    "18th_Street_gang"
+  ],
+  [
+    "Tren de Aragua",
+    10.25,
+    -67.6,
+    "Venezuela, South America and the US",
+    "Human trafficking and migrant smuggling; extortion; drug dealing",
+    "February 20, 2025",
+    "Tren_de_Aragua"
+  ],
+  [
+    "Cartel de los Soles",
+    10.49,
+    -66.88,
+    "Venezuela",
+    "Described by the US government as a cocaine-trafficking network inside Venezuela's state; Venezuela denies it exists",
+    "Designated",
+    "Cartel_of_the_Suns"
+  ],
+  [
+    "Clan del Golfo",
+    8.1,
+    -76.73,
+    "Colombia",
+    "Cocaine production and trafficking; illegal mining",
+    "Designated",
+    "Gulf_Clan"
+  ],
+  [
+    "Los Choneros",
+    -0.95,
+    -80.73,
+    "Ecuador",
+    "Cocaine trafficking through Ecuador's ports; control of prisons; extortion",
+    "Designated",
+    "Los_Choneros"
+  ],
+  [
+    "Los Lobos",
+    -2.19,
+    -79.89,
+    "Ecuador",
+    "Cocaine trafficking; illegal gold mining; extortion",
+    "Designated",
+    "Los_Lobos_(Ecuador)"
+  ],
+  [
+    "Viv Ansanm",
+    18.54,
+    -72.34,
+    "Port-au-Prince, Haiti",
+    "Armed control of neighbourhoods; kidnapping; extortion",
+    "Designated",
+    "Viv_Ansanm"
+  ],
+  [
+    "Gran Grif",
+    19.15,
+    -72.69,
+    "Artibonite, Haiti",
+    "Kidnapping; extortion; attacks on towns",
+    "Designated",
+    "Gran_Grif"
+  ],
+  [
+    "Primeiro Comando da Capital (PCC)",
+    -23.55,
+    -46.63,
+    "Brazil, South America and Europe",
+    "Cocaine trafficking to Europe; control of prisons",
+    "",
+    "Primeiro_Comando_da_Capital"
+  ],
+  [
+    "Comando Vermelho",
+    -22.91,
+    -43.2,
+    "Rio de Janeiro and the Amazon, Brazil",
+    "Drug trafficking; arms; control of favelas",
+    "",
+    "Comando_Vermelho"
+  ],
+  [
+    "'Ndrangheta",
+    38.1,
+    16.0,
+    "Calabria, Italy, and worldwide",
+    "Cocaine import into Europe; money laundering; public contracts",
+    "",
+    "'Ndrangheta"
+  ],
+  [
+    "Camorra",
+    40.85,
+    14.27,
+    "Naples, Italy",
+    "Drug trafficking; extortion; counterfeit goods; illegal waste dumping",
+    "",
+    "Camorra"
+  ],
+  [
+    "Cosa Nostra (Sicilian Mafia)",
+    38.12,
+    13.36,
+    "Sicily, Italy",
+    "Extortion; public contracts; drug trafficking",
+    "",
+    "Sicilian_Mafia"
+  ],
+  [
+    "Mocro Maffia",
+    52.37,
+    4.9,
+    "Netherlands and Belgium",
+    "Cocaine trafficking through Rotterdam and Antwerp",
+    "",
+    "Mocro_Maffia"
+  ],
+  [
+    "Albanian organized crime",
+    41.33,
+    19.82,
+    "Albania and across Europe",
+    "Cocaine and heroin trafficking; cannabis",
+    "",
+    "Albanian_mafia"
+  ],
+  [
+    "Yamaguchi-gumi",
+    34.69,
+    135.19,
+    "Japan",
+    "Japan's largest yakuza group: extortion, gambling, methamphetamine",
+    "",
+    "Yamaguchi-gumi"
+  ],
+  [
+    "Sun Yee On (triad)",
+    22.31,
+    114.17,
+    "Hong Kong and abroad",
+    "Drug trafficking; illegal gambling; money laundering",
+    "",
+    "Sun_Yee_On"
+  ],
+  [
+    "Black Axe",
+    6.45,
+    3.39,
+    "Nigeria and worldwide",
+    "Internet and romance fraud; money laundering",
+    "",
+    "Black_Axe_(confraternity)"
+  ]
+];
+
+ilDef({
+  key: "crime",
+  label: "Organized crime groups",
+  color: "#ff5ab4",
+  icon: "◈",
+  every: 24 * 3600000,
+  none: "NONE",
+  load: function (d) {
+    return Promise.resolve(
+      CRIME.map(function (g) {
+        return ilItem(d, {
+          id: "crime:" + g[6],
+          n: g[0],
+          label: g[0].replace(/ \(.*\)$/, ""),
+          lat: g[1],
+          lon: g[2],
+          size: g[5] ? 6 : 5,
+          color: g[5] ? "#ff3b6b" : "#ff8fcf",
+          tag: g[5] ? "US-DESIGNATED TERRORIST ORGANIZATION" : "ORGANIZED CRIME",
+          rows: [
+            ["OPERATES IN", g[3]],
+            ["KNOWN FOR", g[4]],
+            [
+              "US TERRORIST DESIGNATION",
+              g[5]
+                ? g[5] === "Designated"
+                  ? "Yes, by the State Department"
+                  : "Yes, " + g[5]
+                : "No"
+            ],
+            ["SOURCE", "Public reporting summarized; see the links"]
+          ],
+          links: [
+            [
+              "About this group (Wikipedia)",
+              "https://en.wikipedia.org/wiki/" + encodeURIComponent(g[6])
+            ]
+          ].concat(g[5] ? [["US Foreign Terrorist Organizations", CRIME_FTO]] : [])
+        });
+      })
+    );
+  }
+});
+
+// ---------- Leaders: who runs each country, and each US state ----------
+// Heads of state and government for every country, and each US state's governor and senators with
+// their party, live from Wikidata (community-edited, so it follows elections within days). US states
+// are coloured by the governor's party. Names, offices and parties only.
+var LEAD_D = "Q29552", // Democratic Party (United States)
+  LEAD_R = "Q29468"; // Republican Party (United States)
+
+function leadPoint(wkt) {
+  var m = /Point\(([-\d.]+) ([-\d.]+)\)/.exec(wkt || "");
+  return m ? [+m[2], +m[1]] : null;
+}
+
+function leadSparql(q) {
+  return getJSON(
+    "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(q),
+    30000
+  ).then(function (j) {
+    return (j && j.results && j.results.bindings) || [];
+  });
+}
+
+function leadV(b, k) {
+  return (b[k] && b[k].value) || "";
+}
+
+function leadQ(b, k) {
+  return leadV(b, k).split("/").pop();
+}
+
+// D, R or another party's name, from all the parties listed for a person.
+function leadParty(ids, names) {
+  if (ids.indexOf(LEAD_D) >= 0) return "D";
+  if (ids.indexOf(LEAD_R) >= 0) return "R";
+  return names[0] || "";
+}
+
+function leadWorld(d) {
+  return leadSparql(
+    'SELECT ?iso ?cLabel ?coord ?hs ?hsLabel ?hg ?hgLabel ?hsoLabel ?hgoLabel WHERE{?c wdt:P31 wd:Q6256;wdt:P297 ?iso. FILTER NOT EXISTS{?c wdt:P576 ?x} OPTIONAL{?c wdt:P36 ?cap. ?cap wdt:P625 ?coord} OPTIONAL{?c wdt:P35 ?hs} OPTIONAL{?c wdt:P6 ?hg} OPTIONAL{?c wdt:P1906 ?hso} OPTIONAL{?c wdt:P1313 ?hgo} SERVICE wikibase:label{bd:serviceParam wikibase:language "en"}}'
+  ).then(function (B) {
+    var by = {};
+    B.forEach(function (b) {
+      var k = leadV(b, "iso"),
+        c = (by[k] = by[k] || {
+          name: leadV(b, "cLabel"),
+          at: null,
+          hs: {},
+          hg: {},
+          hso: "",
+          hgo: ""
+        });
+      c.at = c.at || leadPoint(leadV(b, "coord"));
+      if (leadV(b, "hsLabel")) c.hs[leadV(b, "hsLabel")] = 1;
+      if (leadV(b, "hgLabel")) c.hg[leadV(b, "hgLabel")] = 1;
+      c.hso = c.hso || leadV(b, "hsoLabel");
+      c.hgo = c.hgo || leadV(b, "hgoLabel");
+    });
+    return Object.keys(by)
+      .filter(function (k) {
+        return by[k].at && k !== "US";
+      })
+      .map(function (k) {
+        var c = by[k],
+          hs = Object.keys(c.hs).join(", "),
+          hg = Object.keys(c.hg).join(", ");
+        return ilItem(d, {
+          id: "lead:" + k,
+          n: c.name + (hs ? " · " + hs : ""),
+          label: c.name,
+          lat: c.at[0],
+          lon: c.at[1],
+          size: 4,
+          tag: "LEADERS",
+          rows: [
+            [String(c.hso || "Head of state").toUpperCase(), hs || "—"],
+            [
+              String(c.hgo || "Head of government").toUpperCase(),
+              hg && hg !== hs ? hg : hs ? "The same person" : "—"
+            ],
+            ["SOURCE", "Wikidata (community-edited)"]
+          ],
+          links: [
+            [
+              "More (Wikipedia)",
+              "https://en.wikipedia.org/wiki/Politics_of_" +
+                encodeURIComponent(c.name.replace(/ /g, "_"))
+            ]
+          ]
+        });
+      });
+  });
+}
+
+function leadUS(d) {
+  return leadSparql(
+    'SELECT ?s ?sLabel ?coord ?gov ?govLabel ?gp ?gpLabel ?sen ?senLabel ?sp ?spLabel WHERE{?s wdt:P31 wd:Q35657. OPTIONAL{?s wdt:P36 ?cap. ?cap wdt:P625 ?coord} OPTIONAL{?s wdt:P6 ?gov. OPTIONAL{?gov wdt:P102 ?gp}} OPTIONAL{?sen p:P39 ?st. ?st ps:P39 wd:Q4416090; (pq:P768|pq:P1268) ?s. FILTER NOT EXISTS{?st pq:P582 ?e} OPTIONAL{?sen wdt:P102 ?sp}} SERVICE wikibase:label{bd:serviceParam wikibase:language "en"}}'
+  ).then(function (B) {
+    var by = {};
+    B.forEach(function (b) {
+      var k = leadQ(b, "s"),
+        s = (by[k] = by[k] || {
+          name: leadV(b, "sLabel"),
+          at: null,
+          gov: "",
+          gp: [],
+          gpn: [],
+          sen: {}
+        });
+      s.at = s.at || leadPoint(leadV(b, "coord"));
+      if (leadV(b, "govLabel")) s.gov = leadV(b, "govLabel");
+      if (leadQ(b, "gp") && s.gp.indexOf(leadQ(b, "gp")) < 0) {
+        s.gp.push(leadQ(b, "gp"));
+        s.gpn.push(leadV(b, "gpLabel"));
+      }
+      var sn = leadV(b, "senLabel");
+      if (sn) {
+        var x = (s.sen[sn] = s.sen[sn] || { p: [], pn: [] });
+        if (leadQ(b, "sp") && x.p.indexOf(leadQ(b, "sp")) < 0) {
+          x.p.push(leadQ(b, "sp"));
+          x.pn.push(leadV(b, "spLabel"));
+        }
+      }
+    });
+    var count = { D: 0, R: 0 };
+    var items = Object.keys(by)
+      .filter(function (k) {
+        return by[k].at;
+      })
+      .map(function (k) {
+        var s = by[k],
+          gp = leadParty(s.gp, s.gpn),
+          sens = Object.keys(s.sen)
+            .slice(0, 2)
+            .map(function (n) {
+              var p = leadParty(s.sen[n].p, s.sen[n].pn);
+              return n + (p ? " (" + p + ")" : "");
+            });
+        if (gp === "D" || gp === "R") count[gp]++;
+        return ilItem(d, {
+          id: "lead:us:" + k,
+          n: s.name + " · Gov. " + (s.gov || "—") + (gp ? " (" + gp + ")" : ""),
+          label: s.name + (gp === "D" || gp === "R" ? " · " + gp : ""),
+          lat: s.at[0],
+          lon: s.at[1],
+          size: 6,
+          color: gp === "D" ? "#3b82f6" : gp === "R" ? "#ef4444" : "#a3a3a3",
+          tag: gp === "D" ? "DEMOCRATIC GOVERNOR" : gp === "R" ? "REPUBLICAN GOVERNOR" : "GOVERNOR",
+          rows: [
+            [
+              "GOVERNOR",
+              (s.gov || "—") +
+                (gp ? " (" + (gp === "D" ? "Democrat" : gp === "R" ? "Republican" : gp) + ")" : "")
+            ],
+            ["US SENATORS", sens.join(" · ") || "—"],
+            ["SOURCE", "Wikidata (community-edited)"]
+          ],
+          links: [
+            [
+              "More (Wikipedia)",
+              "https://en.wikipedia.org/wiki/" + encodeURIComponent(s.name.replace(/ /g, "_"))
+            ]
+          ]
+        });
+      });
+    LEAD.us = count;
+    return items;
+  });
+}
+
+var LEAD = { us: null };
+
+ilDef({
+  key: "leaders",
+  label: "Leaders and parties",
+  color: "#c9b6ff",
+  icon: "★",
+  every: 12 * 3600000,
+  none: "NOT LOADED",
+  status: function (d) {
+    var u = LEAD.us;
+    return d.items.length
+      ? d.items.length + (u ? " · US GOVERNORS " + u.D + " D · " + u.R + " R" : "")
+      : "NOT LOADED";
+  },
+  load: function (d) {
+    return Promise.all([
+      leadWorld(d).catch(function () {
+        return [];
+      }),
+      leadUS(d).catch(function () {
+        return [];
+      })
+    ]).then(function (r) {
+      return r[0].concat(r[1]);
+    });
+  }
+});
 /**
  * @file Camera grid: every camera in a city, state or the area in view, as mini tiles.
  * Type a place (or use what's on the map) and its cameras fill a grid of small live pictures,
@@ -40934,12 +44645,24 @@ document.addEventListener("click", function (e) {
  * to make it big, tap again to shrink it back; several can be big at once. Big tiles refresh every
  * few seconds and small ones about once a minute, and only the page in view loads anything.
  * Opens from Cameras in the dashboard's dock; its ➤ button opens Drive (cameras along a route).
+ * A grid can be saved under its name (☆ SAVE) and comes back with one tap from the row of saved
+ * grids, without looking the place up again.
  *
  * Module 44 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-var CG = { open: false, list: [], page: 0, place: "", big: {} },
+var CG = {
+    open: false,
+    list: [],
+    page: 0,
+    place: "",
+    big: {},
+    box: null,
+    q: "",
+    saved: ls("ojos-cg-saved") || []
+  },
+  CG_SAVED_MAX = 12,
   CG_BIG_MS = 4000,
   CG_SMALL_MS = 60000;
 
@@ -41030,7 +44753,7 @@ function cgOpen(q) {
     el.id = "cgp";
     el.innerHTML =
       '<form class="cghead" id="cgForm"><input id="cgq" type="search" placeholder="City or state" autocomplete="off"><button>Show</button><button type="button" class="cgdrive" data-cg="drive" aria-label="Drive: cameras along a route">➤</button><button type="button" data-cg="x" aria-label="Close">✕</button></form>' +
-      '<div class="cgsub mono" id="cgsub"></div><div class="cggrid" id="cggrid"></div>' +
+      '<div class="cgsaved" id="cgsaved"></div><div class="cgsub mono" id="cgsub"></div><div class="cggrid" id="cggrid"></div>' +
       '<div class="cgpager"><button data-cg="prev" aria-label="Previous page">‹</button><span class="mono" id="cgpg"></span><button data-cg="next" aria-label="Next page">›</button></div>';
     cgSwipe(el);
     document.body.appendChild(el);
@@ -41050,15 +44773,19 @@ function cgClose() {
   if (g) g.innerHTML = ""; // stop every picture loading
 }
 
-function cgLoad(q) {
+// q: a place to look up; box: a saved grid's area, used as it is.
+function cgLoad(q, box) {
   CG.big = {};
+  CG.q = q;
   $("cggrid").innerHTML = "";
   $("cgsub").textContent = q ? "FINDING " + q.toUpperCase() + "…" : "CAMERAS IN VIEW…";
-  cgArea(q)
-    .then(function (box) {
-      CG.place = box.name;
-      CG.list = cgPick(box);
+  (box ? Promise.resolve(box) : cgArea(q))
+    .then(function (b) {
+      CG.box = b;
+      CG.place = b.name;
+      CG.list = cgPick(b);
       cgPage(0);
+      cgSavedDraw();
     })
     .catch(function () {
       $("cgsub").textContent = "COULDN'T FIND THAT PLACE · TRY A CITY OR STATE NAME";
@@ -41072,6 +44799,69 @@ function cgSub() {
       CG.place.toUpperCase() +
       " · TAP TO ENLARGE, TAP AGAIN TO SHRINK"
     : "NO LIVE CAMERAS IN " + CG.place.toUpperCase();
+}
+
+// ---------- Saved grids ----------
+// The name a grid is saved under: what was typed, else the place found, else "Area 1", "Area 2"…
+function cgSaveName() {
+  var n =
+    CG.q ||
+    (CG.box && !/area in view|the world/.test(CG.box.name) ? CG.box.name.split(",")[0] : "");
+  n = String(n || "Area " + (CG.saved.length + 1)).trim();
+  return n.charAt(0).toUpperCase() + n.slice(1, 28);
+}
+
+function cgSavedDraw() {
+  var el = $("cgsaved");
+  if (!el) return;
+  var name = CG.box ? cgSaveName() : "",
+    // Already saved: the same area, under whatever name.
+    has = CG.saved.some(function (s) {
+      return (
+        CG.box &&
+        s.box.s === CG.box.s &&
+        s.box.n === CG.box.n &&
+        s.box.w === CG.box.w &&
+        s.box.e === CG.box.e
+      );
+    });
+  el.innerHTML =
+    CG.saved
+      .map(function (s, i) {
+        return (
+          '<span class="cgchip' +
+          (CG.box && s.box.s === CG.box.s && s.box.w === CG.box.w ? " on" : "") +
+          '"><button data-cg="sv-' +
+          i +
+          '">' +
+          esc(s.n) +
+          '</button><button data-cg="del-' +
+          i +
+          '" aria-label="Remove ' +
+          esc(s.n) +
+          '">✕</button></span>'
+        );
+      })
+      .join("") +
+    (CG.box && CG.list.length && !has
+      ? '<button class="cgsave mono" data-cg="save">☆ SAVE ' + esc(name.toUpperCase()) + "</button>"
+      : "");
+  el.style.display = el.innerHTML ? "" : "none";
+}
+
+function cgSave() {
+  if (!CG.box) return;
+  if (CG.saved.length >= CG_SAVED_MAX) {
+    note("Camera grid", "You can save up to " + CG_SAVED_MAX + " grids. Remove one first.");
+    return;
+  }
+  var b = CG.box;
+  CG.saved.push({
+    n: cgSaveName(),
+    box: { s: b.s, n: b.n, w: b.w, e: b.e, lat: b.lat, lon: b.lon, name: b.name }
+  });
+  ls("ojos-cg-saved", CG.saved);
+  cgSavedDraw();
 }
 
 // Tiles per page: as many as fit on the screen without scrolling (2 across on a phone).
@@ -41101,7 +44891,9 @@ function cgPage(p) {
     h +=
       '<div class="cgt" data-cg="t-' +
       i +
-      '"><img alt="" data-src="' +
+      '"><img alt="" data-u="' +
+      esc(c.u) +
+      '" data-src="' +
       esc(c.e) +
       '"><span>' +
       esc(c.n || "Camera") +
@@ -41213,6 +45005,17 @@ document.addEventListener("click", function (e) {
     // Drive: the cameras along a route, live as you go (module 04).
     cgClose();
     drvPanel();
+  } else if (k === "save") cgSave();
+  else if (k.indexOf("sv-") === 0) {
+    var sv = CG.saved[+k.slice(3)];
+    if (sv) {
+      $("cgq").value = sv.n;
+      cgLoad(sv.n, sv.box);
+    }
+  } else if (k.indexOf("del-") === 0) {
+    CG.saved.splice(+k.slice(4), 1);
+    ls("ojos-cg-saved", CG.saved);
+    cgSavedDraw();
   } else if (k === "prev") cgPage(CG.page - 1);
   else if (k === "next") cgPage(CG.page + 1);
   else if (k.indexOf("open-") === 0) {
@@ -41232,14 +45035,315 @@ document.addEventListener("click", function (e) {
         "beforeend",
         '<button class="cgopen" data-cg="open-' +
           i +
-          '" aria-label="Open this camera">⤢ Open</button>'
+          '" aria-label="Open this camera">⤢ Open</button><button class="cgopen cgweb" data-cwo="g' +
+          i +
+          '" aria-label="Camera web around this camera">🕸 Web</button>'
       );
-    else if (!big && o) o.remove();
+    else if (!big && o)
+      Array.prototype.forEach.call(b.querySelectorAll(".cgopen"), function (x) {
+        x.remove();
+      });
     if (big && im) {
       im._t = Date.now();
       snapRefresh(im);
       b.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
+  }
+});
+
+// ---------- Web view: one camera and its nearest neighbours, spread out around it ----------
+// The chosen camera sits in the middle; its 10 or 20 nearest cameras spread out around it, each
+// in its own live tile, joined to it by a line and placed in the direction it really lies (north
+// up), with its distance. Tapping a tile makes it the middle of a new web; tapping the middle
+// opens it full screen. Positions come from a short, fixed relaxation, so tiles never overlap.
+var CW = { open: false, c: null, n: ls("ojos-cw-n") || 10, items: [] },
+  CW_TW = 92, // tile width on a phone, in CSS pixels; height follows 16:10 plus the label
+  CW_DIRS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+
+function cwBearing(a, b) {
+  var y = Math.sin((b.lon - a.lon) * D) * Math.cos(b.lat * D),
+    x =
+      Math.cos(a.lat * D) * Math.sin(b.lat * D) -
+      Math.sin(a.lat * D) * Math.cos(b.lat * D) * Math.cos((b.lon - a.lon) * D);
+  return (Math.atan2(y, x) / D + 360) % 360;
+}
+
+// The nearest cameras to c, nearest first, with their distance (km) and bearing (degrees).
+function cwNear(c, n) {
+  var out = [];
+  for (var i = 0; i < visLive.length; i++) {
+    var o = visLive[i];
+    if (o === c || o.u === c.u || !o.e) continue;
+    var km = hav(c.lat, c.lon, o.lat, o.lon);
+    if (out.length < n || km < out[out.length - 1].km) {
+      out.push({ c: o, km: km });
+      out.sort(function (a, b) {
+        return a.km - b.km;
+      });
+      if (out.length > n) out.pop();
+    }
+  }
+  out.forEach(function (x) {
+    x.deg = cwBearing(c, x.c);
+  });
+  return out;
+}
+
+// Screen positions: each tile starts out in its true direction, nearer cameras closer in, then
+// tiles push each other apart until none overlap, staying inside the free part of the screen.
+function cwLayout(items, w, h, top, bottom) {
+  var tw = w < 520 ? CW_TW : 124,
+    th = Math.round(tw * 0.625) + 16,
+    cw = tw * 1.7,
+    ch = Math.round(cw * 0.625) + 18,
+    cx = w / 2,
+    cy = top + (h - top - bottom) / 2,
+    rx = w / 2 - tw / 2 - 6,
+    ry = (h - top - bottom) / 2 - th / 2 - 6,
+    n = items.length,
+    two = n > 12,
+    // Even slots around the middle, in the cameras' true compass order, turned so each slot sits
+    // as near as it can to its camera's real direction; with many cameras, alternate slots step out.
+    order = items
+      .map(function (x, i) {
+        return i;
+      })
+      .sort(function (a, b) {
+        return items[a].deg - items[b].deg;
+      }),
+    turn = 0,
+    pos = [];
+  order.forEach(function (idx, k) {
+    var d = items[idx].deg - (k * 360) / n;
+    turn += Math.atan2(Math.sin(d * D), Math.cos(d * D));
+  });
+  turn = turn / Math.max(1, n) / D;
+  order.forEach(function (idx, k) {
+    var ang = ((k * 360) / n + turn) * D,
+      out = two && k % 2 === 1,
+      fx = two ? (out ? 1 : 0.82) : 0.9,
+      fy = two ? (out ? 1 : 0.62) : 0.75;
+    pos[idx] = { x: cx + Math.sin(ang) * rx * fx, y: cy - Math.cos(ang) * ry * fy };
+  });
+  var clamp = function (p) {
+    p.x = Math.max(tw / 2 + 4, Math.min(w - tw / 2 - 4, p.x));
+    p.y = Math.max(top + th / 2 + 4, Math.min(h - bottom - th / 2 - 4, p.y));
+  };
+  pos.forEach(clamp);
+  for (var it = 0; it < 300; it++) {
+    for (var i = 0; i < pos.length; i++) {
+      var a = pos[i];
+      // Keep clear of the middle tile.
+      var dx = a.x - cx,
+        dy = a.y - cy,
+        ox = (tw + cw) / 2 + 8 - Math.abs(dx),
+        oy = (th + ch) / 2 + 8 - Math.abs(dy);
+      if (ox > 0 && oy > 0) {
+        if (ox < oy) a.x += (dx < 0 ? -1 : 1) * ox;
+        else a.y += (dy < 0 ? -1 : 1) * oy;
+      }
+      for (var j = i + 1; j < pos.length; j++) {
+        var b = pos[j];
+        dx = b.x - a.x;
+        dy = b.y - a.y;
+        ox = tw + 6 - Math.abs(dx);
+        oy = th + 6 - Math.abs(dy);
+        if (ox > 0 && oy > 0) {
+          if (ox < oy) {
+            var sx = ((dx < 0 ? -1 : 1) * ox) / 2;
+            a.x -= sx;
+            b.x += sx;
+          } else {
+            var sy = ((dy < 0 ? -1 : 1) * oy) / 2;
+            a.y -= sy;
+            b.y += sy;
+          }
+        }
+      }
+      clamp(a);
+    }
+  }
+  return { tiles: pos, tw: tw, th: th, cx: cx, cy: cy, cw: cw, ch: ch };
+}
+
+function cwKm(km) {
+  var mi = km * 0.621;
+  return mi < 0.1
+    ? Math.round(mi * 5280) + " FT"
+    : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " MI";
+}
+
+function cwOpen(c) {
+  if (!c || !c.live) return;
+  var el = $("cwp");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "cwp";
+    document.body.appendChild(el);
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-cw]");
+      if (!b) return;
+      var k = b.getAttribute("data-cw");
+      if (k === "x") cwClose();
+      else if (k === "n") {
+        CW.n = CW.n === 10 ? 20 : 10;
+        ls("ojos-cw-n", CW.n);
+        cwDraw();
+      } else if (k === "mid") {
+        cwClose();
+        select(CW.c);
+        addWall(CW.c, true);
+      } else if (k.indexOf("t-") === 0) {
+        var nx = CW.items[+k.slice(2)];
+        if (nx) {
+          CW.c = nx.c;
+          cwDraw();
+        }
+      }
+    });
+  }
+  CW.c = c;
+  CW.open = true;
+  el.style.display = "block";
+  document.body.classList.add("cw-open");
+  cwDraw();
+}
+
+function cwClose() {
+  CW.open = false;
+  var el = $("cwp");
+  if (el) {
+    el.style.display = "none";
+    el.innerHTML = ""; // stop every picture loading
+  }
+  document.body.classList.remove("cw-open");
+}
+
+function cwTile(c, cls, k, x, y, w, sub) {
+  return (
+    '<button class="cwt ' +
+    cls +
+    '" data-cw="' +
+    k +
+    '" style="left:' +
+    Math.round(x - w / 2) +
+    "px;top:" +
+    Math.round(y) +
+    "px;width:" +
+    Math.round(w) +
+    'px"><img alt="" referrerpolicy="no-referrer" data-u="' +
+    esc(c.u) +
+    '" data-src="' +
+    esc(c.e) +
+    '"><span>' +
+    esc(c.n || "Camera") +
+    "</span>" +
+    (sub ? "<em>" + sub + "</em>" : "") +
+    "</button>"
+  );
+}
+
+function cwDraw() {
+  var el = $("cwp"),
+    c = CW.c;
+  if (!el || !c) return;
+  var w = el.clientWidth || innerWidth,
+    h = el.clientHeight || innerHeight,
+    top = 64,
+    bottom = 18;
+  CW.items = cwNear(c, CW.n);
+  var L = cwLayout(CW.items, w, h, top, bottom),
+    th = L.th,
+    lines = "",
+    tiles = "";
+  CW.items.forEach(function (x, i) {
+    var p = L.tiles[i];
+    lines +=
+      '<line x1="' +
+      L.cx +
+      '" y1="' +
+      L.cy +
+      '" x2="' +
+      p.x.toFixed(1) +
+      '" y2="' +
+      p.y.toFixed(1) +
+      '"/>';
+    tiles += cwTile(
+      x.c,
+      "",
+      "t-" + i,
+      p.x,
+      p.y - th / 2,
+      L.tw,
+      cwKm(x.km) + " " + CW_DIRS[Math.round(x.deg / 45) % 8]
+    );
+  });
+  el.innerHTML =
+    '<div class="cwhead"><b class="mono">CAMERA WEB · ' +
+    esc(
+      String(c.n || "")
+        .toUpperCase()
+        .slice(0, 30)
+    ) +
+    '</b><button data-cw="n" class="mono">' +
+    (CW.n === 10 ? "10 → 20" : "20 → 10") +
+    '</button><button data-cw="x" aria-label="Close">✕</button></div>' +
+    '<svg class="cwlines" width="' +
+    w +
+    '" height="' +
+    h +
+    '">' +
+    lines +
+    "</svg>" +
+    tiles +
+    cwTile(
+      c,
+      "mid",
+      "mid",
+      L.cx,
+      L.cy - L.ch / 2,
+      L.cw,
+      "TAP TO OPEN · TAP ANY TILE TO MOVE THE WEB"
+    ) +
+    (CW.items.length ? "" : '<p class="cwnone">No other live camera near this one.</p>');
+  Array.prototype.forEach.call(el.querySelectorAll("img[data-src]"), function (im) {
+    im.onerror = function () {
+      im.style.visibility = "hidden";
+    };
+    im.onload = function () {
+      im.style.visibility = "";
+    };
+    var u = im.getAttribute("data-src");
+    if (isJ(u)) snapRefresh(im);
+    else im.src = u;
+  });
+}
+
+// Live: the middle refreshes every few seconds, the rest about every 20.
+setInterval(function () {
+  if (!CW.open || document.hidden) return;
+  var now = Date.now();
+  Array.prototype.forEach.call($("cwp").querySelectorAll(".cwt img[src]"), function (im) {
+    var mid = im.parentNode.classList.contains("mid");
+    if (now - (im._t || 0) < (mid ? 4000 : 20000)) return;
+    im._t = now;
+    snapRefresh(im);
+  });
+}, 1000);
+
+window.addEventListener("resize", function () {
+  if (CW.open) setTimeout(cwDraw, 80);
+});
+
+// "🕸 Web" in a camera's details, and on a big tile in the camera grid.
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-cwo]");
+  if (!b) return;
+  var v = b.getAttribute("data-cwo"),
+    c = v === "1" ? selected : CG.list[+v.slice(1)];
+  if (c && c.live) {
+    if (CG.open) cgClose();
+    cwOpen(c);
   }
 });
 /**

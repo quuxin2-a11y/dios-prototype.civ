@@ -851,10 +851,7 @@ function emgDraw() {
           })
           .join("");
   }
-  h +=
-    '<h4 class="mono">RADIO</h4><div class="brc"><span>Public-safety radio that is broadcast in the clear is streamed by volunteers. Many agencies now encrypt theirs, so coverage depends on where you are. NOAA Weather Radio is the official 24-hour hazard broadcast in the US.</span><div class="bra"><a class="brl" href="https://www.broadcastify.com/listen/" target="_blank" rel="noopener">Scanner feeds</a><a class="brl" href="https://openmhz.com/systems" target="_blank" rel="noopener">Radio archive</a></div><div class="bra"><a class="brl" href="https://www.weather.gov/nwr/" target="_blank" rel="noopener">NOAA Weather Radio</a><a class="brl" href="https://www.google.com/search?q=' +
-    encodeURIComponent(((S && S.place) || "") + " fire police scanner live feed") +
-    '" target="_blank" rel="noopener">Find my area</a></div></div>';
+  h += '<h4 class="mono">LIVE RADIO HERE</h4>' + rdoEmgHtml(EMG.pos);
   h +=
     '<h4 class="mono">CHECKLIST</h4><div class="brc"><span>' +
     (EMG.chk
@@ -1074,6 +1071,13 @@ document.addEventListener("click", function (e) {
     emgDraw();
   } else if (k === "sig") {
     emgSig(!EMG.sig);
+    emgDraw();
+  } else if (k.indexOf("rp-") === 0) {
+    // Play a local station in the app; tapping the one playing stops it.
+    var st = RDO.near && RDO.near[+k.slice(3)];
+    if (!st) return;
+    if (RDO.id === st.id) rdoStop();
+    else rdoPlay(st.id, st.audio, st.n);
     emgDraw();
   } else if (k === "news") {
     newsOpen("here");

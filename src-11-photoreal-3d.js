@@ -1267,7 +1267,14 @@ function t4Open(opt) {
             globe: false,
             // Draw only when something changed (camera, tiles, data): far less work per second.
             requestRenderMode: true,
-            maximumRenderTimeChange: Infinity
+            maximumRenderTimeChange: Infinity,
+            // Smooth display (Android, and graphics chips that flicker): no multisampling and a
+            // plain WebGL surface, which those chips draw without tearing.
+            msaaSamples: displayMode() === "globe" ? 4 : 1,
+            contextOptions:
+              displayMode() === "globe"
+                ? undefined
+                : { webgl: { alpha: false, antialias: false, powerPreference: "high-performance" } }
           });
         } catch (e) {
           t4Close();
@@ -1275,6 +1282,13 @@ function t4Open(opt) {
           return;
         }
         try {
+          if (displayMode() !== "globe") {
+            // The logarithmic depth buffer writes depth per pixel, which some phone chips get wrong
+            // (flicker and lines); the ordinary depth buffer is fine at city distances.
+            v.scene.logarithmicDepthBuffer = false;
+            v.scene.highDynamicRange = false;
+            v.scene.postProcessStages.fxaa.enabled = false;
+          }
           v.scene.skyAtmosphere.show = true;
           v.resolutionScale = Math.min(
             window.devicePixelRatio || 1,
@@ -1286,6 +1300,18 @@ function t4Open(opt) {
         var hd = new C.ScreenSpaceEventHandler(v.scene.canvas);
         hd.setInputAction(function (m) {
           lastInteract = performance.now();
+          // While a building is highlighted, tapping another one highlights that one instead.
+          if (HL.on) {
+            var hp = null;
+            try {
+              hp = v.scene.pickPosition(m.position);
+            } catch (x) {}
+            if (hp) {
+              var hc = C.Cartographic.fromCartesian(hp);
+              hlGo(hc.latitude / D, hc.longitude / D, hc.height || 0);
+              return;
+            }
+          }
           if (T4.pick) {
             T4.pick = false;
             var wp = null;
@@ -1382,6 +1408,7 @@ function t4Open(opt) {
     });
 }
 function t4Close() {
+  if (HL.on) hlClose(); // the highlight belongs to this view
   if (!T4.on) return;
   try {
     ckpClose();

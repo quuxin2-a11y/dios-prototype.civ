@@ -555,6 +555,7 @@ function natLaunch(a) {
     else emgAsk();
   } else if (a === "finder") fndOpen();
   else if (a === "briefing") brOpen("brief");
+  else if (a === "alert") amCheck(); // a background alert notification was tapped
 }
 setTimeout(function () {
   var p = natv();

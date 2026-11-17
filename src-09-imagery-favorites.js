@@ -617,11 +617,11 @@ function ago(ms) {
       ? Math.round(m / 60) + "h ago"
       : Math.round(m / 1440) + "d ago";
 }
-var FEED = [];
+var EVFEED = [];
 function feed() {
   var el = $("feed");
   if (!el) return;
-  FEED = QUAKES.slice()
+  EVFEED = QUAKES.slice()
     .sort(function (a, b) {
       return b.time - a.time;
     })
@@ -641,13 +641,13 @@ function feed() {
     "<h4>EVENT FEED</h4>" +
     (big
       ? '<div class="fbig" data-ev="' +
-        FEED.indexOf(big) +
+        EVFEED.indexOf(big) +
         '"><b class="mono">STRONGEST · 24H</b><span>' +
         esc(big.n) +
         "</span></div>"
       : "") +
-    (FEED.length
-      ? FEED.map(function (e, i) {
+    (EVFEED.length
+      ? EVFEED.map(function (e, i) {
           var q = e.kind === "quake",
             c = q ? "#ff5533" : EVCOL[e.cat] || "#4cc3ff";
           return (
@@ -673,5 +673,5 @@ function feed() {
 }
 document.addEventListener("click", function (e) {
   var r = e.target.closest("[data-ev]");
-  if (r && FEED[+r.getAttribute("data-ev")]) select(FEED[+r.getAttribute("data-ev")]);
+  if (r && EVFEED[+r.getAttribute("data-ev")]) select(EVFEED[+r.getAttribute("data-ev")]);
 });

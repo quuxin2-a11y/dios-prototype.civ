@@ -2236,3 +2236,417 @@ document.addEventListener("click", function (e) {
       selected && selected.lon != null ? selected.lon : rot.lon
     );
 });
+
+// ---------- Highlight: circle a building, show it from every side, and tell its story ----------
+// In the 3D view, HIGHLIGHT takes the building in the middle of the screen (or the next one
+// tapped), outlines its real footprint and roofline from OpenStreetMap, circles it, and flies
+// slowly around it, rising and dipping to show every side. A card gives its height, floors, when
+// it was built, who designed it and its history, from OpenStreetMap, Wikidata and Wikipedia when
+// they have them. Touching the view stops the tour; ⟳ starts it again.
+var HL = { on: false, ents: [], geo: null, seq: 0 };
+
+function hlClear() {
+  var v = T4.v;
+  HL.ents.forEach(function (e) {
+    try {
+      v.entities.remove(e);
+    } catch (x) {}
+  });
+  HL.ents = [];
+}
+
+function hlClose() {
+  HL.on = false;
+  HL.seq++;
+  t4OrbitStop();
+  if (T4.v) hlClear();
+  var el = $("hlcard");
+  if (el) el.style.display = "none";
+}
+
+// The point in the middle of the screen, on the 3D city if it is there.
+function hlCentre() {
+  var C = window.Cesium,
+    v = T4.v,
+    cv2 = v.scene.canvas,
+    wp = null;
+  try {
+    wp = v.scene.pickPosition(new C.Cartesian2(cv2.clientWidth / 2, cv2.clientHeight / 2));
+  } catch (e) {}
+  if (!wp) return null;
+  var g = C.Cartographic.fromCartesian(wp);
+  return { lat: g.latitude / D, lon: g.longitude / D, h: g.height || 0 };
+}
+
+function hlLine(pts, gh, width, color, glow) {
+  var C = window.Cesium,
+    flat = [];
+  pts.forEach(function (p) {
+    flat.push(p[0], p[1], gh);
+  });
+  return T4.v.entities.add({
+    polyline: {
+      positions: C.Cartesian3.fromDegreesArrayHeights(flat),
+      width: width,
+      material: glow
+        ? new C.PolylineGlowMaterialProperty({
+            glowPower: 0.3,
+            color: C.Color.fromCssColorString(color)
+          })
+        : C.Color.fromCssColorString(color)
+    }
+  });
+}
+
+// Draws the outline: footprint at the ground and the roof, the corners, and a circle around it.
+function hlDraw(g, ring, H, r) {
+  hlClear();
+  var gh = g.h,
+    k = Math.cos(g.lat * D),
+    circle = [];
+  for (var a = 0; a <= 64; a++) {
+    var t = (a / 64) * 2 * Math.PI;
+    circle.push([g.lon + (Math.sin(t) * r) / (111320 * k), g.lat + (Math.cos(t) * r) / 110540]);
+  }
+  HL.ents.push(hlLine(circle, gh + 1.5, 10, "#36e0ff", true));
+  if (ring) {
+    HL.ents.push(hlLine(ring, gh + 1, 3, "#ffd36b", false));
+    HL.ents.push(hlLine(ring, gh + H, 3, "#ffd36b", false));
+    // The corners, as uprights, when the outline is simple enough to read.
+    if (ring.length <= 14) {
+      var C = window.Cesium;
+      ring.forEach(function (p) {
+        HL.ents.push(
+          T4.v.entities.add({
+            polyline: {
+              positions: C.Cartesian3.fromDegreesArrayHeights([
+                p[0],
+                p[1],
+                gh + 1,
+                p[0],
+                p[1],
+                gh + H
+              ]),
+              width: 2,
+              material: C.Color.fromCssColorString("#ffd36b")
+            }
+          })
+        );
+      });
+    }
+  }
+}
+
+// The tour: once around, rising and dipping and moving in and out, so every side is seen.
+function hlTour(g, H, r) {
+  var C = window.Cesium,
+    v = T4.v;
+  t4OrbitStop();
+  var ctr = C.Cartesian3.fromDegrees(g.lon, g.lat, g.h + H * 0.45),
+    range = Math.max(160, Math.max(H, r) * 3.2),
+    h0 = v.camera.heading,
+    t0 = 0;
+  try {
+    v.camera.flyToBoundingSphere(new C.BoundingSphere(ctr, 1), {
+      offset: new C.HeadingPitchRange(h0, -30 * D, range),
+      duration: 1.6,
+      complete: function () {
+        t0 = Date.now();
+        T4.orb = setInterval(function () {
+          var s = (Date.now() - t0) / 1000;
+          if (s > 60 || !T4.on) {
+            t4OrbitStop();
+            return;
+          }
+          try {
+            v.camera.lookAt(
+              ctr,
+              new C.HeadingPitchRange(
+                h0 + s * 0.16,
+                -(30 + 16 * Math.sin(s * 0.33)) * D,
+                range * (1 + 0.22 * Math.sin(s * 0.21))
+              )
+            );
+            v.scene.requestRender();
+          } catch (e) {}
+        }, 33);
+      }
+    });
+  } catch (e) {}
+}
+
+// A Wikidata quantity in metres, or null.
+function hlMetres(claim) {
+  var q = claim && claim.mainsnak && claim.mainsnak.datavalue && claim.mainsnak.datavalue.value;
+  if (!q || q.amount == null) return null;
+  var n = parseFloat(q.amount),
+    unit = String(q.unit || "");
+  if (/Q3710$/.test(unit))
+    n *= 0.3048; // feet
+  else if (/Q174728$/.test(unit)) n /= 100; // centimetres
+  return isFinite(n) ? n : null;
+}
+
+// A Wikidata date as words: "2560 BC", "1931", "March 1931" is reduced to the year.
+function hlYear(claim) {
+  var t = claim && claim.mainsnak && claim.mainsnak.datavalue && claim.mainsnak.datavalue.value;
+  var m = t && /^([+-])0*(\d+)-/.exec(t.time || "");
+  if (!m) return "";
+  return m[1] === "-" ? m[2] + " BC" : m[2];
+}
+
+function hlFeet(m) {
+  return Math.round(m) + " m · " + Math.round(m * 3.281).toLocaleString() + " ft";
+}
+
+// Wikidata and Wikipedia for the building: by its OSM tags, else the nearest article.
+function hlStory(g, tags) {
+  var wd = tags.wikidata || "",
+    wp = /^en:(.+)$/.exec(tags.wikipedia || "");
+  var pick = wd
+    ? Promise.resolve({ q: wd, title: wp ? wp[1] : "" })
+    : getJSON(
+        "https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=120&gslimit=1&format=json&origin=*&gscoord=" +
+          g.lat.toFixed(5) +
+          "|" +
+          g.lon.toFixed(5),
+        15000
+      ).then(function (j) {
+        var hit = j && j.query && j.query.geosearch && j.query.geosearch[0];
+        if (!hit) return null;
+        return getJSON(
+          "https://en.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&format=json&origin=*&pageids=" +
+            hit.pageid,
+          15000
+        ).then(function (p) {
+          var pg = p && p.query && p.query.pages && p.query.pages[hit.pageid];
+          return { q: (pg && pg.pageprops && pg.pageprops.wikibase_item) || "", title: hit.title };
+        });
+      });
+  return pick.then(function (id) {
+    if (!id) return {};
+    var out = { title: id.title };
+    var wdP = id.q
+      ? getJSON(
+          "https://www.wikidata.org/w/api.php?action=wbgetentities&props=claims|sitelinks|labels&languages=en&format=json&origin=*&ids=" +
+            encodeURIComponent(id.q),
+          15000
+        ).then(function (j) {
+          var e = j && j.entities && j.entities[id.q],
+            c = (e && e.claims) || {};
+          if (!e) return;
+          out.name = e.labels && e.labels.en && e.labels.en.value;
+          out.title =
+            out.title || (e.sitelinks && e.sitelinks.enwiki && e.sitelinks.enwiki.title) || "";
+          out.height = hlMetres((c.P2048 || [])[0]);
+          out.built = hlYear((c.P571 || [])[0]) || hlYear((c.P1619 || [])[0]);
+          var fl = (c.P1101 || [])[0];
+          out.floors =
+            fl && fl.mainsnak.datavalue ? parseFloat(fl.mainsnak.datavalue.value.amount) : null;
+          var ids = (c.P84 || [])
+            .concat(c.P149 || [])
+            .map(function (x) {
+              return x.mainsnak && x.mainsnak.datavalue && x.mainsnak.datavalue.value.id;
+            })
+            .filter(Boolean)
+            .slice(0, 6);
+          out.archIds = (c.P84 || []).length;
+          if (!ids.length) return;
+          return getJSON(
+            "https://www.wikidata.org/w/api.php?action=wbgetentities&props=labels&languages=en&format=json&origin=*&ids=" +
+              ids.join("|"),
+            15000
+          ).then(function (l) {
+            var names = ids.map(function (q) {
+              var x = l && l.entities && l.entities[q];
+              return (x && x.labels && x.labels.en && x.labels.en.value) || "";
+            });
+            out.architect = names.slice(0, out.archIds).filter(Boolean).join(", ");
+            out.style = names.slice(out.archIds).filter(Boolean).join(", ");
+          });
+        })
+      : Promise.resolve();
+    return wdP
+      .catch(function () {})
+      .then(function () {
+        if (!out.title) return out;
+        return getJSON(
+          "https://en.wikipedia.org/api/rest_v1/page/summary/" +
+            encodeURIComponent(out.title.replace(/ /g, "_")),
+          15000
+        )
+          .then(function (s) {
+            out.extract = (s && s.extract) || "";
+            out.link =
+              (s && s.content_urls && s.content_urls.mobile && s.content_urls.mobile.page) || "";
+            out.name = out.name || (s && s.title);
+          })
+          .catch(function () {})
+          .then(function () {
+            return out;
+          });
+      });
+  });
+}
+
+function hlCard(f) {
+  var el = $("hlcard");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "hlcard";
+    $("real").appendChild(el);
+  }
+  el.style.display = "block";
+  if (!f) {
+    el.innerHTML =
+      '<b class="mono">◎ HIGHLIGHT</b><p>Finding this building on the public record…</p>';
+    return;
+  }
+  var row = function (k, v) {
+    return v ? "<span>" + k + "</span><b>" + esc(String(v)) + "</b>" : "";
+  };
+  el.innerHTML =
+    '<div class="hlh"><b class="mono">◎ HIGHLIGHT</b><button data-hl="tour" aria-label="Show every side again">⟳</button><button data-hl="ins" aria-label="Inspect inside">◆</button><button data-hl="x" aria-label="Close">✕</button></div>' +
+    "<h3>" +
+    esc(f.name || "Building") +
+    "</h3>" +
+    '<div class="hlkv">' +
+    row("HEIGHT", f.height ? hlFeet(f.height) + (f.hEst ? " (estimated)" : "") : "") +
+    row("FLOORS", f.floors) +
+    row("BUILT", f.built) +
+    row("DESIGNED BY", f.architect) +
+    row("STYLE", f.style) +
+    row("USE", f.use) +
+    row("ADDRESS", f.addr) +
+    "</div>" +
+    (f.extract ? '<p class="hlx">' + esc(f.extract) + "</p>" : "") +
+    (f.link
+      ? '<a class="brl" href="' +
+        esc(f.link) +
+        '" target="_blank" rel="noopener">Read the full history</a>'
+      : "") +
+    '<small class="mono">' +
+    esc(f.src) +
+    " · TOUCH THE VIEW TO TAKE OVER</small>";
+}
+
+// Highlights the building at a point: outline, circle, tour and card.
+function hlGo(lat, lon, gh) {
+  if (!T4.on || !T4.v) return;
+  var seq = ++HL.seq;
+  HL.on = true;
+  var g = { lat: lat, lon: lon, h: gh || 0 };
+  HL.geo = g;
+  hlDraw(g, null, 0, 40);
+  hlCard(null);
+  var a = lat.toFixed(6) + "," + lon.toFixed(6);
+  overpassGet(
+    "[out:json][timeout:20];(way(around:30," +
+      a +
+      ")[building];relation(around:30," +
+      a +
+      ")[building];);out tags geom 6;",
+    24000
+  )
+    .catch(function () {
+      return { elements: [] };
+    })
+    .then(function (j) {
+      if (seq !== HL.seq) return;
+      var k = Math.cos(lat * D),
+        best = null,
+        bd = 1e9;
+      (j.elements || []).forEach(function (w) {
+        var gm = w.geometry || (w.members && w.members[0] && w.members[0].geometry);
+        if (!gm || gm.length < 4) return;
+        var cx = 0,
+          cy = 0;
+        gm.forEach(function (p) {
+          cx += p.lon;
+          cy += p.lat;
+        });
+        var d = Math.hypot((cx / gm.length - lon) * 111320 * k, (cy / gm.length - lat) * 110540);
+        if (d < bd) {
+          bd = d;
+          best = { w: w, gm: gm };
+        }
+      });
+      var t = (best && best.w.tags) || {},
+        ring = best
+          ? best.gm.map(function (p) {
+              return [p.lon, p.lat];
+            })
+          : null,
+        H =
+          parseFloat(t.height) ||
+          (parseFloat(t["building:levels"]) ? parseFloat(t["building:levels"]) * 3.2 : 0),
+        r = 40;
+      if (ring) {
+        var cx2 = 0,
+          cy2 = 0;
+        ring.forEach(function (p) {
+          cx2 += p[0];
+          cy2 += p[1];
+        });
+        g.lon = cx2 / ring.length;
+        g.lat = cy2 / ring.length;
+        r =
+          Math.max.apply(
+            0,
+            ring.map(function (p) {
+              return Math.hypot((p[0] - g.lon) * 111320 * k, (p[1] - g.lat) * 110540);
+            })
+          ) + 12;
+      }
+      var f = {
+        name: t.name || t["name:en"] || "",
+        height: H || null,
+        hEst: !t.height && !!H,
+        floors: t["building:levels"] || null,
+        built: t.start_date || "",
+        architect: t.architect || "",
+        use: t.building && t.building !== "yes" ? t.building.replace(/_/g, " ") : "",
+        addr: [t["addr:housenumber"], t["addr:street"], t["addr:city"]].filter(Boolean).join(" "),
+        src: best ? "OPENSTREETMAP" : "NO BUILDING MAPPED HERE"
+      };
+      return hlStory(g, t)
+        .catch(function () {
+          return {};
+        })
+        .then(function (s) {
+          if (seq !== HL.seq) return;
+          f.name = f.name || s.name || "Building";
+          f.height = s.height || f.height;
+          if (s.height) f.hEst = false;
+          f.floors = f.floors || s.floors;
+          f.built = f.built || s.built;
+          f.architect = f.architect || s.architect;
+          f.style = s.style || "";
+          f.extract = s.extract || "";
+          f.link = s.link || "";
+          if (s.extract || s.height) f.src += " · WIKIDATA · WIKIPEDIA";
+          var HH = f.height || 30;
+          HL.geo = { g: g, ring: ring, H: HH, r: r };
+          hlDraw(g, ring, HH, r);
+          hlCard(f);
+          hlTour(g, HH, r);
+        });
+    });
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-hl]");
+  if (!b) return;
+  var k = b.getAttribute("data-hl");
+  if (k === "go") {
+    var g = T4.v && hlCentre();
+    if (g) hlGo(g.lat, g.lon, g.h);
+    else note("Highlight", "Point the middle of the view at a building, then tap Highlight.");
+  } else if (k === "x") hlClose();
+  else if (k === "tour" && HL.geo && HL.geo.g) hlTour(HL.geo.g, HL.geo.H, HL.geo.r);
+  else if (k === "ins" && HL.geo && HL.geo.g) {
+    var gg = HL.geo.g;
+    hlClose();
+    insBuilding(gg.lat, gg.lon, gg.h);
+  }
+});

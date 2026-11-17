@@ -11,7 +11,188 @@
  */
 
 var OPS_TILES = "https://tiles.openfreemap.org/",
-  OPS_FONT = ["Noto Sans Regular"];
+  OPS_FONT = ["Noto Sans Regular"],
+  OFF_CACHE = "ojos-tiles", // the same store as the emergency offline pack (module 22)
+  OFF_PROTO = "oddmap";
+
+// ---------- Offline maps ----------
+// The dark map's files load through the "oddmap://" scheme: from the network when there is
+// signal, and from the phone's saved copy when there isn't. The tile index and the fonts are
+// kept on every load (they are small); a place's map tiles are kept when the user saves that
+// place for offline use (Settings → Emergency alerts → ⇩).
+function offStore() {
+  return "caches" in window ? caches.open(OFF_CACHE) : Promise.reject(new Error("no storage"));
+}
+
+function offGet(url, signal) {
+  return fetch(url, { signal: signal, mode: "cors" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r;
+    })
+    .catch(function (err) {
+      if (signal && signal.aborted) throw err;
+      return offStore()
+        .then(function (c) {
+          return c.match(url);
+        })
+        .then(function (m) {
+          if (!m) throw err;
+          return m;
+        });
+    });
+}
+
+function offKeep(url, r) {
+  offStore()
+    .then(function (c) {
+      return c.put(url, r);
+    })
+    .catch(function () {});
+}
+
+// JSON from the network, or the saved copy when there is no signal.
+function offJSON(url, ms) {
+  return getJSON(url, ms)
+    .then(function (j) {
+      offKeep(
+        url,
+        new window.Response(JSON.stringify(j), { headers: { "content-type": "application/json" } })
+      );
+      return j;
+    })
+    .catch(function (err) {
+      return offStore()
+        .then(function (c) {
+          return c.match(url);
+        })
+        .then(function (m) {
+          if (!m) throw err;
+          return m.json();
+        });
+    });
+}
+
+// Tile indexes name https tile addresses; send those through the scheme too.
+function offRewrite(j) {
+  if (j && j.tiles)
+    j.tiles = j.tiles.map(function (u) {
+      return String(u).replace(/^https:\/\//, OFF_PROTO + "://");
+    });
+  return j;
+}
+
+function offProtocol() {
+  if (offProtocol.on) return true;
+  if (!window.maplibregl || !maplibregl.addProtocol || !("caches" in window)) return false;
+  maplibregl.addProtocol(OFF_PROTO, function (params, abort) {
+    var url = params.url.replace(OFF_PROTO + "://", "https://"),
+      json = params.type === "json";
+    return offGet(url, abort && abort.signal).then(function (r) {
+      if (json || /\/fonts\//.test(url)) offKeep(url, r.clone());
+      return json
+        ? r.json().then(function (j) {
+            return { data: offRewrite(j) };
+          })
+        : r.arrayBuffer().then(function (b) {
+            return { data: b };
+          });
+    });
+  });
+  offProtocol.on = true;
+  return true;
+}
+
+// Map tiles around a place: the world at low zoom, then ever smaller squares down to street level.
+var OFF_ZOOMS = [
+  [0, 180],
+  [1, 180],
+  [2, 180],
+  [3, 180],
+  [5, 8],
+  [7, 2.5],
+  [9, 0.8],
+  [10, 0.45],
+  [11, 0.25],
+  [12, 0.14],
+  [13, 0.08],
+  [14, 0.05]
+];
+
+function offTiles(lat, lon) {
+  var out = [];
+  OFF_ZOOMS.forEach(function (zs) {
+    var z = zs[0],
+      span = zs[1],
+      n = Math.pow(2, z),
+      tx = function (l) {
+        return Math.max(0, Math.min(n - 1, Math.floor(((l + 180) / 360) * n)));
+      },
+      ty = function (l) {
+        var r = Math.max(-85, Math.min(85, l)) * D;
+        return Math.max(
+          0,
+          Math.min(
+            n - 1,
+            Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n)
+          )
+        );
+      };
+    for (var x = tx(lon - span); x <= tx(lon + span); x++)
+      for (var y = ty(lat + span); y <= ty(lat - span); y++) out.push([z, x, y]);
+  });
+  return out;
+}
+
+// Saves the map around a place for use without signal. done(saved, total) is called at the end.
+function offSave(lat, lon, done) {
+  var index = OPS_TILES + "planet";
+  offJSON(index, 20000)
+    .then(function (j) {
+      var tpl = j && j.tiles && j.tiles[0];
+      if (!/^https:\/\/tiles\.openfreemap\.org\//.test(tpl || ""))
+        throw new Error("no tile address");
+      var urls = offTiles(lat, lon).map(function (t) {
+        return tpl.replace("{z}", t[0]).replace("{x}", t[1]).replace("{y}", t[2]);
+      });
+      ["0-255", "256-511", "8192-8447"].forEach(function (r) {
+        urls.push(OPS_TILES + "fonts/" + encodeURIComponent(OPS_FONT[0]) + "/" + r + ".pbf");
+      });
+      urls.push(FOC_SRC.states, FOC_SRC.countries); // the Smooth globe's borders and names
+      return offStore().then(function (c) {
+        var i = 0,
+          ok = 0,
+          next = function () {
+            if (i >= urls.length) return Promise.resolve();
+            var u = urls[i++];
+            return c
+              .match(u)
+              .then(function (m) {
+                if (m) return true;
+                return fetch(u, { mode: "cors" }).then(function (r) {
+                  if (!r.ok) return false;
+                  return c.put(u, r).then(function () {
+                    return true;
+                  });
+                });
+              })
+              .catch(function () {
+                return false;
+              })
+              .then(function (good) {
+                if (good) ok++;
+                return next();
+              });
+          };
+        return Promise.all([next(), next(), next(), next(), next(), next()]).then(function () {
+          done(ok, urls.length);
+        });
+      });
+    })
+    .catch(function () {
+      done(0, 1);
+    });
+}
 
 // Label text: English where mapped, otherwise the local name.
 var OPS_NAME = ["coalesce", ["get", "name_en"], ["get", "name:latin"], ["get", "name"]];
@@ -61,13 +242,15 @@ function opsStyle() {
   var land2 = ["all", ["==", ["get", "admin_level"], 2], ["!=", ["get", "maritime"], 1]];
   return {
     version: 8,
-    glyphs: OPS_TILES + "fonts/{fontstack}/{range}.pbf",
+    glyphs:
+      (offProtocol() ? OFF_PROTO + "://tiles.openfreemap.org/" : OPS_TILES) +
+      "fonts/{fontstack}/{range}.pbf",
     // No sky or atmosphere layer: on some phone graphics chips it flashed the whole screen.
     projection: { type: displayMode() === "globe" ? "globe" : "mercator" },
     sources: {
       omt: {
         type: "vector",
-        url: OPS_TILES + "planet",
+        url: (offProtocol() ? OFF_PROTO + "://tiles.openfreemap.org/" : OPS_TILES) + "planet",
         attribution: "© OpenStreetMap · OpenFreeMap"
       },
       // Aerial photos that fade in as you zoom into a city (credit behind the map's ⓘ).

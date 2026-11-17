@@ -7,6 +7,7 @@ from pathlib import Path
 
 import check_secrets
 import conflict
+import rovers
 import install_native
 
 GENERATED_MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
@@ -83,6 +84,10 @@ class InstallNativeTest(unittest.TestCase):
         once = install_native.patch_manifest(GENERATED_MANIFEST)
         self.assertIn("android.permission.VIBRATE", once)
         self.assertIn(".EmergencyWidget", once)
+        self.assertIn(".AlertChecker", once)
+        self.assertIn("android.permission.POST_NOTIFICATIONS", once)
+        self.assertIn("android.permission.RECEIVE_BOOT_COMPLETED", once)
+        self.assertEqual(once.count("android.permission.VIBRATE"), 1)
         self.assertEqual(install_native.patch_manifest(once), once)
         self.assertLess(once.index(".EmergencyWidget"), once.index("</application>"))
 
@@ -160,3 +165,22 @@ class ConflictTest(unittest.TestCase):
 
         s = conflict.stamps(datetime(2026, 11, 17, 3, 22, tzinfo=timezone.utc), 24)
         self.assertEqual((len(s), s[0], s[-1]), (96, "20261117030000", "20261116031500"))
+
+
+class RoversTest(unittest.TestCase):
+    def test_latest_waypoint_is_the_highest_sol(self) -> None:
+        g = {"features": [
+            {"geometry": {"type": "Point", "coordinates": [77.45, 18.44]}, "properties": {"sol": 10}},
+            {"geometry": {"type": "Point", "coordinates": [77.31, 18.49]}, "properties": {"sol": 1600}},
+            {"geometry": {"type": "Point", "coordinates": [77.4, 18.4]}, "properties": {"sol": 900}},
+        ]}
+        self.assertEqual(rovers.latest(g), {"lat": 18.49, "lon": 77.31, "sol": 1600})
+
+    def test_bad_points_are_skipped_and_east_longitudes_wrap(self) -> None:
+        g = {"features": [
+            {"geometry": {"type": "Point", "coordinates": ["x", 1]}, "properties": {"sol": 5}},
+            {"geometry": {"type": "LineString", "coordinates": [[1, 1], [2, 2]]}},
+            {"geometry": {"type": "Point", "coordinates": [354.47, -1.95]}, "properties": {"sol": 2}},
+        ]}
+        self.assertEqual(rovers.latest(g), {"lat": -1.95, "lon": -5.53, "sol": 2})
+        self.assertIsNone(rovers.latest({}))

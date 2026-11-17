@@ -10,6 +10,7 @@ This project connects existing libraries and public data. It does not claim them
 | [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js) 5.6.0 | Standard 3D view | BSD-3-Clause |
 | [TensorFlow.js](https://github.com/tensorflow/tfjs) 4.22.0 and [COCO-SSD](https://github.com/tensorflow/tfjs-models) 2.2.3 | Object detection | Apache-2.0 |
 | [satellite.js](https://github.com/shashwatak/satellite-js) 4.1.4 | Satellite orbit maths (SGP4) | MIT |
+| [three.js](https://github.com/mrdoob/three.js) r159 | 3D space view | MIT |
 | [hls.js](https://github.com/video-dev/hls.js) 1.5.17 | Live video playback | Apache-2.0 |
 
 ## Build tools
@@ -150,3 +151,22 @@ Each camera shows its source in the app. Agencies publish these for public viewi
 ## Original to this project
 
 The globe renderer, camera connectors, clustering, Drive module, tracker, ground-mapping maths, Inspect renderer and all 3D models (aircraft, ship, satellite, vehicles) were written for this project. The models are generic illustrations, not copies of any manufacturer's design.
+
+## 3D space view
+
+| Source | Used for | Licence |
+| --- | --- | --- |
+| [Solar System Scope](https://www.solarsystemscope.com/textures/) (via [homer-jay/solar-system-textures](https://github.com/homer-jay/solar-system-textures)) | Sun, Earth, Moon and Milky Way maps | CC BY 4.0 |
+| [threex.planets](https://github.com/ofrohn/threex.planets) maps: USGS Astrogeology, NASA/JPL-Caltech, Björn Jónsson, Solar System Scope, Philip Stooke | Planet and moon maps, Saturn's rings | Public domain (USGS, NASA) · credit to Björn Jónsson · CC BY 4.0 (Solar System Scope) |
+| [JPL approximate planetary positions](https://ssd.jpl.nasa.gov/planets/approx_pos.html) | Where the planets and Pluto are | Public domain (NASA) |
+| [CelesTrak](https://celestrak.org) | Earth satellites, including the ISS | Free public data |
+| NASA "Where is the rover?" maps (MMGIS) | Perseverance's and Curiosity's latest positions, via the data feed | Public domain (NASA) |
+
+## Security and politics layers
+
+| Source | Used for | Licence |
+| --- | --- | --- |
+| [US State Department, Foreign Terrorist Organizations](https://www.state.gov/foreign-terrorist-organizations) | Which criminal groups the US has designated | Public domain (US government) |
+| [Wikipedia](https://en.wikipedia.org) | Links for each group and place | CC BY-SA 4.0 (linked, not copied) |
+| [Wikidata](https://www.wikidata.org) | Heads of state and government; US governors and senators with their parties | CC0 |
+| OpenStreetMap, Wikidata and Wikipedia | Highlight in the 3D view: footprint, height, floors, year built, architect, history | ODbL · CC0 · CC BY-SA 4.0 (summary shown with a link) |

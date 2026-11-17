@@ -425,6 +425,420 @@ function newsAlerts() {
     })
     .catch(function () {});
 }
+// ----- Emergency alerts for my location: a full-screen alert, like a phone's own -----
+// Official National Weather Service alerts for the phone's position (US). Alerts that call for action
+// (the same rule as the Android background check, AlertChecker.java) take over the screen once, with the
+// official wording, a tone and vibration. The background check posts them as notifications while the app
+// is closed, using the position last seen here.
+var AM = {
+    seen: ls("ojos-am-seen") || [],
+    hist: ls("ojos-am-hist") || [], // alerts shown, newest first, for Settings → Recent alerts
+    q: [],
+    pos: null,
+    at: 0,
+    natAt: 0,
+    natPos: null
+  },
+  AM_HIST_MAX = 40,
+  AM_EVERY = 3 * 60000,
+  AM_ACT =
+    /^(tornado warning|flash flood warning|extreme wind warning|evacuation immediate|civil emergency message|civil danger warning|shelter in place warning|law enforcement warning|hazardous materials warning|nuclear power plant warning|radiological hazard warning|fire warning|tsunami warning|hurricane warning|storm surge warning|earthquake warning|child abduction emergency|local area emergency|911 telephone outage emergency|blizzard warning|ice storm warning|severe thunderstorm warning|dust storm warning)$/;
+
+function amOn() {
+  return SET.alertMe !== false;
+}
+
+// Whether an alert should take over the screen (kept in step with AlertChecker.callsForAction).
+function amActs(p) {
+  var e = String(p.event || "")
+    .trim()
+    .toLowerCase();
+  if (!e || /test/.test(e)) return false;
+  if (AM_ACT.test(e)) return true;
+  return (
+    /^(extreme|severe)$/i.test(p.severity || "") && /^(immediate|expected)$/i.test(p.urgency || "")
+  );
+}
+
+// The position to watch: emergency mode's live fix, else a recent fix if location is already allowed.
+function amWhere() {
+  if (EMG.on && EMG.pos) return Promise.resolve(EMG.pos);
+  if (!navigator.geolocation) return Promise.resolve(AM.pos);
+  return (
+    navigator.permissions
+      ? navigator.permissions.query({ name: "geolocation" })
+      : Promise.resolve({ state: "prompt" })
+  )
+    .then(function (st) {
+      if (st.state !== "granted" && !AM.ask) return AM.pos;
+      AM.ask = false;
+      return new Promise(function (res) {
+        navigator.geolocation.getCurrentPosition(
+          function (p) {
+            res({ lat: p.coords.latitude, lon: p.coords.longitude });
+          },
+          function () {
+            res(AM.pos);
+          },
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 10 * 60000 }
+        );
+      });
+    })
+    .catch(function () {
+      return AM.pos;
+    });
+}
+
+function amCheck() {
+  if (!amOn() || !EMBED_OK) return;
+  AM.at = Date.now();
+  amWhere().then(function (pos) {
+    if (pos) AM.pos = pos;
+    amNative();
+    // The phone first, then each saved place; an alert covering several is shown once.
+    var spots = (pos ? [{ lat: pos.lat, lon: pos.lon, n: "" }] : []).concat(amPlaces());
+    spots.reduce(function (chain, s) {
+      return chain.then(function () {
+        return getJSON(
+          "https://api.weather.gov/alerts/active?status=actual&point=" +
+            s.lat.toFixed(4) +
+            "," +
+            s.lon.toFixed(4),
+          20000
+        )
+          .then(function (j) {
+            ((j && j.features) || []).forEach(function (f) {
+              var p = f.properties || {};
+              if (!p.id || AM.seen.indexOf(p.id) >= 0) return;
+              AM.seen.push(p.id);
+              if (amActs(p))
+                AM.q.push(
+                  Object.assign({ forPlace: s.n, forPhone: s.ph, lat: s.lat, lon: s.lon }, p)
+                );
+            });
+            AM.seen = AM.seen.slice(-300);
+            ls("ojos-am-seen", AM.seen);
+            amShow();
+          })
+          .catch(function () {});
+      });
+    }, Promise.resolve());
+  });
+}
+
+// The places watched besides the phone: the saved places of Smart alerts (module 03), up to 8.
+function amPlaces() {
+  return (AL.places || []).slice(0, 8).map(function (p) {
+    return { lat: p.lat, lon: p.lon, n: p.name, ph: p.phone || "" };
+  });
+}
+
+// Hand the places to the Android background check when they change, the phone has moved, or hourly.
+function amNative() {
+  var p = AM.pos,
+    places = (p ? [{ lat: p.lat, lon: p.lon, n: "My location" }] : []).concat(
+      amPlaces().map(function (x) {
+        return { lat: x.lat, lon: x.lon, n: x.n }; // phone numbers stay in the app
+      })
+    ),
+    key = JSON.stringify(amPlaces()),
+    moved = p && (!AM.natPos || hav(p.lat, p.lon, AM.natPos.lat, AM.natPos.lon) > 2);
+  if (!moved && key === AM.natKey && Date.now() - AM.natAt < 3600000) return;
+  AM.natAt = Date.now();
+  AM.natPos = p || AM.natPos;
+  AM.natKey = key;
+  natCall("setAlertWatch", { on: amOn() && places.length > 0, places: places });
+}
+
+// Settings → Emergency alerts → ⇩ OFFLINE: saves the map around a saved place (module 42).
+var OFF = { busy: -1 };
+function offPlace(i) {
+  var p = AL.places[i];
+  if (!p || OFF.busy >= 0) return;
+  OFF.busy = i;
+  brDraw();
+  note("Offline map", "Saving the map around " + esc(p.name) + "…");
+  offSave(p.lat, p.lon, function (ok, total) {
+    OFF.busy = -1;
+    if (ok >= total * 0.8) {
+      p.off = Date.now();
+      alSave();
+      note(
+        "Offline map",
+        "The map around " + esc(p.name) + " is saved. It shows even without signal."
+      );
+    } else
+      note(
+        "Offline map",
+        "Only part of the map could be saved. Check the connection and try again."
+      );
+    brDraw();
+  });
+}
+
+// Settings → Emergency alerts → add a place by address or city, with a name of your own.
+function amAdd(q, name, phone) {
+  if ((AL.places || []).length >= 8) {
+    note("Places", "You can watch up to 8 places. Remove one first.");
+    return Promise.resolve();
+  }
+  return geo1(q)
+    .then(function (r) {
+      AL.places.push({
+        name: String(name || r.name || q)
+          .trim()
+          .slice(0, 28),
+        lat: r.lat,
+        lon: r.lon,
+        phone: String(phone || "")
+          .replace(/[^\d+]/g, "")
+          .slice(0, 16)
+      });
+      alSave();
+      AM.natKey = "";
+      amCheck();
+      brDraw();
+    })
+    .catch(function () {
+      note("Places", "Couldn't find that place. Try an address or a city and state.");
+    });
+}
+
+document.addEventListener("submit", function (e) {
+  if (e.target.id !== "amForm") return;
+  e.preventDefault();
+  var q = $("amQ").value.trim();
+  if (q) amAdd(q, $("amN").value, $("amP").value);
+});
+
+function amTone() {
+  try {
+    var ac = EMG.ac || (EMG.ac = new (window.AudioContext || window.webkitAudioContext)()),
+      t = ac.currentTime;
+    for (var i = 0; i < 6; i++) {
+      var o = ac.createOscillator(),
+        g = ac.createGain();
+      o.type = "square";
+      o.frequency.value = i % 2 ? 1300 : 1050;
+      g.gain.setValueAtTime(0.0001, t + i * 0.35);
+      g.gain.exponentialRampToValueAtTime(0.35, t + i * 0.35 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.35 + 0.3);
+      o.connect(g);
+      g.connect(ac.destination);
+      o.start(t + i * 0.35);
+      o.stop(t + i * 0.35 + 0.32);
+    }
+  } catch (e) {}
+  try {
+    if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 900]);
+  } catch (e) {}
+  natCall("vibrate", { ms: 1500 });
+}
+
+function amTime(s) {
+  var d = Date.parse(s);
+  return isNaN(d)
+    ? ""
+    : new Date(d).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" });
+}
+
+// Shows the next alert in the queue; each is shown once.
+function amShow() {
+  var el = $("alertpop"),
+    p = AM.q[0];
+  if (!p || (el && el.style.display === "flex")) return;
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "alertpop";
+    el.setAttribute("role", "alertdialog");
+    el.setAttribute("aria-modal", "true");
+    document.documentElement.appendChild(el);
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-am]");
+      if (!b) return;
+      var k = b.getAttribute("data-am"),
+        cur = AM.q.shift();
+      el.style.display = "none";
+      var at = cur && cur.lat != null ? cur : AM.pos; // the saved place it is for, else the phone
+      if (k === "map" && at) {
+        if (typeof RW === "object" && RW.on && RW.mode === "globe" && T3.map)
+          T3.map.flyTo({ center: [at.lon, at.lat], zoom: 9 });
+        else target = { lon: at.lon, lat: at.lat, z: clampZ((zoom * viewKm()) / 120) };
+      }
+      setTimeout(amShow, 400);
+    });
+  }
+  var test = !!p.test,
+    area = String(p.areaDesc || "")
+      .split(";")
+      .slice(0, 4)
+      .join(", "),
+    when = [
+      p.onset || p.effective ? "From " + amTime(p.onset || p.effective) : "",
+      p.ends || p.expires ? "until " + amTime(p.ends || p.expires) : ""
+    ]
+      .filter(Boolean)
+      .join(" "),
+    what = String(p.instruction || "").trim(),
+    more = String(p.description || "").trim();
+  el.innerHTML =
+    '<div class="amcard"><b class="mono">' +
+    (test ? "TEST · NOT A REAL ALERT" : "⚠ EMERGENCY ALERT") +
+    "</b><h2>" +
+    esc(p.event || "Official alert") +
+    "</h2>" +
+    (p.forPlace ? '<p class="amfor mono">FOR ' + esc(p.forPlace.toUpperCase()) + "</p>" : "") +
+    '<p class="amwho mono">' +
+    esc((p.senderName || "National Weather Service").toUpperCase()) +
+    (when ? " · " + esc(when.toUpperCase()) : "") +
+    "</p>" +
+    (area ? '<p class="amarea">' + esc(area) + "</p>" : "") +
+    (p.headline ? '<p class="amhead">' + esc(p.headline) + "</p>" : "") +
+    (what ? '<h4 class="mono">WHAT TO DO</h4><p class="amtext">' + esc(what) + "</p>" : "") +
+    (more
+      ? '<details><summary class="mono">FULL MESSAGE</summary><p class="amtext">' +
+        esc(more) +
+        "</p></details>"
+      : "") +
+    (p.forPhone
+      ? '<a class="amsms" href="sms:' +
+        esc(p.forPhone.replace(/[^\d+]/g, "")) +
+        "?body=" +
+        encodeURIComponent(
+          "Are you OK? There's a " + (p.event || "warning") + " for your area. Reply when you can."
+        ) +
+        '">💬 Text ' +
+        esc(p.forPlace) +
+        ": are you OK?</a>"
+      : "") +
+    '<div class="ambtn"><button data-am="map">Show on map</button><button data-am="ok" class="amok">I understand</button></div>' +
+    '<small class="mono">OFFICIAL TEXT FROM THE ISSUING AGENCY · IN DANGER, CALL ' +
+    esc(emgNum((EMG.sit && EMG.sit.cc) || "US").split(" ")[0]) +
+    "</small></div>";
+  el.style.display = "flex";
+  if (!p.again) amTone();
+  if (test || p.again) return;
+  speak((p.event || "Emergency alert") + ". " + (p.headline || ""));
+  amRecord(p);
+  // The home-screen widget shows it until it ends.
+  natCall("setAlertWidget", {
+    event: p.event || "Official alert",
+    place: p.forPlace || "",
+    until: Date.parse(p.ends || p.expires) || Date.now() + 6 * 3600000
+  });
+}
+
+// ---------- Recent alerts ----------
+function amRecord(p) {
+  AM.hist = AM.hist.filter(function (h) {
+    return h.id !== p.id;
+  });
+  AM.hist.unshift({
+    id: p.id || "a" + Date.now(),
+    t: Date.now(),
+    p: {
+      event: p.event,
+      headline: p.headline,
+      instruction: p.instruction,
+      areaDesc: p.areaDesc,
+      senderName: p.senderName,
+      effective: p.effective,
+      ends: p.ends || p.expires,
+      forPlace: p.forPlace,
+      forPhone: p.forPhone,
+      lat: p.lat,
+      lon: p.lon
+    }
+  });
+  AM.hist = AM.hist.slice(0, AM_HIST_MAX);
+  ls("ojos-am-hist", AM.hist);
+}
+
+// Alerts the Android background check announced while the app was closed join the history.
+function amNativeLog() {
+  natCall("getAlertLog").then(function (r) {
+    var list = [];
+    try {
+      list = JSON.parse((r && r.log) || "[]");
+    } catch (e) {}
+    var have = {};
+    AM.hist.forEach(function (h) {
+      have[h.id] = 1;
+    });
+    list.forEach(function (x) {
+      if (!x || !x.id || have[x.id]) return;
+      AM.hist.push({
+        id: x.id,
+        t: x.t,
+        p: { event: x.event, headline: x.headline, forPlace: x.place }
+      });
+      if (AM.seen.indexOf(x.id) < 0) AM.seen.push(x.id); // already announced: no second pop-up
+    });
+    AM.hist.sort(function (a, b) {
+      return b.t - a.t;
+    });
+    AM.hist = AM.hist.slice(0, AM_HIST_MAX);
+    ls("ojos-am-hist", AM.hist);
+    ls("ojos-am-seen", AM.seen);
+  });
+}
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden) amNativeLog();
+});
+
+function amHistHtml() {
+  if (!AM.hist.length)
+    return '<p class="brhint">No alerts yet. Warnings that reached you show here.</p>';
+  return (
+    '<div class="amhist">' +
+    AM.hist
+      .slice(0, 10)
+      .map(function (h, i) {
+        return (
+          '<button data-br="amh-' +
+          i +
+          '"><b>' +
+          esc(h.p.event || "Alert") +
+          "</b><span>" +
+          esc([h.p.forPlace || "Where you were", ago(h.t)].join(" · ")) +
+          "</span></button>"
+        );
+      })
+      .join("") +
+    "</div>"
+  );
+}
+
+// Opens a past alert again, without the tone.
+function amAgain(i) {
+  var h = AM.hist[i];
+  if (!h) return;
+  AM.q.unshift(Object.assign({ again: true }, h.p));
+  amShow();
+}
+
+// Settings → "Test the alert screen".
+function amTest() {
+  AM.q.unshift({
+    test: true,
+    event: "Tornado Warning",
+    senderName: "NWS (example)",
+    areaDesc: "Your county",
+    headline: "This is how an emergency alert for your position will look.",
+    instruction:
+      "When this is real: go to a basement or an interior room on the lowest floor, away from windows."
+  });
+  amShow();
+}
+
+setTimeout(function () {
+  amNativeLog();
+  amCheck();
+  setInterval(function () {
+    if (!document.hidden && Date.now() - AM.at > AM_EVERY) amCheck();
+  }, 30000);
+}, 4000);
+
 // ----- broadcast: one bar across every view (globe, static, 3D, Inspect stays above it) -----
 function bcDraw() {
   var el = $("bcast");

@@ -70,7 +70,8 @@ function CY() {
   return H / 2 + (topInset() / 2) * (H > topInset() * 2.2 ? 1 : 0.6);
 }
 function radius() {
-  return Math.min(W, H - lowF() * (topInset() + 14)) * 0.43 * zoom;
+  // Never below 1: while the app is in the background the screen can report no height.
+  return Math.max(1, Math.min(W, H - lowF() * (topInset() + 14)) * 0.43 * zoom);
 }
 var PC = {};
 function pcu() {

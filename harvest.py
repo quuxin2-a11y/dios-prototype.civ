@@ -31,6 +31,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 import conflict
+import rovers
 
 ROOT = Path(__file__).resolve().parent
 MIN_CAMS = 5000  # far below a normal run (40,000+); anything less means the run went wrong
@@ -132,6 +133,12 @@ def main(out_dir):
         "networks": cams["srcs"],
         "layers": {k: len(v["items"]) for k, v in layers["layers"].items()},
     }
+    # Mars rovers' latest positions, for the 3D space view.
+    try:
+        meta["rovers"] = rovers.collect()
+        print("rovers %s" % ", ".join(sorted(meta["rovers"])))
+    except Exception as e:
+        print("rovers skipped: %s" % e, file=sys.stderr)
     (out / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
     return 0
 

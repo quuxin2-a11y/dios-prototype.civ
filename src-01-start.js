@@ -6,6 +6,8 @@
  * inside a single closure. See README, "Architecture".
  */
 
+// The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
+var APP_V = 91;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],

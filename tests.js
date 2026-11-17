@@ -1676,4 +1676,25 @@ test("sky: Moon phases on known dates and the projection centre", function () {
   assert.strictEqual(F.skyStarColor("1.85"), "#ffaa78");
 });
 
+// Every module shares one scope, so a top-level name declared in two modules silently replaces the
+// first one (v86 to v88 shipped the radio player's RP over the replay's RP).
+test("modules: no top-level name is declared twice", function () {
+  var seen = {},
+    dup = [];
+  fs.readdirSync(__dirname)
+    .filter(function (f) {
+      return /^src-\d+.*\.js$/.test(f);
+    })
+    .forEach(function (f) {
+      var text = fs.readFileSync(path.join(__dirname, f), "utf8"),
+        re = /^(?:var|function)\s+([A-Za-z_$][\w$]*)/gm,
+        m;
+      while ((m = re.exec(text))) {
+        if (seen[m[1]] && seen[m[1]] !== f) dup.push(m[1] + " in " + seen[m[1]] + " and " + f);
+        seen[m[1]] = seen[m[1]] || f;
+      }
+    });
+  assert.deepStrictEqual(dup, []);
+});
+
 console.log("\n" + n + " tests passed");

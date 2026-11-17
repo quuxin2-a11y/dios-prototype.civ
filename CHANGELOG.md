@@ -2,6 +2,43 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v91
+- **3D space:** the logo now opens a solar system you can fly through (three.js): the Sun, eight planets and Pluto at their real positions today, their bigger moons, Saturn's rings and the Milky Way. Earth turns with the real time of day and carries thousands of live satellites (CelesTrak) with the ISS, Tiangong and Hubble named; JWST and the L1 Sun watchers sit at their Lagrange points; Voyager 1 and 2, New Horizons and the Pioneers are placed from their known course; Mars shows Perseverance (latest NASA position through the data feed), Curiosity and every past lander; the Moon shows the Apollo sites and today's landers. Tap anything for its card with real distances, run time up to a week a second, and the night sky is one tab away. Without a connection the flat solar system stands in.
+- **Camera web:** 🕸 Web in a camera's details (or on a big tile in the camera grid) spreads its 10 or 20 nearest cameras around it, each in its own live tile, joined by a line in its true direction with the distance. Tap a tile to move the web there.
+- **Highlight in 3D:** HIGHLIGHT outlines and circles the building in the middle of the view, flies around it rising and dipping to show every side, and gives its height, floors, year built, architect, style and history from OpenStreetMap, Wikidata and Wikipedia.
+- **Organized crime groups** layer: well-known cartels, gangs and mafias with what they are known for and their US terrorist designation, linking the State Department's list. Groups only.
+- **Leaders and parties** layer: heads of state and government for every country, and US governors and senators with their party, live from Wikidata; US states coloured by the governor's party.
+- **Cleaner top bar:** counts are shortened (92.9K) so they always fit, the name steps aside on a phone when aircraft or ships are on, and the command-mode status strip no longer sits above the dashboard.
+- **Data feed:** `rovers.py` adds the Mars rovers' latest positions to `meta.json`.
+
+## v90
+- **Recent alerts:** Settings → Emergency alerts lists the last warnings that reached you, including ones announced while the app was closed, with the place and time. Tapping one shows it again without the tone.
+- **"Are you OK?" text:** a saved place can have a phone number. When a warning hits that place, the alert screen offers 💬 Text Mom: are you OK?, which opens a ready text in your messaging app. The number stays on the phone.
+- **Offline maps for your places:** ⇩ OFFLINE beside a saved place keeps the dark map around it, from the whole world down to street level, plus the fonts for names and the Smooth globe's borders. The map now loads through a scheme that uses the network when there is signal and the saved copy when there isn't.
+- **Home-screen widget shows the current warning:** the Emergency widget turns red with the warning and the place it is for (for example "⚠ Tornado Warning · Mom"), until the warning ends; a tap opens it. Otherwise it reads "No warnings for your places" and opens Emergency mode as before. It refreshes every 30 minutes so expired warnings come down.
+
+## v89
+- **Saved camera grids:** ☆ SAVE keeps the grid you are looking at (named after what you typed, or Area 1, 2…). Saved grids sit in a row at the top of the camera grid and open with one tap, without looking the place up again; ✕ removes one. Up to 12.
+- **Places I care about:** Settings → Emergency alerts → add a place by address or city with your own name for it (Home, Mom, School). Official warnings for those places take over the screen wherever you are, marked FOR MOM and so on, and the Android background check watches them too (up to 8 places plus your position). They are the same places Smart alerts watch for earthquakes and storms.
+- **Fix:** since v86 the radio player's name clashed with Replay's, so Replay's controls and stop button ran the radio's code. The radio now has its own names.
+- **Fix:** opening the event list replaced the address of the app's data feed with the list of events, so the instant data stopped refreshing until the app restarted.
+- **New check:** a unit test now fails the build if two modules declare the same top-level name, which is how both bugs above happened.
+
+## v88
+- **Weather radio as text:** emergency mode's LIVE RADIO HERE now shows what NOAA Weather Radio is reading for your position, in the National Weather Service's own words: the active alerts (with the full message one tap away) and the next three forecast periods. The broadcast is a computer voice reading these same products, so this is the exact text, not an AI transcription. Refreshed every ten minutes; US only.
+
+## v87
+- **Emergency alerts for my location:** official National Weather Service warnings that call for action where you are (tornado, flash flood, evacuation, shelter in place, civil emergency and others, or anything severe and happening now) take over the screen once, with the issuing office, area, times, the official "what to do" text, a tone and vibration. Tests and minor advisories never interrupt. Checked every three minutes while the app is open.
+- **Alerts while the app is closed (Android):** a new native background check (`AlertChecker.java`) asks the National Weather Service about every 15 minutes, and again after the phone restarts, for the position the app last saw, and posts a high-priority notification for each new alert that calls for action. Tapping it opens the app. Android 13 and later ask for notification permission when alerts are turned on.
+- **Settings → Emergency alerts:** turn alerts on or off, and Test the alert screen shows how one looks, clearly marked as a test.
+
+## v86
+- **Live radio in emergency mode:** the RADIO section now lists the stations broadcasting around your position, news and talk first, and plays them inside the app. A small bar above the dock keeps the station playing while you use the map and stops it with one tap. It also shows the nearest NOAA Weather Radio transmitter and its frequency (US), for a battery or car radio when phones and internet are down. The outside scanner links are gone.
+- **3D close-up on Smooth display:** on Android and on graphics chips that flicker, the 3D engine now draws without multisampling, the logarithmic depth buffer, HDR or FXAA, which those chips draw with flicker and lines.
+- **Windy cameras in the camera grid:** a picture whose free link has expired now fetches a fresh link instead of showing an empty tile.
+- **Fix:** the globe could fail to draw ("r0 provided is less than 0") while the app was in the background and the screen reported no height.
+- **Reports and Settings now show the real version:** reports were still stamped v81. The version is one number in the code now.
+
 ## v85
 - **Smooth globe is the default on Android.** Android phones start on Smooth globe; other devices start on Globe, and phones with an Imagination (PowerVR) chip start on Smooth globe whatever they run. A choice made in Settings → Display always wins.
 

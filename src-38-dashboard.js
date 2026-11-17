@@ -35,10 +35,19 @@ var RW_DOCK = [
 ];
 
 // Live counts for the top bar, the same numbers the globe's status strip shows.
+// 92,883 → 92.9K: short enough that every count fits beside the logo on a phone.
+function rwShort(n) {
+  return n >= 1e6
+    ? (n / 1e6).toFixed(n < 1e7 ? 1 : 0) + "M"
+    : n >= 1e4
+      ? (n / 1e3).toFixed(n < 1e5 ? 1 : 0) + "K"
+      : n.toLocaleString();
+}
+
 function rwCounts() {
   // The camera count always; aircraft and ships only while they are switched on.
   var c = function (label, n) {
-    return "<span><i>" + label + "</i>" + n.toLocaleString() + "</span>";
+    return '<span title="' + n.toLocaleString() + '"><i>' + label + "</i>" + rwShort(n) + "</span>";
   };
   return (
     c("CAM", visLive.length) +
@@ -83,6 +92,8 @@ function rwDraw() {
   if (cnt && cnt._h !== h) {
     cnt._h = h;
     cnt.innerHTML = h;
+    // With aircraft or ships on, the counts take the name's place so nothing is cut off.
+    el.classList.toggle("rwmany", !!(WL.air || WL.ship));
   }
   var nm = $("rwname"),
     label = "OJOS DE DIOS";

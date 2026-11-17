@@ -30,7 +30,8 @@ function cmdTick() {
     $("cmdtk").style.display = "none";
     return;
   }
-  el.style.display = "flex";
+  // The dashboard carries its own counts, so the status strip is not shown over it.
+  el.style.display = typeof RW === "object" && RW.on ? "none" : "flex";
   $("cmdtk").style.display = "flex";
   var d = new Date(),
     z = function (n) {

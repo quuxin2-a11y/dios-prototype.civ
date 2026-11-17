@@ -19,6 +19,7 @@ public class OjosNativePluginTest {
         assertEquals("emergency", OjosNativePlugin.actionName(OjosNativePlugin.ACTION_EMERGENCY));
         assertEquals("finder", OjosNativePlugin.actionName(OjosNativePlugin.ACTION_FINDER));
         assertEquals("briefing", OjosNativePlugin.actionName(OjosNativePlugin.ACTION_BRIEFING));
+        assertEquals("alert", OjosNativePlugin.actionName(OjosNativePlugin.ACTION_ALERT));
     }
 
     @Test

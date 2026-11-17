@@ -300,7 +300,7 @@ function liveReport() {
       var L = [],
         hr =
           "------------------------------------------------------------------------------------------------";
-      L.push("OJOS DE DIOS  -  LIVE REPORT  (v81)");
+      L.push("OJOS DE DIOS  -  LIVE REPORT  (v" + APP_V + ")");
       L.push("Made " + new Date().toString());
       L.push("Diagnostic report: what worked on this device and what did not.");
       L.push(hr);
@@ -440,7 +440,7 @@ function liveReport() {
     .catch(function (e) {
       // The report itself failed: hand over what is needed to fix it instead.
       errLog("Report: " + errWhere(e));
-      copyText("OJOS DE DIOS v81 error log\n" + errText());
+      copyText("OJOS DE DIOS v" + APP_V + " error log\n" + errText());
       note(
         "Report",
         "Couldn't build the full report, so the error log was copied instead. Paste it into a message to whoever is helping you."

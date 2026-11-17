@@ -358,6 +358,25 @@ MAPLIBRE_STANDIN = """
 })();
 """
 
+# three.js stand-in: every call answers, and the renderer draws into a real canvas.
+THREE_STANDIN = """
+(() => {
+  const any = () => new Proxy(function () {}, {
+    get: (t, k) => k === Symbol.toPrimitive ? () => 0 : k === 'then' ? undefined : any(),
+    apply: () => any(),
+    construct: () => any(),
+    set: () => true,
+  });
+  window.__three = { renders: 0 };
+  window.THREE = new Proxy({}, {
+    get: (t, k) => k === 'WebGLRenderer'
+      ? function () { const c = document.createElement('canvas'); return new Proxy({}, { get: (t2, k2) => k2 === 'domElement' ? c : k2 === 'render' ? () => { window.__three.renders++; } : any(), set: () => true }); }
+      : any(),
+  });
+})();
+"""
+
+
 CESIUM_STANDIN = """
 (() => {
   const any = () => new Proxy(function () {}, {
@@ -531,6 +550,95 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("[data-em=yes]")
         self.page.wait_for_timeout(500)
         self.assertIn("emg", self.page.evaluate(html_class).split())
+        self.assertEqual(self.errors, [])
+
+    def test_emergency_mode_plays_live_local_radio_in_the_app(self):
+        import io
+        import wave
+
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(8000)
+            w.writeframes(b"\0\0" * 80000)  # ten seconds of silence
+        stations = [
+            {"stationuuid": "s1", "name": "KERA News", "url_resolved": "https://stream.example.org/kera.wav", "tags": "news,npr", "geo_lat": 32.79, "geo_long": -96.80, "lastcheckok": 1},
+            {"stationuuid": "s2", "name": "Hits 98", "url_resolved": "https://stream.example.org/hits.wav", "tags": "pop", "geo_lat": 32.70, "geo_long": -96.90, "lastcheckok": 1},
+            {"stationuuid": "s3", "name": "Old Plain Stream", "url_resolved": "http://insecure.example.org/a", "geo_lat": 32.7, "geo_long": -96.8, "lastcheckok": 1},
+        ]
+        ccl = 'CALLSIGN[0] = "KEC56";\nSITENAME[0] = "Dallas";\nSITESTATE[0] = "TX";\nFREQ[0] = "162.400";\nSTATUS[0] = "Normal";\nLAT[0] = "32.78";\nLON[0] = "-96.80";\n'
+        self.page.route("**/json/stations/search*", lambda r: r.fulfill(body=json.dumps(stations), content_type="application/json"))
+        self.page.route("**/source/nwr/JS/CCL.js", lambda r: r.fulfill(body=ccl, content_type="text/javascript"))
+        self.page.route("**/stream.example.org/**", lambda r: r.fulfill(body=buf.getvalue(), content_type="audio/wav"))
+        wx_alerts = {"features": [{"properties": {"id": "w1", "event": "Wind Advisory", "headline": "Wind Advisory until 6 PM CST", "description": "South winds 20 to 30 mph."}}]}
+        self.page.route("**/api.weather.gov/alerts/active?status=actual&point=*", lambda r: r.fulfill(body=json.dumps(wx_alerts), content_type="application/geo+json"))
+        self.page.route("**/api.weather.gov/points/*", lambda r: r.fulfill(body=json.dumps({"properties": {"forecast": "https://api.weather.gov/gridpoints/FWD/80,108/forecast"}}), content_type="application/geo+json"))
+        self.page.route("**/api.weather.gov/gridpoints/**", lambda r: r.fulfill(body=json.dumps({"properties": {"periods": [{"name": "Today", "detailedForecast": "Sunny and windy, with a high near 74."}]}}), content_type="application/geo+json"))
+        self.context.grant_permissions(["geolocation"])
+        self.context.set_geolocation({"latitude": 32.78, "longitude": -96.80})
+        self.page.click("#bEmg")
+        self.page.click("[data-em=yes]")
+        # The nearest weather-radio frequency, and local stations with news first; only https streams.
+        self.page.wait_for_function("() => /162.400 MHz/.test(document.getElementById('emgp').textContent)", timeout=8000)
+        self.page.wait_for_selector("#emgp .rprow", timeout=8000)
+        # What the weather radio reads, as the National Weather Service's own text.
+        self.page.wait_for_function("() => /Sunny and windy, with a high near 74/.test(document.getElementById('emgp').textContent)", timeout=8000)
+        self.assertIn("Wind Advisory until 6 PM CST", self.page.inner_text("#emgp .rptext"))
+        names = self.page.locator("#emgp .rprow b").all_inner_texts()
+        self.assertEqual(names, ["KERA News", "Hits 98"])
+        # It plays right here, keeps playing with the panel closed, and stops from the bar.
+        self.page.click("#emgp [data-em='rp-0']")
+        self.page.wait_for_selector("#radiobar", state="visible", timeout=3000)
+        self.assertIn("KERA NEWS", self.page.inner_text("#radiobar"))
+        self.page.click("#emgp [data-em='hide']")
+        self.assertTrue(self.visible("#radiobar"))
+        self.page.click("#radiobar button")
+        self.assertFalse(self.visible("#radiobar"))
+        self.assertEqual(self.errors, [])
+
+    def test_an_official_alert_for_my_position_takes_over_the_screen_once(self):
+        alerts = {"features": [
+            {"properties": {"id": "urn:a1", "event": "Tornado Warning", "severity": "Extreme", "urgency": "Immediate",
+                            "senderName": "NWS Fort Worth TX", "areaDesc": "Dallas, TX; Tarrant, TX",
+                            "headline": "Tornado Warning issued for Dallas County",
+                            "instruction": "TAKE COVER NOW! Move to a basement or an interior room."}},
+            {"properties": {"id": "urn:a2", "event": "Wind Advisory", "severity": "Moderate", "urgency": "Expected"}},
+            {"properties": {"id": "urn:a3", "event": "Required Weekly Test", "severity": "Extreme", "urgency": "Immediate"}},
+        ]}
+        self.page.route(
+            "**/api.weather.gov/alerts/active?status=actual&point=*",
+            lambda r: r.fulfill(body=json.dumps(alerts), content_type="application/geo+json"),
+        )
+        self.context.grant_permissions(["geolocation"])
+        self.context.set_geolocation({"latitude": 32.78, "longitude": -96.80})
+        self.page.reload()
+        self.page.wait_for_selector("#alertpop", state="visible", timeout=12000)
+        text = self.page.inner_text("#alertpop")
+        self.assertIn("Tornado Warning", text)
+        self.assertIn("TAKE COVER NOW", text)
+        self.assertIn("NWS FORT WORTH TX", text)
+        self.page.click("#alertpop [data-am='ok']")
+        self.page.wait_for_timeout(600)
+        # Only the alert that calls for action was shown, and it doesn't come back.
+        self.assertFalse(self.visible("#alertpop"))
+        self.page.reload()
+        self.page.wait_for_timeout(6000)
+        self.assertFalse(self.visible("#alertpop"))
+        self.assertEqual(self.errors, [])
+
+    def test_settings_can_show_a_test_alert_and_turn_alerts_off(self):
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwdock [data-rw='set']", state="visible", timeout=8000)
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("[data-br='amtest']")
+        self.page.wait_for_selector("#alertpop", state="visible", timeout=3000)
+        self.assertIn("TEST · NOT A REAL ALERT", self.page.inner_text("#alertpop"))
+        self.page.click("#alertpop [data-am='ok']")
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("[data-br='am']")
+        self.assertFalse(self.page.evaluate("() => JSON.parse(localStorage.getItem('ojos-set')).alertMe"))
         self.assertEqual(self.errors, [])
 
     def test_transit_layer_shows_vehicles_near_a_covered_city(self):
@@ -975,6 +1083,176 @@ class AppInBrowser(unittest.TestCase):
         self.assertFalse(self.visible("#cgp"))
         self.assertEqual(self.errors, [])
 
+    def test_a_camera_grid_can_be_saved_and_reopened_with_one_tap(self):
+        self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
+        open_grid = (
+            "() => { const b = document.createElement('button'); b.dataset.rw = 'cams';"
+            " document.body.appendChild(b); b.click(); b.remove(); }"
+        )
+        self.page.evaluate(open_grid)
+        self.page.wait_for_selector("#cgp .cgsave", state="visible", timeout=5000)
+        self.assertIn("SAVE AREA 1", self.page.inner_text("#cgp .cgsave"))
+        self.page.click("#cgp .cgsave")
+        self.assertEqual(self.page.locator("#cgp .cgchip").count(), 1)
+        self.assertFalse(self.visible("#cgp .cgsave"), "an already saved grid offers no second save")
+        self.page.click("#cgp [data-cg='x']")
+        # It survives a restart and comes back with one tap.
+        self.page.reload()
+        self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
+        self.page.evaluate(open_grid)
+        self.page.wait_for_selector("#cgp .cgchip", state="visible", timeout=5000)
+        self.page.fill("#cgq", "")
+        self.page.click("#cgp [data-cg='sv-0']")
+        self.page.wait_for_function("() => /CAMERAS · /.test(document.getElementById('cgsub').textContent)", timeout=5000)
+        self.assertEqual(self.page.input_value("#cgq"), "Area 1")
+        self.assertGreater(self.page.locator("#cggrid .cgt").count(), 0)
+        # Removing it.
+        self.page.click("#cgp [data-cg='del-0']")
+        self.assertEqual(self.page.locator("#cgp .cgchip").count(), 0)
+        self.assertEqual(self.errors, [])
+
+    def test_alerts_for_a_saved_place_reach_me_wherever_i_am(self):
+        self.page.route(
+            "**/nominatim.openstreetmap.org/search?format=json&limit=1&q=Austin*",
+            lambda r: r.fulfill(body=json.dumps([{"lat": "30.2672", "lon": "-97.7431", "display_name": "Austin, Texas"}]), content_type="application/json"),
+        )
+        tornado = {"features": [{"properties": {"id": "urn:austin", "event": "Tornado Warning", "severity": "Extreme", "urgency": "Immediate", "headline": "Tornado Warning for Travis County"}}]}
+        self.page.route(
+            "**/api.weather.gov/alerts/active?status=actual&point=30.2672,-97.7431",
+            lambda r: r.fulfill(body=json.dumps(tornado), content_type="application/geo+json"),
+        )
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwdock [data-rw='set']", state="visible", timeout=8000)
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.fill("#amQ", "Austin")
+        self.page.fill("#amN", "Mom")
+        self.page.fill("#amP", "(214) 555-0100")
+        self.page.click("#amForm button")
+        self.page.wait_for_selector("#brief .amplaces span", timeout=5000)
+        self.assertIn("Mom", self.page.inner_text("#brief .amplaces"))
+        self.page.wait_for_selector("#alertpop", state="visible", timeout=8000)
+        self.assertIn("FOR MOM", self.page.inner_text("#alertpop"))
+        # A ready text to check on her.
+        sms = self.page.get_attribute("#alertpop .amsms", "href")
+        self.assertTrue(sms.startswith("sms:2145550100?body=Are%20you%20OK%3F"), sms)
+        self.page.click("#alertpop [data-am='ok']")
+        # It is kept under Recent alerts and opens again from there.
+        self.page.wait_for_function("() => /Tornado Warning/.test(document.querySelector('#brief .amhist').textContent)", timeout=3000)
+        self.assertIn("Mom", self.page.inner_text("#brief .amhist"))
+        self.page.click("#brief [data-br='amh-0']")
+        self.page.wait_for_selector("#alertpop", state="visible", timeout=3000)
+        self.assertIn("FOR MOM", self.page.inner_text("#alertpop"))
+        self.page.click("#alertpop [data-am='ok']")
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        # Removing the place (Settings is still open underneath).
+        self.page.click("#brief [data-br='amrm-0']")
+        self.assertEqual(self.page.locator("#brief .amplaces span").count(), 0)
+        self.assertEqual(self.errors, [])
+
+    def test_a_saved_place_map_can_be_kept_for_use_without_signal(self):
+        self.page.route(
+            "**/tiles.openfreemap.org/planet",
+            lambda r: r.fulfill(body=json.dumps({"tiles": ["https://tiles.openfreemap.org/planet/v1/{z}/{x}/{y}.pbf"]}), content_type="application/json"),
+        )
+        self.page.route("**/tiles.openfreemap.org/planet/v1/**", lambda r: r.fulfill(body=b"\x1a\x00", content_type="application/x-protobuf"))
+        self.page.route("**/tiles.openfreemap.org/fonts/**", lambda r: r.fulfill(body=b"\x0a\x00", content_type="application/x-protobuf"))
+        self.page.route("**/cdn.jsdelivr.net/npm/**atlas**", lambda r: r.fulfill(body="{}", content_type="application/json"))
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-alerts', JSON.stringify({places: [{name: 'Home', lat: 32.78, lon: -96.8}]}))"
+        )
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwdock [data-rw='set']", state="visible", timeout=8000)
+        self.page.click("#rwdash .rwdock [data-rw='set']")
+        self.page.click("#brief [data-br='ampk-0']")
+        self.page.wait_for_function("() => /✓ OFFLINE/.test(document.querySelector('#brief .amplaces').textContent)", timeout=20000)
+        kept = self.page.evaluate("() => caches.open('ojos-tiles').then((c) => c.keys()).then((k) => k.map((r) => r.url))")
+        self.assertTrue(any("/planet/v1/14/" in u for u in kept), "street-level tiles")
+        self.assertTrue(any("/fonts/" in u for u in kept), "fonts for the names")
+        self.assertTrue(any("states-10m" in u for u in kept), "borders for the Smooth globe")
+        self.assertEqual(self.errors, [])
+
+    def test_camera_web_spreads_the_nearest_cameras_around_one(self):
+        self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
+        self.page.evaluate(
+            "() => { const b = document.createElement('button'); b.dataset.rw = 'cams';"
+            " document.body.appendChild(b); b.click(); b.remove(); }"
+        )
+        self.page.wait_for_selector("#cggrid .cgt", timeout=5000)
+        self.page.locator("#cggrid .cgt").first.click()
+        self.page.click("#cggrid .cgt.big .cgweb")
+        self.page.wait_for_selector("#cwp", state="visible", timeout=3000)
+        self.assertFalse(self.visible("#cgp"))
+        n = self.page.locator("#cwp .cwt:not(.mid)").count()
+        self.assertGreaterEqual(n, 2)
+        self.assertEqual(self.page.locator("#cwp .cwlines line").count(), n)
+        # Every tile on its own: none overlaps another or the middle one.
+        overlap = self.page.evaluate(
+            """() => { const r = [...document.querySelectorAll('#cwp .cwt')].map((e) => e.getBoundingClientRect());
+            for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
+              const a = r[i], b = r[j];
+              if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) return true; }
+            return false; }"""
+        )
+        if overlap:
+            print(self.page.evaluate("() => [...document.querySelectorAll('#cwp .cwt')].map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; })"), self.page.viewport_size)
+        self.assertFalse(overlap)
+        self.assertRegex(self.page.inner_text("#cwp .cwt:not(.mid) em >> nth=0"), r"(MI|FT) (N|NE|E|SE|S|SW|W|NW)$")
+        # Tapping a tile moves the web to that camera.
+        before = self.page.inner_text("#cwp .cwt.mid span")
+        self.page.locator("#cwp .cwt:not(.mid)").first.click()
+        self.assertNotEqual(self.page.inner_text("#cwp .cwt.mid span"), before)
+        self.page.click("#cwp [data-cw='x']")
+        self.assertFalse(self.visible("#cwp"))
+        self.assertEqual(self.errors, [])
+
+    def test_the_top_bar_keeps_every_count_readable(self):
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({air: true, ship: true}));"
+            " const s = JSON.parse(localStorage.getItem('ojos-set') || '{}'); s.cmd = true; localStorage.setItem('ojos-set', JSON.stringify(s));"
+        )
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwcount span", timeout=8000)
+        self.page.wait_for_timeout(1200)
+        self.assertFalse(self.visible("#cmdbar"), "no status strip over the dashboard")
+        self.page.wait_for_function("() => document.getElementById('rwdash').classList.contains('rwmany')", timeout=5000)
+        fits = self.page.evaluate("() => { const c = document.getElementById('rwcount'); return c.scrollWidth <= c.clientWidth + 1; }")
+        self.assertTrue(fits, "the counts are not cut off")
+        self.assertEqual(self.errors, [])
+
+    def test_highlight_circles_a_building_and_tells_its_story(self):
+        osm = {"elements": [{"type": "way", "tags": {"building": "yes", "name": "Empire State Building", "height": "381", "building:levels": "102", "wikidata": "Q9188"},
+                             "geometry": [{"lat": 40.7484, "lon": -73.9862}, {"lat": 40.7490, "lon": -73.9853}, {"lat": 40.7481, "lon": -73.9846}, {"lat": 40.7476, "lon": -73.9856}, {"lat": 40.7484, "lon": -73.9862}]}]}
+        wd = {"entities": {"Q9188": {"labels": {"en": {"value": "Empire State Building"}}, "sitelinks": {"enwiki": {"title": "Empire State Building"}},
+                                    "claims": {"P571": [{"mainsnak": {"datavalue": {"value": {"time": "+1930-03-17T00:00:00Z"}}}}],
+                                               "P84": [{"mainsnak": {"datavalue": {"value": {"id": "Q1"}}}}]}}}}
+        labels = {"entities": {"Q1": {"labels": {"en": {"value": "Shreve, Lamb & Harmon"}}}}}
+        self.page.route("**/api/interpreter?data=*", lambda r: r.fulfill(body=json.dumps(osm), content_type="application/json"))
+        self.page.route("**/www.wikidata.org/w/api.php?*", lambda r: r.fulfill(body=json.dumps(labels if "props=labels&" in r.request.url else wd), content_type="application/json"))
+        self.page.route("**/en.wikipedia.org/api/rest_v1/page/summary/*", lambda r: r.fulfill(body=json.dumps({"title": "Empire State Building", "extract": "A 102-story Art Deco skyscraper in Midtown Manhattan."}), content_type="application/json"))
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.page.wait_for_timeout(300)
+        self.page.evaluate("() => { __mlMap.z = 15.5; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
+        self.page.click("#rw3d")
+        self.page.wait_for_function("() => document.body.classList.contains('real')", timeout=5000)
+        self.page.click("#t4bar [data-hl='go']")
+        self.page.wait_for_function("() => /Art Deco skyscraper/.test((document.getElementById('hlcard') || {}).textContent || '')", timeout=8000)
+        card = self.page.inner_text("#hlcard")
+        self.assertIn("Empire State Building", card)
+        self.assertIn("381 m · 1,250 ft", card)
+        self.assertIn("1930", card)
+        self.assertIn("Shreve, Lamb & Harmon", card)
+        self.assertIn("102", card)
+        self.page.click("#hlcard [data-hl='x']")
+        self.assertFalse(self.visible("#hlcard"))
+        self.assertEqual(self.errors, [])
+
     def test_double_tap_a_layer_to_see_only_it_and_again_to_restore(self):
         self.page.wait_for_selector("#wlayers [data-wl='radio']", state="attached", timeout=5000)
         state = "() => JSON.parse(localStorage.getItem('ojos-layers') || '{}')"
@@ -1148,9 +1426,79 @@ class AppInBrowser(unittest.TestCase):
         self.assertFalse(
             self.page.evaluate("() => document.body.classList.contains('rw')")
         )
-        self.page.click("[data-sky='sys']")
+        self.page.click("[data-sky='sky']")
         self.page.click("[data-sky='x']")
         self.assertFalse(self.visible("#sky"))
+        self.assertEqual(self.errors, [])
+
+    def test_the_logo_opens_3d_space_with_planets_spacecraft_and_rovers(self):
+        self.page.add_init_script(THREE_STANDIN)
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwbrand", state="visible", timeout=8000)
+        self.page.click(".rwbrand")
+        self.page.wait_for_selector("#spx", state="visible", timeout=4000)
+        self.page.wait_for_function("() => window.__three.renders > 5", timeout=5000)
+        self.assertIn("on", self.page.get_attribute("[data-sky='space']", "class"))
+        self.assertFalse(self.visible("#skycv"))
+        # Fly to Mars: its card has the real numbers.
+        self.page.click("#spx [data-spx='go-mars']")
+        self.page.wait_for_selector("#spxcard", state="visible", timeout=3000)
+        card = self.page.inner_text("#spxcard")
+        self.assertIn("Mars", card)
+        self.assertIn("2 moons", card)
+        self.assertRegex(card, r"FROM EARTH NOW\s*[\d,]+ million km")
+        # Deep space shows the probes leaving the solar system.
+        self.page.click("#spx [data-spx='go-far']")
+        self.page.wait_for_function("() => [...document.querySelectorAll('#spx .spxl.probe')].some((e) => e.style.display === 'block' && /Voyager 1/.test(e.textContent))", timeout=3000)
+        self.page.locator("#spx .spxl.probe", has_text="Voyager 1").dispatch_event("click")
+        self.assertIn("estimated from its course", self.page.inner_text("#spxcard"))
+        # Time can run fast, and LIVE comes back to now.
+        self.page.click("#spx [data-spx='r-2']")
+        self.assertIn("on", self.page.get_attribute("#spx [data-spx='r-2']", "class"))
+        self.page.click("#spx [data-spx='r-0']")
+        # The night sky is one tab away.
+        self.page.click("[data-sky='sky']")
+        self.assertFalse(self.visible("#spx"))
+        self.assertTrue(self.visible("#skycv"))
+        self.page.click("[data-sky='x']")
+        self.assertFalse(self.visible("#sky"))
+        self.assertEqual(self.errors, [])
+
+    def test_without_the_3d_engine_space_falls_back_to_the_flat_solar_system(self):
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwbrand", state="visible", timeout=8000)
+        self.page.click(".rwbrand")
+        self.page.wait_for_function("() => [...document.querySelectorAll('.toast')].some((t) => /flat solar system/.test(t.textContent))", timeout=8000)
+        self.assertTrue(self.visible("#skycv"))
+        self.assertFalse(self.visible("#spx"))
+        self.assertEqual(self.errors, [])
+
+    def test_crime_groups_and_leaders_layers(self):
+        def b(**kv):
+            return {k: {"value": v} for k, v in kv.items()}
+        world = {"results": {"bindings": [
+            b(iso="FR", cLabel="France", coord="Point(2.35 48.86)", hsLabel="Emmanuel Macron", hgLabel="A Prime Minister", hsoLabel="President of France", hgoLabel="Prime Minister of France"),
+        ]}}
+        dem, rep = "http://www.wikidata.org/entity/Q29552", "http://www.wikidata.org/entity/Q29468"
+        us = {"results": {"bindings": [
+            b(s="http://www.wikidata.org/entity/Q1439", sLabel="Texas", coord="Point(-97.74 30.27)", govLabel="Greg Abbott", gp=rep, gpLabel="Republican Party", senLabel="Ted Cruz", sp=rep, spLabel="Republican Party"),
+            b(s="http://www.wikidata.org/entity/Q1439", sLabel="Texas", coord="Point(-97.74 30.27)", govLabel="Greg Abbott", gp=rep, gpLabel="Republican Party", senLabel="John Cornyn", sp=rep, spLabel="Republican Party"),
+            b(s="http://www.wikidata.org/entity/Q99", sLabel="California", coord="Point(-121.49 38.58)", govLabel="Gavin Newsom", gp=dem, gpLabel="Democratic Party"),
+        ]}}
+        self.page.route(
+            "**/query.wikidata.org/sparql*",
+            lambda r: r.fulfill(body=json.dumps(us if "Q35657" in r.request.url else world), content_type="application/sparql-results+json"),
+        )
+        self.page.add_init_script("localStorage.setItem('ojos-layers', JSON.stringify({crime: true, leaders: true}))")
+        self.page.reload()
+        self.page.wait_for_function(
+            "() => /US GOVERNORS 1 D · 1 R/.test((document.getElementById('wlayers') || {}).textContent || '')", timeout=15000
+        )
+        txt = self.page.inner_text("#wlayers")
+        self.assertIn("Organized crime groups", txt)
+        self.assertIn("Politics", txt)
         self.assertEqual(self.errors, [])
 
     def test_focus_mode_adds_and_clears_a_state(self):

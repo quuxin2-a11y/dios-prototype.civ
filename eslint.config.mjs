@@ -37,10 +37,10 @@ for (const f of MODULES) {
 }
 
 // Browser APIs the app uses, and libraries it loads at runtime (Capacitor, CesiumJS, hls.js,
-// TensorFlow COCO-SSD, Google Maps, MapLibre GL, satellite.js).
+// TensorFlow COCO-SSD, Google Maps, MapLibre GL, satellite.js, three.js).
 const BROWSER =
   `AbortController Blob DOMParser Event TextDecoder atob FormData Image SpeechSynthesisUtterance URL WebSocket btoa caches cancelAnimationFrame clearInterval clearTimeout document fetch indexedDB innerHeight innerWidth localStorage location navigator performance requestAnimationFrame setInterval setTimeout speechSynthesis window
-  Capacitor Cesium Hls cocoSsd google maplibregl satellite`
+  Capacitor Cesium Hls THREE cocoSsd google maplibregl satellite`
     .split(/\s+/)
     .filter(Boolean);
 const browser = Object.fromEntries(BROWSER.map((n) => [n, "readonly"]));

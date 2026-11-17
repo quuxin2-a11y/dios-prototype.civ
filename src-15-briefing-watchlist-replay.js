@@ -503,6 +503,38 @@ function brDraw() {
     "</div>";
   // How the map is drawn: for phones whose graphics chip flickers with one of them.
   h +=
+    '<h4 class="mono">EMERGENCY ALERTS</h4><div class="brt c1"><button data-br="am" class="' +
+    (amOn() ? "on" : "") +
+    '">' +
+    (amOn() ? "● " : "○ ") +
+    'Alerts for my location</button><button data-br="amtest">Test the alert screen</button></div><p class="brhint">Official National Weather Service warnings for where you are (US) take over the screen with a tone, and arrive as notifications while the app is closed. Your phone\'s own Wireless Emergency Alerts still come from your carrier.</p>' +
+    '<h4 class="mono">PLACES I CARE ABOUT</h4><div class="amplaces">' +
+    AL.places
+      .map(function (p, i) {
+        var busy = OFF.busy === i;
+        return (
+          "<span>" +
+          esc(p.name) +
+          (p.phone ? ' <i title="Has a phone number">💬</i>' : "") +
+          '<button data-br="ampk-' +
+          i +
+          '" aria-label="Save the map of ' +
+          esc(p.name) +
+          ' for use without signal" class="' +
+          (p.off ? "done" : "") +
+          '">' +
+          (busy ? "…" : p.off ? "✓ OFFLINE" : "⇩ OFFLINE") +
+          '</button><button data-br="amrm-' +
+          i +
+          '" aria-label="Stop watching ' +
+          esc(p.name) +
+          '">✕</button></span>'
+        );
+      })
+      .join("") +
+    '</div><form class="amform" id="amForm"><input id="amQ" type="search" placeholder="Address or city" autocomplete="off"><input id="amN" type="text" placeholder="Name: Home, Mom…" autocomplete="off" maxlength="28"><input id="amP" type="tel" placeholder="Their phone (optional)" autocomplete="off" maxlength="20"><button>Add</button></form><p class="brhint">Warnings for these places reach you wherever you are, up to 8 places. With a phone number, the warning offers a ready text: are you OK? ⇩ OFFLINE saves the map around a place so it still shows without signal. Numbers stay on this phone.</p>' +
+    '<h4 class="mono">RECENT ALERTS</h4>' +
+    amHistHtml() +
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
@@ -575,7 +607,9 @@ function brDraw() {
     (SET.rail !== false ? "● " : "○ ") +
     "Show the Layers panel on the map</button></div>";
   h +=
-    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version 85 · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
+    '<h4 class="mono">DATA</h4><div class="brt"><button data-br="report">Live report (PDF)</button><button data-br="clearbc">Reset dismissed alerts</button></div><h4 class="mono">ABOUT</h4><div class="brc"><span>Version ' +
+    APP_V +
+    ' · © 2026 Mark Joseph</span><div class="bra"><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a><a class="brl" href="https://github.com/quuxin2-a11y/dios-prototype.civ/blob/main/THIRD-PARTY.md" target="_blank" rel="noopener">Sources and credits</a></div></div>';
   h += '</div><div class="nf mono">EVERYTHING HERE STAYS ON THIS DEVICE</div>';
   var sc = el.querySelector(".nl"),
     st = sc ? sc.scrollTop : 0;
@@ -656,6 +690,29 @@ document.addEventListener("click", function (e) {
     ls("ojos-bc", {});
     newsMerge();
     note("Alerts", "Dismissed broadcasts will show again if they are still active.");
+  } else if (k === "am") {
+    SET.alertMe = !amOn();
+    setSave();
+    brDraw();
+    AM.natAt = 0;
+    if (SET.alertMe) {
+      AM.ask = true; // turning it on is the moment to ask for location
+      amCheck();
+    } else natCall("setAlertWatch", { on: false, places: [] });
+  } else if (k.indexOf("amh-") === 0) {
+    brClose();
+    amAgain(+k.slice(4));
+  } else if (k.indexOf("ampk-") === 0) {
+    offPlace(+k.slice(5));
+  } else if (k.indexOf("amrm-") === 0) {
+    AL.places.splice(+k.slice(5), 1);
+    alSave();
+    AM.natKey = "";
+    amNative();
+    brDraw();
+  } else if (k === "amtest") {
+    brClose();
+    amTest();
   } else if (k === "bg") {
     if (SET.bg) {
       SET.bg = false;

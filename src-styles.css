@@ -7947,3 +7947,771 @@ body.rw #t4bar [data-t4="x"] {
   font-size: 16px !important;
   color: var(--ink);
 }
+
+/* ---------- v86: the radio player and emergency radio ---------- */
+#radiobar {
+  display: none;
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+  z-index: 60;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 14px;
+  border: 1px solid #ff6ad566;
+  background: #0a0d14f2;
+}
+#radiobar b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #ffd6f3;
+}
+#radiobar .radiodot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b6b;
+  animation: rpPulse 1.4s ease-in-out infinite;
+}
+@keyframes rpPulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+#radiobar button {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #121822;
+  color: var(--ink);
+  padding: 7px 12px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+#emgp .rplist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+#emgp .rprow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #ffffff14;
+  background: #ffffff08;
+  color: var(--ink);
+}
+#emgp .rprow.on {
+  border-color: #ff6ad5aa;
+  background: #ff6ad51a;
+}
+#emgp .rprow i {
+  font-style: normal;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff6ad533;
+  color: #ffd6f3;
+}
+#emgp .rprow span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+#emgp .rprow b {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+#emgp .rprow em {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+/* In emergency mode the radio bar sits above the emergency pill. */
+html.emg #radiobar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 126px);
+}
+body.radioon #rw3d {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 130px);
+}
+
+/* ---------- v87: emergency alert screen ---------- */
+#alertpop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px
+    calc(env(safe-area-inset-bottom, 0px) + 14px);
+  background: #12030599;
+}
+#alertpop .amcard {
+  width: 100%;
+  max-width: 520px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 20px 18px 16px;
+  border-radius: 18px;
+  border: 2px solid #ff3b4e;
+  background: #120609;
+  color: #fff;
+  box-shadow:
+    0 0 0 6px #ff3b4e22,
+    0 20px 60px #000c;
+}
+#alertpop .amcard > b {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #ff3b4e;
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  animation: rpPulse 1.2s ease-in-out infinite;
+}
+#alertpop h2 {
+  margin: 12px 0 4px;
+  font-size: 26px;
+  line-height: 1.15;
+}
+#alertpop .amwho {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: #ffb3bb;
+}
+#alertpop .amarea {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #ffd9dd;
+}
+#alertpop .amhead {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+#alertpop h4 {
+  margin: 12px 0 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: #ff8b97;
+}
+#alertpop .amtext {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+#alertpop details {
+  margin-top: 10px;
+}
+#alertpop summary {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: #ff8b97;
+}
+#alertpop .ambtn {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 10px;
+}
+#alertpop .ambtn button {
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #ffffff33;
+  background: #ffffff10;
+  color: #fff;
+  font-size: 14px;
+}
+#alertpop .ambtn .amok {
+  background: #ff3b4e;
+  border-color: #ff3b4e;
+  font-weight: 700;
+}
+#alertpop small {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: #ffb3bbaa;
+}
+
+/* ---------- v88: weather radio as text ---------- */
+#emgp .rptext {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #4cc3ff33;
+  background: #4cc3ff0d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+#emgp .rptext > b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #8fd8ff;
+}
+#emgp .rptext p {
+  margin: 0 0 6px;
+}
+#emgp .rptext i {
+  font-style: normal;
+  font-weight: 600;
+}
+#emgp .rpalert {
+  margin: 0 0 8px;
+  padding-left: 8px;
+  border-left: 3px solid #ff3b4e;
+}
+#emgp .rpalert em {
+  font-style: normal;
+  font-weight: 700;
+  color: #ff8b97;
+}
+#emgp .rptext summary {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ---------- v89: saved camera grids and places to watch ---------- */
+#cgp .cgsaved {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#cgp .cgchip {
+  display: flex;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  overflow: hidden;
+}
+#cgp .cgchip.on {
+  border-color: var(--accent);
+}
+#cgp .cgchip button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  height: 32px;
+  padding: 0 4px 0 12px;
+  font-size: 12.5px;
+}
+#cgp .cgchip button + button {
+  padding: 0 10px 0 6px;
+  opacity: 0.55;
+  font-size: 11px;
+}
+#cgp .cgsave {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px dashed var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+#brief .amplaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+#brief .amplaces span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 12px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  font-size: 12.5px;
+}
+#brief .amplaces button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.55;
+  padding: 0 6px;
+}
+#brief .amform {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+#brief .amform input {
+  flex: 1 1 40%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0b1219;
+  color: var(--ink);
+  font-size: 14px;
+}
+#brief .amform button {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--accent);
+  color: #02130c;
+  font-weight: 800;
+}
+#alertpop .amfor {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #fff;
+}
+
+/* ---------- v90: offline places, recent alerts, text them ---------- */
+#brief .amplaces span i {
+  font-style: normal;
+  font-size: 11px;
+}
+#brief .amplaces button[data-br^="ampk-"] {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  color: var(--accent);
+}
+#brief .amplaces button.done {
+  color: #39d98a;
+}
+#brief .amform {
+  flex-wrap: wrap;
+}
+#brief .amform input {
+  flex: 1 1 45%;
+}
+#brief .amhist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+#brief .amhist button {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #ff3b4e33;
+  background: #ff3b4e0d;
+  color: var(--ink);
+  text-align: left;
+}
+#brief .amhist b {
+  font-size: 13px;
+}
+#brief .amhist span {
+  font-size: 11px;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+#alertpop .amsms {
+  display: block;
+  margin: 14px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ffffff14;
+  border: 1px solid #ffffff33;
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ---------- v91: a clean top bar ---------- */
+/* The dashboard has its own counts: no command-mode status strip above it. */
+body.rw #cmdbar {
+  display: none !important;
+}
+#rwdash .rwcount {
+  justify-content: flex-start;
+  min-width: 0;
+  gap: 9px;
+}
+@media (max-width: 560px) {
+  #rwdash.rwmany .rwbrand b {
+    display: none;
+  }
+}
+
+/* ---------- v91: camera web ---------- */
+#cwp {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: radial-gradient(circle at 50% 50%, #0a1a24f0, #02050af7 70%);
+  overflow: hidden;
+}
+#cwp .cwhead {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+#cwp .cwhead b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+#cwp .cwhead button {
+  height: 38px;
+  min-width: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0d151f;
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+#cwp .cwlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+#cwp .cwlines line {
+  stroke: #36e0ff;
+  stroke-opacity: 0.45;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 4;
+}
+#cwp .cwt {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
+  border-radius: 9px;
+  border: 1px solid #36e0ff55;
+  background: #08111a;
+  color: var(--ink);
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 6px 18px #000a;
+}
+#cwp .cwt img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #0b1219;
+}
+#cwp .cwt span {
+  display: block;
+  padding: 3px 6px 0;
+  font-size: 9.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#cwp .cwt em {
+  display: block;
+  padding: 0 6px 4px;
+  font-style: normal;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#cwp .cwt.mid {
+  z-index: 3;
+  border: 2px solid var(--accent);
+  box-shadow:
+    0 0 0 6px #36e0ff1f,
+    0 10px 30px #000c;
+}
+#cwp .cwt.mid span {
+  font-size: 11px;
+  font-weight: 700;
+}
+#cwp .cwnone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  text-align: center;
+  color: var(--ink);
+  opacity: 0.7;
+}
+#cgp .cgopen.cgweb {
+  right: auto;
+  left: 8px;
+}
+
+/* ---------- v91: highlight in the 3D view ---------- */
+body.rw #t4bar [data-insp],
+body.rw #t4bar [data-hl] {
+  width: auto !important;
+  padding: 0 12px !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+}
+#hlcard {
+  display: none;
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+  z-index: 30;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid #36e0ff55;
+  background: #060a10ee;
+  color: var(--ink);
+}
+#hlcard > b,
+#hlcard .hlh b {
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+#hlcard .hlh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#hlcard .hlh b {
+  flex: 1;
+}
+#hlcard .hlh button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0d151f;
+  color: var(--ink);
+}
+#hlcard h3 {
+  margin: 6px 0 8px;
+  font-size: 19px;
+}
+#hlcard .hlkv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 12px;
+  font-size: 12.5px;
+}
+#hlcard .hlkv span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #8fa3b3;
+  padding-top: 2px;
+}
+#hlcard .hlx {
+  margin: 10px 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+#hlcard small {
+  display: block;
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+/* ---------- v91: 3D space ---------- */
+#sky.space #skycv,
+#sky.space .skybot,
+#sky.space #skyinfo {
+  display: none;
+}
+#spx {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: #000;
+}
+#spxcv {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+#spxlabels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+#spx .spxl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
+  height: auto !important;
+  margin: -9px 0 0 0;
+  padding: 2px 7px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: #00000066 !important;
+  color: #e9f3ff !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap;
+  pointer-events: auto;
+  translate: -50% -100%;
+  text-shadow: 0 1px 3px #000;
+}
+#spx .spxl.planet {
+  font-size: 12px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+}
+#spx .spxl.moon {
+  color: #c9d3de !important;
+  font-weight: 500 !important;
+}
+#spx .spxl.site {
+  color: #ffd36b !important;
+}
+#spx .spxl.site::before,
+#spx .spxl.sat::before,
+#spx .spxl.lpoint::before,
+#spx .spxl.probe::before {
+  content: "◆ ";
+  font-size: 8px;
+}
+#spx .spxl.probe,
+#spx .spxl.lpoint {
+  color: #8fe9ff !important;
+}
+#spx .spxl.sat {
+  color: #8fe9ff !important;
+}
+#spx .spxbar,
+#spx .spxgo {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#spx .spxbar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#spx .spxbar span {
+  flex: 1 0 100%;
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: #9fb6c9;
+}
+#spx .spxgo {
+  top: calc(env(safe-area-inset-top, 0px) + 88px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#spx .spxgo button,
+#spx .spxbar button {
+  flex: 0 0 auto;
+  height: 32px !important;
+  padding: 0 11px !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+  background: #070d18cc !important;
+}
+#spxcard {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+  display: none;
+  max-height: 44vh;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid #ffffff26;
+  background: #050a14e8;
+  color: #dfe9f5;
+  font-size: 13px;
+}
+#spxcard .spxch {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+#spxcard .spxch div {
+  flex: 1;
+}
+#spxcard .spxch b {
+  display: block;
+  font-size: 19px;
+  color: #fff;
+}
+#spxcard .spxch i {
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+#spxcard .spxch button {
+  height: 32px !important;
+  width: 32px;
+  padding: 0 !important;
+}
+#spxcard > div:not(.spxch) {
+  padding: 3px 0;
+  border-top: 1px solid #ffffff10;
+}
+#spxcard span {
+  display: inline-block;
+  min-width: 128px;
+  color: var(--accent);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}

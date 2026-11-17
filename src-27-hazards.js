@@ -52,7 +52,8 @@ var WL_GROUP = {};
   ["Culture and area facts", "museum historic unesco places countryfacts"],
   ["Farming", "farming farmshop"],
   ["Networks and wind", "cables towers windfarm"],
-  ["Conflict", "conflict military"]
+  ["Conflict and security", "conflict military crime"],
+  ["Politics", "leaders"]
 ].forEach(function (g) {
   g[1].split(" ").forEach(function (k) {
     WL_GROUP[k] = g[0];

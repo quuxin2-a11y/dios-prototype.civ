@@ -165,6 +165,265 @@ ilDef({
   }
 });
 
+// ---------- Radio player: one station at a time, kept playing across the app ----------
+// A small bar above the dock shows what is on and stops it. The audio element is made once, so
+// redrawing a panel never cuts the sound.
+var RDO = {
+    audio: null,
+    id: "",
+    name: "",
+    near: null,
+    nearAt: 0,
+    nearPos: null,
+    busy: false,
+    nwr: null,
+    wx: null
+  },
+  RDO_NEWS = /news|talk|public|npr|emergency|weather|information|community|local/i;
+
+function rdoPlay(id, url, name) {
+  if (!RDO.audio) {
+    RDO.audio = new window.Audio();
+    RDO.audio.preload = "none";
+    RDO.audio.addEventListener("error", function () {
+      if (!RDO.id) return;
+      note("Radio", RDO.name + " isn't answering right now. Try another station.");
+      rdoStop();
+    });
+  }
+  RDO.id = id;
+  RDO.name = name;
+  RDO.audio.src = url;
+  var p = RDO.audio.play();
+  if (p && p.catch) p.catch(function () {}); // the error listener reports a station that fails
+  rdoBar();
+}
+
+function rdoStop() {
+  RDO.id = "";
+  if (RDO.audio) {
+    RDO.audio.pause();
+    RDO.audio.removeAttribute("src");
+    RDO.audio.load();
+  }
+  rdoBar();
+  if (typeof emgDraw === "function") emgDraw();
+}
+
+function rdoBar() {
+  var el = $("radiobar");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "radiobar";
+    el.innerHTML =
+      '<span class="radiodot"></span><b class="mono" id="radioname"></b><button aria-label="Stop the radio">■ STOP</button>';
+    el.querySelector("button").onclick = rdoStop;
+    document.body.appendChild(el);
+  }
+  $("radioname").textContent = RDO.name ? "LIVE · " + RDO.name.toUpperCase() : "";
+  el.style.display = RDO.id ? "flex" : "none";
+  document.body.classList.toggle("radioon", !!RDO.id); // lifts "See in 3D" above the bar
+}
+
+// Stations near a position, news and talk first, nearest first within each. Asked again once the
+// person has moved about 20 km or after half an hour.
+function rdoNear(lat, lon) {
+  var fresh =
+    RDO.near &&
+    RDO.nearPos &&
+    Date.now() - RDO.nearAt < 1800000 &&
+    hav(lat, lon, RDO.nearPos[0], RDO.nearPos[1]) < 20;
+  if (fresh || RDO.busy) return;
+  RDO.busy = true;
+  var ask = function (km) {
+    return rbGet(
+      "/json/stations/search?has_geo_info=true&hidebroken=true&order=clickcount&reverse=true&limit=120" +
+        "&geo_lat=" +
+        lat.toFixed(3) +
+        "&geo_long=" +
+        lon.toFixed(3) +
+        "&geo_distance=" +
+        km * 1000
+    ).then(function (list) {
+      return rbItems({ key: "radio" }, list);
+    });
+  };
+  ask(150)
+    .then(function (l) {
+      return l.length >= 4 ? l : ask(500);
+    })
+    .then(function (l) {
+      l.forEach(function (x) {
+        x.km = hav(lat, lon, x.lat, x.lon);
+        x.newsy = RDO_NEWS.test(x.n + " " + ((x.rows && x.rows[0] && x.rows[0][1]) || ""));
+      });
+      l.sort(function (a, b) {
+        return b.newsy - a.newsy || a.km - b.km;
+      });
+      RDO.near = l.slice(0, 8);
+      RDO.nearAt = Date.now();
+      RDO.nearPos = [lat, lon];
+    })
+    .catch(function () {
+      RDO.near = RDO.near || [];
+    })
+    .then(function () {
+      RDO.busy = false;
+      if (typeof emgDraw === "function") emgDraw();
+    });
+  // The nearest NOAA Weather Radio transmitter, for a battery or car radio (US only).
+  if (!RDO.nwr)
+    netGet("https://www.weather.gov/source/nwr/JS/CCL.js", 40000, null, true)
+      .then(function (t) {
+        RDO.nwr = nwrParse(t);
+        if (typeof emgDraw === "function") emgDraw();
+      })
+      .catch(function () {});
+}
+
+// What NOAA Weather Radio is reading for this place, as the National Weather Service's own text: its
+// active alerts, then the forecast. The broadcast is a computer voice reading these same products, so
+// this is the exact wording rather than a transcription. Fetched again after ten minutes.
+function rdoWx(lat, lon) {
+  var w = RDO.wx;
+  if (w && (w.busy || (Date.now() - w.at < 600000 && hav(lat, lon, w.lat, w.lon) < 10))) return;
+  w = RDO.wx = {
+    busy: true,
+    at: Date.now(),
+    lat: lat,
+    lon: lon,
+    alerts: (w && w.alerts) || [],
+    fc: (w && w.fc) || []
+  };
+  var pt = lat.toFixed(4) + "," + lon.toFixed(4);
+  Promise.all([
+    getJSON("https://api.weather.gov/alerts/active?status=actual&point=" + pt, 20000)
+      .then(function (j) {
+        w.alerts = ((j && j.features) || [])
+          .map(function (f) {
+            return f.properties || {};
+          })
+          .filter(function (p) {
+            return p.event && !/test/i.test(p.event);
+          });
+      })
+      .catch(function () {}),
+    getJSON("https://api.weather.gov/points/" + pt, 20000)
+      .then(function (j) {
+        var u = j && j.properties && j.properties.forecast;
+        return /^https:\/\/api\.weather\.gov\//.test(u || "") ? getJSON(u, 20000) : null;
+      })
+      .then(function (j) {
+        if (j && j.properties) w.fc = (j.properties.periods || []).slice(0, 3);
+      })
+      .catch(function () {})
+  ]).then(function () {
+    w.busy = false;
+    w.ok = true;
+    if (typeof emgDraw === "function") emgDraw();
+  });
+}
+
+function rdoWxHtml() {
+  var w = RDO.wx;
+  if (!w || (!w.ok && !w.alerts.length && !w.fc.length)) return "";
+  var h =
+    '<div class="rptext"><b class="mono">WHAT THE WEATHER RADIO IS READING · NWS TEXT</b>' +
+    w.alerts
+      .slice(0, 4)
+      .map(function (p) {
+        return (
+          '<div class="rpalert"><em>' +
+          esc(p.event) +
+          "</em><p>" +
+          esc(p.headline || "") +
+          "</p>" +
+          (p.description
+            ? "<details><summary>Full message</summary><p>" + esc(p.description) + "</p></details>"
+            : "") +
+          "</div>"
+        );
+      })
+      .join("") +
+    w.fc
+      .map(function (f) {
+        return (
+          "<p><i>" +
+          esc(f.name || "") +
+          ":</i> " +
+          esc(f.detailedForecast || f.shortForecast || "") +
+          "</p>"
+        );
+      })
+      .join("");
+  if (!w.alerts.length && !w.fc.length)
+    h += "<p>No National Weather Service text for this spot right now.</p>";
+  return h + "</div>";
+}
+
+function rdoNwrNear(lat, lon) {
+  var best = null,
+    bk = 160; // a transmitter reaches about 40 miles; beyond 100 it's no help
+  (RDO.nwr || []).forEach(function (s) {
+    var k = hav(lat, lon, s.lat, s.lon);
+    if (k < bk && /normal/i.test(s.status)) {
+      bk = k;
+      best = s;
+    }
+  });
+  return best;
+}
+
+// The RADIO section of emergency mode: live local stations that play right here, and the
+// weather-radio frequency to tune.
+function rdoEmgHtml(pos) {
+  if (!pos) return '<div class="brc"><span>Waiting for your position.</span></div>';
+  rdoNear(pos.lat, pos.lon);
+  var h = "",
+    w = rdoNwrNear(pos.lat, pos.lon);
+  if (w)
+    h +=
+      '<div class="brc"><span><b>NOAA Weather Radio ' +
+      esc(w.freq) +
+      " MHz</b> · " +
+      esc(w.site) +
+      ". Official hazard warnings around the clock: tune any weather or emergency radio here, it works when phones and internet don't.</span></div>";
+  if (w || (pos.lat > 17 && pos.lat < 72 && pos.lon < -64)) {
+    rdoWx(pos.lat, pos.lon); // US and territories, where the National Weather Service publishes
+    h += rdoWxHtml();
+  }
+  if (!RDO.near) return h + '<div class="brc"><span>Finding live stations near you…</span></div>';
+  if (!RDO.near.length)
+    return (
+      h + '<div class="brc"><span>No live station near you lists a stream we can play.</span></div>'
+    );
+  return (
+    h +
+    '<div class="rplist">' +
+    RDO.near
+      .map(function (x, i) {
+        var on = RDO.id === x.id;
+        return (
+          '<button class="rprow' +
+          (on ? " on" : "") +
+          '" data-em="rp-' +
+          i +
+          '"><i>' +
+          (on ? "■" : "▶") +
+          "</i><span><b>" +
+          esc(x.n) +
+          "</b><em>" +
+          (x.newsy ? "NEWS · " : "") +
+          Math.round(x.km * 0.621) +
+          " MI" +
+          "</em></span></button>"
+        );
+      })
+      .join("") +
+    "</div>"
+  );
+}
+
 // LiveATC listing for an airport code (used from aircraft details).
 function liveAtcUrl(code) {
   code = String(code || "").toUpperCase();

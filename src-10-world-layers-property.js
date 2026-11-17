@@ -14,7 +14,7 @@ var WL = ls("ojos-layers") || {
   quake: true,
   event: true,
   night: true,
-  tiles: true
+  tiles: false
 };
 if (WL.img === undefined) WL.img = true;
 if (WL.parcel === undefined) WL.parcel = true;
@@ -23,6 +23,11 @@ if (WL.labels === undefined) WL.labels = true;
 if (WL.ship === undefined) WL.ship = false;
 if (WL.dots === undefined) WL.dots = true;
 if (WL.radar === undefined) WL.radar = false;
+// v91: the grouped "Nearby" tiles gave way to the camera web; turned off once, still in Layers.
+if (!WL.tilesV) {
+  WL.tilesV = 1;
+  WL.tiles = false;
+}
 var PLANES = [],
   SATREC = [],
   SATS = [],
