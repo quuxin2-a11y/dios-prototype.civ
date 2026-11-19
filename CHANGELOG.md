@@ -4,6 +4,7 @@ Commit messages in this repository were made from a phone upload and are not des
 
 ## v98
 - **Country and state borders and names always show:** the outlines now ship inside the app instead of downloading on first use, so the Smooth globe draws them straight away, offline or on a weak signal. Borders are brighter and thicker and country names are larger and clearer.
+- **Conflict panel no longer overlaps:** the summary line now sits under the title instead of squeezing beside it, and the filter chips and list keep their own space.
 - **See in 3D is always offered:** the button now appears from a city-level zoom whether or not a Google Maps key is saved; without one it tells you where to add it (Settings → Manage keys).
 
 ## v97
