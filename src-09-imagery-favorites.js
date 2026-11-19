@@ -636,7 +636,32 @@ function feed() {
   var big = QUAKES.slice().sort(function (a, b) {
     return b.mag - a.mag;
   })[0];
+  var tabs =
+    '<div class="evtabs">' +
+    [
+      ["events", "Events"],
+      ["live", "Live news"],
+      ["emg", "⚠ Emergency"]
+    ]
+      .map(function (t) {
+        return (
+          '<button data-evt="' +
+          t[0] +
+          '" class="' +
+          (EVT.tab === t[0] ? "on" : "") +
+          '">' +
+          t[1] +
+          "</button>"
+        );
+      })
+      .join("") +
+    "</div>";
+  if (EVT.tab !== "events") {
+    el.innerHTML = tabs + evtNewsHtml(EVT.tab);
+    return;
+  }
   el.innerHTML =
+    tabs +
     alHTML() +
     "<h4>EVENT FEED</h4>" +
     (big
@@ -671,6 +696,143 @@ function feed() {
           : "The event feed loads in the installed app.") +
         "</p>");
 }
+// ---------- Events → Live news and Emergency: headlines and alerts from around the world ----------
+var EVT = { tab: "events", list: [] };
+// Headlines that are about an emergency somewhere.
+var EVT_EMG =
+  /\b(earthquake|tsunami|hurricane|cyclone|typhoon|tornado|flood(s|ing)?|wildfire|bushfire|evacuat\w*|eruption|volcano|landslide|explosion|blast|attack|shooting|state of emergency|emergency|warning|outbreak|epidemic|crash|collapse|heatwave|blizzard|storm)\b/i;
+
+function evtLoad() {
+  if (!EMBED_OK) return;
+  if (!NEWS.busy && Date.now() - NEWS.ht > 4 * 60000) newsLoad();
+  if (Date.now() - NEWS.at > 5 * 60000) newsAlerts();
+}
+
+function evtNewsHtml(tab) {
+  evtLoad();
+  var L = [];
+  if (tab === "live") {
+    L = (NEWS.world || [])
+      .map(function (x) {
+        return { x: x, grp: "AROUND THE WORLD" };
+      })
+      .concat(
+        (NEWS.nat || []).map(function (x) {
+          return {
+            x: x,
+            grp: "IN " + String((NEWS.area && NEWS.area.country) || "YOUR COUNTRY").toUpperCase()
+          };
+        })
+      );
+  } else {
+    var seen = {};
+    L = (NEWS.alerts || [])
+      .map(function (x) {
+        return { x: x, grp: "OFFICIAL ALERTS" };
+      })
+      .concat(
+        (NEWS.gdacs || []).map(function (x) {
+          return { x: x, grp: "DISASTERS WORLDWIDE · GDACS (UN / EU)" };
+        })
+      )
+      .concat(
+        (NEWS.world || [])
+          .concat(NEWS.nat || [])
+          .filter(function (x) {
+            return EVT_EMG.test(x.t);
+          })
+          .map(function (x) {
+            return { x: x, grp: "EMERGENCY HEADLINES" };
+          })
+      )
+      .filter(function (r) {
+        var k = r.x.id || r.x.u || r.x.t;
+        if (seen[k]) return false;
+        seen[k] = 1;
+        return true;
+      });
+  }
+  EVT.list = L.map(function (r) {
+    return r.x;
+  });
+  if (!L.length)
+    return (
+      '<p class="note2">' +
+      (!EMBED_OK
+        ? "News loads in the installed app."
+        : NEWS.busy || !NEWS.ht
+          ? "Loading headlines from around the world…"
+          : tab === "emg"
+            ? "No emergencies reported right now."
+            : "No headlines right now. Check the connection.") +
+      "</p>"
+    );
+  var last = "";
+  return L.map(function (r, i) {
+    var x = r.x,
+      head = r.grp !== last ? "<h4>" + esc(r.grp) + "</h4>" : "";
+    last = r.grp;
+    var c =
+      x.lvl >= 3 ? "#ff3b55" : x.lvl === 2 ? "#ffb040" : tab === "emg" ? "#ffd166" : "#3fe0d0";
+    return (
+      head +
+      '<div class="row evn"><i style="background:' +
+      c +
+      '"></i><div data-evn="' +
+      i +
+      '"><b>' +
+      esc(x.t) +
+      "</b><span>" +
+      esc([x.sub, x.src, x.d ? ago(x.d) : ""].filter(Boolean).join(" · ")) +
+      "</span></div>" +
+      (isFinite(x.lat) && isFinite(x.lon) && (x.lat || x.lon)
+        ? '<button class="evmap" data-evm="' + i + '" aria-label="Show on the map">◎</button>'
+        : "") +
+      "</div>"
+    );
+  }).join("");
+}
+
+// Fly the map to a place in the news.
+function evtFly(x) {
+  try {
+    if (T3.on && T3.map) {
+      T3.map.flyTo({ center: [x.lon, x.lat], zoom: 6, duration: 1800 });
+      return;
+    }
+  } catch (er) {}
+  target = { lon: x.lon, lat: x.lat, z: Math.max(zoom, 6) };
+}
+
+document.addEventListener("click", function (e) {
+  var t = e.target.closest("[data-evt]");
+  if (t) {
+    EVT.tab = t.getAttribute("data-evt");
+    feed();
+    var sc = $("feed");
+    if (sc && sc.parentElement) sc.parentElement.scrollTop = 0;
+    // Headlines arrive a few seconds after asking; draw again as they come in.
+    [2500, 6000, 12000].forEach(function (ms) {
+      setTimeout(function () {
+        if (EVT.tab !== "events") feed();
+      }, ms);
+    });
+    return;
+  }
+  var m = e.target.closest("[data-evm]");
+  if (m) {
+    var mx = EVT.list[+m.getAttribute("data-evm")];
+    if (mx) evtFly(mx);
+    return;
+  }
+  var n = e.target.closest("[data-evn]");
+  if (n) {
+    var nx = EVT.list[+n.getAttribute("data-evn")];
+    if (nx && nx.u) openPage(nx.u, nx.src || "News");
+    return;
+  }
+});
+
 document.addEventListener("click", function (e) {
   var r = e.target.closest("[data-ev]");
   if (r && EVFEED[+r.getAttribute("data-ev")]) select(EVFEED[+r.getAttribute("data-ev")]);

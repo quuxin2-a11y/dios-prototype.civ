@@ -595,10 +595,10 @@ function displayAndroid() {
   return /Android/i.test(window.__ODD_UA || navigator.userAgent || "");
 }
 
+// The Smooth globe is the app's only view (v97): a round globe from space that becomes the flat map
+// as you zoom in. The other drawings ("globe", "flat") are no longer offered.
 function displayMode() {
-  var d = SET.display === "simple" ? "hybrid" : SET.display;
-  if (/^(globe|hybrid|flat)$/.test(d || "")) return d;
-  return displayAndroid() || displayFlicky() ? "hybrid" : "globe";
+  return "hybrid";
 }
 
 // True while the app's own globe is standing in for the map engine in Smooth globe.
@@ -612,23 +612,6 @@ setInterval(function () {
   if (Date.now() - (RW.failT || 0) < OPS_RETRY_MS) return; // the flat map just failed to load
   if (viewKm() < HYB_IN_KM) rwMode("globe", { lon: rot.lon, lat: rot.lat, h: viewKm() * 900 });
 }, 300);
-
-function displaySet(m) {
-  SET.display = m;
-  setSave();
-  errLog("Display set to " + m);
-  if (!RW.on) return;
-  // The map engine is rebuilt so the new drawing applies straight away.
-  if (T3.on) t3Close();
-  if (T3.map)
-    try {
-      T3.map.remove();
-    } catch (e) {}
-  T3.map = null;
-  T3.ready = false;
-  RW.retries = 0;
-  rwMode(m === "hybrid" ? "canvas" : "globe");
-}
 
 // ---------- Smooth globe: borders and names ----------
 // The 2D globe draws country and US state borders and their names itself, from the same outlines

@@ -896,7 +896,7 @@ function t4Near(pos) {
 function t4Flight() {
   var C = window.Cesium,
     v = T4.v;
-  if (!v || !T4.ready || CKP.on) return;
+  if (!v || !T4.ready) return;
   var p = selected && selected.kind === "plane" ? selected : null;
   if (!p) {
     if (T4F.key || T4F.ents.length) t4FlightOff();
@@ -1453,9 +1453,6 @@ function t4Open(opt) {
 function t4Close() {
   if (HL.on) hlClose(); // the highlight belongs to this view
   if (!T4.on) return;
-  try {
-    ckpClose();
-  } catch (e) {}
   T4.on = false;
   // Release the photo tiles' graphics memory while the 3D view is closed; reopening reloads them.
   if (T4.ts && T4.v) {

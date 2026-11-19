@@ -30,7 +30,7 @@ function grab(name) {
 }
 // Constants the functions under test expect from their modules.
 var CONSTANTS =
-  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var CKP_LV=[1000,925,850,700,600,500,400,300,250,200,150];var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var location={href:"https://localhost/"};var FD_TYPES={DR:"Major disaster",EM:"Emergency",FM:"Fire management"};var IO_SIGNALS={bgp:"Routing (BGP)","ping-slash24":"Active probing"};var EO_GIBS="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/";var AQ_BANDS=[[50,"Good","#39d98a"],[100,"Moderate","#ffd84a"],[150,"Unhealthy for sensitive groups","#ff9a2e"],[200,"Unhealthy","#ff4d5e"],[300,"Very unhealthy","#b04dff"],[Infinity,"Hazardous","#8b1a3a"]];var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
+  'var AIRL={AA:"AAL",UA:"UAL"};var D=Math.PI/180;var WL={air:true},PLANES=[1];var VEH={car:1,truck:1,bus:1},TRK={};var EMG_NUM={US:"911",GB:"999"};var TR_STATUS=["Arriving at","Stopped at","Heading to"],TR_OCC=["Empty","Many seats available","Few seats available"];var KP_WORDS=[[9,"Extreme storm (G5)"],[8,"Severe storm (G4)"],[7,"Strong storm (G3)"],[6,"Moderate storm (G2)"],[5,"Minor storm (G1)"],[4,"Active"],[0,"Quiet"]];var location={href:"https://localhost/"};var FD_TYPES={DR:"Major disaster",EM:"Emergency",FM:"Fire management"};var IO_SIGNALS={bgp:"Routing (BGP)","ping-slash24":"Active probing"};var EO_GIBS="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/";var AQ_BANDS=[[50,"Good","#39d98a"],[100,"Moderate","#ffd84a"],[150,"Unhealthy for sensitive groups","#ff9a2e"],[200,"Unhealthy","#ff4d5e"],[300,"Very unhealthy","#b04dff"],[Infinity,"Hazardous","#8b1a3a"]];var GAZ=[["Brussels",50.85,4.352],["Denver",39.739,-104.99]];var SC_OPS=/\\b(dott|voi|lime|bird|tier|spin|bolt|veo|superpedestrian|neuron|beam|link|scooter)/i;';
 // Functions taken from the shipped modules.
 var NAMES = [
   "iou",
@@ -61,8 +61,6 @@ var NAMES = [
   "maMatch",
   "packTiles",
   "pip",
-  "ckpLevel",
-  "ckpScene",
   "planeFromAc",
   "pbVarint",
   "pbFields",
@@ -568,40 +566,6 @@ test("offline pack: a sensible, bounded tile list around a point", function () {
     assert.ok(q[1] >= 0 && q[1] < n && q[2] >= 0 && q[2] < n, k);
   });
   assert.strictEqual(new Set(L).size, L.length);
-});
-test("cockpit: height maps to the right pressure level", function () {
-  assert.strictEqual(F.ckpLevel(0), 1000);
-  assert.strictEqual(F.ckpLevel(1500), 850);
-  assert.strictEqual(F.ckpLevel(5500), 500);
-  assert.strictEqual(F.ckpLevel(10700), 250);
-  assert.strictEqual(F.ckpLevel(20000), 150);
-});
-test("cockpit: the model's numbers become the right view through the windscreen", function () {
-  var s = F.ckpScene({ lvCloud: 90, low: 80, mid: 50, high: 10, precip: 0, day: 1 }, 3000);
-  assert.strictEqual(s.txt, "In cloud");
-  assert.ok(s.cloud > 0.8);
-  s = F.ckpScene({ lvCloud: 0, low: 95, mid: 20, high: 0, precip: 0, day: 1 }, 11000);
-  assert.strictEqual(s.txt, "Above a solid cloud deck");
-  assert.strictEqual(s.cloud, 0);
-  assert.ok(s.under > 0.9);
-  s = F.ckpScene(
-    { lvCloud: 10, low: 90, mid: 90, high: 90, precip: 2, snow: 0, lvT: 8, frz: 3200, day: 0 },
-    600
-  );
-  assert.ok(/Under an overcast sky · rain/.test(s.txt));
-  assert.ok(s.rain > 0 && s.snow === 0 && s.night);
-  s = F.ckpScene(
-    { lvCloud: 10, low: 90, mid: 90, high: 90, precip: 2, snow: 1, lvT: -6, frz: 200, day: 1 },
-    600
-  );
-  assert.ok(s.snow > 0 && s.rain === 0);
-  s = F.ckpScene(
-    { lvCloud: 0, low: 0, mid: 0, high: 0, precip: 3, lvT: -50, frz: 3000, day: 1 },
-    11000
-  );
-  assert.strictEqual(s.txt, "Clear air");
-  assert.strictEqual(s.rain + s.snow, 0);
-  assert.strictEqual(F.ckpScene(null, 5000).cloud, 0);
 });
 test("aircraft: a community-network record converts to the app's units, and grounded or positionless aircraft are skipped", function () {
   var p = F.planeFromAc({

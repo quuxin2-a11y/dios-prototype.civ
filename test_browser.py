@@ -501,6 +501,19 @@ class AppInBrowser(unittest.TestCase):
     def use_dashboard(self):
         self.page.add_init_script("window.__ODD_CLASSIC = false;")
 
+    def open_map(self, page=None):
+        """The app opens on the Smooth globe; zooming in hands over to the map engine. Zoom in until it has."""
+        p = page or self.page
+        p.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        p.wait_for_timeout(1700)  # the globe holds for a moment after it opens
+        vp = p.viewport_size
+        p.mouse.move(vp["width"] / 2, vp["height"] / 2)
+        for _ in range(8):
+            p.mouse.wheel(0, -500)
+            p.wait_for_timeout(60)
+        p.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        p.wait_for_timeout(300)
+
     def visible(self, selector):
         return self.page.is_visible(selector)
 
@@ -884,7 +897,7 @@ class AppInBrowser(unittest.TestCase):
             )
             self.page.reload()
             self.page.wait_for_function(
-                "() => document.body.classList.contains('rw-globe')", timeout=8000
+                "() => document.body.classList.contains('rw-canvas')", timeout=8000
             )
             self.page.wait_for_function(
                 "() => localStorage.getItem('ojos-boot') === JSON.stringify('ok')", timeout=5000
@@ -902,14 +915,12 @@ class AppInBrowser(unittest.TestCase):
             self.page.click(".brand", force=True)
             self.page.wait_for_timeout(60)
 
-    def test_starts_on_the_dark_globe_and_the_logo_opens_the_sky(self):
+    def test_starts_on_the_smooth_globe_zooms_into_the_map_and_the_logo_opens_the_sky(self):
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.reload()
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('rw-globe') && window.__ml.layers.includes('cams')",
-            timeout=15000,
-        )
+        self.open_map()
+        self.page.wait_for_function("() => window.__ml.layers.includes('cams')", timeout=15000)
         style = self.page.evaluate("() => window.__ml.style")
         ids = [layer["id"] for layer in style["layers"]]
         for layer_id in (
@@ -920,7 +931,7 @@ class AppInBrowser(unittest.TestCase):
             "road-name",
         ):
             self.assertIn(layer_id, ids)
-        self.assertEqual(style["projection"], {"type": "globe"})
+        self.assertEqual(style["projection"], {"type": "mercator"})
         self.assertNotIn("sky", style, "the atmosphere flashed the screen on some phones")
         for layer in style["layers"]:
             self.assertNotIn(None, layer.values(), layer["id"])
@@ -944,6 +955,13 @@ class AppInBrowser(unittest.TestCase):
         )
         self.page.add_init_script("window.__OPS_WAIT_MS = 1500; window.__OPS_RETRY_MS = 1000;")
         self.page.reload()
+        # Zooming in from the Smooth globe asks for the map, which never draws.
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        self.page.wait_for_timeout(1700)
+        self.page.mouse.move(195, 420)
+        for _ in range(8):
+            self.page.mouse.wheel(0, -500)
+            self.page.wait_for_timeout(60)
         self.page.wait_for_function(
             "() => document.body.classList.contains('rw-canvas') && !document.body.classList.contains('tilt')"
             " && [...document.querySelectorAll('.toast')].some((t) => /switch back by itself/.test(t.textContent))",
@@ -967,7 +985,7 @@ class AppInBrowser(unittest.TestCase):
             " localStorage.setItem('ojos-boot', JSON.stringify('pending')); }"
         )
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=8000)
+        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
         self.page.wait_for_function("() => localStorage.getItem('ojos-boot') === JSON.stringify('ok')", timeout=5000)
         self.assertEqual(self.errors, [])
 
@@ -1000,6 +1018,7 @@ class AppInBrowser(unittest.TestCase):
             "localStorage.setItem('ojos-layers', JSON.stringify({cables: true, border: true}))"
         )
         self.page.reload()
+        self.open_map()
         self.page.wait_for_function(
             "() => window.__ml && window.__ml.sources.info && window.__ml.sources.infoline"
             " && window.__ml.sources.infoline.data.features.length >= 1"
@@ -1297,7 +1316,7 @@ class AppInBrowser(unittest.TestCase):
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.open_map()
         self.page.wait_for_function("() => +document.getElementById('kLive').textContent.replace(/\\D/g, '') >= 3", timeout=10000)
         self.assertFalse(self.visible("#cpins"), "not from far out")
         # Zoomed into Yellowstone, by Mount Washburn's camera.
@@ -1324,7 +1343,7 @@ class AppInBrowser(unittest.TestCase):
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.open_map()
         self.page.evaluate("() => { __mlMap.z = 9; }")
         self.page.wait_for_function(
             "() => __ml.sources.world && __ml.sources.world.data.features.length", timeout=10000
@@ -1472,13 +1491,12 @@ class AppInBrowser(unittest.TestCase):
     def test_the_top_bar_keeps_every_count_readable(self):
         self.page.add_init_script(
             "localStorage.setItem('ojos-layers', JSON.stringify({air: true, ship: true}));"
-            " const s = JSON.parse(localStorage.getItem('ojos-set') || '{}'); s.cmd = true; localStorage.setItem('ojos-set', JSON.stringify(s));"
+            "localStorage.setItem('godeye-keys', JSON.stringify({ais: 'test-key'}));"
         )
         self.use_dashboard()
         self.page.reload()
         self.page.wait_for_selector("#rwdash .rwcount span", timeout=8000)
         self.page.wait_for_timeout(1200)
-        self.assertFalse(self.visible("#cmdbar"), "no status strip over the dashboard")
         self.page.wait_for_function("() => document.getElementById('rwdash').classList.contains('rwmany')", timeout=5000)
         fits = self.page.evaluate("() => { const c = document.getElementById('rwcount'); return c.scrollWidth <= c.clientWidth + 1; }")
         self.assertTrue(fits, "the counts are not cut off")
@@ -1498,7 +1516,7 @@ class AppInBrowser(unittest.TestCase):
         self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.open_map()
         self.page.wait_for_timeout(300)
         self.page.evaluate("() => { __mlMap.z = 15.5; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
         self.page.click("#rw3d")
@@ -1515,7 +1533,7 @@ class AppInBrowser(unittest.TestCase):
         self.assertFalse(self.visible("#hlcard"))
         self.assertEqual(self.errors, [])
 
-    def test_moving_lists_aircraft_and_opens_the_cockpit_in_one_tap(self):
+    def test_moving_lists_aircraft_nearest_first_and_opens_one(self):
         ac = {"ac": [
             {"hex": "a1b2c3", "flight": "SWA1234 ", "lat": 30.25, "lon": -97.68, "alt_baro": 3000, "gs": 150, "track": 180, "t": "B737"},
             {"hex": "d4e5f6", "flight": "AAL22 ", "lat": 31.9, "lon": -97.1, "alt_baro": 31000, "gs": 450, "track": 20},
@@ -1523,13 +1541,12 @@ class AppInBrowser(unittest.TestCase):
         self.page.route("**/api.adsb.lol/v2/point/**", lambda r: r.fulfill(body=json.dumps(ac), content_type="application/json", headers={"access-control-allow-origin": "*"}))
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
-        self.page.add_init_script(CESIUM_STANDIN)
         self.page.add_init_script(
             "localStorage.setItem('ojos-layers', JSON.stringify({air: true, img: true}));"
-            "localStorage.setItem('godeye-keys', JSON.stringify({gmaps: 'test-key'}));"
+            "localStorage.setItem('godeye-keys', JSON.stringify({ais: 'test-key'}));"
         )
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.open_map()
         self.page.evaluate("() => { __mlMap.c = { lng: -97.7, lat: 30.3 }; }")
         self.page.click("#rwdash .rwdock [data-rw='moving']")
         self.page.wait_for_selector("#mvp .mvrow", timeout=15000)
@@ -1540,14 +1557,12 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("#mvp [data-mv='f-ship']")
         self.assertTrue(self.visible("#mvp [data-mv='on-ship']"))
         self.page.click("#mvp [data-mv='f-plane']")
-        # ✈ PILOT goes straight to the cockpit, with nothing from the map over it.
-        self.page.click("#mvp [data-mv='pilot-a1b2c3']")
-        self.page.wait_for_selector("#ckp", state="visible", timeout=10000)
+        # A tap flies there and opens its details.
+        self.page.click("#mvp .mvgo >> nth=0")
         self.assertFalse(self.visible("#mvp"))
-        self.assertFalse(self.visible("#rwdash .rwdock"))
-        self.assertFalse(self.visible("#rwdash .rwtop"))
-        self.page.click("#ckpx")
-        self.assertFalse(self.visible("#ckp"))
+        self.page.wait_for_selector("#detail h3", timeout=5000)
+        self.assertIn("SWA1234", self.page.inner_text("#detail h3"))
+        self.assertEqual(self.page.locator("[data-ckp], #ckp, [data-mv^='pilot-'], [data-tr='pilot']").count(), 0)
         self.assertEqual(self.errors, [])
 
     def test_layers_follow_the_zoom(self):
@@ -1555,16 +1570,18 @@ class AppInBrowser(unittest.TestCase):
         self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.add_init_script("localStorage.setItem('ojos-layers', JSON.stringify({bikes: true, economy: true, img: true}));")
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.open_map()
         status = "(k) => document.querySelector(`#wlayers [data-wl='${k}']`).textContent"
-        # From space: the close-up layer waits, the worldwide one shows.
-        self.page.evaluate("() => { __mlMap.z = 2; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
-        self.page.wait_for_function("(f) => eval(f)('bikes').includes('ZOOM IN TO SHOW')", arg=status, timeout=4000)
-        self.assertNotIn("TO SHOW", self.page.evaluate(status, "economy"))
+        # A continent in view: the close-up layer waits, the worldwide one shows.
+        self.page.evaluate("() => { __mlMap.z = 3.5; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
+        self.page.wait_for_function(
+            "(f) => eval(f)('bikes').includes('ZOOM IN TO SHOW') && !eval(f)('economy').includes('TO SHOW')", arg=status, timeout=4000
+        )
         # Over a city: the other way round. Both stay switched on, and that is what is saved.
         self.page.evaluate("() => { __mlMap.z = 13; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
-        self.page.wait_for_function("(f) => eval(f)('economy').includes('ZOOM OUT TO SHOW')", arg=status, timeout=4000)
-        self.assertNotIn("TO SHOW", self.page.evaluate(status, "bikes"))
+        self.page.wait_for_function(
+            "(f) => eval(f)('economy').includes('ZOOM OUT TO SHOW') && !eval(f)('bikes').includes('TO SHOW')", arg=status, timeout=4000
+        )
         saved = json.loads(self.page.evaluate("() => localStorage.getItem('ojos-layers')"))
         self.assertTrue(saved["economy"] and saved["bikes"])
         self.assertNotIn("off", self.page.get_attribute("#wlayers [data-wl='economy']", "class").split())
@@ -1612,6 +1629,44 @@ class AppInBrowser(unittest.TestCase):
                 self.assertEqual(p.evaluate(check), [], "%dx%d after %s" % (w, h, step))
             ctx.close()
 
+    def test_events_has_live_news_and_emergency_news_from_around_the_world(self):
+        now = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
+        def rss(items):
+            return "<rss><channel>" + "".join(
+                "<item><title>%s - %s</title><link>https://news.example.org/%d</link><source>%s</source><pubDate>%s</pubDate></item>" % (t, src, i, src, now)
+                for i, (t, src) in enumerate(items)
+            ) + "</channel></rss>"
+        world = rss([("Leaders meet for climate talks in Geneva", "World Wire"), ("Flooding forces thousands to evacuate in Bangladesh", "Asia Desk")])
+        gdacs = ('<rss xmlns:gdacs="http://www.gdacs.org" xmlns:georss="http://www.georss.org/georss"><channel><item><title>Green earthquake alert in Chile</title>'
+                 '<link>https://www.gdacs.org/report.aspx?eventid=1</link><guid>eq1</guid><gdacs:alertlevel>Green</gdacs:alertlevel>'
+                 '<georss:point>-33.4 -70.6</georss:point><pubDate>%s</pubDate></item></channel></rss>' % now)
+        for pat, body in (("**/news.google.com/**", world), ("**/www.gdacs.org/xml/rss.xml", gdacs), ("**/api.gdeltproject.org/**", "{}")):
+            self.page.route(pat, (lambda b: lambda r: r.fulfill(body=b, content_type="text/xml", headers={"access-control-allow-origin": "*"}))(body))
+        self.page.route("**/nominatim.openstreetmap.org/**", lambda r: r.fulfill(body=json.dumps({"address": {"country": "United States", "country_code": "us"}}), content_type="application/json", headers={"access-control-allow-origin": "*"}))
+        self.use_dashboard()
+        self.page.reload()
+        self.page.wait_for_selector("#rwdash .rwdock [data-rw='events']", timeout=8000)
+        self.page.click("#rwdash .rwdock [data-rw='events']")
+        self.page.wait_for_selector("#feed .evtabs", timeout=5000)
+        self.assertEqual(self.page.locator("#feed .evtabs button").all_inner_texts(), ["Events", "Live news", "⚠ Emergency"])
+        self.page.click("#feed [data-evt='live']")
+        self.page.wait_for_function("() => /climate talks in Geneva/.test(document.getElementById('feed').textContent)", timeout=15000)
+        self.assertIn("AROUND THE WORLD", self.page.inner_text("#feed"))
+        self.page.click("#feed [data-evt='emg']")
+        self.page.wait_for_function(
+            "() => /Green earthquake alert in Chile/.test(document.getElementById('feed').textContent)"
+            " && /evacuate in Bangladesh/.test(document.getElementById('feed').textContent)",
+            timeout=15000,
+        )
+        feed_text = self.page.inner_text("#feed")
+        self.assertIn("DISASTERS WORLDWIDE", feed_text)
+        self.assertNotIn("climate talks", feed_text, "only emergencies under Emergency")
+        # ◎ shows the disaster on the map; a story opens as an app screen.
+        self.assertTrue(self.visible("#feed [data-evm]"))
+        self.page.locator("#feed .row.evn [data-evn]").first.click()
+        self.page.wait_for_selector("#pgv.on", timeout=5000)
+        self.assertEqual(self.errors, [])
+
     def test_double_tap_a_layer_to_see_only_it_and_again_to_restore(self):
         self.page.wait_for_selector("#wlayers [data-wl='radio']", state="attached", timeout=5000)
         state = "() => JSON.parse(localStorage.getItem('ojos-layers') || '{}')"
@@ -1632,30 +1687,22 @@ class AppInBrowser(unittest.TestCase):
         self.assertFalse(after["radio"])
         self.assertEqual(self.errors, [])
 
-    def test_display_setting_switches_how_the_map_is_drawn(self):
+    def test_the_smooth_globe_is_the_only_view_and_satellite_the_only_style(self):
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
-        self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe')", timeout=8000)
-        self.page.click("#rwdash .rwdock [data-rw='set']")
-        self.page.click("[data-br='dp-flat']")
-        self.page.wait_for_function(
-            "() => window.__ml && window.__ml.style && window.__ml.style.projection.type === 'mercator' && document.body.classList.contains('rw-globe')",
-            timeout=5000,
+        # Choices saved before v97 (the 3D globe, a street map style) give way to the Smooth globe and satellite.
+        self.page.evaluate(
+            "() => { var s = JSON.parse(localStorage.getItem('ojos-set') || '{}'); s.display = 'globe'; s.style = 'street'; localStorage.setItem('ojos-set', JSON.stringify(s)); }"
         )
-        self.page.click("#rwdash .rwdock [data-rw='set']")
-        self.page.click("[data-br='dp-hybrid']")
-        self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=5000)
-        self.assertTrue(self.visible("#gl"))
-        # The choice is kept, and the next start uses it.
         self.page.reload()
         self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
+        self.assertEqual(json.loads(self.page.evaluate("() => localStorage.getItem('ojos-set')"))["style"], "sat")
         self.page.click("#rwdash .rwdock [data-rw='set']")
-        self.page.click("[data-br='dp-globe']")
-        self.page.wait_for_function(
-            "() => window.__ml && window.__ml.style && window.__ml.style.projection.type === 'globe' && document.body.classList.contains('rw-globe')",
-            timeout=5000,
-        )
+        text = self.page.inner_text("#brief")
+        for gone in ["DISPLAY", "MAP STYLE", "Command mode", "Flat map"]:
+            self.assertNotIn(gone, text)
+        self.assertEqual(self.page.locator("[data-br^='dp-'], [data-br^='st-'], [data-br='cmd']").count(), 0)
+        self.assertEqual(self.page.locator("#cmdbar, #cmdtk").count(), 0)
         self.assertEqual(self.errors, [])
 
     def test_phones_with_a_powervr_chip_start_on_the_smooth_globe(self):
@@ -1691,7 +1738,7 @@ class AppInBrowser(unittest.TestCase):
         self.page.add_init_script(MAPLIBRE_STANDIN)
         self.page.add_init_script(CESIUM_STANDIN)
         self.page.reload()
-        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.open_map()
         self.page.wait_for_timeout(300)
         self.assertFalse(self.visible("#rw3d"), "not offered from space")
         self.page.evaluate("() => { __mlMap.z = 15.5; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
@@ -1741,14 +1788,6 @@ class AppInBrowser(unittest.TestCase):
         self.page.add_init_script("window.__ODD_UA = 'Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro XL) Mobile';")
         self.page.reload()
         self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=8000)
-        # A choice made in Settings wins over the default.
-        self.page.click("#rwdash .rwdock [data-rw='set']")
-        self.page.click("[data-br='dp-globe']")
-        self.page.reload()
-        self.page.wait_for_function(
-            "() => document.body.classList.contains('rw-globe') && window.__ml && window.__ml.style && window.__ml.style.projection.type === 'globe'",
-            timeout=8000,
-        )
         self.assertEqual(self.errors, [])
 
     def test_hide_menus_clears_the_screen_and_one_button_brings_them_back(self):

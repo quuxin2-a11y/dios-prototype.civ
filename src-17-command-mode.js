@@ -1,13 +1,13 @@
 /**
- * @file Command mode.
- * The operations wall: state machine, camera grid and status.
+ * @file The command wall (operations wall): status, live cameras, alerts and headlines on one screen.
+ * (Command mode, the status strip and scrolling ticker over the map, was removed in v97.)
  *
  * Module 17 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-// ---------- Command mode: an operations-room presentation of the same public data ----------
-// Purely a look and a layout. Everything shown is public, open-source information; the status strip says so.
+// ---------- The command wall: an operations-room presentation of the same public data ----------
+// Purely a look and a layout. Everything shown is public, open-source information.
 var OPS = { open: false, tm: 0 };
 function cmdState() {
   var a = NEWS.alerts || [],
@@ -18,144 +18,6 @@ function cmdState() {
       return x.lvl === 2;
     }).length;
   return NEWS.bc || l3 ? ["BROADCAST", "s3"] : l2 ? ["ELEVATED", "s2"] : ["NORMAL", "s1"];
-}
-function cmdTick() {
-  var el = $("cmdbar");
-  if (!el) return;
-  var on = !!SET.cmd;
-  document.body.classList.toggle("cmd", on);
-  document.documentElement.classList.toggle("cmd", on);
-  if (!on) {
-    el.style.display = "none";
-    $("cmdtk").style.display = "none";
-    return;
-  }
-  // The dashboard carries its own counts, so the status strip is not shown over it.
-  el.style.display = typeof RW === "object" && RW.on ? "none" : "flex";
-  $("cmdtk").style.display = "flex";
-  var d = new Date(),
-    z = function (n) {
-      return (n < 10 ? "0" : "") + n;
-    },
-    st = cmdState(),
-    h =
-      '<span class="cs ' +
-      st[1] +
-      '">STATE · ' +
-      st[0] +
-      "</span><span>" +
-      z(d.getUTCHours()) +
-      ":" +
-      z(d.getUTCMinutes()) +
-      ":" +
-      z(d.getUTCSeconds()) +
-      "Z</span><span>CAM " +
-      visLive.length.toLocaleString() +
-      "</span><span>AIR " +
-      (WL.air ? PLANES.length.toLocaleString() : "—") +
-      "</span><span>SEA " +
-      (WL.ship ? SHIPS.length.toLocaleString() : "—") +
-      "</span><span>TRN " +
-      (WL.transit ? TRANSIT.length.toLocaleString() : "—") +
-      "</span><span>ORB " +
-      (WL.sat ? SATS.length.toLocaleString() : "—") +
-      "</span><span>ALR " +
-      (NEWS.alerts || []).length +
-      '</span><span class="co">OPEN SOURCE · PUBLIC FEEDS</span>';
-  if (el._h !== h) {
-    el._h = h;
-    el.innerHTML = h;
-  }
-  var items = (NEWS.alerts || [])
-      .slice(0, 4)
-      .map(function (a) {
-        return "▲ " + a.src.toUpperCase() + ": " + a.t;
-      })
-      .concat(
-        (NEWS.nat || []).slice(0, 5).map(function (x) {
-          return "◆ " + x.t + (x.src ? " (" + x.src + ")" : "");
-        })
-      )
-      .concat(
-        (NEWS.world || []).slice(0, 4).map(function (x) {
-          return "◆ " + x.t;
-        })
-      ),
-    k = items;
-  if (!k.length) k = ["◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES"];
-  cmdTicker($("cmdtk"), k);
-}
-// The headline strip shows one headline at a time and swaps it every few seconds with a short fade.
-// It used to scroll without stopping, which kept the phone redrawing the bottom of the screen every frame
-// and made the globe above it stutter.
-var CMD_TK_MS = 6000;
-function cmdTicker(tk, items) {
-  tk._items = items;
-  if (!tk._t) {
-    tk.innerHTML = '<b class="mono">LIVE</b><div><p></p></div>';
-    tk._i = -1;
-    cmdTickerNext(tk);
-    tk._t = setInterval(function () {
-      if (!document.hidden && tk.offsetParent !== null) cmdTickerNext(tk);
-    }, CMD_TK_MS);
-  }
-}
-function cmdTickerNext(tk) {
-  var L = tk._items || [],
-    p = tk.querySelector("p");
-  if (!p || !L.length) return;
-  tk._i = (tk._i + 1) % L.length;
-  var t = L[tk._i];
-  if (p.textContent === t) return;
-  p.classList.add("out");
-  setTimeout(function () {
-    p.textContent = t;
-    p.classList.remove("out");
-  }, 220);
-}
-function cmdSet(on) {
-  SET.cmd = !!on;
-  setSave();
-  cmdTick();
-  if (on) cmdBoot();
-  lastView = "";
-  if (BR.open) brDraw();
-}
-function cmdBoot() {
-  var el = $("cmdboot");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "cmdboot";
-    document.body.appendChild(el);
-  }
-  var L = [
-      "LINK ESTABLISHED",
-      "CAMERA NETWORKS · " + visLive.length.toLocaleString() + " ONLINE",
-      "AIR · SEA · ORBIT FEEDS STANDING BY",
-      "OFFICIAL ALERT FEEDS CONNECTED",
-      "ALL SOURCES PUBLIC · READY"
-    ],
-    i = 0;
-  el.style.display = "flex";
-  el.classList.remove("out");
-  el.innerHTML =
-    '<svg viewBox="0 0 48 48" width="64" height="64"><path d="M24 3 45 24 24 45 3 24Z" fill="none" stroke="#3fe0d0" stroke-width="2"/><path d="M24 12 36 24 24 36 12 24Z" fill="none" stroke="#3fe0d0" stroke-width="2"/><path d="M24 19 29 24 24 29 19 24Z" fill="#3fe0d0"/></svg><b class="mono">OJOS DE DIOS · COMMAND</b><div id="cmdbl" class="mono"></div>';
-  var t = setInterval(function () {
-    var b = $("cmdbl");
-    if (!b) {
-      clearInterval(t);
-      return;
-    }
-    if (i < L.length) {
-      b.innerHTML += "<p>› " + L[i++] + "</p>";
-    } else {
-      clearInterval(t);
-      el.classList.add("out");
-      setTimeout(function () {
-        el.style.display = "none";
-      }, 500);
-    }
-  }, 260);
 }
 // operations wall: status, four live cameras, alerts, headlines, chatter and the watchlist on one screen
 function opsCams() {
@@ -348,10 +210,6 @@ document.addEventListener("click", function (e) {
     opsOpen();
     return;
   }
-  if (e.target.closest("#cmdbar") || e.target.closest("#cmdtk")) {
-    opsOpen();
-    return;
-  }
   var b = e.target.closest("[data-op]");
   if (!b) return;
   var k = b.getAttribute("data-op");
@@ -372,15 +230,3 @@ document.addEventListener("click", function (e) {
     }
   }
 });
-(function () {
-  var a = document.createElement("div");
-  a.id = "cmdbar";
-  a.className = "mono";
-  document.documentElement.appendChild(a);
-  var b = document.createElement("div");
-  b.id = "cmdtk";
-  document.documentElement.appendChild(b);
-  setInterval(cmdTick, 1000);
-  cmdTick();
-  if (SET.cmd && ls("ojos-onb") === true) setTimeout(cmdBoot, 300);
-})();

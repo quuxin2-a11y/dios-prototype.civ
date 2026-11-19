@@ -467,9 +467,6 @@ function entDossier(e) {
     (e.kind === "plane"
       ? '<div class="acts"><button class="open" data-fg="open">◆ FLIGHT LOG · HISTORY, SCHEDULE, ON TIME</button></div>'
       : "") +
-    (e.kind === "plane"
-      ? '<div class="acts"><button class="open" data-ckp="1">◉ COCKPIT VIEW · REAL WORLD, LIVE WEATHER</button></div>'
-      : "") +
     (e.kind === "plane" || e.kind === "ship" || e.kind === "sat"
       ? '<div class="acts"><button class="open" data-insp="obj">◆ INSPECT THIS ' +
         (e.kind === "plane" ? "AIRCRAFT" : e.kind === "ship" ? "VESSEL" : "SATELLITE") +
@@ -638,8 +635,6 @@ function planesKeep(L) {
       m.route = selected.route;
       m.track = selected.track;
       selected = m;
-    } else if (CKP.on && CKP.id === sel) {
-      PLANES.push(selected);
     }
   }
 }
@@ -876,79 +871,83 @@ function wstat() {
   var el = $("wlayers");
   if (!el) return;
   var lastGroup = null;
-  el.innerHTML = WLDEF.map(function (w) {
-    var grp = (typeof WL_GROUP === "object" && WL_GROUP && WL_GROUP[w[0]]) || "Map and live",
-      head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
-    lastGroup = grp;
-    var n = w[3] ? w[3]() : null,
-      st = WSTAT[w[0]],
-      zw = wlZoomWhy(w[0]);
-    var txt = zw
-      ? zw
-      : w[0] === "transit"
-        ? trStatus()
-        : ilStatus(w[0]) != null
-          ? ilStatus(w[0])
-          : w[0] === "air" && !nativeHttp() && st === "x"
-            ? "ANDROID APP ONLY"
-            : w[0] === "radar"
-              ? !EMBED_OK
-                ? "APP"
-                : !WL.radar
-                  ? ""
-                  : !gl || !WL.img
-                    ? "NEEDS IMAGERY"
-                    : RAD.shown
-                      ? "LIVE · " + ago(RAD.time * 1000)
-                      : st === "x"
-                        ? "OFFLINE"
-                        : "LOADING…"
-              : w[0] === "ship" && WL.ship && EMBED_OK && n
-                ? n.toLocaleString() +
-                  (KEYS.ais
-                    ? AIS.state === "live"
-                      ? " · WORLD"
-                      : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
-                    : " · FINLAND ONLY")
-                : w[0] === "img"
-                  ? !EMBED_OK
-                    ? "APP"
-                    : satOK()
-                      ? "LIVE"
-                      : glTried && !gl
-                        ? "NOT SUPPORTED"
-                        : WL.img
-                          ? "LOADING…"
-                          : ""
-                  : n == null
+  el.innerHTML = WLDEF.filter(function (w) {
+    return !wlNeedsKey(w[0]);
+  })
+    .map(function (w) {
+      var grp = (typeof WL_GROUP === "object" && WL_GROUP && WL_GROUP[w[0]]) || "Map and live",
+        head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
+      lastGroup = grp;
+      var n = w[3] ? w[3]() : null,
+        st = WSTAT[w[0]],
+        zw = wlZoomWhy(w[0]);
+      var txt = zw
+        ? zw
+        : w[0] === "transit"
+          ? trStatus()
+          : ilStatus(w[0]) != null
+            ? ilStatus(w[0])
+            : w[0] === "air" && !nativeHttp() && st === "x"
+              ? "ANDROID APP ONLY"
+              : w[0] === "radar"
+                ? !EMBED_OK
+                  ? "APP"
+                  : !WL.radar
                     ? ""
-                    : !EMBED_OK
-                      ? "APP"
-                      : n
-                        ? n.toLocaleString()
+                    : !gl || !WL.img
+                      ? "NEEDS IMAGERY"
+                      : RAD.shown
+                        ? "LIVE · " + ago(RAD.time * 1000)
                         : st === "x"
                           ? "OFFLINE"
-                          : WL[w[0]]
-                            ? "…"
-                            : "";
-    return (
-      head +
-      '<button class="cat' +
-      (WLU[w[0]] ? "" : " off") +
-      (zw ? " zoomoff" : "") +
-      '" data-wl="' +
-      w[0] +
-      '"><div class="l"><span><i style="background:' +
-      w[2] +
-      '"></i>' +
-      w[1] +
-      '</span><span class="mono"' +
-      (st === "x" && !n ? ' style="color:#ff5d8f"' : "") +
-      ">" +
-      esc(txt) +
-      "</span></div></button>"
-    );
-  }).join("");
+                          : "LOADING…"
+                : w[0] === "ship" && WL.ship && EMBED_OK && n
+                  ? n.toLocaleString() +
+                    (KEYS.ais
+                      ? AIS.state === "live"
+                        ? " · WORLD"
+                        : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
+                      : " · FINLAND ONLY")
+                  : w[0] === "img"
+                    ? !EMBED_OK
+                      ? "APP"
+                      : satOK()
+                        ? "LIVE"
+                        : glTried && !gl
+                          ? "NOT SUPPORTED"
+                          : WL.img
+                            ? "LOADING…"
+                            : ""
+                    : n == null
+                      ? ""
+                      : !EMBED_OK
+                        ? "APP"
+                        : n
+                          ? n.toLocaleString()
+                          : st === "x"
+                            ? "OFFLINE"
+                            : WL[w[0]]
+                              ? "…"
+                              : "";
+      return (
+        head +
+        '<button class="cat' +
+        (WLU[w[0]] ? "" : " off") +
+        (zw ? " zoomoff" : "") +
+        '" data-wl="' +
+        w[0] +
+        '"><div class="l"><span><i style="background:' +
+        w[2] +
+        '"></i>' +
+        w[1] +
+        '</span><span class="mono"' +
+        (st === "x" && !n ? ' style="color:#ff5d8f"' : "") +
+        ">" +
+        esc(txt) +
+        "</span></div></button>"
+      );
+    })
+    .join("");
   var IC = {
       parcel: "$",
       bldg: "🏢",
@@ -964,21 +963,25 @@ function wstat() {
     },
     ir = $("irail");
   if (ir)
-    ir.innerHTML = WLDEF.map(function (w) {
-      var n = w[3] ? w[3]() : 0;
-      return (
-        '<button class="' +
-        (WLU[w[0]] ? "on" : "") +
-        '" data-wl="' +
-        w[0] +
-        '" title="' +
-        w[1] +
-        '">' +
-        (IC[w[0]] || (IL && IL[w[0]] && IL[w[0]].icon) || "•") +
-        (n ? "<small>" + (n > 999 ? Math.round(n / 100) / 10 + "k" : n) + "</small>" : "") +
-        "</button>"
-      );
-    }).join("");
+    ir.innerHTML = WLDEF.filter(function (w) {
+      return !wlNeedsKey(w[0]);
+    })
+      .map(function (w) {
+        var n = w[3] ? w[3]() : 0;
+        return (
+          '<button class="' +
+          (WLU[w[0]] ? "on" : "") +
+          '" data-wl="' +
+          w[0] +
+          '" title="' +
+          w[1] +
+          '">' +
+          (IC[w[0]] || (IL && IL[w[0]] && IL[w[0]].icon) || "•") +
+          (n ? "<small>" + (n > 999 ? Math.round(n / 100) / 10 + "k" : n) + "</small>" : "") +
+          "</button>"
+        );
+      })
+      .join("");
   var hs = function (id, n) {
     var x = $(id);
     if (x) x.textContent = n ? n.toLocaleString() : "—";
@@ -1526,7 +1529,7 @@ var T3 = {
   on: false,
   ready: false,
   terr: true,
-  dark: ls("ojos-t3dark") !== false,
+  dark: false, // satellite photos at full colour (the darkened version was removed in v97)
   p: null,
   n: -1,
   fpKey: "",
@@ -2428,15 +2431,6 @@ document.addEventListener("click", function (e) {
       m.setTerrain(T3.terr ? { source: "dem", exaggeration: 1.25 } : null);
     } catch (er) {}
     b.classList.toggle("on", T3.terr);
-  } else if (k === "dark") {
-    T3.dark = !T3.dark;
-    ls("ojos-t3dark", T3.dark);
-    try {
-      m.setPaintProperty("sat", "raster-brightness-max", T3.dark ? 0.5 : 1);
-      m.setPaintProperty("sat", "raster-saturation", T3.dark ? -0.45 : 0);
-      m.setPaintProperty("sat", "raster-contrast", T3.dark ? 0.12 : 0);
-    } catch (er) {}
-    b.classList.toggle("on", T3.dark);
   } else if (k === "x") t3Close();
 });
 // ---- "Layers & filters" rail: everything on the map with live counts; tap a row to show or hide it

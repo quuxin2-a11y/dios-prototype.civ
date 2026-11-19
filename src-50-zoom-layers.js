@@ -29,6 +29,13 @@ var WLZ_FAR = {
   cables: 250
 };
 
+// Layers that need one of the person's own keys: hidden from the Layers list and off until it is added.
+// (Inside the function, because module 10 asks before this module has run.)
+function wlNeedsKey(k) {
+  var n = { ship: "ais" }[k];
+  return !!n && !(typeof KEYS === "object" && KEYS && KEYS[n]);
+}
+
 function wlGate(raw) {
   WLZ = WLZ || { off: {}, km: 0 };
   return new Proxy(raw, {
@@ -38,7 +45,7 @@ function wlGate(raw) {
           return Object.assign({}, t); // what is saved is always the person's choices
         };
       var v = t[k];
-      return v === true && WLZ && WLZ.off[k] ? false : v;
+      return v === true && ((WLZ && WLZ.off[k]) || wlNeedsKey(k)) ? false : v;
     }
   });
 }

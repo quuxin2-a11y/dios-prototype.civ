@@ -5986,172 +5986,11 @@ body.bcast #cmp {
   text-decoration: none;
 }
 /* command mode */
-#cmdbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 8600;
-  display: none;
-  align-items: center;
-  gap: 12px;
-  height: calc(22px + env(safe-area-inset-top));
-  padding: env(safe-area-inset-top) 10px 0;
-  background: #020608;
-  border-bottom: 1px solid #3fe0d033;
-  color: #8fd9d2;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-#cmdbar span {
-  flex: none;
-}
-#cmdbar .co {
-  margin-left: auto;
-  color: #5f8f8b;
-}
-#cmdbar .cs {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 700;
-}
-#cmdbar .s1 {
-  background: #0e3a2a;
-  color: #6effaa;
-}
-#cmdbar .s2 {
-  background: #3a300e;
-  color: #ffd166;
-}
-#cmdbar .s3 {
-  background: #b3122b;
-  color: #fff;
-  animation: bcp 1.4s infinite;
-}
-#cmdtk {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 8600;
-  display: none;
-  align-items: center;
-  height: calc(22px + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: #020608;
-  border-top: 1px solid #3fe0d033;
-  color: #cfe6ee;
-  font:
-    500 11px/22px ui-monospace,
-    Menlo,
-    monospace;
-  overflow: hidden;
-}
-#cmdtk b {
-  flex: none;
-  padding: 0 8px;
-  background: #3fe0d0;
-  color: #03181a;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  height: 22px;
-  line-height: 22px;
-}
-#cmdtk div {
-  flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  contain: paint; /* the moving strip is painted on its own, apart from the globe */
-}
-#cmdtk p {
-  margin: 0;
-  padding: 0 12px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: opacity 0.2s;
-}
-#cmdtk p.out {
-  opacity: 0;
-}
-body.cmd {
-  top: calc(22px + env(safe-area-inset-top)) !important;
-  bottom: calc(22px + env(safe-area-inset-bottom)) !important;
-  transform: translateZ(0);
-}
-body.cmd.bcast {
-  top: calc(80px + env(safe-area-inset-top)) !important;
-}
-html.cmd #bcast {
-  top: calc(22px + env(safe-area-inset-top));
-  padding-top: 6px;
-}
-body.cmd .stage:before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  pointer-events: none;
-  z-index: 2;
-  background:
-    linear-gradient(#3fe0d0, #3fe0d0) left top/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) left top/1px 18px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right top/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right top/1px 18px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) left bottom/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) left bottom/1px 18px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right bottom/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right bottom/1px 18px no-repeat;
-  opacity: 0.55;
-}
-body.cmd #newsp,
-body.cmd #flog,
-body.cmd #brief,
-body.cmd #cmp,
-body.cmd #ops {
-  padding-top: 0 !important;
-}
-body.cmd #cmdboot {
-  top: -120px;
-  bottom: -120px;
-}
+
 html {
   background: #020608;
 }
-body.cmd {
-  height: auto !important;
-}
-#cmdboot {
-  position: fixed;
-  inset: 0;
-  z-index: 9600;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  background: #020608;
-  color: #3fe0d0;
-  transition: opacity 0.45s;
-}
-#cmdboot.out {
-  opacity: 0;
-}
-#cmdboot b {
-  font-size: 12px;
-  letter-spacing: 0.34em;
-  color: #fff;
-}
-#cmdbl {
-  min-height: 120px;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  color: #8fd9d2;
-}
-#cmdbl p {
-  margin: 5px 0;
-}
+
 #ops {
   position: fixed;
   inset: 0;
@@ -6377,9 +6216,7 @@ emergency mode */
 body.bcast .pn {
   padding-top: calc(64px + env(safe-area-inset-top));
 }
-body.cmd .pn {
-  padding-top: 0 !important;
-}
+
 .pn .nh {
   display: flex;
   align-items: center;
@@ -6809,225 +6646,7 @@ body.sheet ~ #emgpill {
   display: none !important;
 }
 
-/* cockpit view */
-#ckp {
-  position: fixed;
-  inset: 0;
-  z-index: 8600;
-  display: none;
-  touch-action: none;
-  user-select: none;
-}
-#ckpfx {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-#ckpframe {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  box-shadow: inset 0 0 90px 30px #000c;
-}
-#ckpframe:before {
-  content: "";
-  position: absolute;
-  left: -6%;
-  right: -6%;
-  bottom: -2%;
-  height: 25%;
-  background: linear-gradient(#0d1014, #05070a);
-  border-radius: 50% 50% 0 0/38% 38% 0 0;
-  box-shadow: 0 -6px 30px #000b;
-}
-#ckpframe i {
-  position: absolute;
-  top: -4%;
-  bottom: 20%;
-  width: 16px;
-  background: linear-gradient(90deg, #05070a, #151a20, #05070a);
-  opacity: 0.92;
-}
-#ckpframe i:first-child {
-  left: 3%;
-  transform: rotate(9deg);
-}
-#ckpframe i:last-child {
-  right: 3%;
-  transform: rotate(-9deg);
-}
-#ckpx,
-#ckpc {
-  position: absolute;
-  top: calc(12px + env(safe-area-inset-top));
-  height: 40px;
-  border-radius: 999px;
-  border: 1px solid #ffffff3a;
-  background: #0a0e13d9;
-  color: #fff;
-  font:
-    600 13px Inter,
-    system-ui,
-    sans-serif;
-  padding: 0 16px;
-}
-#ckpx {
-  right: 14px;
-}
-#ckpc {
-  left: 14px;
-  width: 44px;
-  padding: 0;
-  font-size: 18px;
-}
-#ckphud {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
-  color: #dff;
-  pointer-events: none;
-}
-.ckpt {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.ckpt b {
-  font-size: 10px;
-  letter-spacing: 0.24em;
-  color: var(--ac);
-}
-.ckpt span {
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-}
-.ckpg {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.ckpg div {
-  background: #0b1016cc;
-  border: 1px solid #ffffff1f;
-  border-radius: 8px;
-  padding: 6px 8px;
-  text-align: center;
-}
-.ckpg span {
-  display: block;
-  font:
-    500 8.5px ui-monospace,
-    Menlo,
-    monospace;
-  letter-spacing: 0.14em;
-  color: #7f97a4;
-}
-.ckpg b {
-  font:
-    600 14px ui-monospace,
-    Menlo,
-    monospace;
-  color: #eaf6f6;
-}
-#ckphud i {
-  display: block;
-  margin-top: 7px;
-  font-style: normal;
-  font-size: 7.5px;
-  letter-spacing: 0.08em;
-  color: #8fa3ae;
-  text-align: center;
-  line-height: 1.5;
-}
 /* in the cockpit nothing else is on screen: the 3D view fills the phone and only the cockpit controls sit on top */
-html.ckp #real {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 8500 !important;
-  display: block !important;
-}
-html.ckp #real > *:not(#czmap) {
-  display: none !important;
-}
-html.ckp .top,
-html.ckp .scanbar,
-html.ckp .hud,
-html.ckp .mtabs,
-html.ckp #peek,
-html.ckp #lfrail,
-html.ckp #irail,
-html.ckp #t4bar,
-html.ckp #t4places,
-html.ckp #brandov,
-html.ckp #bcast,
-html.ckp #cmdbar,
-html.ckp #cmdtk,
-html.ckp #emgpill,
-html.ckp .grid .rail,
-html.ckp .grid .side,
-html.ckp #insfacts,
-html.ckp #rwdash,
-html.ckp #rw3d,
-html.ckp #cfp,
-html.ckp #cpins,
-html.ckp #tring,
-html.ckp #cgp,
-html.ckp #mvp,
-html.ckp #dotsleg {
-  display: none !important;
-}
-html.ckp body.sheet.sheet .grid .side,
-html.ckp body.sheet.sheet .grid .rail,
-html.ckp body.clean.sheet.sheet .grid .side,
-html.ckp body .grid .side,
-html.ckp body .grid .rail,
-html.ckp body .side,
-html.ckp body .rail {
-  display: none !important;
-}
-html.ckp body.sheet.sheet .grid .stage,
-html.ckp body .grid .stage {
-  bottom: 0 !important;
-}
-html.ckp body #sheetbar,
-html.ckp body.sheet.sheet #sheetbar,
-html.ckp body #peek,
-html.ckp body .grid > *:not(.stage) {
-  display: none !important;
-}
-html.ckp body.cmd {
-  transform: none !important;
-}
-html.ckp #czmap .cesium-viewer-bottom {
-  bottom: auto !important;
-  top: calc(60px + env(safe-area-inset-top));
-  left: 14px;
-  right: auto;
-}
-.ckpn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-.ckpn button {
-  pointer-events: auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid #ffffff3a;
-  background: #0a0e13;
-  color: #fff;
-  font-size: 15px;
-  padding: 0;
-}
 
 /* v50 speed pass: no live blur over the 3D canvas,
 instant press feedback,
@@ -7050,7 +6669,6 @@ label,
 tr[data-em] {
   touch-action: manipulation;
 }
-#ckp,
 #map,
 #gl,
 canvas {
@@ -7370,8 +6988,6 @@ body.sky-open #toasts {
 }
 /* ---------- v71: a quieter Replica World,
 and "hide menus" everywhere ---------- */
-body.rw #cmdbar,
-body.rw #cmdtk,
 body.rw .ticker {
   display: none !important;
 }
@@ -7432,8 +7048,6 @@ body.rw #rwdash .rwdock {
 body.bare #rwdash,
 body.bare #t4bar,
 body.bare #repst,
-body.bare #cmdbar,
-body.bare #cmdtk,
 body.bare .ticker,
 body.bare #toasts,
 body.bare .top,
@@ -8389,9 +8003,7 @@ text them ---------- */
 
 /* ---------- v91: a clean top bar ---------- */
 /* The dashboard has its own counts: no command-mode status strip above it. */
-body.rw #cmdbar {
-  display: none !important;
-}
+
 #rwdash .rwcount {
   justify-content: flex-start;
   min-width: 0;
@@ -9458,12 +9070,7 @@ body.mv-open #cfp {
   font-size: 10px;
   color: var(--accent);
 }
-#mvp .mvpilot {
-  flex: none;
-  min-width: 76px;
-  border-radius: 12px;
-  font-size: 11px;
-}
+
 #mvp .mvhint {
   display: flex;
   flex-wrap: wrap;
@@ -9512,4 +9119,40 @@ body.mv-open #cfp {
   body.rw.sheet #sheetbar {
     bottom: calc(var(--sh) + env(safe-area-inset-bottom, 0px) + 72px) !important;
   }
+}
+
+/* Events → Live news and Emergency (module 9) */
+.evtabs {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.evtabs button {
+  flex: 1;
+  min-height: 40px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.evtabs button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #3fe0d01f;
+}
+.row.evn {
+  align-items: center;
+}
+.row.evn > div {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.row.evn b {
+  white-space: normal;
+}
+.evmap {
+  flex: none;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
 }

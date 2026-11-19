@@ -444,11 +444,7 @@ function fndDraw() {
               i +
               '">Show on map</button>' +
               (r.o.kind === "plane"
-                ? '<button data-fd="fl-' +
-                  i +
-                  '">Flight log</button><button data-fd="ck-' +
-                  i +
-                  '">Cockpit</button>'
+                ? '<button data-fd="fl-' + i + '">Flight log</button>'
                 : r.o.kind === "ship"
                   ? '<button data-fd="wt-' +
                     i +
@@ -561,10 +557,6 @@ document.addEventListener("click", function (e) {
     target = { lon: r.o.lon, lat: r.o.lat, z: Math.max(zoom, 60) };
   } else craftGo(r.o);
   if (k.indexOf("fl-") === 0) flogOpen(r.o);
-  if (k.indexOf("ck-") === 0)
-    setTimeout(function () {
-      ckpOpen(r.o);
-    }, 400);
 });
 // ----- plans directory: which buildings in view have an indoor floor plan on the public record -----
 var PLN = { open: false, list: null, err: "", busy: false, where: "" };

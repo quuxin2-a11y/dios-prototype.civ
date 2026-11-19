@@ -1,6 +1,6 @@
 /*
  * Tap ring: tapping an aircraft, ship, satellite or event first circles it and offers its choices
- * (Select, Pilot view for aircraft, Deselect), so a small moving target is easy to catch and nothing
+ * (Select, Deselect), so a small moving target is easy to catch and nothing
  * opens by accident.
  *
  * Each view reports a tap with ringTap(o, pos, go):
@@ -80,7 +80,6 @@ function ringTap(o, pos, go) {
     esc(RING_KIND[o.kind] || "OBJECT") +
     (sub ? " · " + esc(sub) : "") +
     '</span><div class="trb"><button data-tr="sel">SELECT ▸</button>' +
-    (o.kind === "plane" ? '<button data-tr="pilot">✈ PILOT VIEW</button>' : "") +
     '<button class="ghost" data-tr="x">DESELECT</button></div></div>';
   el.className = "on";
   if (!RING.raf) RING.raf = requestAnimationFrame(ringFrame);
@@ -148,11 +147,4 @@ document.addEventListener("click", function (e) {
   var a = b.getAttribute("data-tr");
   if (a === "sel") ringSelect();
   else if (a === "x") ringDeselect();
-  else if (a === "pilot") {
-    var o = ringFresh(RING.o);
-    ringClose();
-    if (!o) return;
-    select(o);
-    ckpOpen(o);
-  }
 });

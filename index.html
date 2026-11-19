@@ -6001,172 +6001,11 @@ body.bcast #cmp {
   text-decoration: none;
 }
 /* command mode */
-#cmdbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 8600;
-  display: none;
-  align-items: center;
-  gap: 12px;
-  height: calc(22px + env(safe-area-inset-top));
-  padding: env(safe-area-inset-top) 10px 0;
-  background: #020608;
-  border-bottom: 1px solid #3fe0d033;
-  color: #8fd9d2;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-#cmdbar span {
-  flex: none;
-}
-#cmdbar .co {
-  margin-left: auto;
-  color: #5f8f8b;
-}
-#cmdbar .cs {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 700;
-}
-#cmdbar .s1 {
-  background: #0e3a2a;
-  color: #6effaa;
-}
-#cmdbar .s2 {
-  background: #3a300e;
-  color: #ffd166;
-}
-#cmdbar .s3 {
-  background: #b3122b;
-  color: #fff;
-  animation: bcp 1.4s infinite;
-}
-#cmdtk {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 8600;
-  display: none;
-  align-items: center;
-  height: calc(22px + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: #020608;
-  border-top: 1px solid #3fe0d033;
-  color: #cfe6ee;
-  font:
-    500 11px/22px ui-monospace,
-    Menlo,
-    monospace;
-  overflow: hidden;
-}
-#cmdtk b {
-  flex: none;
-  padding: 0 8px;
-  background: #3fe0d0;
-  color: #03181a;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  height: 22px;
-  line-height: 22px;
-}
-#cmdtk div {
-  flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  contain: paint; /* the moving strip is painted on its own, apart from the globe */
-}
-#cmdtk p {
-  margin: 0;
-  padding: 0 12px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: opacity 0.2s;
-}
-#cmdtk p.out {
-  opacity: 0;
-}
-body.cmd {
-  top: calc(22px + env(safe-area-inset-top)) !important;
-  bottom: calc(22px + env(safe-area-inset-bottom)) !important;
-  transform: translateZ(0);
-}
-body.cmd.bcast {
-  top: calc(80px + env(safe-area-inset-top)) !important;
-}
-html.cmd #bcast {
-  top: calc(22px + env(safe-area-inset-top));
-  padding-top: 6px;
-}
-body.cmd .stage:before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  pointer-events: none;
-  z-index: 2;
-  background:
-    linear-gradient(#3fe0d0, #3fe0d0) left top/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) left top/1px 18px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right top/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right top/1px 18px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) left bottom/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) left bottom/1px 18px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right bottom/18px 1px no-repeat,
-    linear-gradient(#3fe0d0, #3fe0d0) right bottom/1px 18px no-repeat;
-  opacity: 0.55;
-}
-body.cmd #newsp,
-body.cmd #flog,
-body.cmd #brief,
-body.cmd #cmp,
-body.cmd #ops {
-  padding-top: 0 !important;
-}
-body.cmd #cmdboot {
-  top: -120px;
-  bottom: -120px;
-}
+
 html {
   background: #020608;
 }
-body.cmd {
-  height: auto !important;
-}
-#cmdboot {
-  position: fixed;
-  inset: 0;
-  z-index: 9600;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  background: #020608;
-  color: #3fe0d0;
-  transition: opacity 0.45s;
-}
-#cmdboot.out {
-  opacity: 0;
-}
-#cmdboot b {
-  font-size: 12px;
-  letter-spacing: 0.34em;
-  color: #fff;
-}
-#cmdbl {
-  min-height: 120px;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  color: #8fd9d2;
-}
-#cmdbl p {
-  margin: 5px 0;
-}
+
 #ops {
   position: fixed;
   inset: 0;
@@ -6392,9 +6231,7 @@ emergency mode */
 body.bcast .pn {
   padding-top: calc(64px + env(safe-area-inset-top));
 }
-body.cmd .pn {
-  padding-top: 0 !important;
-}
+
 .pn .nh {
   display: flex;
   align-items: center;
@@ -6824,225 +6661,7 @@ body.sheet ~ #emgpill {
   display: none !important;
 }
 
-/* cockpit view */
-#ckp {
-  position: fixed;
-  inset: 0;
-  z-index: 8600;
-  display: none;
-  touch-action: none;
-  user-select: none;
-}
-#ckpfx {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-#ckpframe {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  box-shadow: inset 0 0 90px 30px #000c;
-}
-#ckpframe:before {
-  content: "";
-  position: absolute;
-  left: -6%;
-  right: -6%;
-  bottom: -2%;
-  height: 25%;
-  background: linear-gradient(#0d1014, #05070a);
-  border-radius: 50% 50% 0 0/38% 38% 0 0;
-  box-shadow: 0 -6px 30px #000b;
-}
-#ckpframe i {
-  position: absolute;
-  top: -4%;
-  bottom: 20%;
-  width: 16px;
-  background: linear-gradient(90deg, #05070a, #151a20, #05070a);
-  opacity: 0.92;
-}
-#ckpframe i:first-child {
-  left: 3%;
-  transform: rotate(9deg);
-}
-#ckpframe i:last-child {
-  right: 3%;
-  transform: rotate(-9deg);
-}
-#ckpx,
-#ckpc {
-  position: absolute;
-  top: calc(12px + env(safe-area-inset-top));
-  height: 40px;
-  border-radius: 999px;
-  border: 1px solid #ffffff3a;
-  background: #0a0e13d9;
-  color: #fff;
-  font:
-    600 13px Inter,
-    system-ui,
-    sans-serif;
-  padding: 0 16px;
-}
-#ckpx {
-  right: 14px;
-}
-#ckpc {
-  left: 14px;
-  width: 44px;
-  padding: 0;
-  font-size: 18px;
-}
-#ckphud {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
-  color: #dff;
-  pointer-events: none;
-}
-.ckpt {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.ckpt b {
-  font-size: 10px;
-  letter-spacing: 0.24em;
-  color: var(--ac);
-}
-.ckpt span {
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-}
-.ckpg {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.ckpg div {
-  background: #0b1016cc;
-  border: 1px solid #ffffff1f;
-  border-radius: 8px;
-  padding: 6px 8px;
-  text-align: center;
-}
-.ckpg span {
-  display: block;
-  font:
-    500 8.5px ui-monospace,
-    Menlo,
-    monospace;
-  letter-spacing: 0.14em;
-  color: #7f97a4;
-}
-.ckpg b {
-  font:
-    600 14px ui-monospace,
-    Menlo,
-    monospace;
-  color: #eaf6f6;
-}
-#ckphud i {
-  display: block;
-  margin-top: 7px;
-  font-style: normal;
-  font-size: 7.5px;
-  letter-spacing: 0.08em;
-  color: #8fa3ae;
-  text-align: center;
-  line-height: 1.5;
-}
 /* in the cockpit nothing else is on screen: the 3D view fills the phone and only the cockpit controls sit on top */
-html.ckp #real {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 8500 !important;
-  display: block !important;
-}
-html.ckp #real > *:not(#czmap) {
-  display: none !important;
-}
-html.ckp .top,
-html.ckp .scanbar,
-html.ckp .hud,
-html.ckp .mtabs,
-html.ckp #peek,
-html.ckp #lfrail,
-html.ckp #irail,
-html.ckp #t4bar,
-html.ckp #t4places,
-html.ckp #brandov,
-html.ckp #bcast,
-html.ckp #cmdbar,
-html.ckp #cmdtk,
-html.ckp #emgpill,
-html.ckp .grid .rail,
-html.ckp .grid .side,
-html.ckp #insfacts,
-html.ckp #rwdash,
-html.ckp #rw3d,
-html.ckp #cfp,
-html.ckp #cpins,
-html.ckp #tring,
-html.ckp #cgp,
-html.ckp #mvp,
-html.ckp #dotsleg {
-  display: none !important;
-}
-html.ckp body.sheet.sheet .grid .side,
-html.ckp body.sheet.sheet .grid .rail,
-html.ckp body.clean.sheet.sheet .grid .side,
-html.ckp body .grid .side,
-html.ckp body .grid .rail,
-html.ckp body .side,
-html.ckp body .rail {
-  display: none !important;
-}
-html.ckp body.sheet.sheet .grid .stage,
-html.ckp body .grid .stage {
-  bottom: 0 !important;
-}
-html.ckp body #sheetbar,
-html.ckp body.sheet.sheet #sheetbar,
-html.ckp body #peek,
-html.ckp body .grid > *:not(.stage) {
-  display: none !important;
-}
-html.ckp body.cmd {
-  transform: none !important;
-}
-html.ckp #czmap .cesium-viewer-bottom {
-  bottom: auto !important;
-  top: calc(60px + env(safe-area-inset-top));
-  left: 14px;
-  right: auto;
-}
-.ckpn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-.ckpn button {
-  pointer-events: auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid #ffffff3a;
-  background: #0a0e13;
-  color: #fff;
-  font-size: 15px;
-  padding: 0;
-}
 
 /* v50 speed pass: no live blur over the 3D canvas,
 instant press feedback,
@@ -7065,7 +6684,6 @@ label,
 tr[data-em] {
   touch-action: manipulation;
 }
-#ckp,
 #map,
 #gl,
 canvas {
@@ -7385,8 +7003,6 @@ body.sky-open #toasts {
 }
 /* ---------- v71: a quieter Replica World,
 and "hide menus" everywhere ---------- */
-body.rw #cmdbar,
-body.rw #cmdtk,
 body.rw .ticker {
   display: none !important;
 }
@@ -7447,8 +7063,6 @@ body.rw #rwdash .rwdock {
 body.bare #rwdash,
 body.bare #t4bar,
 body.bare #repst,
-body.bare #cmdbar,
-body.bare #cmdtk,
 body.bare .ticker,
 body.bare #toasts,
 body.bare .top,
@@ -8404,9 +8018,7 @@ text them ---------- */
 
 /* ---------- v91: a clean top bar ---------- */
 /* The dashboard has its own counts: no command-mode status strip above it. */
-body.rw #cmdbar {
-  display: none !important;
-}
+
 #rwdash .rwcount {
   justify-content: flex-start;
   min-width: 0;
@@ -9473,12 +9085,7 @@ body.mv-open #cfp {
   font-size: 10px;
   color: var(--accent);
 }
-#mvp .mvpilot {
-  flex: none;
-  min-width: 76px;
-  border-radius: 12px;
-  font-size: 11px;
-}
+
 #mvp .mvhint {
   display: flex;
   flex-wrap: wrap;
@@ -9529,6 +9136,42 @@ body.mv-open #cfp {
   }
 }
 
+/* Events → Live news and Emergency (module 9) */
+.evtabs {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.evtabs button {
+  flex: 1;
+  min-height: 40px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.evtabs button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #3fe0d01f;
+}
+.row.evn {
+  align-items: center;
+}
+.row.evn > div {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.row.evn b {
+  white-space: normal;
+}
+.evmap {
+  flex: none;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+}
+
 </style>
 </head>
 <body>
@@ -9571,7 +9214,7 @@ body.mv-open #cfp {
     <h4 style="margin-top:16px">REGIONS</h4><div id="regions"></div>
   </div>
   <div class="stage" id="stage">
-    <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-hl="go" aria-label="Highlight the building in the middle and show it from every side" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">HIGHLIGHT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="dark" class="on" aria-label="Dark map">◐</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
+    <canvas id="gl"></canvas><canvas id="map"></canvas><div id="gtip"></div><div id="real"><div id="czmap"></div><div id="t4bar"><button data-t4="in" aria-label="Closer">+</button><button data-t4="out" aria-label="Farther">−</button><button data-t4="up" aria-label="Look up">▲</button><button data-t4="dn" aria-label="Look down">▼</button><button data-t4="l" aria-label="Turn left">⟲</button><button data-t4="r" aria-label="Turn right">⟳</button><button data-insp="auto" aria-label="Inspect" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">INSPECT</button><button data-hl="go" aria-label="Highlight the building in the middle and show it from every side" style="width:auto;padding:0 9px;font-size:10px;letter-spacing:.08em">HIGHLIGHT</button><button data-t4="x" aria-label="Back to globe">✕</button></div></div><div id="tilt"><div id="t3map"></div><div id="t3bar"><button data-t3="up" aria-label="Tilt more">Tilt+</button><button data-t3="dn" aria-label="Tilt less">Tilt−</button><button data-t3="l" aria-label="Rotate left">⟲</button><button data-t3="r" aria-label="Rotate right">⟳</button><button data-t3="n" aria-label="Top-down, north up">N</button><button data-t3="terr" class="on" aria-label="Terrain">⛰</button><button data-t3="x" aria-label="Back to globe">✕</button></div></div><div id="brandov"><svg class="omark" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="miter"><path d="M32 3 61 32 32 61 3 32Z" stroke-width="3.2"/><path d="M32 14 50 32 32 50 14 32Z" stroke-width="2.6" opacity=".8"/><path d="M32 24 40 32 32 40 24 32Z" stroke-width="2.2" opacity=".6"/></g><circle cx="32" cy="32" r="3.6" fill="currentColor"/></svg><span><b>OJOS DE DIOS</b><em>Eyes open. Always.</em></span></div><div id="lfrail"></div><div id="drvhud"></div><div id="dotsleg"></div><div id="attr">Imagery © Esri, Maxar, Earthstar Geographics</div>
     <div class="hud">
       <button id="bSky">✦ Sky</button><button id="bBare">◉ Hide menus</button><button id="bBrief">⌂ Briefing</button><button id="bEmg">⚠ Emergency</button><button id="bFind">⌕ Finder</button><button id="bRec">◆ Records</button><button id="bPlans">▤ Plans</button><button id="bCty">◍ Country</button><button id="bFocus">◎ Focus</button><button id="bOps">▦ Command wall</button><button id="bDrive">➤ Drive</button><button id="bDots">● All cameras</button><button id="bNews">◆ News</button><button id="bShare">⇪ Share</button><button id="bStatic">◼ Static 3D view</button><button id="bReal">◆ Photoreal 3D</button><button id="b3dv">⛰ 3D view</button><button id="b3d" class="on">3D Globe</button><button id="b2d">2D Map</button>
       <button id="bSpin" class="on">Auto-rotate</button><button id="bReset">Reset</button><button data-sv="here">◉ Street View</button><button id="bWeb">⬡ Build Web</button><button id="bSun">☀ Chase the Sun</button><button id="bWall" class="on">▦ Multi-View (0)</button><button data-h="fav">★ Favorites</button><button data-h="rand">⤮ Random camera</button><button data-h="quake">◎ Strongest quake</button><button id="bSet">⚙ Settings</button>
@@ -9634,7 +9277,7 @@ body.mv-open #cfp {
  */
 
 // The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
-var APP_V = 96;
+var APP_V = 97;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],
@@ -17335,6 +16978,7 @@ function openKeys() {
 }
 document.addEventListener("click", function (e) {
   if (e.target.id === "keysSave") {
+    var hadAis = !!KEYS.ais;
     Array.prototype.forEach.call(document.querySelectorAll("#keysBody input"), function (i) {
       var v = i.value.trim();
       if (v) KEYS[i.dataset.k] = v;
@@ -17353,6 +16997,8 @@ document.addEventListener("click", function (e) {
       }
     });
     liveStatus();
+    // A newly added AISStream key brings the Ships layer in, switched on (it is hidden without one).
+    if (KEYS.ais && !hadAis && !WLU.ship) setLayer("ship", true);
     if (WL.ship) {
       if (AIS.ws) {
         try {
@@ -18108,7 +17754,32 @@ function feed() {
   var big = QUAKES.slice().sort(function (a, b) {
     return b.mag - a.mag;
   })[0];
+  var tabs =
+    '<div class="evtabs">' +
+    [
+      ["events", "Events"],
+      ["live", "Live news"],
+      ["emg", "⚠ Emergency"]
+    ]
+      .map(function (t) {
+        return (
+          '<button data-evt="' +
+          t[0] +
+          '" class="' +
+          (EVT.tab === t[0] ? "on" : "") +
+          '">' +
+          t[1] +
+          "</button>"
+        );
+      })
+      .join("") +
+    "</div>";
+  if (EVT.tab !== "events") {
+    el.innerHTML = tabs + evtNewsHtml(EVT.tab);
+    return;
+  }
   el.innerHTML =
+    tabs +
     alHTML() +
     "<h4>EVENT FEED</h4>" +
     (big
@@ -18143,6 +17814,143 @@ function feed() {
           : "The event feed loads in the installed app.") +
         "</p>");
 }
+// ---------- Events → Live news and Emergency: headlines and alerts from around the world ----------
+var EVT = { tab: "events", list: [] };
+// Headlines that are about an emergency somewhere.
+var EVT_EMG =
+  /\b(earthquake|tsunami|hurricane|cyclone|typhoon|tornado|flood(s|ing)?|wildfire|bushfire|evacuat\w*|eruption|volcano|landslide|explosion|blast|attack|shooting|state of emergency|emergency|warning|outbreak|epidemic|crash|collapse|heatwave|blizzard|storm)\b/i;
+
+function evtLoad() {
+  if (!EMBED_OK) return;
+  if (!NEWS.busy && Date.now() - NEWS.ht > 4 * 60000) newsLoad();
+  if (Date.now() - NEWS.at > 5 * 60000) newsAlerts();
+}
+
+function evtNewsHtml(tab) {
+  evtLoad();
+  var L = [];
+  if (tab === "live") {
+    L = (NEWS.world || [])
+      .map(function (x) {
+        return { x: x, grp: "AROUND THE WORLD" };
+      })
+      .concat(
+        (NEWS.nat || []).map(function (x) {
+          return {
+            x: x,
+            grp: "IN " + String((NEWS.area && NEWS.area.country) || "YOUR COUNTRY").toUpperCase()
+          };
+        })
+      );
+  } else {
+    var seen = {};
+    L = (NEWS.alerts || [])
+      .map(function (x) {
+        return { x: x, grp: "OFFICIAL ALERTS" };
+      })
+      .concat(
+        (NEWS.gdacs || []).map(function (x) {
+          return { x: x, grp: "DISASTERS WORLDWIDE · GDACS (UN / EU)" };
+        })
+      )
+      .concat(
+        (NEWS.world || [])
+          .concat(NEWS.nat || [])
+          .filter(function (x) {
+            return EVT_EMG.test(x.t);
+          })
+          .map(function (x) {
+            return { x: x, grp: "EMERGENCY HEADLINES" };
+          })
+      )
+      .filter(function (r) {
+        var k = r.x.id || r.x.u || r.x.t;
+        if (seen[k]) return false;
+        seen[k] = 1;
+        return true;
+      });
+  }
+  EVT.list = L.map(function (r) {
+    return r.x;
+  });
+  if (!L.length)
+    return (
+      '<p class="note2">' +
+      (!EMBED_OK
+        ? "News loads in the installed app."
+        : NEWS.busy || !NEWS.ht
+          ? "Loading headlines from around the world…"
+          : tab === "emg"
+            ? "No emergencies reported right now."
+            : "No headlines right now. Check the connection.") +
+      "</p>"
+    );
+  var last = "";
+  return L.map(function (r, i) {
+    var x = r.x,
+      head = r.grp !== last ? "<h4>" + esc(r.grp) + "</h4>" : "";
+    last = r.grp;
+    var c =
+      x.lvl >= 3 ? "#ff3b55" : x.lvl === 2 ? "#ffb040" : tab === "emg" ? "#ffd166" : "#3fe0d0";
+    return (
+      head +
+      '<div class="row evn"><i style="background:' +
+      c +
+      '"></i><div data-evn="' +
+      i +
+      '"><b>' +
+      esc(x.t) +
+      "</b><span>" +
+      esc([x.sub, x.src, x.d ? ago(x.d) : ""].filter(Boolean).join(" · ")) +
+      "</span></div>" +
+      (isFinite(x.lat) && isFinite(x.lon) && (x.lat || x.lon)
+        ? '<button class="evmap" data-evm="' + i + '" aria-label="Show on the map">◎</button>'
+        : "") +
+      "</div>"
+    );
+  }).join("");
+}
+
+// Fly the map to a place in the news.
+function evtFly(x) {
+  try {
+    if (T3.on && T3.map) {
+      T3.map.flyTo({ center: [x.lon, x.lat], zoom: 6, duration: 1800 });
+      return;
+    }
+  } catch (er) {}
+  target = { lon: x.lon, lat: x.lat, z: Math.max(zoom, 6) };
+}
+
+document.addEventListener("click", function (e) {
+  var t = e.target.closest("[data-evt]");
+  if (t) {
+    EVT.tab = t.getAttribute("data-evt");
+    feed();
+    var sc = $("feed");
+    if (sc && sc.parentElement) sc.parentElement.scrollTop = 0;
+    // Headlines arrive a few seconds after asking; draw again as they come in.
+    [2500, 6000, 12000].forEach(function (ms) {
+      setTimeout(function () {
+        if (EVT.tab !== "events") feed();
+      }, ms);
+    });
+    return;
+  }
+  var m = e.target.closest("[data-evm]");
+  if (m) {
+    var mx = EVT.list[+m.getAttribute("data-evm")];
+    if (mx) evtFly(mx);
+    return;
+  }
+  var n = e.target.closest("[data-evn]");
+  if (n) {
+    var nx = EVT.list[+n.getAttribute("data-evn")];
+    if (nx && nx.u) openPage(nx.u, nx.src || "News");
+    return;
+  }
+});
+
 document.addEventListener("click", function (e) {
   var r = e.target.closest("[data-ev]");
   if (r && EVFEED[+r.getAttribute("data-ev")]) select(EVFEED[+r.getAttribute("data-ev")]);
@@ -18616,9 +18424,6 @@ function entDossier(e) {
     (e.kind === "plane"
       ? '<div class="acts"><button class="open" data-fg="open">◆ FLIGHT LOG · HISTORY, SCHEDULE, ON TIME</button></div>'
       : "") +
-    (e.kind === "plane"
-      ? '<div class="acts"><button class="open" data-ckp="1">◉ COCKPIT VIEW · REAL WORLD, LIVE WEATHER</button></div>'
-      : "") +
     (e.kind === "plane" || e.kind === "ship" || e.kind === "sat"
       ? '<div class="acts"><button class="open" data-insp="obj">◆ INSPECT THIS ' +
         (e.kind === "plane" ? "AIRCRAFT" : e.kind === "ship" ? "VESSEL" : "SATELLITE") +
@@ -18787,8 +18592,6 @@ function planesKeep(L) {
       m.route = selected.route;
       m.track = selected.track;
       selected = m;
-    } else if (CKP.on && CKP.id === sel) {
-      PLANES.push(selected);
     }
   }
 }
@@ -19025,79 +18828,83 @@ function wstat() {
   var el = $("wlayers");
   if (!el) return;
   var lastGroup = null;
-  el.innerHTML = WLDEF.map(function (w) {
-    var grp = (typeof WL_GROUP === "object" && WL_GROUP && WL_GROUP[w[0]]) || "Map and live",
-      head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
-    lastGroup = grp;
-    var n = w[3] ? w[3]() : null,
-      st = WSTAT[w[0]],
-      zw = wlZoomWhy(w[0]);
-    var txt = zw
-      ? zw
-      : w[0] === "transit"
-        ? trStatus()
-        : ilStatus(w[0]) != null
-          ? ilStatus(w[0])
-          : w[0] === "air" && !nativeHttp() && st === "x"
-            ? "ANDROID APP ONLY"
-            : w[0] === "radar"
-              ? !EMBED_OK
-                ? "APP"
-                : !WL.radar
-                  ? ""
-                  : !gl || !WL.img
-                    ? "NEEDS IMAGERY"
-                    : RAD.shown
-                      ? "LIVE · " + ago(RAD.time * 1000)
-                      : st === "x"
-                        ? "OFFLINE"
-                        : "LOADING…"
-              : w[0] === "ship" && WL.ship && EMBED_OK && n
-                ? n.toLocaleString() +
-                  (KEYS.ais
-                    ? AIS.state === "live"
-                      ? " · WORLD"
-                      : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
-                    : " · FINLAND ONLY")
-                : w[0] === "img"
-                  ? !EMBED_OK
-                    ? "APP"
-                    : satOK()
-                      ? "LIVE"
-                      : glTried && !gl
-                        ? "NOT SUPPORTED"
-                        : WL.img
-                          ? "LOADING…"
-                          : ""
-                  : n == null
+  el.innerHTML = WLDEF.filter(function (w) {
+    return !wlNeedsKey(w[0]);
+  })
+    .map(function (w) {
+      var grp = (typeof WL_GROUP === "object" && WL_GROUP && WL_GROUP[w[0]]) || "Map and live",
+        head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
+      lastGroup = grp;
+      var n = w[3] ? w[3]() : null,
+        st = WSTAT[w[0]],
+        zw = wlZoomWhy(w[0]);
+      var txt = zw
+        ? zw
+        : w[0] === "transit"
+          ? trStatus()
+          : ilStatus(w[0]) != null
+            ? ilStatus(w[0])
+            : w[0] === "air" && !nativeHttp() && st === "x"
+              ? "ANDROID APP ONLY"
+              : w[0] === "radar"
+                ? !EMBED_OK
+                  ? "APP"
+                  : !WL.radar
                     ? ""
-                    : !EMBED_OK
-                      ? "APP"
-                      : n
-                        ? n.toLocaleString()
+                    : !gl || !WL.img
+                      ? "NEEDS IMAGERY"
+                      : RAD.shown
+                        ? "LIVE · " + ago(RAD.time * 1000)
                         : st === "x"
                           ? "OFFLINE"
-                          : WL[w[0]]
-                            ? "…"
-                            : "";
-    return (
-      head +
-      '<button class="cat' +
-      (WLU[w[0]] ? "" : " off") +
-      (zw ? " zoomoff" : "") +
-      '" data-wl="' +
-      w[0] +
-      '"><div class="l"><span><i style="background:' +
-      w[2] +
-      '"></i>' +
-      w[1] +
-      '</span><span class="mono"' +
-      (st === "x" && !n ? ' style="color:#ff5d8f"' : "") +
-      ">" +
-      esc(txt) +
-      "</span></div></button>"
-    );
-  }).join("");
+                          : "LOADING…"
+                : w[0] === "ship" && WL.ship && EMBED_OK && n
+                  ? n.toLocaleString() +
+                    (KEYS.ais
+                      ? AIS.state === "live"
+                        ? " · WORLD"
+                        : " · " + (AIS.state || "").toUpperCase().slice(0, 14)
+                      : " · FINLAND ONLY")
+                  : w[0] === "img"
+                    ? !EMBED_OK
+                      ? "APP"
+                      : satOK()
+                        ? "LIVE"
+                        : glTried && !gl
+                          ? "NOT SUPPORTED"
+                          : WL.img
+                            ? "LOADING…"
+                            : ""
+                    : n == null
+                      ? ""
+                      : !EMBED_OK
+                        ? "APP"
+                        : n
+                          ? n.toLocaleString()
+                          : st === "x"
+                            ? "OFFLINE"
+                            : WL[w[0]]
+                              ? "…"
+                              : "";
+      return (
+        head +
+        '<button class="cat' +
+        (WLU[w[0]] ? "" : " off") +
+        (zw ? " zoomoff" : "") +
+        '" data-wl="' +
+        w[0] +
+        '"><div class="l"><span><i style="background:' +
+        w[2] +
+        '"></i>' +
+        w[1] +
+        '</span><span class="mono"' +
+        (st === "x" && !n ? ' style="color:#ff5d8f"' : "") +
+        ">" +
+        esc(txt) +
+        "</span></div></button>"
+      );
+    })
+    .join("");
   var IC = {
       parcel: "$",
       bldg: "🏢",
@@ -19113,21 +18920,25 @@ function wstat() {
     },
     ir = $("irail");
   if (ir)
-    ir.innerHTML = WLDEF.map(function (w) {
-      var n = w[3] ? w[3]() : 0;
-      return (
-        '<button class="' +
-        (WLU[w[0]] ? "on" : "") +
-        '" data-wl="' +
-        w[0] +
-        '" title="' +
-        w[1] +
-        '">' +
-        (IC[w[0]] || (IL && IL[w[0]] && IL[w[0]].icon) || "•") +
-        (n ? "<small>" + (n > 999 ? Math.round(n / 100) / 10 + "k" : n) + "</small>" : "") +
-        "</button>"
-      );
-    }).join("");
+    ir.innerHTML = WLDEF.filter(function (w) {
+      return !wlNeedsKey(w[0]);
+    })
+      .map(function (w) {
+        var n = w[3] ? w[3]() : 0;
+        return (
+          '<button class="' +
+          (WLU[w[0]] ? "on" : "") +
+          '" data-wl="' +
+          w[0] +
+          '" title="' +
+          w[1] +
+          '">' +
+          (IC[w[0]] || (IL && IL[w[0]] && IL[w[0]].icon) || "•") +
+          (n ? "<small>" + (n > 999 ? Math.round(n / 100) / 10 + "k" : n) + "</small>" : "") +
+          "</button>"
+        );
+      })
+      .join("");
   var hs = function (id, n) {
     var x = $(id);
     if (x) x.textContent = n ? n.toLocaleString() : "—";
@@ -19675,7 +19486,7 @@ var T3 = {
   on: false,
   ready: false,
   terr: true,
-  dark: ls("ojos-t3dark") !== false,
+  dark: false, // satellite photos at full colour (the darkened version was removed in v97)
   p: null,
   n: -1,
   fpKey: "",
@@ -20577,15 +20388,6 @@ document.addEventListener("click", function (e) {
       m.setTerrain(T3.terr ? { source: "dem", exaggeration: 1.25 } : null);
     } catch (er) {}
     b.classList.toggle("on", T3.terr);
-  } else if (k === "dark") {
-    T3.dark = !T3.dark;
-    ls("ojos-t3dark", T3.dark);
-    try {
-      m.setPaintProperty("sat", "raster-brightness-max", T3.dark ? 0.5 : 1);
-      m.setPaintProperty("sat", "raster-saturation", T3.dark ? -0.45 : 0);
-      m.setPaintProperty("sat", "raster-contrast", T3.dark ? 0.12 : 0);
-    } catch (er) {}
-    b.classList.toggle("on", T3.dark);
   } else if (k === "x") t3Close();
 });
 // ---- "Layers & filters" rail: everything on the map with live counts; tap a row to show or hide it
@@ -21730,7 +21532,7 @@ function t4Near(pos) {
 function t4Flight() {
   var C = window.Cesium,
     v = T4.v;
-  if (!v || !T4.ready || CKP.on) return;
+  if (!v || !T4.ready) return;
   var p = selected && selected.kind === "plane" ? selected : null;
   if (!p) {
     if (T4F.key || T4F.ents.length) t4FlightOff();
@@ -22287,9 +22089,6 @@ function t4Open(opt) {
 function t4Close() {
   if (HL.on) hlClose(); // the highlight belongs to this view
   if (!T4.on) return;
-  try {
-    ckpClose();
-  } catch (e) {}
   T4.on = false;
   // Release the photo tiles' graphics memory while the 3D view is closed; reopening reloads them.
   if (T4.ts && T4.v) {
@@ -25337,6 +25136,7 @@ function newsNWS() {
 function newsGDACS() {
   return getText("https://www.gdacs.org/xml/rss.xml")
     .then(function (x) {
+      NEWS.gdacs = [];
       var d = new DOMParser().parseFromString(x, "text/xml"),
         o = [];
       [].slice.call(d.getElementsByTagName("item"), 0, 60).forEach(function (it) {
@@ -25347,7 +25147,21 @@ function newsGDACS() {
           lv = g("gdacs:alertlevel") || g("alertlevel"),
           pt = (g("georss:point") || g("point")).split(/\s+/),
           dt = Date.parse(g("pubDate")) || 0;
-        if (!/^(Red|Orange)$/i.test(lv) || Date.now() - dt > 4 * 864e5) return;
+        if (Date.now() - dt > 4 * 864e5) return;
+        // Every alert of the last four days is listed in Events → Emergency; only Red and Orange ones
+        // count as alerts for the broadcast banner.
+        (NEWS.gdacs || (NEWS.gdacs = [])).push({
+          id: "gdacs-" + (g("guid") || g("title")).slice(-40),
+          lvl: /red/i.test(lv) ? 3 : /orange/i.test(lv) ? 2 : 1,
+          t: g("title"),
+          sub: (lv || "Green") + " alert",
+          src: "GDACS",
+          u: g("link"),
+          d: dt,
+          lat: +pt[0],
+          lon: +pt[1]
+        });
+        if (!/^(Red|Orange)$/i.test(lv)) return;
         o.push({
           id: "gdacs-" + (g("guid") || g("title")).slice(-40),
           lvl: /red/i.test(lv) ? 3 : 2,
@@ -26549,20 +26363,9 @@ var WATCH = ls("ojos-watch") || [],
   SET = ls("ojos-set") || {},
   BR = { open: false, c: {} },
   IMG_ALT = null;
+// Satellite imagery is the only map style (v97 removed Streets, Light and Dark).
 var STYLES = {
-  sat: ["Satellite", null],
-  street: [
-    "Streets",
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"
-  ],
-  light: [
-    "Light",
-    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/"
-  ],
-  dark: [
-    "Dark",
-    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/"
-  ]
+  sat: ["Satellite", null]
 };
 function setSave() {
   ls("ojos-set", SET);
@@ -26988,11 +26791,7 @@ function brDraw() {
       .join("");
   h += '<button class="brbig" data-br="add">＋ Save the area I am looking at</button>';
   h +=
-    '<h4 class="mono">TOOLS</h4><div class="brt"><button data-br="news">◆ News desk</button><button data-br="replay">⏪ Replay</button><button data-br="share">⇪ Share view</button><button data-br="set">⚙ Settings</button><button data-br="ops">▦ Command wall</button><button data-br="cmd" class="' +
-    (SET.cmd ? "on" : "") +
-    '">' +
-    (SET.cmd ? "● " : "○ ") +
-    "Command mode</button></div>";
+    '<h4 class="mono">TOOLS</h4><div class="brt"><button data-br="news">◆ News desk</button><button data-br="replay">⏪ Replay</button><button data-br="share">⇪ Share view</button><button data-br="set">⚙ Settings</button><button data-br="ops">▦ Command wall</button></div>';
   if (BR.mode === "set") {
     var kn = [
       ["gmaps", "Google Maps"],
@@ -27023,22 +26822,7 @@ function brDraw() {
     if (scb) scb.scrollTop = stb;
     return;
   }
-  h +=
-    '<h4 class="mono">MAP STYLE</h4><div class="brt">' +
-    Object.keys(STYLES)
-      .map(function (k) {
-        return (
-          '<button data-br="st-' +
-          k +
-          '" class="' +
-          ((SET.style || "sat") === k ? "on" : "") +
-          '">' +
-          STYLES[k][0] +
-          "</button>"
-        );
-      })
-      .join("") +
-    "</div>";
+
   // How the map is drawn: for phones whose graphics chip flickers with one of them.
   h +=
     '<h4 class="mono">EMERGENCY ALERTS</h4><div class="brt c1"><button data-br="am" class="' +
@@ -27082,26 +26866,7 @@ function brDraw() {
     (SET.zoomLayers !== false ? "on" : "") +
     '">' +
     (SET.zoomLayers !== false ? "● " : "○ ") +
-    'Layers follow the zoom</button></div><p class="brhint">Layers you switch on show only where they are useful: close-up ones like bikes, pharmacies and buildings when zoomed in, worldwide ones like satellites, economy and country facts when zoomed out. Double-tap a layer to show only it, at any zoom.</p>' +
-    '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
-    [
-      ["globe", "Globe"],
-      ["hybrid", "Smooth globe"],
-      ["flat", "Flat map"]
-    ]
-      .map(function (o) {
-        return (
-          '<button data-br="dp-' +
-          o[0] +
-          '" class="' +
-          (displayMode() === o[0] ? "on" : "") +
-          '">' +
-          o[1] +
-          "</button>"
-        );
-      })
-      .join("") +
-    '</div><p class="brhint">If the globe flickers or shows lines on your phone, choose Smooth globe: a round globe from space that turns into the flat map as you zoom in. Your data and layers stay the same.</p>';
+    'Layers follow the zoom</button></div><p class="brhint">Layers you switch on show only where they are useful: close-up ones like bikes, pharmacies and buildings when zoomed in, worldwide ones like satellites, economy and country facts when zoomed out. Double-tap a layer to show only it, at any zoom.</p>';
   h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
@@ -27145,11 +26910,7 @@ function brDraw() {
     (SET.brief !== false ? "on" : "") +
     '">' +
     (SET.brief !== false ? "● " : "○ ") +
-    'Open this at launch</button><button data-br="cmd" class="' +
-    (SET.cmd ? "on" : "") +
-    '">' +
-    (SET.cmd ? "● " : "○ ") +
-    'Command mode (status strip, live ticker, start-up sequence)</button><button data-br="rail" class="' +
+    'Open this at launch</button><button data-br="rail" class="' +
     (SET.rail !== false ? "on" : "") +
     '">' +
     (SET.rail !== false ? "● " : "○ ") +
@@ -27281,21 +27042,13 @@ document.addEventListener("click", function (e) {
     SET.brief = SET.brief === false;
     setSave();
     brDraw();
-  } else if (k.indexOf("dp-") === 0) {
-    // Close Settings so the new drawing can be judged straight away.
-    brClose();
-    displaySet(k.slice(3));
   } else if (k === "rail") {
     railSet(SET.rail === false);
     brDraw();
-  } else if (k === "cmd") {
-    brClose();
-    cmdSet(!SET.cmd);
   } else if (k === "ops") {
     brClose();
     opsOpen();
-  } else if (k.indexOf("st-") === 0) styleSet(k.slice(3));
-  else if (k.indexOf("tx-") === 0) {
+  } else if (k.indexOf("tx-") === 0) {
     textSet(i);
     brDraw();
   } else if (k.indexOf("pf-") === 0) {
@@ -27782,7 +27535,11 @@ function shareCard() {
 }
 // ----- start-up -----
 if (SET.rail === false) document.body.classList.add("norail");
-if (SET.style && SET.style !== "sat") styleSet(SET.style, true);
+// Anyone who had chosen Streets, Light or Dark before v97 is moved back to satellite.
+if (SET.style && SET.style !== "sat") {
+  SET.style = "sat";
+  setSave();
+}
 if (SET.tx) textSet(SET.tx);
 setTimeout(function () {
   if (ls("ojos-onb") !== true) onbOpen();
@@ -28262,15 +28019,15 @@ setInterval(function () {
     chatLoad(CHAT.q, true);
 }, 5000);
 /**
- * @file Command mode.
- * The operations wall: state machine, camera grid and status.
+ * @file The command wall (operations wall): status, live cameras, alerts and headlines on one screen.
+ * (Command mode, the status strip and scrolling ticker over the map, was removed in v97.)
  *
  * Module 17 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-// ---------- Command mode: an operations-room presentation of the same public data ----------
-// Purely a look and a layout. Everything shown is public, open-source information; the status strip says so.
+// ---------- The command wall: an operations-room presentation of the same public data ----------
+// Purely a look and a layout. Everything shown is public, open-source information.
 var OPS = { open: false, tm: 0 };
 function cmdState() {
   var a = NEWS.alerts || [],
@@ -28281,144 +28038,6 @@ function cmdState() {
       return x.lvl === 2;
     }).length;
   return NEWS.bc || l3 ? ["BROADCAST", "s3"] : l2 ? ["ELEVATED", "s2"] : ["NORMAL", "s1"];
-}
-function cmdTick() {
-  var el = $("cmdbar");
-  if (!el) return;
-  var on = !!SET.cmd;
-  document.body.classList.toggle("cmd", on);
-  document.documentElement.classList.toggle("cmd", on);
-  if (!on) {
-    el.style.display = "none";
-    $("cmdtk").style.display = "none";
-    return;
-  }
-  // The dashboard carries its own counts, so the status strip is not shown over it.
-  el.style.display = typeof RW === "object" && RW.on ? "none" : "flex";
-  $("cmdtk").style.display = "flex";
-  var d = new Date(),
-    z = function (n) {
-      return (n < 10 ? "0" : "") + n;
-    },
-    st = cmdState(),
-    h =
-      '<span class="cs ' +
-      st[1] +
-      '">STATE · ' +
-      st[0] +
-      "</span><span>" +
-      z(d.getUTCHours()) +
-      ":" +
-      z(d.getUTCMinutes()) +
-      ":" +
-      z(d.getUTCSeconds()) +
-      "Z</span><span>CAM " +
-      visLive.length.toLocaleString() +
-      "</span><span>AIR " +
-      (WL.air ? PLANES.length.toLocaleString() : "—") +
-      "</span><span>SEA " +
-      (WL.ship ? SHIPS.length.toLocaleString() : "—") +
-      "</span><span>TRN " +
-      (WL.transit ? TRANSIT.length.toLocaleString() : "—") +
-      "</span><span>ORB " +
-      (WL.sat ? SATS.length.toLocaleString() : "—") +
-      "</span><span>ALR " +
-      (NEWS.alerts || []).length +
-      '</span><span class="co">OPEN SOURCE · PUBLIC FEEDS</span>';
-  if (el._h !== h) {
-    el._h = h;
-    el.innerHTML = h;
-  }
-  var items = (NEWS.alerts || [])
-      .slice(0, 4)
-      .map(function (a) {
-        return "▲ " + a.src.toUpperCase() + ": " + a.t;
-      })
-      .concat(
-        (NEWS.nat || []).slice(0, 5).map(function (x) {
-          return "◆ " + x.t + (x.src ? " (" + x.src + ")" : "");
-        })
-      )
-      .concat(
-        (NEWS.world || []).slice(0, 4).map(function (x) {
-          return "◆ " + x.t;
-        })
-      ),
-    k = items;
-  if (!k.length) k = ["◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES"];
-  cmdTicker($("cmdtk"), k);
-}
-// The headline strip shows one headline at a time and swaps it every few seconds with a short fade.
-// It used to scroll without stopping, which kept the phone redrawing the bottom of the screen every frame
-// and made the globe above it stutter.
-var CMD_TK_MS = 6000;
-function cmdTicker(tk, items) {
-  tk._items = items;
-  if (!tk._t) {
-    tk.innerHTML = '<b class="mono">LIVE</b><div><p></p></div>';
-    tk._i = -1;
-    cmdTickerNext(tk);
-    tk._t = setInterval(function () {
-      if (!document.hidden && tk.offsetParent !== null) cmdTickerNext(tk);
-    }, CMD_TK_MS);
-  }
-}
-function cmdTickerNext(tk) {
-  var L = tk._items || [],
-    p = tk.querySelector("p");
-  if (!p || !L.length) return;
-  tk._i = (tk._i + 1) % L.length;
-  var t = L[tk._i];
-  if (p.textContent === t) return;
-  p.classList.add("out");
-  setTimeout(function () {
-    p.textContent = t;
-    p.classList.remove("out");
-  }, 220);
-}
-function cmdSet(on) {
-  SET.cmd = !!on;
-  setSave();
-  cmdTick();
-  if (on) cmdBoot();
-  lastView = "";
-  if (BR.open) brDraw();
-}
-function cmdBoot() {
-  var el = $("cmdboot");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "cmdboot";
-    document.body.appendChild(el);
-  }
-  var L = [
-      "LINK ESTABLISHED",
-      "CAMERA NETWORKS · " + visLive.length.toLocaleString() + " ONLINE",
-      "AIR · SEA · ORBIT FEEDS STANDING BY",
-      "OFFICIAL ALERT FEEDS CONNECTED",
-      "ALL SOURCES PUBLIC · READY"
-    ],
-    i = 0;
-  el.style.display = "flex";
-  el.classList.remove("out");
-  el.innerHTML =
-    '<svg viewBox="0 0 48 48" width="64" height="64"><path d="M24 3 45 24 24 45 3 24Z" fill="none" stroke="#3fe0d0" stroke-width="2"/><path d="M24 12 36 24 24 36 12 24Z" fill="none" stroke="#3fe0d0" stroke-width="2"/><path d="M24 19 29 24 24 29 19 24Z" fill="#3fe0d0"/></svg><b class="mono">OJOS DE DIOS · COMMAND</b><div id="cmdbl" class="mono"></div>';
-  var t = setInterval(function () {
-    var b = $("cmdbl");
-    if (!b) {
-      clearInterval(t);
-      return;
-    }
-    if (i < L.length) {
-      b.innerHTML += "<p>› " + L[i++] + "</p>";
-    } else {
-      clearInterval(t);
-      el.classList.add("out");
-      setTimeout(function () {
-        el.style.display = "none";
-      }, 500);
-    }
-  }, 260);
 }
 // operations wall: status, four live cameras, alerts, headlines, chatter and the watchlist on one screen
 function opsCams() {
@@ -28611,10 +28230,6 @@ document.addEventListener("click", function (e) {
     opsOpen();
     return;
   }
-  if (e.target.closest("#cmdbar") || e.target.closest("#cmdtk")) {
-    opsOpen();
-    return;
-  }
   var b = e.target.closest("[data-op]");
   if (!b) return;
   var k = b.getAttribute("data-op");
@@ -28635,18 +28250,6 @@ document.addEventListener("click", function (e) {
     }
   }
 });
-(function () {
-  var a = document.createElement("div");
-  a.id = "cmdbar";
-  a.className = "mono";
-  document.documentElement.appendChild(a);
-  var b = document.createElement("div");
-  b.id = "cmdtk";
-  document.documentElement.appendChild(b);
-  setInterval(cmdTick, 1000);
-  cmdTick();
-  if (SET.cmd && ls("ojos-onb") === true) setTimeout(cmdBoot, 300);
-})();
 /**
  * @file Finder, plans and public records.
  * Flight and vessel finder, the plans directory, and organisation lookups in state and national
@@ -29093,11 +28696,7 @@ function fndDraw() {
               i +
               '">Show on map</button>' +
               (r.o.kind === "plane"
-                ? '<button data-fd="fl-' +
-                  i +
-                  '">Flight log</button><button data-fd="ck-' +
-                  i +
-                  '">Cockpit</button>'
+                ? '<button data-fd="fl-' + i + '">Flight log</button>'
                 : r.o.kind === "ship"
                   ? '<button data-fd="wt-' +
                     i +
@@ -29210,10 +28809,6 @@ document.addEventListener("click", function (e) {
     target = { lon: r.o.lon, lat: r.o.lat, z: Math.max(zoom, 60) };
   } else craftGo(r.o);
   if (k.indexOf("fl-") === 0) flogOpen(r.o);
-  if (k.indexOf("ck-") === 0)
-    setTimeout(function () {
-      ckpOpen(r.o);
-    }, 400);
 });
 // ----- plans directory: which buildings in view have an indoor floor plan on the public record -----
 var PLN = { open: false, list: null, err: "", busy: false, where: "" };
@@ -33256,546 +32851,14 @@ try {
       .catch(function () {});
 } catch (e) {}
 /**
- * @file Cockpit view and native bridge.
- * Flight-deck view with weather at altitude, and the bridge to the Android plugin (widget,
- * vibration, shortcuts).
+ * @file Native bridge.
+ * The bridge to the Android plugin (widget, vibration, shortcuts, alerts, speech, visual positioning).
+ * (The cockpit view that also lived here was removed in v97.)
  *
  * Module 23 of 45. Modules share one scope: build.py concatenates them in order
  * inside a single closure. See README, "Architecture".
  */
 
-// ---------- Cockpit view: the real world from a live aircraft's position, with the weather the forecast model reports there ----------
-var CKP = {
-  on: false,
-  id: "",
-  p: null,
-  fix: null,
-  wx: null,
-  wxAt: 0,
-  wxPos: null,
-  yaw: 0,
-  pit: 0,
-  fx: [],
-  raf: 0
-};
-var CKP_LV = [1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150];
-function ckpLevel(altM) {
-  var p = 1013.25 * Math.pow(Math.max(0.05, 1 - 2.25577e-5 * Math.max(0, altM)), 5.25588),
-    best = CKP_LV[0],
-    bd = 1e9;
-  CKP_LV.forEach(function (l) {
-    var d = Math.abs(l - p);
-    if (d < bd) {
-      bd = d;
-      best = l;
-    }
-  });
-  return best;
-}
-// turn the model's numbers into what you would see through the windscreen
-function ckpScene(w, altM) {
-  if (!w)
-    return {
-      cloud: 0,
-      under: 0,
-      over: 0,
-      rain: 0,
-      snow: 0,
-      night: false,
-      txt: "Reading the weather…"
-    };
-  var here = w.lvCloud != null ? w.lvCloud : 0,
-    low = w.low || 0,
-    mid = w.mid || 0,
-    high = w.high || 0,
-    under = altM > 6500 ? Math.max(low, mid) : altM > 2200 ? low : 0,
-    over =
-      altM < 2000 ? Math.max(low, mid, high) : altM < 6000 ? Math.max(mid, high) * 0.8 : high * 0.6,
-    inCloud = here >= 55,
-    wet = (w.precip || 0) > 0.05 && altM < Math.max(1500, (w.frz || 3000) + 2500),
-    snow = wet && ((w.snow || 0) > 0 || (w.lvT != null && w.lvT < -1)),
-    txt = inCloud
-      ? "In cloud"
-      : under >= 70
-        ? "Above a solid cloud deck"
-        : under >= 30
-          ? "Broken cloud below"
-          : over >= 70
-            ? "Under an overcast sky"
-            : over >= 30
-              ? "Scattered cloud above"
-              : "Clear air";
-  if (wet) txt += snow ? " · snow" : " · rain";
-  if (w.vis != null && w.vis < 5000 && altM < 1500) txt += " · low visibility";
-  return {
-    cloud: inCloud ? Math.min(1, here / 100) : 0,
-    under: under / 100,
-    over: over / 100,
-    rain: wet && !snow ? Math.min(1, 0.35 + (w.precip || 0) / 4) : 0,
-    snow: snow ? Math.min(1, 0.35 + (w.precip || 0) / 3) : 0,
-    night: w.day === 0,
-    txt: txt
-  };
-}
-function ckpWx(lat, lon, altM) {
-  var lv = ckpLevel(altM),
-    L = lv + "hPa";
-  CKP.wxAt = Date.now();
-  CKP.wxPos = { lat: lat, lon: lon };
-  return getJSON(
-    "https://api.open-meteo.com/v1/forecast?latitude=" +
-      lat.toFixed(3) +
-      "&longitude=" +
-      lon.toFixed(3) +
-      "&current=cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation,snowfall,weather_code,visibility,is_day,wind_gusts_10m&hourly=temperature_" +
-      L +
-      ",wind_speed_" +
-      L +
-      ",wind_direction_" +
-      L +
-      ",cloud_cover_" +
-      L +
-      ",freezing_level_height&forecast_hours=1&wind_speed_unit=kn&timezone=GMT",
-    15000
-  )
-    .then(function (j) {
-      var c = (j && j.current) || {},
-        h = (j && j.hourly) || {},
-        g = function (k) {
-          return h[k] && h[k][0] != null ? h[k][0] : null;
-        };
-      CKP.wx = {
-        lv: lv,
-        low: c.cloud_cover_low,
-        mid: c.cloud_cover_mid,
-        high: c.cloud_cover_high,
-        tot: c.cloud_cover,
-        precip: c.precipitation,
-        snow: c.snowfall,
-        code: c.weather_code,
-        vis: c.visibility,
-        day: c.is_day,
-        gust: c.wind_gusts_10m,
-        lvT: g("temperature_" + L),
-        lvW: g("wind_speed_" + L),
-        lvD: g("wind_direction_" + L),
-        lvCloud: g("cloud_cover_" + L),
-        frz: g("freezing_level_height")
-      };
-    })
-    .catch(function () {
-      CKP.wxErr = true;
-    });
-}
-function ckpPlane() {
-  for (var i = 0; i < PLANES.length; i++) if (PLANES[i].id === CKP.id) return PLANES[i];
-  return CKP.p;
-}
-function ckpPos() {
-  var q = CKP.p,
-    f = CKP.fix;
-  if (!f || f.lon !== q.lon || f.lat !== q.lat)
-    f = CKP.fix = {
-      lon: q.lon,
-      lat: q.lat,
-      t: Date.now(),
-      olon: f ? f.clon : q.lon,
-      olat: f ? f.clat : q.lat
-    };
-  var dt = Math.min(40, (Date.now() - f.t) / 1000),
-    d = (q.v || 0) * dt,
-    h = (q.trk || 0) * D,
-    lon = f.lon + (d * Math.sin(h)) / (111320 * Math.max(0.2, Math.cos(f.lat * D))),
-    lat = f.lat + (d * Math.cos(h)) / 110540,
-    k = Math.min(1, dt / 3);
-  if (f.olon != null) {
-    lon = f.olon + (lon - f.olon) * k + (1 - k) * 0;
-    lat = f.olat + (lat - f.olat) * k;
-  }
-  f.clon = lon;
-  f.clat = lat;
-  return { lon: lon, lat: lat, alt: Math.max(120, q.alt || 9000) };
-}
-function ckpFrame() {
-  if (!CKP.on || !T4.v || !window.Cesium) return;
-  var C = Cesium,
-    v = T4.v,
-    q = ckpPos(),
-    S = CKP.sc || {},
-    sh = S.cloud
-      ? Math.sin(performance.now() / 130) * 0.0025 + Math.sin(performance.now() / 47) * 0.0012
-      : 0;
-  try {
-    v.camera.setView({
-      destination: C.Cartesian3.fromDegrees(q.lon, q.lat, q.alt),
-      orientation: {
-        heading: ((CKP.p.trk || 0) + CKP.yaw) * D,
-        pitch: (-4 + CKP.pit) * D + sh,
-        roll: sh * 0.6
-      }
-    });
-    var e = T4M["p" + CKP.id];
-    if (e && e.show !== false) e.show = false;
-  } catch (x) {}
-}
-function ckpPaint() {
-  if (!CKP.on) return;
-  CKP.raf = requestAnimationFrame(ckpPaint);
-  var cv = $("ckpfx");
-  if (!cv) return;
-  var w = cv.clientWidth,
-    h = cv.clientHeight,
-    dpr = Math.min(1.5, window.devicePixelRatio || 1);
-  if (cv.width !== Math.round(w * dpr)) {
-    cv.width = Math.round(w * dpr);
-    cv.height = Math.round(h * dpr);
-  }
-  var g = cv.getContext("2d"),
-    S = CKP.sc || {},
-    t = performance.now() / 1000,
-    i;
-  g.setTransform(dpr, 0, 0, dpr, 0, 0);
-  g.clearRect(0, 0, w, h);
-  if (S.night) {
-    g.fillStyle = "rgba(4,8,22,0.5)";
-    g.fillRect(0, 0, w, h);
-  }
-  if (S.over > 0.05) {
-    var go = g.createLinearGradient(0, 0, 0, h * 0.5);
-    go.addColorStop(
-      0,
-      "rgba(" + (S.night ? "40,46,60" : "196,202,210") + "," + (0.75 * S.over).toFixed(2) + ")"
-    );
-    go.addColorStop(1, "rgba(196,202,210,0)");
-    g.fillStyle = go;
-    g.fillRect(0, 0, w, h * 0.5);
-  }
-  if (S.under > 0.05) {
-    var hz = h * 0.47,
-      gu = g.createLinearGradient(0, hz, 0, h);
-    gu.addColorStop(0, "rgba(" + (S.night ? "60,66,80" : "236,240,244") + ",0)");
-    gu.addColorStop(
-      0.18,
-      "rgba(" + (S.night ? "60,66,80" : "236,240,244") + "," + (0.9 * S.under).toFixed(2) + ")"
-    );
-    gu.addColorStop(
-      1,
-      "rgba(" +
-        (S.night ? "50,56,70" : "250,252,254") +
-        "," +
-        Math.min(0.97, S.under * 1.05).toFixed(2) +
-        ")"
-    );
-    g.fillStyle = gu;
-    g.fillRect(0, hz, w, h - hz);
-    for (i = 0; i < 16; i++) {
-      var z = (i / 16 + t * 0.035) % 1,
-        y = hz + Math.pow(z, 2.2) * (h - hz),
-        x = ((i * 0.618034) % 1) * w * 1.4 - w * 0.2 + (i % 2 ? 1 : -1) * z * z * w * 0.25,
-        r = 14 + z * z * 150;
-      g.fillStyle =
-        "rgba(" + (S.night ? "80,86,100" : "255,255,255") + "," + (0.16 * S.under).toFixed(3) + ")";
-      g.beginPath();
-      g.ellipse(x, y, r * 2.1, r * 0.55, 0, 0, 7);
-      g.fill();
-    }
-  }
-  if (S.cloud > 0) {
-    g.fillStyle =
-      "rgba(" +
-      (S.night ? "34,38,48" : "214,219,224") +
-      "," +
-      Math.min(0.94, 0.5 + S.cloud * 0.45 + Math.sin(t * 0.7) * 0.04).toFixed(2) +
-      ")";
-    g.fillRect(0, 0, w, h);
-    for (i = 0; i < 5; i++) {
-      var cx = (((i * 0.37 + t * 0.22) % 1.4) - 0.2) * w,
-        cy = h * (0.2 + 0.15 * i);
-      g.fillStyle = "rgba(255,255,255,0.05)";
-      g.beginPath();
-      g.ellipse(cx, cy, w * 0.5, h * 0.12, 0, 0, 7);
-      g.fill();
-    }
-  }
-  var n = Math.round(90 * (S.rain || 0) + 70 * (S.snow || 0));
-  if (n) {
-    g.lineCap = "round";
-    for (i = 0; i < n; i++) {
-      var a = ((i * 0.754877) % 1) * 6.283,
-        sp = S.snow ? 0.5 : 1.7,
-        k = (i * 0.381966 + t * sp) % 1,
-        r0 = 20 + k * k * Math.max(w, h) * 0.75,
-        x0 = w / 2 + Math.cos(a) * r0,
-        y0 = h * 0.44 + Math.sin(a) * r0 * 0.8,
-        len = S.snow ? 2 : 8 + k * 38;
-      if (S.snow) {
-        g.fillStyle = "rgba(255,255,255," + (0.35 + k * 0.5).toFixed(2) + ")";
-        g.beginPath();
-        g.arc(x0, y0, 1 + k * 2.2, 0, 7);
-        g.fill();
-      } else {
-        g.strokeStyle = "rgba(215,228,240," + (0.12 + k * 0.4).toFixed(2) + ")";
-        g.lineWidth = 1 + k;
-        g.beginPath();
-        g.moveTo(x0, y0);
-        g.lineTo(x0 + Math.cos(a) * len, y0 + Math.sin(a) * len * 0.8);
-        g.stroke();
-      }
-    }
-  }
-}
-function ckpHud() {
-  if (!CKP.on) return;
-  var p = (CKP.p = ckpPlane()),
-    el = $("ckphud");
-  if (!p || !el) return;
-  var alt = Math.max(0, p.alt || 0),
-    w = CKP.wx,
-    S = (CKP.sc = ckpScene(w, alt)),
-    moved = CKP.wxPos ? hav(p.lat, p.lon, CKP.wxPos.lat, CKP.wxPos.lon) : 1e9;
-  if (
-    Date.now() - CKP.wxAt > 4 * 60000 ||
-    moved > 45 ||
-    (w && ckpLevel(alt) !== w.lv && Date.now() - CKP.wxAt > 30000)
-  )
-    ckpWx(p.lat, p.lon, alt).then(ckpHud);
-  try {
-    if (T4.v) {
-      var f = T4.v.scene.fog;
-      f.enabled = true;
-      f.density =
-        w && w.vis != null && alt < 3000 ? Math.min(0.0012, 0.9 / Math.max(600, w.vis)) : 0.00012;
-      var sa = T4.v.scene.skyAtmosphere;
-      if (sa) {
-        sa.brightnessShift = S.night ? -0.75 : -(S.over || 0) * 0.35;
-        sa.saturationShift = -(S.over || 0) * 0.6;
-      }
-    }
-  } catch (e) {}
-  var cell = function (k, v) {
-    return "<div><span>" + k + "</span><b>" + v + "</b></div>";
-  };
-  el.innerHTML =
-    '<div class="ckpt"><div class="ckpn"><b class="mono">◉ COCKPIT · ' +
-    esc(p.n || p.id) +
-    '</b><button data-ckx="1" aria-label="Leave the cockpit">✕</button></div><span>' +
-    esc(S.txt) +
-    '</span></div><div class="ckpg">' +
-    cell("ALTITUDE", Math.round(alt * 3.281).toLocaleString() + " ft") +
-    cell("GROUND SPEED", Math.round((p.v || 0) * 1.944) + " kt") +
-    cell("HEADING", ("00" + Math.round(((p.trk || 0) + 360) % 360)).slice(-3) + "°") +
-    cell("OUTSIDE AIR", w && w.lvT != null ? Math.round((w.lvT * 9) / 5 + 32) + "°F" : "…") +
-    cell(
-      "WIND ALOFT",
-      w && w.lvW != null
-        ? ("00" + Math.round(w.lvD || 0)).slice(-3) + "° " + Math.round(w.lvW) + " kt"
-        : "…"
-    ) +
-    cell("CLOUD HERE", w && w.lvCloud != null ? Math.round(w.lvCloud) + "%" : "…") +
-    '</div><i class="mono">' +
-    (CKP.wxErr && !w
-      ? "THE WEATHER MODEL DID NOT ANSWER · VIEW SHOWN WITHOUT WEATHER"
-      : "WEATHER SIMULATED FROM THE FORECAST MODEL FOR THIS POSITION AND HEIGHT · NOT A CAMERA") +
-    " · DRAG TO LOOK AROUND</i>";
-}
-function ckpOpen(p) {
-  if (!p || p.kind !== "plane") return;
-  if (!kG3()) {
-    note(
-      "Cockpit view",
-      "Cockpit view shows the real world in 3D, which uses Google's 3D models. Add your Google Maps key under Layers → Sources &amp; keys first.",
-      openKeys
-    );
-    return;
-  }
-  CKP.id = p.id;
-  CKP.p = p;
-  CKP.fix = null;
-  CKP.yaw = 0;
-  CKP.pit = 0;
-  CKP.wx = null;
-  CKP.wxErr = false;
-  CKP.wxAt = 0;
-  CKP.wxPos = null;
-  CKP.sc = null;
-  // Nothing from the map view stays over the cockpit.
-  try {
-    ringClose();
-    if (CP.open) cpClose();
-    if (MV.open) mvClose();
-  } catch (x) {}
-  if (!T4.ready) note("Cockpit view", "Opening the cockpit of " + esc(p.n) + "…");
-  if (!T4.on) t4Open();
-  var n = 0,
-    go = function () {
-      // The 3D view starts a moment after it is asked for (from the dashboard it opens in steps), so
-      // wait for it; only if it never opens, or was closed again, does the cockpit give up.
-      if (!T4.on) {
-        if (n++ < 20) setTimeout(go, 300);
-        return;
-      }
-      if (!T4.ready || !T4.v) {
-        if (n++ < 120) setTimeout(go, 500);
-        else
-          note(
-            "Cockpit view",
-            "The 3D view did not finish loading. Check the connection and try again."
-          );
-        return;
-      }
-      ckpStart();
-    };
-  go();
-}
-function ckpChrome(hide) {
-  var st = document.querySelector(".stage"),
-    L = [];
-  try {
-    [].forEach.call(
-      document.querySelectorAll(
-        ".grid>*,.top,.scanbar,.hud,.kpis,.mtabs,#sheetbar,#peek,#lfrail,#irail,#t4bar,#t4places,#brandov,#bcast,#cmdbar,#cmdtk,#emgpill,#insfacts,#dotsleg,#tilt,#attr"
-      ),
-      function (e) {
-        if (
-          e === st ||
-          (st && e.contains(st)) ||
-          e.id === "real" ||
-          e.id === "czmap" ||
-          e.id === "ckp"
-        )
-          return;
-        L.push(e);
-      }
-    );
-    var rl = $("real");
-    if (rl)
-      [].forEach.call(rl.children, function (e) {
-        if (e.id !== "czmap") L.push(e);
-      });
-  } catch (x) {}
-  if (hide) {
-    CKP.hid = L.map(function (e) {
-      var o = [e, e.style.getPropertyValue("display"), e.style.getPropertyPriority("display")];
-      e.style.setProperty("display", "none", "important");
-      return o;
-    });
-  } else {
-    (CKP.hid || []).forEach(function (o) {
-      try {
-        if (o[1]) o[0].style.setProperty("display", o[1], o[2]);
-        else o[0].style.removeProperty("display");
-      } catch (x) {}
-    });
-    CKP.hid = null;
-  }
-}
-function ckpStart() {
-  var v = T4.v;
-  CKP.on = true;
-  try {
-    COVER.forEach(function (id) {
-      var e = $(id);
-      if (e && e.style.display === "flex") e.style.display = "none";
-    });
-    NEWS.open = FLOG.open = FND.open = REC.open = PLN.open = CTY.open = CHK.open = false;
-    EMG.open = false;
-  } catch (e) {}
-  setTimeout(function () {
-    try {
-      v.resize();
-    } catch (e) {}
-  }, 60);
-  try {
-    v.trackedEntity = undefined;
-    t4OrbitStop();
-  } catch (e) {}
-  try {
-    t4FlightOff();
-  } catch (e) {}
-  try {
-    v.scene.screenSpaceCameraController.enableInputs = false;
-  } catch (e) {}
-  var el = $("ckp");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "ckp";
-    el.innerHTML =
-      '<canvas id="ckpfx"></canvas><div id="ckpframe"><i></i><i></i></div><button id="ckpx" aria-label="Leave the cockpit">✕ Leave cockpit</button><button id="ckpc" aria-label="Look straight ahead">⌖</button><div id="ckphud"></div>';
-    document.documentElement.appendChild(el);
-    var dn = null;
-    el.addEventListener("pointerdown", function (e) {
-      if (e.target.closest("button")) return;
-      dn = { x: e.clientX, y: e.clientY, yaw: CKP.yaw, pit: CKP.pit };
-    });
-    el.addEventListener("pointermove", function (e) {
-      if (!dn) return;
-      CKP.yaw = Math.max(-150, Math.min(150, dn.yaw - (e.clientX - dn.x) * 0.25));
-      CKP.pit = Math.max(-55, Math.min(35, dn.pit + (e.clientY - dn.y) * 0.2));
-    });
-    ["pointerup", "pointercancel", "pointerleave"].forEach(function (k) {
-      el.addEventListener(k, function () {
-        dn = null;
-      });
-    });
-    $("ckpx").onclick = ckpClose;
-    $("ckpc").onclick = function () {
-      CKP.yaw = 0;
-      CKP.pit = 0;
-    };
-  }
-  el.style.display = "block";
-  document.documentElement.classList.add("ckp");
-  if (!CKP.hid) ckpChrome(true);
-  if (!CKP.hook) {
-    CKP.hook = true;
-    try {
-      v.scene.preRender.addEventListener(ckpFrame);
-    } catch (e) {}
-  }
-  clearInterval(CKP.iv);
-  CKP.iv = setInterval(ckpHud, 1000);
-  ckpHud();
-  cancelAnimationFrame(CKP.raf);
-  ckpPaint();
-}
-function ckpClose() {
-  if (!CKP.on) return;
-  CKP.on = false;
-  clearInterval(CKP.iv);
-  cancelAnimationFrame(CKP.raf);
-  var el = $("ckp");
-  if (el) el.style.display = "none";
-  document.documentElement.classList.remove("ckp");
-  ckpChrome(false);
-  setTimeout(function () {
-    try {
-      T4.v.resize();
-    } catch (e) {}
-  }, 60);
-  try {
-    var v = T4.v;
-    v.scene.screenSpaceCameraController.enableInputs = true;
-    v.scene.fog.density = 0.0002;
-    var sa = v.scene.skyAtmosphere;
-    if (sa) {
-      sa.brightnessShift = 0;
-      sa.saturationShift = 0;
-    }
-    var e = T4M["p" + CKP.id];
-    if (e) e.show = true;
-    T4F.key = "";
-    T4MT = 0;
-  } catch (x) {}
-}
-document.addEventListener("click", function (e) {
-  if (e.target.closest("[data-ckx]")) {
-    ckpClose();
-    return;
-  }
-  var b = e.target.closest("[data-ckp]");
-  if (!b) return;
-  ckpOpen(selected && selected.kind === "plane" ? selected : null);
-});
 // ----- native Android extras (OjosNativePlugin.java): shortcuts, home-screen widget, keep-awake, vibration -----
 function natv() {
   try {
@@ -44396,10 +43459,10 @@ function displayAndroid() {
   return /Android/i.test(window.__ODD_UA || navigator.userAgent || "");
 }
 
+// The Smooth globe is the app's only view (v97): a round globe from space that becomes the flat map
+// as you zoom in. The other drawings ("globe", "flat") are no longer offered.
 function displayMode() {
-  var d = SET.display === "simple" ? "hybrid" : SET.display;
-  if (/^(globe|hybrid|flat)$/.test(d || "")) return d;
-  return displayAndroid() || displayFlicky() ? "hybrid" : "globe";
+  return "hybrid";
 }
 
 // True while the app's own globe is standing in for the map engine in Smooth globe.
@@ -44413,23 +43476,6 @@ setInterval(function () {
   if (Date.now() - (RW.failT || 0) < OPS_RETRY_MS) return; // the flat map just failed to load
   if (viewKm() < HYB_IN_KM) rwMode("globe", { lon: rot.lon, lat: rot.lat, h: viewKm() * 900 });
 }, 300);
-
-function displaySet(m) {
-  SET.display = m;
-  setSave();
-  errLog("Display set to " + m);
-  if (!RW.on) return;
-  // The map engine is rebuilt so the new drawing applies straight away.
-  if (T3.on) t3Close();
-  if (T3.map)
-    try {
-      T3.map.remove();
-    } catch (e) {}
-  T3.map = null;
-  T3.ready = false;
-  RW.retries = 0;
-  rwMode(m === "hybrid" ? "canvas" : "globe");
-}
 
 // ---------- Smooth globe: borders and names ----------
 // The 2D globe draws country and US state borders and their names itself, from the same outlines
@@ -46874,7 +45920,7 @@ document.addEventListener("click", function (e) {
 });
 /*
  * Tap ring: tapping an aircraft, ship, satellite or event first circles it and offers its choices
- * (Select, Pilot view for aircraft, Deselect), so a small moving target is easy to catch and nothing
+ * (Select, Deselect), so a small moving target is easy to catch and nothing
  * opens by accident.
  *
  * Each view reports a tap with ringTap(o, pos, go):
@@ -46954,7 +46000,6 @@ function ringTap(o, pos, go) {
     esc(RING_KIND[o.kind] || "OBJECT") +
     (sub ? " · " + esc(sub) : "") +
     '</span><div class="trb"><button data-tr="sel">SELECT ▸</button>' +
-    (o.kind === "plane" ? '<button data-tr="pilot">✈ PILOT VIEW</button>' : "") +
     '<button class="ghost" data-tr="x">DESELECT</button></div></div>';
   el.className = "on";
   if (!RING.raf) RING.raf = requestAnimationFrame(ringFrame);
@@ -47022,13 +46067,6 @@ document.addEventListener("click", function (e) {
   var a = b.getAttribute("data-tr");
   if (a === "sel") ringSelect();
   else if (a === "x") ringDeselect();
-  else if (a === "pilot") {
-    var o = ringFresh(RING.o);
-    ringClose();
-    if (!o) return;
-    select(o);
-    ckpOpen(o);
-  }
 });
 /*
  * In-app pages: every outside link (records, sources, credits, news, Wikipedia) opens as one of the app's own
@@ -48050,6 +47088,13 @@ var WLZ_FAR = {
   cables: 250
 };
 
+// Layers that need one of the person's own keys: hidden from the Layers list and off until it is added.
+// (Inside the function, because module 10 asks before this module has run.)
+function wlNeedsKey(k) {
+  var n = { ship: "ais" }[k];
+  return !!n && !(typeof KEYS === "object" && KEYS && KEYS[n]);
+}
+
 function wlGate(raw) {
   WLZ = WLZ || { off: {}, km: 0 };
   return new Proxy(raw, {
@@ -48059,7 +47104,7 @@ function wlGate(raw) {
           return Object.assign({}, t); // what is saved is always the person's choices
         };
       var v = t[k];
-      return v === true && WLZ && WLZ.off[k] ? false : v;
+      return v === true && ((WLZ && WLZ.off[k]) || wlNeedsKey(k)) ? false : v;
     }
   });
 }
@@ -48139,8 +47184,8 @@ setInterval(function () {
 /*
  * Moving: everything on the map that moves, in one list, the way Cameras lists cameras. Aircraft, ships,
  * trains, buses and other transit, and satellites, nearest to the middle of the view first, with what each
- * is doing (height, speed, heading, route). A tap flies to it and opens its details; aircraft also get
- * ✈ PILOT for the cockpit view in one tap. The list keeps itself current every few seconds while open, but
+ * is doing (height, speed, heading, route). A tap flies to it and opens its details. The list keeps itself
+ * current every few seconds while open, but
  * never redraws under a finger that is scrolling it.
  */
 var MV = { open: false, f: "all", t: 0, touched: 0, h: "" };
@@ -48148,7 +47193,7 @@ var MV_MAX = 120;
 var MV_KINDS = [
   ["all", "All"],
   ["plane", "✈ Aircraft"],
-  ["ship", "⛴ Ships"],
+  ["ship", "⛴ Ships"], // offered only with an AISStream key (module 50)
   ["transit", "🚆 Trains & transit"],
   ["sat", "🛰 Satellites"]
 ];
@@ -48275,14 +47320,17 @@ function mvDraw(top) {
   var el = $("mvp");
   if (!el || !MV.open) return;
   [].forEach.call(el.querySelectorAll("[data-mv^='f-']"), function (b) {
-    b.classList.toggle("on", b.getAttribute("data-mv") === "f-" + MV.f);
+    var f = b.getAttribute("data-mv").slice(2);
+    b.classList.toggle("on", f === MV.f);
+    b.style.display = wlNeedsKey(MV_LAYER[f]) ? "none" : "";
   });
+  if (wlNeedsKey(MV_LAYER[MV.f])) MV.f = "all";
   var L = mvList(MV.f),
     lay = MV_LAYER[MV.f],
     hint =
       MV.f === "all"
         ? ["plane", "ship", "transit", "sat"].filter(function (k) {
-            return !WLU[MV_LAYER[k]];
+            return !WLU[MV_LAYER[k]] && !wlNeedsKey(MV_LAYER[k]);
           })
         : lay && !WLU[lay]
           ? [MV.f]
@@ -48319,11 +47367,6 @@ function mvDraw(top) {
               '</em></span><small class="mono">' +
               mvDist(x.km) +
               "</small></button>" +
-              (o.kind === "plane"
-                ? '<button class="mvpilot" data-mv="pilot-' +
-                  esc(String(o.id)) +
-                  '" aria-label="Pilot view">✈ PILOT</button>'
-                : "") +
               "</div>"
             );
           }).join("")
@@ -48379,12 +47422,6 @@ document.addEventListener("click", function (e) {
     var m = /^go-([a-z]+)-(.*)$/.exec(k),
       o = m && mvFind(m[1], m[2]);
     if (o) mvGo(o);
-  } else if (k.indexOf("pilot-") === 0) {
-    var p = mvFind("plane", k.slice(6));
-    if (!p) return;
-    mvClose();
-    select(p);
-    ckpOpen(p);
   }
 });
 /**

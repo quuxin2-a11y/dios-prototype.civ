@@ -309,6 +309,7 @@ function newsNWS() {
 function newsGDACS() {
   return getText("https://www.gdacs.org/xml/rss.xml")
     .then(function (x) {
+      NEWS.gdacs = [];
       var d = new DOMParser().parseFromString(x, "text/xml"),
         o = [];
       [].slice.call(d.getElementsByTagName("item"), 0, 60).forEach(function (it) {
@@ -319,7 +320,21 @@ function newsGDACS() {
           lv = g("gdacs:alertlevel") || g("alertlevel"),
           pt = (g("georss:point") || g("point")).split(/\s+/),
           dt = Date.parse(g("pubDate")) || 0;
-        if (!/^(Red|Orange)$/i.test(lv) || Date.now() - dt > 4 * 864e5) return;
+        if (Date.now() - dt > 4 * 864e5) return;
+        // Every alert of the last four days is listed in Events → Emergency; only Red and Orange ones
+        // count as alerts for the broadcast banner.
+        (NEWS.gdacs || (NEWS.gdacs = [])).push({
+          id: "gdacs-" + (g("guid") || g("title")).slice(-40),
+          lvl: /red/i.test(lv) ? 3 : /orange/i.test(lv) ? 2 : 1,
+          t: g("title"),
+          sub: (lv || "Green") + " alert",
+          src: "GDACS",
+          u: g("link"),
+          d: dt,
+          lat: +pt[0],
+          lon: +pt[1]
+        });
+        if (!/^(Red|Orange)$/i.test(lv)) return;
         o.push({
           id: "gdacs-" + (g("guid") || g("title")).slice(-40),
           lvl: /red/i.test(lv) ? 3 : 2,

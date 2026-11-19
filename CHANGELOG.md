@@ -2,6 +2,14 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v97
+- **Smooth globe only:** the Smooth globe (a round globe from space that becomes the flat satellite map as you zoom in) is now the only view on every device. The Globe and Flat map choices and Settings → Display are gone; earlier choices are ignored.
+- **Satellite only:** the Streets, Light and Dark map styles and the 3D map's darkening button are removed; satellite imagery shows at full colour. Anyone on another style is moved back to satellite.
+- **Command mode removed:** the status strip, the LIVE strip and the start-up sequence, with their setting. (The Command wall in Tools is a separate screen and stays.)
+- **Cockpit view removed:** with its buttons in aircraft details, the tap ring, Moving and Finder.
+- **Layers that need a key are hidden until it is added:** Ships (worldwide AIS) appears in Layers and Moving once an AISStream key is saved, and switches itself on then. Camera networks that need a key already stay off until theirs is added.
+- **Events → Live news and Emergency:** Events now has three tabs. Live news lists world headlines and the country in view. Emergency gathers official alerts (US weather warnings, FAA ground stops, earthquakes of magnitude 6.5 and up), every GDACS disaster alert worldwide of the last four days (green, orange and red) and emergency headlines from around the world. A story opens as an app screen; ◎ flies the map to it.
+
 ## v96
 - **Layers follow the zoom:** each layer shows only where it is useful. Close-up layers (bikes, scooters, pharmacies, buildings, property records and every layer that loads for the area in view) hide when zoomed out; worldwide ones (satellites, day and night, space weather, economy, currency, country facts, farming, travel advisories, drought, outbreaks, leaders, undersea cables) hide when zoomed in. A switched-on layer stays switched on and is what is saved; the Layers list shows ZOOM IN TO SHOW or ZOOM OUT TO SHOW. Double-tap a layer still shows only it, at any zoom. Settings → Layers follow the zoom turns it off. (`src-50-zoom-layers.js`: `WL` reads the person's choices, `WLU`, through a gate.)
 - **Moving:** a new button in the bottom bar lists everything that moves (aircraft, ships, trains and transit, satellites), nearest the middle of the map first, with height, speed and route, filtered by kind. A tap flies there and opens the details; ✈ PILOT opens the cockpit in one tap. It offers to switch on any kind that is off, and keeps itself current without redrawing under a scrolling finger. (`src-51-moving.js`)

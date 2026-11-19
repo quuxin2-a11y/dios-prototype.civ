@@ -1697,6 +1697,7 @@ function openKeys() {
 }
 document.addEventListener("click", function (e) {
   if (e.target.id === "keysSave") {
+    var hadAis = !!KEYS.ais;
     Array.prototype.forEach.call(document.querySelectorAll("#keysBody input"), function (i) {
       var v = i.value.trim();
       if (v) KEYS[i.dataset.k] = v;
@@ -1715,6 +1716,8 @@ document.addEventListener("click", function (e) {
       }
     });
     liveStatus();
+    // A newly added AISStream key brings the Ships layer in, switched on (it is hidden without one).
+    if (KEYS.ais && !hadAis && !WLU.ship) setLayer("ship", true);
     if (WL.ship) {
       if (AIS.ws) {
         try {

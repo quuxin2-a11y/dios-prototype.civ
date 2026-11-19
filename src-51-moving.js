@@ -1,8 +1,8 @@
 /*
  * Moving: everything on the map that moves, in one list, the way Cameras lists cameras. Aircraft, ships,
  * trains, buses and other transit, and satellites, nearest to the middle of the view first, with what each
- * is doing (height, speed, heading, route). A tap flies to it and opens its details; aircraft also get
- * ✈ PILOT for the cockpit view in one tap. The list keeps itself current every few seconds while open, but
+ * is doing (height, speed, heading, route). A tap flies to it and opens its details. The list keeps itself
+ * current every few seconds while open, but
  * never redraws under a finger that is scrolling it.
  */
 var MV = { open: false, f: "all", t: 0, touched: 0, h: "" };
@@ -10,7 +10,7 @@ var MV_MAX = 120;
 var MV_KINDS = [
   ["all", "All"],
   ["plane", "✈ Aircraft"],
-  ["ship", "⛴ Ships"],
+  ["ship", "⛴ Ships"], // offered only with an AISStream key (module 50)
   ["transit", "🚆 Trains & transit"],
   ["sat", "🛰 Satellites"]
 ];
@@ -137,14 +137,17 @@ function mvDraw(top) {
   var el = $("mvp");
   if (!el || !MV.open) return;
   [].forEach.call(el.querySelectorAll("[data-mv^='f-']"), function (b) {
-    b.classList.toggle("on", b.getAttribute("data-mv") === "f-" + MV.f);
+    var f = b.getAttribute("data-mv").slice(2);
+    b.classList.toggle("on", f === MV.f);
+    b.style.display = wlNeedsKey(MV_LAYER[f]) ? "none" : "";
   });
+  if (wlNeedsKey(MV_LAYER[MV.f])) MV.f = "all";
   var L = mvList(MV.f),
     lay = MV_LAYER[MV.f],
     hint =
       MV.f === "all"
         ? ["plane", "ship", "transit", "sat"].filter(function (k) {
-            return !WLU[MV_LAYER[k]];
+            return !WLU[MV_LAYER[k]] && !wlNeedsKey(MV_LAYER[k]);
           })
         : lay && !WLU[lay]
           ? [MV.f]
@@ -181,11 +184,6 @@ function mvDraw(top) {
               '</em></span><small class="mono">' +
               mvDist(x.km) +
               "</small></button>" +
-              (o.kind === "plane"
-                ? '<button class="mvpilot" data-mv="pilot-' +
-                  esc(String(o.id)) +
-                  '" aria-label="Pilot view">✈ PILOT</button>'
-                : "") +
               "</div>"
             );
           }).join("")
@@ -241,11 +239,5 @@ document.addEventListener("click", function (e) {
     var m = /^go-([a-z]+)-(.*)$/.exec(k),
       o = m && mvFind(m[1], m[2]);
     if (o) mvGo(o);
-  } else if (k.indexOf("pilot-") === 0) {
-    var p = mvFind("plane", k.slice(6));
-    if (!p) return;
-    mvClose();
-    select(p);
-    ckpOpen(p);
   }
 });

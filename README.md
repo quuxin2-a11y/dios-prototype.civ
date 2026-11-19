@@ -41,7 +41,6 @@ It runs entirely on the device: no accounts, no backend, no tracking.
 **Air, sea and orbit**
 - **Finder:** flight number, callsign, tail number, ship name or MMSI, satellite or camera.
 - **Flight log:** an aircraft's recent flights, schedule, delay and whether it is on course.
-- **Cockpit view:** the real 3D world from a live aircraft's position and heading, with forecast-model weather at its altitude.
 - Live aircraft, AIS vessels and satellites propagated from orbital elements; a watchlist with status alerts.
 - Live public transit: buses, trains, trams, subways and ferries from operators' open data (MBTA, SEPTA, TTC, King County Metro, CapMetro, Metro Transit, RTD, Calgary Transit, Edmonton Transit, Halifax Transit, Translink in South East Queensland, the Netherlands, Norway, HSL and Amtrak), including GTFS-Realtime feeds decoded on the device.
 - Emergency data: hurricanes and tropical storms, river flood gauges, tides, tsunami messages, wildfire perimeters, and space weather with the aurora forecast.
@@ -82,7 +81,7 @@ See the [interactive guide](https://quuxin2-a11y.github.io/dios-prototype.civ/gu
 |---|:---:|:---:|
 | Emergency mode, routing, check-in, offline pack | ✓ | ✓ |
 | Public cameras, Photoreal 3D, news, records, country file | ✓ | ✓ |
-| Live aircraft, flight log, cockpit view | ✓ | — |
+| Live aircraft and flight log | ✓ | — |
 | Background alerts, widget, shortcuts, voice | ✓ | — |
 
 Flight-position providers do not send CORS headers, so browsers cannot read them; the Android build makes those requests natively. The app is not yet listed on Google Play or the App Store.
@@ -113,7 +112,7 @@ Flight-position providers do not send CORS headers, so browsers cannot read them
 
 | Path | Language | Purpose |
 |---|---|---|
-| `src-01-start.js` … `src-51-moving.js`, `src-99-start.js` | JavaScript | Application source in 51 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, cockpit, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, cables/towers/wind, start-up, dashboard, sky, data feed, dark globe, photo help, conflict monitor, crime groups and leaders, camera grid and map pins, tap ring, in-app pages, tower, visual positioning, layers by zoom, moving, start-up). Formatted with Prettier (`.prettierrc.json`) |
+| `src-01-start.js` … `src-51-moving.js`, `src-99-start.js` | JavaScript | Application source in 51 modules by subsystem (renderer, camera networks, Photoreal 3D, Inspect, news, flight log, records, drive, emergency, native bridge, transit, emergency data, focus, ground data, infrastructure, radio, earth data, health/places/nature, travel/economy, energy/geology/climate/culture/farming, cables/towers/wind, start-up, dashboard, sky, data feed, dark globe, photo help, conflict monitor, crime groups and leaders, camera grid and map pins, tap ring, in-app pages, tower, visual positioning, layers by zoom, moving, start-up). Formatted with Prettier (`.prettierrc.json`) |
 | `src-template.html` | HTML | Document structure, with `/*@include*/` markers filled in by `build.py` |
 | `src-styles.css` | CSS | Design system and component styles |
 | `src-data-*.json` | JSON | Bundled gazetteer, border port locations, country centre points, coastline points, fallback portal list and the generated 3D models |
@@ -172,8 +171,8 @@ The debug APK is written to `app/android/app/build/outputs/apk/debug/`. Release 
 
 | Suite | Command | Covers |
 |---|---|---|
-| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, cockpit weather model, GTFS-Realtime decoding, hurricane and space-weather scales, TopoJSON outlines, GBFS and border-wait parsing, outage and disaster-declaration mapping, weather radio parsing, fire detections, air quality, outbreak and advisory placement, water gauges, economic indicators, volcano alerts, drought areas, place facts, cable details, wind farms, Replica buildings, colours and roofs, the data feed format, photo lookup protections, and sky positions (66 tests) |
-| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, the Emergency mode confirmation, the transit layer, the emergency data layers, border wait times, traffic incidents, internet outages, weather radio, smoke and fire, NASA views, airport delays, outbreaks, volcanoes, drought, undersea cables, start-up on the dark globe and the logo opening the sky, the dark globe's style and data layers (against a stand-in map engine), the shared data feed, recovery from lost graphics, the dark globe's fallback, safe start, cameras from the last session at start-up, Hide menus, the Conflict panel, the camera grid, double-tap layers, the Display setting, the screen lock and the fallback retrying, start-up with saved settings and Focus mode, with sample data from each source (38 tests) |
+| JavaScript | `node tests.js` | Detection and tracking, ground homography, geometry, flight progress, route scoring, warning matching, record matching, GTFS-Realtime decoding, hurricane and space-weather scales, TopoJSON outlines, GBFS and border-wait parsing, outage and disaster-declaration mapping, weather radio parsing, fire detections, air quality, outbreak and advisory placement, water gauges, economic indicators, volcano alerts, drought areas, place facts, cable details, wind farms, Replica buildings, colours and roofs, the data feed format, photo lookup protections, and sky positions (67 tests) |
+| Browser | `python3 -m unittest -v test_browser` | Loads the built app in headless Chromium with every public source blocked: no script errors, embedded data, Finder, Records, Country file, the Emergency mode confirmation, the transit layer, the emergency data layers, border wait times, traffic incidents, internet outages, weather radio, smoke and fire, NASA views, airport delays, outbreaks, volcanoes, drought, undersea cables, start-up on the dark globe and the logo opening the sky, the dark globe's style and data layers (against a stand-in map engine), the shared data feed, recovery from lost graphics, the dark globe's fallback, safe start, cameras from the last session at start-up, Hide menus, the Conflict panel, the camera grid, double-tap layers, the Smooth globe as the only view, Events news, the screen lock and the fallback retrying, start-up with saved settings and Focus mode, with sample data from each source (38 tests) |
 | Python | `python3 -m unittest -v test_tools` | Secret scanner, native installer (install, idempotence, rollback) |
 | Java | `./gradlew testDebugUnitTest` | Launch-action routing in the native plugin |
 | Sources | `node --check`, `eslint`, `prettier --check`, `python3 build.py --check` | Every module parses on its own and passes ESLint's recommended rules (`eslint.config.mjs`, including undefined-name checks across modules), formatting is consistent, and the committed `index.html` matches its sources |

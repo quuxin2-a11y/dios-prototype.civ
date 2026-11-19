@@ -11,20 +11,9 @@ var WATCH = ls("ojos-watch") || [],
   SET = ls("ojos-set") || {},
   BR = { open: false, c: {} },
   IMG_ALT = null;
+// Satellite imagery is the only map style (v97 removed Streets, Light and Dark).
 var STYLES = {
-  sat: ["Satellite", null],
-  street: [
-    "Streets",
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"
-  ],
-  light: [
-    "Light",
-    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/"
-  ],
-  dark: [
-    "Dark",
-    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/"
-  ]
+  sat: ["Satellite", null]
 };
 function setSave() {
   ls("ojos-set", SET);
@@ -450,11 +439,7 @@ function brDraw() {
       .join("");
   h += '<button class="brbig" data-br="add">＋ Save the area I am looking at</button>';
   h +=
-    '<h4 class="mono">TOOLS</h4><div class="brt"><button data-br="news">◆ News desk</button><button data-br="replay">⏪ Replay</button><button data-br="share">⇪ Share view</button><button data-br="set">⚙ Settings</button><button data-br="ops">▦ Command wall</button><button data-br="cmd" class="' +
-    (SET.cmd ? "on" : "") +
-    '">' +
-    (SET.cmd ? "● " : "○ ") +
-    "Command mode</button></div>";
+    '<h4 class="mono">TOOLS</h4><div class="brt"><button data-br="news">◆ News desk</button><button data-br="replay">⏪ Replay</button><button data-br="share">⇪ Share view</button><button data-br="set">⚙ Settings</button><button data-br="ops">▦ Command wall</button></div>';
   if (BR.mode === "set") {
     var kn = [
       ["gmaps", "Google Maps"],
@@ -485,22 +470,7 @@ function brDraw() {
     if (scb) scb.scrollTop = stb;
     return;
   }
-  h +=
-    '<h4 class="mono">MAP STYLE</h4><div class="brt">' +
-    Object.keys(STYLES)
-      .map(function (k) {
-        return (
-          '<button data-br="st-' +
-          k +
-          '" class="' +
-          ((SET.style || "sat") === k ? "on" : "") +
-          '">' +
-          STYLES[k][0] +
-          "</button>"
-        );
-      })
-      .join("") +
-    "</div>";
+
   // How the map is drawn: for phones whose graphics chip flickers with one of them.
   h +=
     '<h4 class="mono">EMERGENCY ALERTS</h4><div class="brt c1"><button data-br="am" class="' +
@@ -544,26 +514,7 @@ function brDraw() {
     (SET.zoomLayers !== false ? "on" : "") +
     '">' +
     (SET.zoomLayers !== false ? "● " : "○ ") +
-    'Layers follow the zoom</button></div><p class="brhint">Layers you switch on show only where they are useful: close-up ones like bikes, pharmacies and buildings when zoomed in, worldwide ones like satellites, economy and country facts when zoomed out. Double-tap a layer to show only it, at any zoom.</p>' +
-    '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
-    [
-      ["globe", "Globe"],
-      ["hybrid", "Smooth globe"],
-      ["flat", "Flat map"]
-    ]
-      .map(function (o) {
-        return (
-          '<button data-br="dp-' +
-          o[0] +
-          '" class="' +
-          (displayMode() === o[0] ? "on" : "") +
-          '">' +
-          o[1] +
-          "</button>"
-        );
-      })
-      .join("") +
-    '</div><p class="brhint">If the globe flickers or shows lines on your phone, choose Smooth globe: a round globe from space that turns into the flat map as you zoom in. Your data and layers stay the same.</p>';
+    'Layers follow the zoom</button></div><p class="brhint">Layers you switch on show only where they are useful: close-up ones like bikes, pharmacies and buildings when zoomed in, worldwide ones like satellites, economy and country facts when zoomed out. Double-tap a layer to show only it, at any zoom.</p>';
   h +=
     '<h4 class="mono">TESTING</h4><div class="brt c1"><button data-ck="open">◆ System check and error report</button></div><h4 class="mono">SPEED</h4><div class="brt c3">' +
     ["Smooth", "Balanced", "Sharp"]
@@ -607,11 +558,7 @@ function brDraw() {
     (SET.brief !== false ? "on" : "") +
     '">' +
     (SET.brief !== false ? "● " : "○ ") +
-    'Open this at launch</button><button data-br="cmd" class="' +
-    (SET.cmd ? "on" : "") +
-    '">' +
-    (SET.cmd ? "● " : "○ ") +
-    'Command mode (status strip, live ticker, start-up sequence)</button><button data-br="rail" class="' +
+    'Open this at launch</button><button data-br="rail" class="' +
     (SET.rail !== false ? "on" : "") +
     '">' +
     (SET.rail !== false ? "● " : "○ ") +
@@ -743,21 +690,13 @@ document.addEventListener("click", function (e) {
     SET.brief = SET.brief === false;
     setSave();
     brDraw();
-  } else if (k.indexOf("dp-") === 0) {
-    // Close Settings so the new drawing can be judged straight away.
-    brClose();
-    displaySet(k.slice(3));
   } else if (k === "rail") {
     railSet(SET.rail === false);
     brDraw();
-  } else if (k === "cmd") {
-    brClose();
-    cmdSet(!SET.cmd);
   } else if (k === "ops") {
     brClose();
     opsOpen();
-  } else if (k.indexOf("st-") === 0) styleSet(k.slice(3));
-  else if (k.indexOf("tx-") === 0) {
+  } else if (k.indexOf("tx-") === 0) {
     textSet(i);
     brDraw();
   } else if (k.indexOf("pf-") === 0) {
@@ -1244,7 +1183,11 @@ function shareCard() {
 }
 // ----- start-up -----
 if (SET.rail === false) document.body.classList.add("norail");
-if (SET.style && SET.style !== "sat") styleSet(SET.style, true);
+// Anyone who had chosen Streets, Light or Dark before v97 is moved back to satellite.
+if (SET.style && SET.style !== "sat") {
+  SET.style = "sat";
+  setSave();
+}
 if (SET.tx) textSet(SET.tx);
 setTimeout(function () {
   if (ls("ojos-onb") !== true) onbOpen();
