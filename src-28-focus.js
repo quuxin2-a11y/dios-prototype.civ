@@ -157,6 +157,17 @@ function focCircle(lat, lon, km) {
 function focLoad() {
   if (FOC.states && FOC.countries) return Promise.resolve();
   if (FOC.loading) return FOC.loading;
+  // The outlines ship inside the app, so borders and names never wait on a download or a signal.
+  try {
+    FOC.states = topoFeatures(JSON.parse(document.getElementById("atlas-s").textContent), "states");
+    FOC.countries = topoFeatures(
+      JSON.parse(document.getElementById("atlas-c").textContent),
+      "countries"
+    );
+    return Promise.resolve();
+  } catch (e) {
+    FOC.states = FOC.countries = null;
+  }
   // From the saved copy when there is no signal (offline maps keep one, module 42).
   FOC.loading = Promise.all([offJSON(FOC_SRC.states, 30000), offJSON(FOC_SRC.countries, 40000)])
     .then(function (r) {

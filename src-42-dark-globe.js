@@ -724,19 +724,19 @@ function hybDraw(R) {
   ctx.save();
   ctx.lineJoin = "round";
   if (km < 9000) {
-    ctx.strokeStyle = "rgba(150,190,230,0.2)";
-    ctx.lineWidth = 0.7;
+    ctx.strokeStyle = "rgba(160,200,235,0.34)";
+    ctx.lineWidth = 0.8;
     hybLines(HYB.s, proj);
   }
-  ctx.strokeStyle = "rgba(160,205,240,0.42)";
-  ctx.lineWidth = 0.9;
+  ctx.strokeStyle = "rgba(175,220,250,0.7)";
+  ctx.lineWidth = 1.1;
   hybLines(HYB.c, proj);
   hybNames(
     HYB.c,
     proj,
     R,
-    "600 10.5px system-ui, sans-serif",
-    "rgba(225,238,248,0.82)",
+    "600 11.5px system-ui, sans-serif",
+    "rgba(236,246,252,0.95)",
     34,
     true,
     boxes
@@ -760,7 +760,7 @@ function hybDraw(R) {
 // view; zooming back out levels it again. A tilt or turn you make yourself is left alone.
 var OPS_TILT_ZOOM = 15,
   OPS_FLAT_ZOOM = 12,
-  RW3D_ZOOM = 14; // "See in 3D" is offered from this zoom
+  RW3D_ZOOM = 12.5; // "See in 3D" is offered from this zoom (asks for a Google Maps key if none is saved)
 
 // Zoomed into a city, "See in 3D" opens the photo-real 3D close-up right there; its ✕ comes
 // back to the map at the same place and zoom.
@@ -775,13 +775,7 @@ function rw3dShow() {
   var on = false;
   try {
     on =
-      RW.on &&
-      RW.mode === "globe" &&
-      T3.ops &&
-      !!T3.map &&
-      !T4.on &&
-      !!kG3() &&
-      T3.map.getZoom() >= RW3D_ZOOM;
+      RW.on && RW.mode === "globe" && T3.ops && !!T3.map && !T4.on && T3.map.getZoom() >= RW3D_ZOOM;
   } catch (e) {}
   document.body.classList.toggle("rw3dok", on);
 }

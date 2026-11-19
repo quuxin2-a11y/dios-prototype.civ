@@ -1257,7 +1257,7 @@ function t4Open(opt) {
     if (opt.auto) return;
     note(
       "Photoreal 3D",
-      "This view uses Google's 3D city models. Add your Google Maps key under Layers → Sources &amp; keys first.",
+      "This view uses Google's 3D city models. Add your Google Maps key under Settings → Manage keys first.",
       openKeys
     );
     return;

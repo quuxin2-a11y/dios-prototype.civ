@@ -7,7 +7,7 @@
  */
 
 // The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
-var APP_V = 97;
+var APP_V = 98;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],

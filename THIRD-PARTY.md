@@ -103,7 +103,7 @@ This project connects existing libraries and public data. It does not claim them
 | U.S. Wind Turbine Database (USGS, LBNL, American Clean Power) | Wind farms in the US | US public domain |
 | d3-celestial data (Olaf Frohn) | Star positions, constellation lines and names for the sky | BSD 3-Clause |
 | JPL Approximate Positions of the Planets (Standish) | Planet positions | US public domain |
-| us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode, disaster declarations and the Smooth globe's borders and names | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
+| us-atlas and world-atlas (TopoJSON) | State, county and country outlines for Focus mode, disaster declarations and the Smooth globe's borders and names (country and state outlines are bundled in the app) | ISC licence; data from the US Census Bureau and Natural Earth (public domain) |
 | RainViewer | Weather radar | Free API; attribution required |
 | Open-Meteo | Weather | CC BY 4.0; Open-Meteo terms |
 | USGS | Earthquakes, volcano cameras | US public domain |

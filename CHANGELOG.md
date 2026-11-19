@@ -2,6 +2,10 @@
 
 Commit messages in this repository were made from a phone upload and are not descriptive, so the history is kept here.
 
+## v98
+- **Country and state borders and names always show:** the outlines now ship inside the app instead of downloading on first use, so the Smooth globe draws them straight away, offline or on a weak signal. Borders are brighter and thicker and country names are larger and clearer.
+- **See in 3D is always offered:** the button now appears from a city-level zoom whether or not a Google Maps key is saved; without one it tells you where to add it (Settings → Manage keys).
+
 ## v97
 - **Smooth globe only:** the Smooth globe (a round globe from space that becomes the flat satellite map as you zoom in) is now the only view on every device. The Globe and Flat map choices and Settings → Display are gone; earlier choices are ignored.
 - **Satellite only:** the Streets, Light and Dark map styles and the 3D map's darkening button are removed; satellite imagery shows at full colour. Anyone on another style is moved back to satellite.

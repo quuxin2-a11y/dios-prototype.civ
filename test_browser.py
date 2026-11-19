@@ -1733,6 +1733,18 @@ class AppInBrowser(unittest.TestCase):
         self.page.wait_for_function("() => document.body.classList.contains('rw-canvas')", timeout=5000)
         self.assertEqual(self.errors, [])
 
+    def test_see_in_3d_is_offered_without_a_key_and_asks_for_one(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script("localStorage.removeItem('ojos-keys');")
+        self.page.reload()
+        self.open_map()
+        self.page.evaluate("() => { __mlMap.z = 13; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
+        self.assertTrue(self.visible("#rw3d"), "offered from a city zoom even with no key")
+        self.page.evaluate("() => { document.querySelector('#rw3d').click(); }")
+        self.page.wait_for_function("() => /key under Settings/.test(document.body.textContent)", timeout=4000)
+        self.assertFalse(self.page.evaluate("() => document.body.classList.contains('real')"))
+
     def test_zoomed_into_a_city_see_in_3d_opens_the_close_up_and_comes_back(self):
         self.use_dashboard()
         self.page.add_init_script(MAPLIBRE_STANDIN)
