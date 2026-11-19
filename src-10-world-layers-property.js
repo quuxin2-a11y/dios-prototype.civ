@@ -25,6 +25,11 @@ if (WL.radar === undefined) WL.radar = false;
 // v91: the grouped "Nearby" tiles gave way to the camera web (tap a camera on the map).
 delete WL.tiles;
 delete WL.tilesV;
+// WLU holds the layers the person switched on. WL reads the same, except that a layer is read as off
+// while the view is outside the zoom range where it is useful (module 50), so everything that draws or
+// loads layers follows the zoom without knowing about it.
+var WLU = WL;
+WL = wlGate(WLU);
 var PLANES = [],
   SATREC = [],
   SATS = [],
@@ -876,9 +881,11 @@ function wstat() {
       head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
     lastGroup = grp;
     var n = w[3] ? w[3]() : null,
-      st = WSTAT[w[0]];
-    var txt =
-      w[0] === "transit"
+      st = WSTAT[w[0]],
+      zw = wlZoomWhy(w[0]);
+    var txt = zw
+      ? zw
+      : w[0] === "transit"
         ? trStatus()
         : ilStatus(w[0]) != null
           ? ilStatus(w[0])
@@ -927,7 +934,8 @@ function wstat() {
     return (
       head +
       '<button class="cat' +
-      (WL[w[0]] ? "" : " off") +
+      (WLU[w[0]] ? "" : " off") +
+      (zw ? " zoomoff" : "") +
       '" data-wl="' +
       w[0] +
       '"><div class="l"><span><i style="background:' +
@@ -960,7 +968,7 @@ function wstat() {
       var n = w[3] ? w[3]() : 0;
       return (
         '<button class="' +
-        (WL[w[0]] ? "on" : "") +
+        (WLU[w[0]] ? "on" : "") +
         '" data-wl="' +
         w[0] +
         '" title="' +
@@ -988,8 +996,9 @@ document.addEventListener("click", function (e) {
   var b = e.target.closest("[data-wl]");
   if (!b) return;
   var k = b.getAttribute("data-wl");
-  WL[k] = !WL[k];
-  ls("ojos-layers", WL);
+  WLU[k] = !WLU[k];
+  wlZoomCheck();
+  ls("ojos-layers", WLU);
   if (k === "labels") {
     patchA = null;
     patchP = null;
@@ -998,7 +1007,7 @@ document.addEventListener("click", function (e) {
   var d = WLDEF.filter(function (w) {
     return w[0] === k;
   })[0];
-  if (WL[k] && d[4] && EMBED_OK && !d[3]()) d[4]();
+  if (WL[k] && d[4] && EMBED_OK && (!d[3] || !d[3]())) d[4]();
   wstat();
 });
 if (EMBED_OK)

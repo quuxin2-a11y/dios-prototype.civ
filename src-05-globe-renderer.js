@@ -163,6 +163,9 @@ function frame(now) {
   var active = !!target || dragging || now - lastInteract < 700 || spinning;
   if (!active && now - PERF.last < (now - lastInteract > 6000 && !(EMG.on && EMG.pos) ? 50 : 30))
     return; // idle: 30 fps for the pulses, 20 fps once left alone
+  // The slow turn of a zoomed-out globe looks the same at 30 frames a second, and drawing the whole planet
+  // every frame starved everything else on the phone (the scrolling news strip visibly stuttered).
+  if (spinning && !target && now - PERF.last < 32) return;
   var dt = now - (frame.last || now),
     t = (now - t0) / 1000;
   // adaptive sharpness: if moving the globe is slow on this phone, render motion a little softer and sharpen when still
@@ -536,6 +539,8 @@ var VX = [],
   VC = [],
   VNUM = 0,
   VRECT = false,
+  DOT_OCC = null,
+  DOT_FRAME = 0,
   CGn = null,
   CGx,
   CGy,
@@ -620,6 +625,14 @@ function markers(t, P) {
     zmin = 0,
     hyp = Math.sqrt(hw * hw + Math.pow(Math.max(cyy, H - cyy), 2)) + 12;
   if (fast && hyp < R) zmin = Math.sqrt(1 - (hyp * hyp) / (R * R)) - 1e-9;
+  var seen = 0,
+    thin = WL.dots && visLive.length > 3000,
+    gwid = ((W + 16) >> 1) + 2;
+  if (thin) {
+    var need = gwid * (((H + 16) >> 1) + 2);
+    if (!DOT_OCC || DOT_OCC.length < need) DOT_OCC = new Uint32Array(need);
+    DOT_FRAME = (DOT_FRAME + 1) >>> 0 || 1;
+  }
   for (j = 0; j < visLive.length; j++) {
     lc = visLive[j];
     if (fast) {
@@ -643,6 +656,14 @@ function markers(t, P) {
       z = lp[2];
       if (x < -8 || x > W + 8 || y < -8 || y > H + 8) continue;
     }
+    seen++;
+    // Every-camera dots: one per 2-pixel cell. Tens of thousands of points land on the same pixels when
+    // zoomed out, and drawing them all each frame slowed the whole phone; the picture looks the same.
+    if (thin) {
+      var ci = ((y + 8) >> 1) * gwid + ((x + 8) >> 1);
+      if (DOT_OCC[ci] === DOT_FRAME) continue;
+      DOT_OCC[ci] = DOT_FRAME;
+    }
     VX[n] = x;
     VY[n] = y;
     VC[n] = lc;
@@ -650,9 +671,9 @@ function markers(t, P) {
   }
   VNUM = n;
   VRECT = false;
-  if (WL.dots !== markers._d || n !== markers._n) {
+  if (WL.dots !== markers._d || seen !== markers._n) {
     markers._d = WL.dots;
-    markers._n = n;
+    markers._n = seen;
     var lg = $("dotsleg");
     if (lg) {
       lg.style.display = WL.dots ? "block" : "none";
@@ -661,7 +682,7 @@ function markers(t, P) {
           "<b>" +
           filteredLiveN().toLocaleString() +
           "</b> live cameras<span>" +
-          n.toLocaleString() +
+          seen.toLocaleString() +
           " in view · tap any point</span>";
     }
   }

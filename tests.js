@@ -157,7 +157,8 @@ var NAMES = [
   "skyStarColor",
   "rdSource",
   "towSpeech",
-  "towFaa"
+  "towFaa",
+  "vpsThin"
 ];
 // Top-level tables taken from the shipped modules: "var NAME = ...;" with balanced brackets.
 function grabVar(name) {
@@ -1699,6 +1700,16 @@ test("tower: ATIS is made speakable and FAA codes are found", function () {
   assert.strictEqual(F.towFaa({ iata: "AUS", icao: "KAUS" }), "AUS");
   assert.strictEqual(F.towFaa({ iata: "", icao: "KDFW" }), "DFW");
   assert.strictEqual(F.towFaa({ iata: "", icao: "EGLL" }), "");
+});
+
+test("visual positioning: routes are thinned for the camera screen, ends kept", function () {
+  var pts = [];
+  for (var i = 0; i < 1000; i++) pts.push([30 + i * 1e-5, -97]);
+  var t = F.vpsThin(pts);
+  assert.ok(t.length <= 401, "length " + t.length);
+  assert.deepStrictEqual(t[0], [30, -97]);
+  assert.deepStrictEqual(t[t.length - 1], pts[999]);
+  assert.strictEqual(F.vpsThin([[1, 2]]), null);
 });
 
 // Every module shares one scope, so a top-level name declared in two modules silently replaces the

@@ -81,44 +81,37 @@ function cmdTick() {
           return "◆ " + x.t;
         })
       ),
-    k = items.join("     ");
-  if (!k) k = "◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES";
+    k = items;
+  if (!k.length) k = ["◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES"];
   cmdTicker($("cmdtk"), k);
 }
-// The scrolling headline strip. It runs on the graphics chip at one steady speed, and new text waits
-// for the end of the current pass, so the strip never jumps back, restarts or changes pace mid-read.
-var CMD_TK_PX = 55; // pixels a second
-function cmdTicker(tk, k) {
-  var p = tk.querySelector("p");
-  if (p && !p._sized) cmdTickerSize(p);
-  if (tk._k === k) return;
-  if (p && tk._k) {
-    tk._next = k;
-    if (!p._wait) {
-      p._wait = true;
-      p.addEventListener("animationiteration", function () {
-        p._wait = false;
-        var n = tk._next;
-        tk._next = null;
-        if (n != null) cmdTickerFill(tk, n);
-      });
-    }
-    return;
+// The headline strip shows one headline at a time and swaps it every few seconds with a short fade.
+// It used to scroll without stopping, which kept the phone redrawing the bottom of the screen every frame
+// and made the globe above it stutter.
+var CMD_TK_MS = 6000;
+function cmdTicker(tk, items) {
+  tk._items = items;
+  if (!tk._t) {
+    tk.innerHTML = '<b class="mono">LIVE</b><div><p></p></div>';
+    tk._i = -1;
+    cmdTickerNext(tk);
+    tk._t = setInterval(function () {
+      if (!document.hidden && tk.offsetParent !== null) cmdTickerNext(tk);
+    }, CMD_TK_MS);
   }
-  cmdTickerFill(tk, k);
 }
-function cmdTickerFill(tk, k) {
-  tk._k = k;
-  tk.innerHTML = '<b class="mono">LIVE</b><div><p>' + esc(k) + "     " + esc(k) + "     </p></div>";
-  cmdTickerSize(tk.querySelector("p"));
-}
-// Half the strip (one copy) at a steady speed; measured once per change (or once it is first shown),
-// never per frame.
-function cmdTickerSize(p) {
-  var w = p.scrollWidth;
-  if (!w) return;
-  p._sized = true;
-  p.style.animationDuration = Math.max(20, Math.round(w / 2 / CMD_TK_PX)) + "s";
+function cmdTickerNext(tk) {
+  var L = tk._items || [],
+    p = tk.querySelector("p");
+  if (!p || !L.length) return;
+  tk._i = (tk._i + 1) % L.length;
+  var t = L[tk._i];
+  if (p.textContent === t) return;
+  p.classList.add("out");
+  setTimeout(function () {
+    p.textContent = t;
+    p.classList.remove("out");
+  }, 220);
 }
 function cmdSet(on) {
   SET.cmd = !!on;

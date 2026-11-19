@@ -587,6 +587,40 @@ class AppInBrowser(unittest.TestCase):
         self.assertIn("2 OF 13 READY", self.page.inner_text("#emgp"))
         self.assertEqual(self.errors, [])
 
+    def test_visual_positioning_is_offered_and_explains_itself_outside_the_app(self):
+        self.page.click("#bEmg")
+        self.page.click("[data-em=yes]")
+        self.page.wait_for_selector("#emgp [data-vps='pinpoint']", timeout=5000)
+        self.assertTrue(self.visible("#emgp [data-vps='around']"))
+        self.page.click("#emgp [data-vps='pinpoint']")
+        self.page.wait_for_selector(".toast:has-text('VISUAL POSITIONING')", timeout=3000)
+        self.assertIn("Android app", self.page.inner_text(".toast"))
+        self.assertEqual(self.errors, [])
+
+    def test_emergency_panel_holds_still_while_scrolling_and_keeps_its_place(self):
+        self.page.click("#bEmg")
+        self.page.click("[data-em=yes]")
+        self.page.wait_for_selector("#emgp [data-em='chk']", timeout=5000)
+        self.page.wait_for_timeout(1500)
+        # The "open" pill is not shown over the open panel.
+        self.assertFalse(self.visible("#emgpill"))
+        self.page.evaluate("() => { document.querySelector('#emgp .nl').scrollTop = 60; }")
+        # The button tapped stays under the finger when the panel redraws.
+        where = """() => { const sc = document.querySelector('#emgp .nl'), b = sc.querySelector("[data-em='chk']");
+            return Math.round(b.getBoundingClientRect().top - sc.getBoundingClientRect().top); }"""
+        at = self.page.evaluate(where)
+        self.page.evaluate("() => document.querySelector(\"#emgp [data-em='chk']\").click()")
+        self.assertEqual(self.page.locator("#emgp [data-emck]").count(), 13)
+        self.assertLess(abs(self.page.evaluate(where) - at), 3)
+        # While scrolling, a redraw waits until the finger has stopped.
+        self.page.dispatch_event("#emgp .nl", "wheel")
+        self.page.evaluate("() => document.querySelector(\"#emgp [data-em='chk']\").click()")
+        self.page.wait_for_timeout(400)
+        self.assertEqual(self.page.locator("#emgp [data-emck]").count(), 13)
+        self.page.wait_for_timeout(1600)
+        self.assertEqual(self.page.locator("#emgp [data-emck]").count(), 0)
+        self.assertEqual(self.errors, [])
+
     def test_emergency_mode_plays_live_local_radio_in_the_app(self):
         import io
         import wave
@@ -1243,6 +1277,18 @@ class AppInBrowser(unittest.TestCase):
         t.click(position={"x": 10, "y": 10})
         self.page.wait_for_timeout(400)
         self.assertLess(t.bounding_box()["width"], w0 * 1.2)
+        # Dragging a tile moves it, and it stays where it was put; a drag is not a tap.
+        b0 = t.bounding_box()
+        self.page.mouse.move(b0["x"] + 12, b0["y"] + 12)
+        self.page.mouse.down()
+        for k in range(1, 6):
+            self.page.mouse.move(b0["x"] + 12 - 14 * k, b0["y"] + 12 + 24 * k)
+        self.page.mouse.up()
+        self.page.wait_for_timeout(600)
+        b1 = t.bounding_box()
+        self.assertAlmostEqual(b1["y"] - b0["y"], 120, delta=12)
+        self.assertAlmostEqual(b1["x"] - b0["x"], -70, delta=12)
+        self.assertLess(b1["width"], w0 * 1.2, "the drag did not enlarge it")
         self.page.click("#cpins [data-cp='x']")
         self.assertFalse(self.visible("#cpins"))
         self.assertEqual(self.errors, [])
@@ -1468,6 +1514,103 @@ class AppInBrowser(unittest.TestCase):
         self.page.click("#hlcard [data-hl='x']")
         self.assertFalse(self.visible("#hlcard"))
         self.assertEqual(self.errors, [])
+
+    def test_moving_lists_aircraft_and_opens_the_cockpit_in_one_tap(self):
+        ac = {"ac": [
+            {"hex": "a1b2c3", "flight": "SWA1234 ", "lat": 30.25, "lon": -97.68, "alt_baro": 3000, "gs": 150, "track": 180, "t": "B737"},
+            {"hex": "d4e5f6", "flight": "AAL22 ", "lat": 31.9, "lon": -97.1, "alt_baro": 31000, "gs": 450, "track": 20},
+        ]}
+        self.page.route("**/api.adsb.lol/v2/point/**", lambda r: r.fulfill(body=json.dumps(ac), content_type="application/json", headers={"access-control-allow-origin": "*"}))
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script(CESIUM_STANDIN)
+        self.page.add_init_script(
+            "localStorage.setItem('ojos-layers', JSON.stringify({air: true, img: true}));"
+            "localStorage.setItem('godeye-keys', JSON.stringify({gmaps: 'test-key'}));"
+        )
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        self.page.evaluate("() => { __mlMap.c = { lng: -97.7, lat: 30.3 }; }")
+        self.page.click("#rwdash .rwdock [data-rw='moving']")
+        self.page.wait_for_selector("#mvp .mvrow", timeout=15000)
+        names = self.page.locator("#mvp .mvgo b").all_inner_texts()
+        self.assertEqual(names[:2], ["SWA1234", "AAL22"], "nearest the middle of the map first")
+        self.assertIn("3,000 FT", self.page.inner_text("#mvp .mvrow >> nth=0"))
+        # Ships only: none yet, and it offers to turn them on.
+        self.page.click("#mvp [data-mv='f-ship']")
+        self.assertTrue(self.visible("#mvp [data-mv='on-ship']"))
+        self.page.click("#mvp [data-mv='f-plane']")
+        # ✈ PILOT goes straight to the cockpit, with nothing from the map over it.
+        self.page.click("#mvp [data-mv='pilot-a1b2c3']")
+        self.page.wait_for_selector("#ckp", state="visible", timeout=10000)
+        self.assertFalse(self.visible("#mvp"))
+        self.assertFalse(self.visible("#rwdash .rwdock"))
+        self.assertFalse(self.visible("#rwdash .rwtop"))
+        self.page.click("#ckpx")
+        self.assertFalse(self.visible("#ckp"))
+        self.assertEqual(self.errors, [])
+
+    def test_layers_follow_the_zoom(self):
+        self.use_dashboard()
+        self.page.add_init_script(MAPLIBRE_STANDIN)
+        self.page.add_init_script("localStorage.setItem('ojos-layers', JSON.stringify({bikes: true, economy: true, img: true}));")
+        self.page.reload()
+        self.page.wait_for_function("() => document.body.classList.contains('rw-globe') && window.__mlMap", timeout=8000)
+        status = "(k) => document.querySelector(`#wlayers [data-wl='${k}']`).textContent"
+        # From space: the close-up layer waits, the worldwide one shows.
+        self.page.evaluate("() => { __mlMap.z = 2; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
+        self.page.wait_for_function("(f) => eval(f)('bikes').includes('ZOOM IN TO SHOW')", arg=status, timeout=4000)
+        self.assertNotIn("TO SHOW", self.page.evaluate(status, "economy"))
+        # Over a city: the other way round. Both stay switched on, and that is what is saved.
+        self.page.evaluate("() => { __mlMap.z = 13; (__mlMap.h.moveend || []).forEach((f) => f({})); }")
+        self.page.wait_for_function("(f) => eval(f)('economy').includes('ZOOM OUT TO SHOW')", arg=status, timeout=4000)
+        self.assertNotIn("TO SHOW", self.page.evaluate(status, "bikes"))
+        saved = json.loads(self.page.evaluate("() => localStorage.getItem('ojos-layers')"))
+        self.assertTrue(saved["economy"] and saved["bikes"])
+        self.assertNotIn("off", self.page.get_attribute("#wlayers [data-wl='economy']", "class").split())
+        self.assertEqual(self.errors, [])
+
+    def test_nothing_on_screen_overlaps_on_phones_tablets_and_computers(self):
+        ac = {"ac": [{"hex": "a1b2c3", "flight": "SWA1234 ", "lat": 30.25, "lon": -97.68, "alt_baro": 3000, "gs": 150, "track": 180}]}
+        check = """() => {
+          const vw = innerWidth, vh = innerHeight, out = [];
+          const name = (e) => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (typeof e.className === 'string' && e.className ? '.' + e.className.split(' ')[0] : '');
+          const els = [...document.querySelectorAll('body *')].filter((e) => {
+            const cs = getComputedStyle(e), r = e.getBoundingClientRect();
+            return cs.position === 'fixed' && cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 && e.id !== 'stage'
+              && r.width > 2 && r.height > 2 && r.width * r.height < 0.8 * vw * vh && r.bottom > 0 && r.top < vh;
+          });
+          for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) {
+            const a = els[i], b = els[j];
+            if (a.contains(b) || b.contains(a)) continue;
+            const r = a.getBoundingClientRect(), s = b.getBoundingClientRect(),
+              w = Math.min(r.right, s.right) - Math.max(r.left, s.left), h = Math.min(r.bottom, s.bottom) - Math.max(r.top, s.top);
+            if (w > 3 && h > 3) out.push(name(a) + ' over ' + name(b));
+          }
+          document.querySelectorAll('button').forEach((e) => {
+            const r = e.getBoundingClientRect();
+            if (r.width && r.bottom > 0 && r.top < vh && (r.right > vw + 1 || r.left < -1) && getComputedStyle(e).display !== 'none')
+              out.push('cut off: ' + (e.textContent || '').trim().slice(0, 20));
+          });
+          return out;
+        }"""
+        for w, h in [(375, 667), (390, 844), (820, 1180), (1280, 800)]:
+            ctx = self.browser.new_context(viewport={"width": w, "height": h})
+            p = ctx.new_page()
+            p.route("**/*", self._local_only)
+            p.route("**/api.adsb.lol/v2/point/**", lambda r: r.fulfill(body=json.dumps(ac), content_type="application/json", headers={"access-control-allow-origin": "*"}))
+            p.add_init_script("localStorage.setItem('ojos-onb', 'true'); window.__ODD_CLASSIC = false;"
+                              "localStorage.setItem('ojos-layers', JSON.stringify({air: true, img: true}));")
+            p.add_init_script(MAPLIBRE_STANDIN)
+            p.goto(self.url)
+            p.wait_for_timeout(3000)
+            for step in [None, "[data-rw='layers']", "[data-rw='layers']", "[data-rw='events']", "[data-rw='events']",
+                         "[data-rw='search']", "[data-rw='search']", "[data-rw='moving']"]:
+                if step:
+                    p.locator("#rwdash " + step + ", #mvp " + step).first.click()
+                    p.wait_for_timeout(500)
+                self.assertEqual(p.evaluate(check), [], "%dx%d after %s" % (w, h, step))
+            ctx.close()
 
     def test_double_tap_a_layer_to_see_only_it_and_again_to_restore(self):
         self.page.wait_for_selector("#wlayers [data-wl='radio']", state="attached", timeout=5000)

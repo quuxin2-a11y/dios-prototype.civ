@@ -35,6 +35,8 @@ import com.getcapacitor.annotation.CapacitorPlugin;
  *       (see {@link AlertChecker})</li>
  *   <li>{@code getAlertLog()}: the alerts announced while the app was closed, for its alert history</li>
  *   <li>{@code setAlertWidget({event, place, until})}: shows an alert on the home-screen widget until it ends</li>
+ *   <li>{@code vpsOpen({mode, target, route, points})}: opens visual positioning ({@link VpsActivity}); the precise
+ *       position comes back as {@code vpsFix} events</li>
  *   <li>{@code speak({text})} / {@code stopSpeaking()}: reads text aloud with the phone's own voice (the web view has
  *       none), for example an airport's ATIS; emits {@code speechDone} when it finishes or is stopped</li>
  * </ul>
@@ -57,6 +59,9 @@ public class OjosNativePlugin extends Plugin {
 
     /** Longest text we read aloud in one go, in characters (Android's own limit is about 4,000). */
     static final int MAX_SPEECH_CHARS = 3900;
+
+    /** The plugin the app is running, so the positioning screen can send its fixes back. */
+    private static java.lang.ref.WeakReference<OjosNativePlugin> current = new java.lang.ref.WeakReference<>(null);
 
     private TextToSpeech tts;
     private boolean ttsReady;
@@ -201,6 +206,35 @@ public class OjosNativePlugin extends Plugin {
                 .apply();
         EmergencyWidget.refreshAll(getContext());
         call.resolve();
+    }
+
+    @Override
+    public void load() {
+        current = new java.lang.ref.WeakReference<>(this);
+    }
+
+    /** Opens the visual positioning screen with what the web layer wants shown (see {@link VpsActivity}). */
+    @PluginMethod
+    public void vpsOpen(PluginCall call) {
+        JSObject data = call.getData();
+        Intent intent = new Intent(getContext(), VpsActivity.class);
+        intent.putExtra(VpsActivity.EXTRA_JSON, data == null ? "{}" : data.toString());
+        getActivity().startActivity(intent);
+        call.resolve();
+    }
+
+    /** Called by {@link VpsActivity} with a precise position; {@code done} when the user chose to use it. */
+    static void vpsFix(double lat, double lon, double alt, double accuracy, double heading, boolean done) {
+        OjosNativePlugin plugin = current.get();
+        if (plugin == null) return;
+        JSObject fix = new JSObject();
+        fix.put("lat", lat);
+        fix.put("lon", lon);
+        fix.put("alt", alt);
+        fix.put("acc", accuracy);
+        fix.put("heading", heading);
+        fix.put("done", done);
+        plugin.notifyListeners("vpsFix", fix, true);
     }
 
     /** Reads {@code text} aloud, replacing anything already being read. */

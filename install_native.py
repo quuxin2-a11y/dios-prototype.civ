@@ -6,8 +6,9 @@ The Android project is generated in CI by ``npx cap add android``. This script l
 * ``*.java`` files whose package is ``com.ojosdedios.app`` go to ``app/src/main/java/com/ojosdedios/app/``;
   files ending in ``Test.java`` go to the JVM unit-test source set, ``app/src/test/java/com/ojosdedios/app/``.
 * Resource files named ``res-<type>--<name>.xml`` go to ``app/src/main/res/<type>/<name>.xml``.
-* ``AndroidManifest.xml`` gets the permissions below, the Emergency widget receiver and the background alert
-  check (``AlertChecker``).
+* ``AndroidManifest.xml`` gets the permissions below, the Emergency widget receiver, the background alert
+  check (``AlertChecker``) and the visual positioning screen (``VpsActivity``, ARCore "AR optional").
+* ``app/build.gradle`` gets the libraries that screen needs (``GRADLE_DEPENDENCIES``).
 
 Every file it replaces is backed up first, so ``--undo`` restores the generated project exactly.
 
@@ -36,6 +37,7 @@ MANIFEST_PERMISSIONS = (
     "android.permission.VIBRATE",
     "android.permission.POST_NOTIFICATIONS",
     "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.CAMERA",
 )
 MANIFEST_RECEIVER = """
         <receiver
@@ -58,6 +60,26 @@ MANIFEST_RECEIVER = """
             </intent-filter>
         </receiver>
 """
+# Visual positioning (ARCore Geospatial API). "AR optional": the app installs and runs on phones without ARCore;
+# only that screen needs it. Authorised without a key: Google Cloud recognises the app by its signing certificate.
+MANIFEST_VPS = """
+        <activity
+            android:name=".VpsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode" />
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
+"""
+MANIFEST_FEATURES = """    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
+"""
+# Versions chosen to build with Capacitor 6's compileSdk 34.
+GRADLE_DEPENDENCIES = (
+    "implementation 'com.google.ar:core:1.44.0'",
+    "implementation 'com.google.android.gms:play-services-location:21.0.1'",
+    "implementation 'com.google.android.gms:play-services-auth:20.7.0'",
+)
 
 
 class InstallError(RuntimeError):
@@ -84,15 +106,49 @@ def resource_sources(source_dir: Path = SOURCE_DIR) -> list[tuple[Path, str, str
     return found
 
 
-def patch_manifest(text: str) -> str:
-    """Adds the permissions and the two receivers. Running it twice changes nothing."""
-    if "</application>" not in text or "</manifest>" not in text:
+def _insert(text: str, anchor: str, block: str, made: list | None) -> str:
+    """Puts ``block`` just before the first ``anchor`` and records it so --undo can take out exactly that."""
+    if anchor not in text:
+        anchor = anchor.strip()
+    if made is not None:
+        made.append(block)
+    return text.replace(anchor, block + anchor, 1)
+
+
+def patch_manifest(text: str, made: list | None = None) -> str:
+    """Adds the permissions, the two receivers and the positioning screen. Running it twice changes nothing."""
+    if "</application>" not in text or "</manifest>" not in text or "<application" not in text:
         raise InstallError("AndroidManifest.xml has no <application> or <manifest> end tag")
     for name in MANIFEST_PERMISSIONS:
         if f'"{name}"' not in text:
-            text = text.replace("</manifest>", f'    <uses-permission android:name="{name}" />\n</manifest>', 1)
+            text = _insert(text, "</manifest>", f'    <uses-permission android:name="{name}" />\n', made)
     if ".EmergencyWidget" not in text:
-        text = text.replace("</application>", MANIFEST_RECEIVER + "    </application>", 1)
+        text = _insert(text, "    </application>", MANIFEST_RECEIVER, made)
+    if ".VpsActivity" not in text:
+        text = _insert(text, "    </application>", MANIFEST_VPS, made)
+    if "android.hardware.camera.ar" not in text:
+        text = _insert(text, "    <application", MANIFEST_FEATURES, made)
+    return text
+
+
+def patch_gradle(text: str, made: list | None = None) -> str:
+    """Adds the visual positioning libraries to the app's dependencies. Running it twice changes nothing."""
+    match = re.search(r"^dependencies\s*\{[ \t]*\n", text, re.M)
+    if not match:
+        raise InstallError("app/build.gradle has no dependencies block")
+    missing = [d for d in GRADLE_DEPENDENCIES if d.split("'")[1].rsplit(":", 1)[0] not in text]
+    if not missing:
+        return text
+    block = "".join(f"    {d}\n" for d in missing)
+    if made is not None:
+        made.append(block)
+    return text[: match.end()] + block + text[match.end() :]
+
+
+def unpatch(text: str, made: list) -> str:
+    """Takes out exactly what a patch put in, leaving any later changes by the build (version, signing) alone."""
+    for block in reversed(made):
+        text = text.replace(block, "", 1)
     return text
 
 
@@ -123,9 +179,17 @@ def install(project: Path, source_dir: Path = SOURCE_DIR) -> dict:
     for src, res_type, name in resource_sources(source_dir):
         _place(src, main / "res" / res_type / name, ledger)
 
-    shutil.copy2(manifest, manifest.with_name(manifest.name + BACKUP_SUFFIX))
-    ledger["replaced"].append(str(manifest))
-    manifest.write_text(patch_manifest(manifest.read_text(encoding="utf-8")), encoding="utf-8")
+    # The manifest and build.gradle are edited in place, not replaced: the build changes them again afterwards
+    # (location permissions, version number, signing), and --undo must keep those changes.
+    ledger["edits"] = {}
+    made: list = []
+    manifest.write_text(patch_manifest(manifest.read_text(encoding="utf-8"), made), encoding="utf-8")
+    ledger["edits"][str(manifest)] = made
+    gradle = project / "app" / "build.gradle"
+    if gradle.is_file():
+        made = []
+        gradle.write_text(patch_gradle(gradle.read_text(encoding="utf-8"), made), encoding="utf-8")
+        ledger["edits"][str(gradle)] = made
 
     (project / LEDGER).write_text(json.dumps(ledger, indent=2), encoding="utf-8")
     return ledger
@@ -138,6 +202,10 @@ def undo(project: Path) -> dict:
     ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     for name in ledger["added"]:
         Path(name).unlink(missing_ok=True)
+    for name, made in ledger.get("edits", {}).items():
+        path = Path(name)
+        if path.exists():
+            path.write_text(unpatch(path.read_text(encoding="utf-8"), made), encoding="utf-8")
     for name in ledger["replaced"]:
         path = Path(name)
         backup = path.with_name(path.name + BACKUP_SUFFIX)

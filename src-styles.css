@@ -407,10 +407,10 @@ a.open {
   line-height: 30px;
 }
 .ticker div {
-  display: inline-block;
-  padding-left: 100%;
-  animation: tk 160s linear infinite;
-  will-change: transform;
+  padding: 0 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ticker span {
   margin-right: 36px;
@@ -418,11 +418,6 @@ a.open {
 .ticker b {
   color: var(--accent);
   font-weight: 600;
-}
-@keyframes tk {
-  to {
-    transform: translateX(-100%);
-  }
 }
 .foot {
   font-size: 11px;
@@ -6068,23 +6063,18 @@ body.bcast #cmp {
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
+  contain: paint; /* the moving strip is painted on its own, apart from the globe */
 }
 #cmdtk p {
-  display: inline-block;
   margin: 0;
-  padding-left: 12px;
-  white-space: pre;
-  animation: cmdtk 60s linear infinite;
-  will-change: transform;
-  backface-visibility: hidden;
+  padding: 0 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s;
 }
-@keyframes cmdtk {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+#cmdtk p.out {
+  opacity: 0;
 }
 body.cmd {
   top: calc(22px + env(safe-area-inset-top)) !important;
@@ -6982,7 +6972,15 @@ html.ckp #cmdtk,
 html.ckp #emgpill,
 html.ckp .grid .rail,
 html.ckp .grid .side,
-html.ckp #insfacts {
+html.ckp #insfacts,
+html.ckp #rwdash,
+html.ckp #rw3d,
+html.ckp #cfp,
+html.ckp #cpins,
+html.ckp #tring,
+html.ckp #cgp,
+html.ckp #mvp,
+html.ckp #dotsleg {
   display: none !important;
 }
 html.ckp body.sheet.sheet .grid .side,
@@ -7071,10 +7069,8 @@ button:active {
 .drvp button:active {
   transform: scale(0.965);
 }
-.pn .brc {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 96px;
-}
+/* Cards are always laid out at their real height. (content-visibility: auto guessed a height for cards
+   out of view, so lists jumped as the real heights arrived and tall cards were squashed onto the next.) */
 .pn .nl,
 #newsp .nl,
 #flog .nl,
@@ -8453,6 +8449,14 @@ body.rw #cmdbar {
   text-align: left;
   pointer-events: auto;
   box-shadow: 0 6px 16px #000b;
+  touch-action: none; /* a finger on a tile moves the tile, not the map */
+}
+#cpins .cpt.drag {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px #3fe0d055,
+    0 12px 26px #000d;
+  z-index: 2;
 }
 #cpins .cpt img {
   display: block;
@@ -9307,4 +9311,205 @@ body.rw #t4bar [data-hl] {
   font-size: 10px;
   opacity: 0.55;
   margin: 10px 0 4px;
+}
+
+/* Visual positioning buttons (module 49) */
+.emvps {
+  margin-top: 8px;
+}
+.emvps button {
+  min-height: 44px;
+}
+#drvhud .drvar {
+  flex: none;
+  align-self: center;
+  min-width: 56px;
+  min-height: 48px;
+  margin-left: 8px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(63, 224, 208, 0.16);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Layers follow the zoom (module 50): switched on, but outside its zoom range right now. */
+.cat.zoomoff {
+  opacity: 0.62;
+}
+.cat.zoomoff .l span.mono {
+  color: #ffd166 !important;
+}
+
+/* Moving (module 51): everything that moves, listed like Cameras. */
+#mvp {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  display: none;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #04070b;
+}
+body.mv-open #rwdash,
+body.mv-open #cfp {
+  display: none !important;
+}
+#mvp .mvhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 6px 16px;
+}
+#mvp .mvhead b {
+  flex: none;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+#mvp .mvhead span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  opacity: 0.7;
+}
+#mvp .mvhead button {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+}
+#mvp .mvchips {
+  display: flex;
+  flex-wrap: wrap; /* every filter in view, on two rows on a phone */
+  gap: 6px;
+  padding: 4px 12px 10px;
+}
+#mvp .mvchips button {
+  flex: none;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 19px;
+  white-space: nowrap;
+}
+#mvp .mvchips button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #3fe0d01f;
+}
+#mvp .mvlist {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 12px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+#mvp .mvrow {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+#mvp .mvgo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 1px solid #ffffff1a;
+  border-radius: 12px;
+  background: #0b1219;
+  color: inherit;
+  text-align: left;
+}
+#mvp .mvgo i {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-style: normal;
+  font-size: 19px;
+  color: #02080e;
+}
+#mvp .mvgo span {
+  flex: 1;
+  min-width: 0;
+}
+#mvp .mvgo b,
+#mvp .mvgo em {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#mvp .mvgo em {
+  font-style: normal;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+#mvp .mvgo small {
+  flex: none;
+  font-size: 10px;
+  color: var(--accent);
+}
+#mvp .mvpilot {
+  flex: none;
+  min-width: 76px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+#mvp .mvhint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+#mvp .mvhint button {
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 18px;
+}
+#mvp .mvnone {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+/* Wide screens: the side panel ends above the dashboard's dock instead of running under it. */
+@media (min-width: 1000px) {
+  body.rw .grid .rail,
+  body.rw .grid .side {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 82px) !important;
+  }
+}
+/* Emergency: the camera buttons keep short labels so they never cut off on a phone. */
+.emvps button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#rwdash .rwsearch input {
+  min-width: 0; /* lets the field shrink so Go always fits, even on the smallest iPhones */
+}
+#rwdash .rwsearch button {
+  flex: none;
+}
+/* Phones and tablets: the layer and event sheets end just above the dock instead of running under
+   it, and their Hide / Size bar sits exactly on top of them. */
+@media (max-width: 999px) {
+  body.rw .grid .rail,
+  body.rw .grid .side {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px) !important;
+  }
+  body.rw.sheet #sheetbar {
+    bottom: calc(var(--sh) + env(safe-area-inset-bottom, 0px) + 72px) !important;
+  }
 }

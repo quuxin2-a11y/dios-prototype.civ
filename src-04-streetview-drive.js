@@ -880,7 +880,9 @@ function drvHud() {
           '" src="' +
           esc(nc.c.e) +
           '" alt="">'
-        : "") + '<div><b id="dh1"></b><span id="dh2"></span><span id="dh3"></span></div>';
+        : "") +
+      '<div><b id="dh1"></b><span id="dh2"></span><span id="dh3"></span></div>' +
+      '<button class="drvar" data-vps="route" aria-label="Arrows over the camera view">⬆ AR</button>';
   }
   $("dh1").textContent = ns ? ns.t + " · " + fmtM(ns.at - DRV.at) : "Follow the route";
   $("dh2").textContent = nc
@@ -1001,7 +1003,7 @@ document.addEventListener("click", function (e) {
     drvPanel();
     return;
   }
-  if (e.target.closest("#drvhud")) {
+  if (e.target.closest("#drvhud") && !e.target.closest("[data-vps]")) {
     drvPanel();
     return;
   }

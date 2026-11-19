@@ -20,6 +20,7 @@
 - **Finder** sends the flight number or registration you type to adsbdb and, if you added a key, AeroDataBox.
 - **Saved places, watchlist and settings** are stored on the device only. Notifications are created on the device; there is no push server.
 - **Pages opened in the app.** When you tap a link, your phone fetches that page directly from its site (Wikipedia articles from Wikipedia's article service) and shows its text and pictures in the app. The site sees your IP address, as it would in a browser; nothing goes through a server of ours and the app keeps no history of pages opened.
+- **Visual positioning** (only when you open it) uses the camera and your position through Google's ARCore service, which compares the camera view with Street View imagery to locate the phone; Google's ARCore terms cover that processing. The app keeps no picture; it keeps only the resulting position, for two minutes, on the phone.
 - **Tower screen** sends the airport's code to datis.clowd.io, the FAA, aviationweather.gov and, if you added a key, AeroDataBox. The ATIS is read aloud by the phone's own voice.
 - **The diagnostic report** is created only when you ask, contains feed status and key names (never key values), and goes only where you send it.
 

@@ -422,10 +422,10 @@ a.open {
   line-height: 30px;
 }
 .ticker div {
-  display: inline-block;
-  padding-left: 100%;
-  animation: tk 160s linear infinite;
-  will-change: transform;
+  padding: 0 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ticker span {
   margin-right: 36px;
@@ -433,11 +433,6 @@ a.open {
 .ticker b {
   color: var(--accent);
   font-weight: 600;
-}
-@keyframes tk {
-  to {
-    transform: translateX(-100%);
-  }
 }
 .foot {
   font-size: 11px;
@@ -6083,23 +6078,18 @@ body.bcast #cmp {
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
+  contain: paint; /* the moving strip is painted on its own, apart from the globe */
 }
 #cmdtk p {
-  display: inline-block;
   margin: 0;
-  padding-left: 12px;
-  white-space: pre;
-  animation: cmdtk 60s linear infinite;
-  will-change: transform;
-  backface-visibility: hidden;
+  padding: 0 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s;
 }
-@keyframes cmdtk {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+#cmdtk p.out {
+  opacity: 0;
 }
 body.cmd {
   top: calc(22px + env(safe-area-inset-top)) !important;
@@ -6997,7 +6987,15 @@ html.ckp #cmdtk,
 html.ckp #emgpill,
 html.ckp .grid .rail,
 html.ckp .grid .side,
-html.ckp #insfacts {
+html.ckp #insfacts,
+html.ckp #rwdash,
+html.ckp #rw3d,
+html.ckp #cfp,
+html.ckp #cpins,
+html.ckp #tring,
+html.ckp #cgp,
+html.ckp #mvp,
+html.ckp #dotsleg {
   display: none !important;
 }
 html.ckp body.sheet.sheet .grid .side,
@@ -7086,10 +7084,8 @@ button:active {
 .drvp button:active {
   transform: scale(0.965);
 }
-.pn .brc {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 96px;
-}
+/* Cards are always laid out at their real height. (content-visibility: auto guessed a height for cards
+   out of view, so lists jumped as the real heights arrived and tall cards were squashed onto the next.) */
 .pn .nl,
 #newsp .nl,
 #flog .nl,
@@ -8468,6 +8464,14 @@ body.rw #cmdbar {
   text-align: left;
   pointer-events: auto;
   box-shadow: 0 6px 16px #000b;
+  touch-action: none; /* a finger on a tile moves the tile, not the map */
+}
+#cpins .cpt.drag {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px #3fe0d055,
+    0 12px 26px #000d;
+  z-index: 2;
 }
 #cpins .cpt img {
   display: block;
@@ -9324,6 +9328,207 @@ body.rw #t4bar [data-hl] {
   margin: 10px 0 4px;
 }
 
+/* Visual positioning buttons (module 49) */
+.emvps {
+  margin-top: 8px;
+}
+.emvps button {
+  min-height: 44px;
+}
+#drvhud .drvar {
+  flex: none;
+  align-self: center;
+  min-width: 56px;
+  min-height: 48px;
+  margin-left: 8px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(63, 224, 208, 0.16);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Layers follow the zoom (module 50): switched on, but outside its zoom range right now. */
+.cat.zoomoff {
+  opacity: 0.62;
+}
+.cat.zoomoff .l span.mono {
+  color: #ffd166 !important;
+}
+
+/* Moving (module 51): everything that moves, listed like Cameras. */
+#mvp {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  display: none;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #04070b;
+}
+body.mv-open #rwdash,
+body.mv-open #cfp {
+  display: none !important;
+}
+#mvp .mvhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 6px 16px;
+}
+#mvp .mvhead b {
+  flex: none;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+#mvp .mvhead span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  opacity: 0.7;
+}
+#mvp .mvhead button {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+}
+#mvp .mvchips {
+  display: flex;
+  flex-wrap: wrap; /* every filter in view, on two rows on a phone */
+  gap: 6px;
+  padding: 4px 12px 10px;
+}
+#mvp .mvchips button {
+  flex: none;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 19px;
+  white-space: nowrap;
+}
+#mvp .mvchips button.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #3fe0d01f;
+}
+#mvp .mvlist {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 12px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+#mvp .mvrow {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+#mvp .mvgo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 1px solid #ffffff1a;
+  border-radius: 12px;
+  background: #0b1219;
+  color: inherit;
+  text-align: left;
+}
+#mvp .mvgo i {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-style: normal;
+  font-size: 19px;
+  color: #02080e;
+}
+#mvp .mvgo span {
+  flex: 1;
+  min-width: 0;
+}
+#mvp .mvgo b,
+#mvp .mvgo em {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#mvp .mvgo em {
+  font-style: normal;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+#mvp .mvgo small {
+  flex: none;
+  font-size: 10px;
+  color: var(--accent);
+}
+#mvp .mvpilot {
+  flex: none;
+  min-width: 76px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+#mvp .mvhint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+#mvp .mvhint button {
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 18px;
+}
+#mvp .mvnone {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+/* Wide screens: the side panel ends above the dashboard's dock instead of running under it. */
+@media (min-width: 1000px) {
+  body.rw .grid .rail,
+  body.rw .grid .side {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 82px) !important;
+  }
+}
+/* Emergency: the camera buttons keep short labels so they never cut off on a phone. */
+.emvps button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#rwdash .rwsearch input {
+  min-width: 0; /* lets the field shrink so Go always fits, even on the smallest iPhones */
+}
+#rwdash .rwsearch button {
+  flex: none;
+}
+/* Phones and tablets: the layer and event sheets end just above the dock instead of running under
+   it, and their Hide / Size bar sits exactly on top of them. */
+@media (max-width: 999px) {
+  body.rw .grid .rail,
+  body.rw .grid .side {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px) !important;
+  }
+  body.rw.sheet #sheetbar {
+    bottom: calc(var(--sh) + env(safe-area-inset-bottom, 0px) + 72px) !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -9429,7 +9634,7 @@ body.rw #t4bar [data-hl] {
  */
 
 // The app's version, shown in Settings and stamped on every report (sw.js carries the same number).
-var APP_V = 94;
+var APP_V = 96;
 var SRC = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
 var L = {
   traffic: ["Traffic / Roads", "#ffb547"],
@@ -10455,7 +10660,7 @@ var VLAY = [
   [/\b(property|parcel|parcels|tax)\b/, "parcel", "property records"]
 ];
 function setLayer(k, onv) {
-  if (!!WL[k] !== onv) {
+  if (!!WLU[k] !== onv) {
     var b = document.createElement("button");
     b.setAttribute("data-wl", k);
     b.style.display = "none";
@@ -11713,7 +11918,9 @@ function drvHud() {
           '" src="' +
           esc(nc.c.e) +
           '" alt="">'
-        : "") + '<div><b id="dh1"></b><span id="dh2"></span><span id="dh3"></span></div>';
+        : "") +
+      '<div><b id="dh1"></b><span id="dh2"></span><span id="dh3"></span></div>' +
+      '<button class="drvar" data-vps="route" aria-label="Arrows over the camera view">⬆ AR</button>';
   }
   $("dh1").textContent = ns ? ns.t + " · " + fmtM(ns.at - DRV.at) : "Follow the route";
   $("dh2").textContent = nc
@@ -11834,7 +12041,7 @@ document.addEventListener("click", function (e) {
     drvPanel();
     return;
   }
-  if (e.target.closest("#drvhud")) {
+  if (e.target.closest("#drvhud") && !e.target.closest("[data-vps]")) {
     drvPanel();
     return;
   }
@@ -12224,6 +12431,9 @@ function frame(now) {
   var active = !!target || dragging || now - lastInteract < 700 || spinning;
   if (!active && now - PERF.last < (now - lastInteract > 6000 && !(EMG.on && EMG.pos) ? 50 : 30))
     return; // idle: 30 fps for the pulses, 20 fps once left alone
+  // The slow turn of a zoomed-out globe looks the same at 30 frames a second, and drawing the whole planet
+  // every frame starved everything else on the phone (the scrolling news strip visibly stuttered).
+  if (spinning && !target && now - PERF.last < 32) return;
   var dt = now - (frame.last || now),
     t = (now - t0) / 1000;
   // adaptive sharpness: if moving the globe is slow on this phone, render motion a little softer and sharpen when still
@@ -12597,6 +12807,8 @@ var VX = [],
   VC = [],
   VNUM = 0,
   VRECT = false,
+  DOT_OCC = null,
+  DOT_FRAME = 0,
   CGn = null,
   CGx,
   CGy,
@@ -12681,6 +12893,14 @@ function markers(t, P) {
     zmin = 0,
     hyp = Math.sqrt(hw * hw + Math.pow(Math.max(cyy, H - cyy), 2)) + 12;
   if (fast && hyp < R) zmin = Math.sqrt(1 - (hyp * hyp) / (R * R)) - 1e-9;
+  var seen = 0,
+    thin = WL.dots && visLive.length > 3000,
+    gwid = ((W + 16) >> 1) + 2;
+  if (thin) {
+    var need = gwid * (((H + 16) >> 1) + 2);
+    if (!DOT_OCC || DOT_OCC.length < need) DOT_OCC = new Uint32Array(need);
+    DOT_FRAME = (DOT_FRAME + 1) >>> 0 || 1;
+  }
   for (j = 0; j < visLive.length; j++) {
     lc = visLive[j];
     if (fast) {
@@ -12704,6 +12924,14 @@ function markers(t, P) {
       z = lp[2];
       if (x < -8 || x > W + 8 || y < -8 || y > H + 8) continue;
     }
+    seen++;
+    // Every-camera dots: one per 2-pixel cell. Tens of thousands of points land on the same pixels when
+    // zoomed out, and drawing them all each frame slowed the whole phone; the picture looks the same.
+    if (thin) {
+      var ci = ((y + 8) >> 1) * gwid + ((x + 8) >> 1);
+      if (DOT_OCC[ci] === DOT_FRAME) continue;
+      DOT_OCC[ci] = DOT_FRAME;
+    }
     VX[n] = x;
     VY[n] = y;
     VC[n] = lc;
@@ -12711,9 +12939,9 @@ function markers(t, P) {
   }
   VNUM = n;
   VRECT = false;
-  if (WL.dots !== markers._d || n !== markers._n) {
+  if (WL.dots !== markers._d || seen !== markers._n) {
     markers._d = WL.dots;
-    markers._n = n;
+    markers._n = seen;
     var lg = $("dotsleg");
     if (lg) {
       lg.style.display = WL.dots ? "block" : "none";
@@ -12722,7 +12950,7 @@ function markers(t, P) {
           "<b>" +
           filteredLiveN().toLocaleString() +
           "</b> live cameras<span>" +
-          n.toLocaleString() +
+          seen.toLocaleString() +
           " in view · tap any point</span>";
     }
   }
@@ -17946,6 +18174,11 @@ if (WL.radar === undefined) WL.radar = false;
 // v91: the grouped "Nearby" tiles gave way to the camera web (tap a camera on the map).
 delete WL.tiles;
 delete WL.tilesV;
+// WLU holds the layers the person switched on. WL reads the same, except that a layer is read as off
+// while the view is outside the zoom range where it is useful (module 50), so everything that draws or
+// loads layers follows the zoom without knowing about it.
+var WLU = WL;
+WL = wlGate(WLU);
 var PLANES = [],
   SATREC = [],
   SATS = [],
@@ -18797,9 +19030,11 @@ function wstat() {
       head = grp !== lastGroup ? '<div class="wlg">' + esc(grp) + "</div>" : "";
     lastGroup = grp;
     var n = w[3] ? w[3]() : null,
-      st = WSTAT[w[0]];
-    var txt =
-      w[0] === "transit"
+      st = WSTAT[w[0]],
+      zw = wlZoomWhy(w[0]);
+    var txt = zw
+      ? zw
+      : w[0] === "transit"
         ? trStatus()
         : ilStatus(w[0]) != null
           ? ilStatus(w[0])
@@ -18848,7 +19083,8 @@ function wstat() {
     return (
       head +
       '<button class="cat' +
-      (WL[w[0]] ? "" : " off") +
+      (WLU[w[0]] ? "" : " off") +
+      (zw ? " zoomoff" : "") +
       '" data-wl="' +
       w[0] +
       '"><div class="l"><span><i style="background:' +
@@ -18881,7 +19117,7 @@ function wstat() {
       var n = w[3] ? w[3]() : 0;
       return (
         '<button class="' +
-        (WL[w[0]] ? "on" : "") +
+        (WLU[w[0]] ? "on" : "") +
         '" data-wl="' +
         w[0] +
         '" title="' +
@@ -18909,8 +19145,9 @@ document.addEventListener("click", function (e) {
   var b = e.target.closest("[data-wl]");
   if (!b) return;
   var k = b.getAttribute("data-wl");
-  WL[k] = !WL[k];
-  ls("ojos-layers", WL);
+  WLU[k] = !WLU[k];
+  wlZoomCheck();
+  ls("ojos-layers", WLU);
   if (k === "labels") {
     patchA = null;
     patchP = null;
@@ -18919,7 +19156,7 @@ document.addEventListener("click", function (e) {
   var d = WLDEF.filter(function (w) {
     return w[0] === k;
   })[0];
-  if (WL[k] && d[4] && EMBED_OK && !d[3]()) d[4]();
+  if (WL[k] && d[4] && EMBED_OK && (!d[3] || !d[3]())) d[4]();
   wstat();
 });
 if (EMBED_OK)
@@ -26840,7 +27077,12 @@ function brDraw() {
     (SET.cpAuto !== false ? "on" : "") +
     '">' +
     (SET.cpAuto !== false ? "● " : "○ ") +
-    'Camera tiles when zoomed in</button></div><p class="brhint">Zoom into a city and the nearest live cameras appear as tiles beside their spots on the map.</p>' +
+    'Camera tiles when zoomed in</button></div><p class="brhint">Zoom into a city and the nearest live cameras appear as tiles beside their spots on the map. Drag a tile to move it.</p>' +
+    '<h4 class="mono">LAYERS</h4><div class="brt c1"><button data-br="zoomlayers" class="' +
+    (SET.zoomLayers !== false ? "on" : "") +
+    '">' +
+    (SET.zoomLayers !== false ? "● " : "○ ") +
+    'Layers follow the zoom</button></div><p class="brhint">Layers you switch on show only where they are useful: close-up ones like bikes, pharmacies and buildings when zoomed in, worldwide ones like satellites, economy and country facts when zoomed out. Double-tap a layer to show only it, at any zoom.</p>' +
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
@@ -27005,6 +27247,11 @@ document.addEventListener("click", function (e) {
       AM.ask = true; // turning it on is the moment to ask for location
       amCheck();
     } else natCall("setAlertWatch", { on: false, places: [] });
+  } else if (k === "zoomlayers") {
+    SET.zoomLayers = SET.zoomLayers === false;
+    setSave();
+    wlZoomCheck();
+    brDraw();
   } else if (k === "cpauto") {
     SET.cpAuto = SET.cpAuto === false;
     setSave();
@@ -28097,44 +28344,37 @@ function cmdTick() {
           return "◆ " + x.t;
         })
       ),
-    k = items.join("     ");
-  if (!k) k = "◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES";
+    k = items;
+  if (!k.length) k = ["◆ FEEDS ONLINE · NO ACTIVE ALERTS · OPEN THE NEWS DESK FOR HEADLINES"];
   cmdTicker($("cmdtk"), k);
 }
-// The scrolling headline strip. It runs on the graphics chip at one steady speed, and new text waits
-// for the end of the current pass, so the strip never jumps back, restarts or changes pace mid-read.
-var CMD_TK_PX = 55; // pixels a second
-function cmdTicker(tk, k) {
-  var p = tk.querySelector("p");
-  if (p && !p._sized) cmdTickerSize(p);
-  if (tk._k === k) return;
-  if (p && tk._k) {
-    tk._next = k;
-    if (!p._wait) {
-      p._wait = true;
-      p.addEventListener("animationiteration", function () {
-        p._wait = false;
-        var n = tk._next;
-        tk._next = null;
-        if (n != null) cmdTickerFill(tk, n);
-      });
-    }
-    return;
+// The headline strip shows one headline at a time and swaps it every few seconds with a short fade.
+// It used to scroll without stopping, which kept the phone redrawing the bottom of the screen every frame
+// and made the globe above it stutter.
+var CMD_TK_MS = 6000;
+function cmdTicker(tk, items) {
+  tk._items = items;
+  if (!tk._t) {
+    tk.innerHTML = '<b class="mono">LIVE</b><div><p></p></div>';
+    tk._i = -1;
+    cmdTickerNext(tk);
+    tk._t = setInterval(function () {
+      if (!document.hidden && tk.offsetParent !== null) cmdTickerNext(tk);
+    }, CMD_TK_MS);
   }
-  cmdTickerFill(tk, k);
 }
-function cmdTickerFill(tk, k) {
-  tk._k = k;
-  tk.innerHTML = '<b class="mono">LIVE</b><div><p>' + esc(k) + "     " + esc(k) + "     </p></div>";
-  cmdTickerSize(tk.querySelector("p"));
-}
-// Half the strip (one copy) at a steady speed; measured once per change (or once it is first shown),
-// never per frame.
-function cmdTickerSize(p) {
-  var w = p.scrollWidth;
-  if (!w) return;
-  p._sized = true;
-  p.style.animationDuration = Math.max(20, Math.round(w / 2 / CMD_TK_PX)) + "s";
+function cmdTickerNext(tk) {
+  var L = tk._items || [],
+    p = tk.querySelector("p");
+  if (!p || !L.length) return;
+  tk._i = (tk._i + 1) % L.length;
+  var t = L[tk._i];
+  if (p.textContent === t) return;
+  p.classList.add("out");
+  setTimeout(function () {
+    p.textContent = t;
+    p.classList.remove("out");
+  }, 220);
 }
 function cmdSet(on) {
   SET.cmd = !!on;
@@ -30750,11 +30990,14 @@ function emgSet(on) {
   emgPill();
 }
 function emgFix(p) {
+  // A fresh visual-positioning fix (module 49) is not replaced by a rougher GPS reading near it.
+  if (!p.vps && vpsKeeps(p.coords.latitude, p.coords.longitude, p.coords.accuracy)) return;
   var q = {
       lat: p.coords.latitude,
       lon: p.coords.longitude,
       acc: p.coords.accuracy,
       hdg: p.coords.heading,
+      vps: !!p.vps,
       t: Date.now()
     },
     moved = EMG.last ? hav(q.lat, q.lon, EMG.last.lat, EMG.last.lon) : 1e9;
@@ -31189,11 +31432,51 @@ var EMG_K = {
   fuel: "Fuel",
   water: "Drinking water"
 };
+// The panel is redrawn as position, alerts, radio and news arrive. While the person is touching or
+// scrolling it, a redraw waits until they have stopped for a moment, so it never moves under their finger.
+var EMG_IDLE_MS = 1500;
+function emgBusy(el) {
+  var left = EMG_IDLE_MS - (Date.now() - (el._touched || 0));
+  if (left <= 0) return false;
+  clearTimeout(EMG.drawT);
+  EMG.drawT = setTimeout(emgDraw, left + 30);
+  return true;
+}
+// A heading's distance from the top of the scrolling list, whatever the list's positioning.
+function emgTop(sc, h) {
+  return h.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
+}
+// Where the reader is: the section heading at the top of the view and how far past it they are.
+function emgAnchor(sc) {
+  // Just after a tap, the button tapped is what stays put under the finger.
+  var t =
+    EMG.tapKey &&
+    Date.now() - EMG.tapAt < 3000 &&
+    sc.querySelector('[data-em="' + EMG.tapKey + '"]');
+  if (t) return { sel: '[data-em="' + EMG.tapKey + '"]', off: sc.scrollTop - emgTop(sc, t) };
+  var hs = sc.querySelectorAll("h4"),
+    a = null,
+    best = Infinity;
+  // The heading nearest the top edge of the view, above or below it.
+  for (var i = 0; i < hs.length; i++) {
+    var d = Math.abs(emgTop(sc, hs[i]) - sc.scrollTop);
+    if (d < best) {
+      best = d;
+      a = hs[i];
+    }
+  }
+  return a ? { key: emgKey(a), off: sc.scrollTop - emgTop(sc, a) } : null;
+}
+function emgKey(h) {
+  return (h.textContent || "").split("·")[0].trim();
+}
 function emgDraw() {
   var el = $("emgp");
   if (!el || !EMG.open) return;
+  emgPill();
   if (document.activeElement && /^(emgQ|famN|famP|emgOwn|emgNote)$/.test(document.activeElement.id))
     return;
+  if (emgBusy(el)) return;
   var S = EMG.sit,
     A = S && S.as,
     num = (S && S.num) || emgNum(S && S.cc),
@@ -31402,7 +31685,9 @@ function emgDraw() {
           EMG.pos.lon.toFixed(5) +
           " · ±" +
           Math.round(EMG.pos.acc || 0) +
-          " M</i>"
+          " M" +
+          (EMG.pos.vps ? " · VISUAL" : "") +
+          "</i>"
         : "") +
       "</div>";
     var grp = {};
@@ -31514,6 +31799,7 @@ function emgDraw() {
     "</button>" +
     (EMG.chk && done ? '<button data-em="chk0">Clear ticks</button>' : "") +
     "</div>" +
+    '<div class="bra emvps"><button data-vps="pinpoint">📍 Pinpoint me</button><button data-vps="around">◎ What’s around me</button></div>' +
     (go
       ? '<button class="emgo" data-em="go"><b>▶ START ROUTE AND LIVE TRACKING</b><span>' +
         esc(go.n) +
@@ -31523,9 +31809,23 @@ function emgDraw() {
     '<div class="bra"><button data-em="off">Exit emergency mode</button></div></div>';
   h +=
     '</div><div class="nf mono">PUBLIC SOURCES: NWS · USGS · NASA EONET · GDACS · OPEN-METEO · OPENSTREETMAP · YOUR POSITION STAYS ON THIS PHONE</div>';
+  if (el._h === h) return; // nothing changed: leave the panel exactly as it is
+  var anc = sc ? emgAnchor(sc) : null;
+  el._h = h;
   el.innerHTML = h;
   var s2 = el.querySelector(".nl");
-  if (s2) s2.scrollTop = top;
+  if (!s2) return;
+  // Keep the same section in view even when something above it grew or shrank.
+  var to = top,
+    same = anc && anc.sel && s2.querySelector(anc.sel);
+  if (same) to = emgTop(s2, same) + anc.off;
+  else if (anc && anc.key)
+    [].some.call(s2.querySelectorAll("h4"), function (x) {
+      if (emgKey(x) !== anc.key) return false;
+      to = emgTop(s2, x) + anc.off;
+      return true;
+    });
+  s2.scrollTop = to;
 }
 // What to grab and do before moving: [item, detail]. Ticks are saved on the phone (ojos-emg-chk).
 var EMG_CHK = [
@@ -31601,6 +31901,24 @@ function emgOpen() {
     el.id = "emgp";
     el.className = "pn";
     document.body.appendChild(el);
+    // Only scrolling counts: a tap on a button or a tick box still updates the panel straight away.
+    ["touchmove", "wheel"].forEach(function (k) {
+      el.addEventListener(
+        k,
+        function () {
+          el._touched = Date.now();
+        },
+        { passive: true, capture: true }
+      );
+    });
+    // Momentum scrolling goes on after the finger lifts; it counts as reading too.
+    el.addEventListener(
+      "scroll",
+      function () {
+        if (Date.now() - (el._touched || 0) < 4000) el._touched = Date.now();
+      },
+      { passive: true, capture: true }
+    );
   }
   EMG.open = true;
   el.style.display = "flex";
@@ -31619,7 +31937,11 @@ function emgPill() {
   }
   el.style.display = EMG.on && !EMG.open ? "block" : "none";
   var A = EMG.sit && EMG.sit.as;
-  el.textContent = "⚠ " + (A ? A.act : "State of emergency") + " · open";
+  // With no warning in force the pill says only that the mode is on, rather than looking like an alert.
+  el.textContent =
+    A && A.act && !/^No official alert/i.test(A.act)
+      ? "⚠ " + A.act + " · open"
+      : "State of emergency on · open";
 }
 // SOS: the screen flashes ... --- ... with a tone, so the phone can be seen and heard
 function emgSig(on) {
@@ -31781,6 +32103,8 @@ document.addEventListener("click", function (e) {
   var k = b.getAttribute("data-em"),
     S = EMG.sit,
     i = +k.slice(3);
+  EMG.tapKey = k;
+  EMG.tapAt = Date.now();
   if (k === "no") $("emgask").style.display = "none";
   else if (k === "yes") {
     $("emgask").style.display = "none";
@@ -33294,14 +33618,29 @@ function ckpOpen(p) {
   CKP.wxAt = 0;
   CKP.wxPos = null;
   CKP.sc = null;
+  // Nothing from the map view stays over the cockpit.
+  try {
+    ringClose();
+    if (CP.open) cpClose();
+    if (MV.open) mvClose();
+  } catch (x) {}
+  if (!T4.ready) note("Cockpit view", "Opening the cockpit of " + esc(p.n) + "…");
   if (!T4.on) t4Open();
   var n = 0,
     go = function () {
+      // The 3D view starts a moment after it is asked for (from the dashboard it opens in steps), so
+      // wait for it; only if it never opens, or was closed again, does the cockpit give up.
       if (!T4.on) {
+        if (n++ < 20) setTimeout(go, 300);
         return;
       }
       if (!T4.ready || !T4.v) {
         if (n++ < 120) setTimeout(go, 500);
+        else
+          note(
+            "Cockpit view",
+            "The 3D view did not finish loading. Check the connection and try again."
+          );
         return;
       }
       ckpStart();
@@ -40909,6 +41248,11 @@ var RW_DOCK = [
     "Cameras",
     '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 10.5l5-2.5v8l-5-2.5"/>'
   ],
+  [
+    "moving",
+    "Moving",
+    '<path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>'
+  ],
   ["events", "Events", '<path d="M3 12h4l2.5-6 4 12 2.5-6h5"/>'],
   [
     "conflict",
@@ -40987,7 +41331,7 @@ function rwDraw() {
     label = "OJOS DE DIOS";
   if (nm && nm.textContent !== label) nm.textContent = label;
   var cf = el.querySelector('.rwdock [data-rw="conflict"]');
-  if (cf) cf.classList.toggle("on", !!WL.conflict);
+  if (cf) cf.classList.toggle("on", !!WLU.conflict);
   var sb = el.querySelector('[data-rw="search"]');
   if (sb) sb.classList.toggle("on", document.body.classList.contains("rwfind"));
 }
@@ -41078,6 +41422,7 @@ document.addEventListener("click", function (e) {
   } else if (k === "galaxy") galOpen();
   else if (k === "set") brOpen("set");
   else if (k === "cams") cgOpen();
+  else if (k === "moving") mvOpen();
   else if (k === "layers" || k === "events") {
     var g = document.querySelector(".grid");
     if (document.body.classList.contains("sheet") && g && g.getAttribute("data-tab") === k)
@@ -41195,7 +41540,7 @@ function soloKeys() {
 function soloSnapshot() {
   var o = {};
   soloKeys().forEach(function (k) {
-    o[k] = !!WL[k];
+    o[k] = !!WLU[k];
   });
   return o;
 }
@@ -41203,7 +41548,7 @@ function soloSnapshot() {
 function soloApply(want) {
   SOLO.busy = true;
   Object.keys(want).forEach(function (k) {
-    if (!!WL[k] !== want[k]) setLayer(k, want[k]);
+    if (!!WLU[k] !== want[k]) setLayer(k, want[k]);
   });
   SOLO.busy = false;
 }
@@ -46069,7 +46414,8 @@ var CP = {
     raf: 0,
     auto: false,
     snooze: false,
-    big: {}
+    big: {},
+    drag: {} // tiles moved by hand: their offset from their camera's spot, so they follow the map
   },
   CP_AUTO_Z = 12.5, // zoomed in this far on the map, the pins appear by themselves
   CP_AUTO_KM = 30, // or, on the app's own globe, with a view narrower than this
@@ -46155,6 +46501,7 @@ function cpOpen(c, auto) {
     el.innerHTML =
       '<svg class="cplines"></svg><div class="cptiles"></div><div class="cphead"><b class="mono" id="cpname"></b><button data-cp="n" class="mono"></button><button data-cp="x" aria-label="Close">✕</button></div>';
     document.body.appendChild(el);
+    cpDragSetup(el);
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-cp]");
       if (!b) return;
@@ -46197,6 +46544,7 @@ function cpOpen(c, auto) {
   CP.items = cpNear(c, CP.n);
   CP.pos = [];
   CP.big = {};
+  CP.drag = {};
   el.style.display = "block";
   document.body.classList.add("cp-open");
   $("cpname").textContent = (auto ? "CAMERAS HERE · " : "") + String(c.n || "Camera").toUpperCase();
@@ -46251,6 +46599,64 @@ function cpTile(c, cls, k, sub) {
   );
 }
 
+// Tiles can be dragged anywhere. A tile moved by hand stays put relative to its camera as the map moves,
+// and the others make room for it; its line still runs to the camera. A short tap still enlarges it.
+function cpDragSetup(el) {
+  var D = null;
+  el.addEventListener("pointerdown", function (e) {
+    var t = e.target.closest(".cpt");
+    if (!t || e.target.closest(".cpopen")) return;
+    var i = [].indexOf.call(el.querySelectorAll(".cpt"), t),
+      p = CP.pos[i];
+    if (i < 0 || !p || p.hide) return;
+    D = {
+      i: i,
+      t: t,
+      id: e.pointerId,
+      x0: e.clientX,
+      y0: e.clientY,
+      px: p.x,
+      py: p.y,
+      moved: false
+    };
+  });
+  el.addEventListener("pointermove", function (e) {
+    if (!D || e.pointerId !== D.id) return;
+    var mx = e.clientX - D.x0,
+      my = e.clientY - D.y0;
+    if (!D.moved && Math.hypot(mx, my) < 8) return;
+    if (!D.moved) {
+      D.moved = true;
+      D.t.classList.add("drag");
+      try {
+        D.t.setPointerCapture(D.id);
+      } catch (x) {}
+    }
+    var p = CP.pos[D.i];
+    if (!p || p.hide) return;
+    CP.drag[D.i] = { dx: D.px + mx - p.a[0], dy: D.py + my - p.a[1] };
+    e.preventDefault();
+  });
+  var end = function (e) {
+    if (!D || e.pointerId !== D.id) return;
+    D.t.classList.remove("drag");
+    if (D.moved) {
+      // The finger lifting after a drag is not a tap.
+      var stop = function (c) {
+        c.stopPropagation();
+        c.preventDefault();
+      };
+      el.addEventListener("click", stop, { capture: true, once: true });
+      setTimeout(function () {
+        el.removeEventListener("click", stop, true);
+      }, 400);
+    }
+    D = null;
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+}
+
 function cpClose() {
   CP.open = false;
   cancelAnimationFrame(CP.raf);
@@ -46297,6 +46703,8 @@ function cpFrame() {
       h = Math.round(w * 0.625) + 28,
       prev = CP.pos[i];
     if (!a) return { hide: true };
+    var dr = CP.drag[i];
+    if (dr) return { a: a, w: w, h: h, x: a[0] + dr.dx, y: a[1] + dr.dy, pin: true };
     var dx = a[0] - a0[0],
       dy = a[1] - a0[1],
       d = Math.hypot(dx, dy) || 1,
@@ -46321,7 +46729,9 @@ function cpFrame() {
         var ox = (A.w + B.w) / 2 + 6 - Math.abs(B.x - A.x),
           oy = (A.h + B.h) / 2 + 6 - Math.abs(B.y - A.y);
         if (ox > 0 && oy > 0) {
-          var wa = i === 0 ? 0.15 : 0.5; // the centre tile gives way least
+          if (A.pin && B.pin) continue;
+          // The centre tile gives way least; a tile placed by hand does not give way at all.
+          var wa = A.pin ? 0 : B.pin ? 1 : i === 0 ? 0.15 : 0.5;
           if (ox < oy) {
             var sx = (B.x >= A.x ? 1 : -1) * ox;
             A.x -= sx * wa;
@@ -47491,6 +47901,490 @@ document.addEventListener("click", function (e) {
     towStop();
     closePage();
     if (p) select(p);
+  }
+});
+/*
+ * Visual positioning (VPS): the phone's camera view is matched against Google's Street View imagery (ARCore
+ * Geospatial API, in VpsActivity.java) to find exactly where the phone is and which way it faces, often to a
+ * metre or two where GPS is off by tens of metres between tall buildings.
+ *
+ *   📍 Pinpoint me     Emergency mode: hold the phone up; "Use this position" makes the precise fix the one
+ *                      the app sends in check-ins, help messages and routes
+ *   ⬆ AR arrows        while a route is followed: a large arrow over the camera view points the way
+ *   ◎ What's around me labels over the camera view for live cameras, safe places and the destination
+ *
+ * While the screen is open, every good fix (±8 m or better) also comes back as a vpsFix event. It only locates
+ * this phone's own live camera view; no picture is kept or sent anywhere by the app.
+ */
+var VPS = { fix: null, heard: false };
+
+// What the camera screen should name: live cameras within 2 km and the safe places Emergency mode found.
+function vpsPoints(lat, lon) {
+  var out = [];
+  visLive.forEach(function (c) {
+    if (out.length < 120 && hav(lat, lon, c.lat, c.lon) <= 2)
+      out.push({ lat: c.lat, lon: c.lon, name: "📷 " + String(c.n || "Camera").slice(0, 40) });
+  });
+  var S = typeof EMG === "object" && EMG.sit;
+  ((S && S.places) || []).slice(0, 40).forEach(function (p) {
+    out.push({ lat: p.lat, lon: p.lon, name: "⛨ " + String(p.n || "Safe place").slice(0, 40) });
+  });
+  return out;
+}
+
+// A route's points thinned to at most 400, keeping the first and last.
+function vpsThin(pts) {
+  if (!pts || pts.length < 2) return null;
+  var step = Math.max(1, Math.ceil(pts.length / 400)),
+    out = [];
+  for (var i = 0; i < pts.length; i += step) out.push([+pts[i][0], +pts[i][1]]);
+  var last = pts[pts.length - 1];
+  if (out[out.length - 1][0] !== last[0] || out[out.length - 1][1] !== last[1])
+    out.push([+last[0], +last[1]]);
+  return out;
+}
+
+function vpsWhere() {
+  if (typeof DRV === "object" && DRV.pos) return [DRV.pos.lat, DRV.pos.lon];
+  if (typeof EMG === "object" && EMG.pos) return [EMG.pos.lat, EMG.pos.lon];
+  return [rot.lat, rot.lon];
+}
+
+function vpsOpen(mode) {
+  var p = natv();
+  if (!p) {
+    note(
+      "Visual positioning",
+      "This uses the phone's camera and Google's Street View imagery, so it works in the Android app only."
+    );
+    return;
+  }
+  if (!VPS.heard && p.addListener) {
+    VPS.heard = true;
+    try {
+      p.addListener("vpsFix", vpsFix);
+    } catch (x) {}
+  }
+  var here = vpsWhere(),
+    R = typeof DRV === "object" && DRV.R,
+    data = { mode: mode, points: vpsPoints(here[0], here[1]) };
+  if (R && R.b && R.b.lat != null) {
+    data.route = vpsThin(R.pts);
+    data.target = { lat: R.b.lat, lon: R.b.lon, name: R.b.name || "Destination" };
+  } else if (mode === "route") {
+    note("AR arrows", "Start a route first: Emergency mode → Start route, or Drive.");
+    return;
+  }
+  natCall("vpsOpen", data);
+}
+
+function vpsFix(f) {
+  if (!f || !isFinite(f.lat) || !isFinite(f.lon)) return;
+  VPS.fix = { lat: +f.lat, lon: +f.lon, acc: +f.acc, hdg: +f.heading, t: Date.now() };
+  if (typeof EMG === "object" && EMG.on) {
+    emgFix({
+      vps: true,
+      coords: {
+        latitude: VPS.fix.lat,
+        longitude: VPS.fix.lon,
+        accuracy: VPS.fix.acc,
+        heading: VPS.fix.hdg
+      }
+    });
+    emgDraw();
+  }
+  if (f.done)
+    note(
+      "Visual positioning",
+      "Position pinned to ±" +
+        Math.max(1, Math.round(VPS.fix.acc)) +
+        " m, facing " +
+        Math.round(VPS.fix.hdg) +
+        "°. It is used for check-ins, help messages and routes for the next two minutes."
+    );
+}
+
+// While a visual fix is fresh, a rougher GPS reading near it does not replace it.
+function vpsKeeps(lat, lon, acc) {
+  var v = VPS.fix;
+  return !!(
+    v &&
+    Date.now() - v.t < 120000 &&
+    (acc || 99) > v.acc &&
+    hav(lat, lon, v.lat, v.lon) * 1000 < Math.max(40, acc || 0)
+  );
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-vps]");
+  if (b) vpsOpen(b.getAttribute("data-vps"));
+});
+/*
+ * Layers follow the zoom. Each layer has a range of view widths where it is useful: close-up layers
+ * (bikes, pharmacies, buildings, property records) only when zoomed in, worldwide ones (satellites, day and
+ * night, economy, country facts) only when zoomed out. A layer the person switched on stays switched on;
+ * outside its range it is simply not drawn or loaded, and the Layers list says "ZOOM IN TO SHOW" or
+ * "ZOOM OUT TO SHOW". Settings → Layers follow the zoom turns this off; a layer shown on its own with a
+ * double-tap (solo) shows at any zoom.
+ *
+ * WL (module 10) is a view of the person's choices (WLU) through wlGate, which reads a layer as off while
+ * WLZ.off names it. wlZoomCheck recomputes WLZ.off from the view a few times a second.
+ */
+// Set up before module 10 first reads a layer, since the modules run in order.
+var WLZ = WLZ || { off: {}, km: 0 };
+// Shown only when the view is narrower than this many km (layers without a maxKm of their own).
+var WLZ_NEAR = { parcel: 80, bldg: 60 };
+// Shown only when the view is wider than this many km.
+var WLZ_FAR = {
+  sat: 2500,
+  night: 2500,
+  space: 2500,
+  economy: 2500,
+  currency: 2500,
+  countryfacts: 2500,
+  farming: 2500,
+  advisory: 2500,
+  drought: 1200,
+  outbreaks: 1200,
+  leaders: 1200,
+  cables: 250
+};
+
+function wlGate(raw) {
+  WLZ = WLZ || { off: {}, km: 0 };
+  return new Proxy(raw, {
+    get: function (t, k) {
+      if (k === "toJSON")
+        return function () {
+          return Object.assign({}, t); // what is saved is always the person's choices
+        };
+      var v = t[k];
+      return v === true && WLZ && WLZ.off[k] ? false : v;
+    }
+  });
+}
+
+// Width of the view in km, on whichever map is showing.
+function wlKm() {
+  try {
+    if (typeof T3 === "object" && T3 && T3.on && T3.map) {
+      var z = T3.map.getZoom(),
+        c = T3.map.getCenter();
+      return (156543 * Math.cos((c.lat * Math.PI) / 180) * innerWidth) / Math.pow(2, z) / 1000;
+    }
+  } catch (x) {}
+  return viewKm();
+}
+
+// [narrowest, widest] view in km at which a layer shows.
+function wlBand(k) {
+  var near = (IL[k] && IL[k].maxKm) || WLZ_NEAR[k] || Infinity;
+  return [WLZ_FAR[k] || 0, near];
+}
+
+// Why a switched-on layer is hidden right now, for the Layers list, or "".
+function wlZoomWhy(k) {
+  var w = WLZ.off[k];
+  return w === "in" ? "ZOOM IN TO SHOW" : w === "out" ? "ZOOM OUT TO SHOW" : "";
+}
+
+function wlZoomCheck() {
+  if (!WLZ || typeof WLU !== "object") return;
+  var km = wlKm(),
+    on = typeof SET === "object" && SET && SET.zoomLayers !== false,
+    next = {},
+    changed = [];
+  if (!isFinite(km) || km <= 0) return;
+  WLZ.km = km;
+  if (on)
+    Object.keys(WLU).forEach(function (k) {
+      if (WLU[k] !== true || (typeof SOLO === "object" && SOLO.key === k)) return;
+      var b = wlBand(k),
+        was = WLZ.off[k],
+        // A little give at the edges, so a layer does not flicker on and off at the boundary.
+        tooWide = km > b[1] * (was === "in" ? 0.9 : 1),
+        tooNarrow = km < b[0] * (was === "out" ? 1.1 : 1);
+      if (tooWide) next[k] = "in";
+      else if (tooNarrow) next[k] = "out";
+    });
+  Object.keys(next)
+    .concat(Object.keys(WLZ.off))
+    .forEach(function (k) {
+      if (next[k] !== WLZ.off[k] && changed.indexOf(k) < 0) changed.push(k);
+    });
+  if (!changed.length) return;
+  WLZ.off = next;
+  // Layers that just came into range load if they have nothing yet.
+  changed.forEach(function (k) {
+    if (next[k] || !WL[k] || !EMBED_OK) return;
+    var d = WLDEF.filter(function (w) {
+      return w[0] === k;
+    })[0];
+    if (d && d[4] && (!d[3] || !d[3]()))
+      try {
+        d[4]();
+      } catch (x) {}
+  });
+  if (changed.indexOf("labels") >= 0) {
+    patchA = null;
+    patchP = null;
+  }
+  lastView = "";
+  wstat();
+}
+
+setInterval(function () {
+  if (!document.hidden) wlZoomCheck();
+}, 600);
+/*
+ * Moving: everything on the map that moves, in one list, the way Cameras lists cameras. Aircraft, ships,
+ * trains, buses and other transit, and satellites, nearest to the middle of the view first, with what each
+ * is doing (height, speed, heading, route). A tap flies to it and opens its details; aircraft also get
+ * ✈ PILOT for the cockpit view in one tap. The list keeps itself current every few seconds while open, but
+ * never redraws under a finger that is scrolling it.
+ */
+var MV = { open: false, f: "all", t: 0, touched: 0, h: "" };
+var MV_MAX = 120;
+var MV_KINDS = [
+  ["all", "All"],
+  ["plane", "✈ Aircraft"],
+  ["ship", "⛴ Ships"],
+  ["transit", "🚆 Trains & transit"],
+  ["sat", "🛰 Satellites"]
+];
+// Which layer brings in each kind, for the "turn it on" hint.
+var MV_LAYER = { plane: "air", ship: "ship", transit: "transit", sat: "sat" };
+
+function mvCentre() {
+  try {
+    if (T3.on && T3.map) {
+      var c = T3.map.getCenter();
+      return [c.lat, c.lng];
+    }
+  } catch (x) {}
+  return [rot.lat, rot.lon];
+}
+
+// Everything moving, nearest the middle of the view first: [{o, km}].
+function mvList(f) {
+  var c = mvCentre(),
+    src = [];
+  if (f === "all" || f === "plane") src = src.concat(PLANES);
+  if (f === "all" || f === "ship") src = src.concat(SHIPS);
+  if (f === "all" || f === "transit") src = src.concat(TRANSIT);
+  if (f === "all" || f === "sat") src = src.concat(SATS);
+  return src
+    .filter(function (o) {
+      return o && isFinite(o.lat) && isFinite(o.lon);
+    })
+    .map(function (o) {
+      if (o.id == null) o.id = o.kind + ":" + o.n; // satellites have no id of their own
+      return { o: o, km: hav(c[0], c[1], o.lat, o.lon) };
+    })
+    .sort(function (a, b) {
+      return a.km - b.km;
+    })
+    .slice(0, MV_MAX);
+}
+
+function mvIcon(o) {
+  if (o.kind === "plane") return "✈";
+  if (o.kind === "ship") return "⛴";
+  if (o.kind === "sat") return "🛰";
+  return { rail: "🚆", subway: "🚇", tram: "🚊", bus: "🚌", ferry: "⛴" }[o.mode] || "🚍";
+}
+
+function mvColour(o) {
+  if (o.kind === "plane") return "#7fe3ff";
+  if (o.kind === "ship") return "#d9c8ff";
+  if (o.kind === "sat") return "#39ff6a";
+  return (TR_MODES[o.mode] || TR_MODES.transit)[1];
+}
+
+// What it is doing, in a few words.
+function mvSub(o) {
+  var b = [];
+  if (o.kind === "plane") {
+    if (o.alt != null) b.push(Math.round(o.alt * 3.281).toLocaleString() + " FT");
+    if (o.v != null) b.push(Math.round(o.v * 1.944) + " KT");
+    if (o.typ) b.push(o.typ);
+  } else if (o.kind === "ship") {
+    if (o.sog != null) b.push(Math.round(o.sog) + " KT");
+    if (o.dest) b.push("TO " + String(o.dest).toUpperCase().slice(0, 18));
+  } else if (o.kind === "sat") {
+    if (o.alt != null) b.push(Math.round(o.alt).toLocaleString() + " KM UP");
+  } else {
+    b.push(String((TR_MODES[o.mode] || TR_MODES.transit)[0]).toUpperCase());
+    if (o.spd != null) b.push(Math.round(o.spd * 0.621) + " MPH");
+    if (o.dest) b.push(String(o.dest).toUpperCase().slice(0, 24));
+  }
+  return b.join(" · ");
+}
+
+function mvDist(km) {
+  var mi = km * 0.621;
+  return mi < 0.1
+    ? Math.round(mi * 5280) + " FT"
+    : (mi < 10 ? mi.toFixed(1) : Math.round(mi).toLocaleString()) + " MI";
+}
+
+function mvOpen() {
+  var el = $("mvp");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "mvp";
+    el.innerHTML =
+      '<div class="mvhead"><b class="mono">MOVING NOW</b><span class="mono" id="mvsub"></span><button data-mv="x" aria-label="Close">✕</button></div>' +
+      '<div class="mvchips">' +
+      MV_KINDS.map(function (k) {
+        return '<button data-mv="f-' + k[0] + '">' + k[1] + "</button>";
+      }).join("") +
+      '</div><div class="mvlist" id="mvlist"></div>';
+    document.body.appendChild(el);
+    var lst = el.querySelector(".mvlist");
+    ["touchmove", "wheel", "scroll"].forEach(function (k) {
+      lst.addEventListener(
+        k,
+        function () {
+          MV.touched = Date.now();
+        },
+        { passive: true }
+      );
+    });
+  }
+  MV.open = true;
+  document.body.classList.add("mv-open");
+  el.style.display = "flex";
+  MV.h = "";
+  mvDraw(true);
+  clearInterval(MV.t);
+  MV.t = setInterval(function () {
+    if (MV.open && !document.hidden && Date.now() - MV.touched > 1500) mvDraw();
+  }, 3000);
+}
+
+function mvClose() {
+  MV.open = false;
+  clearInterval(MV.t);
+  document.body.classList.remove("mv-open");
+  var el = $("mvp");
+  if (el) el.style.display = "none";
+}
+
+function mvDraw(top) {
+  var el = $("mvp");
+  if (!el || !MV.open) return;
+  [].forEach.call(el.querySelectorAll("[data-mv^='f-']"), function (b) {
+    b.classList.toggle("on", b.getAttribute("data-mv") === "f-" + MV.f);
+  });
+  var L = mvList(MV.f),
+    lay = MV_LAYER[MV.f],
+    hint =
+      MV.f === "all"
+        ? ["plane", "ship", "transit", "sat"].filter(function (k) {
+            return !WLU[MV_LAYER[k]];
+          })
+        : lay && !WLU[lay]
+          ? [MV.f]
+          : [],
+    h =
+      (hint.length
+        ? '<div class="mvhint"><span>Turn on to see more:</span>' +
+          hint
+            .map(function (k) {
+              var nm = MV_KINDS.filter(function (x) {
+                return x[0] === k;
+              })[0][1];
+              return '<button data-mv="on-' + k + '">+ ' + nm + "</button>";
+            })
+            .join("") +
+          "</div>"
+        : "") +
+      (L.length
+        ? L.map(function (x) {
+            var o = x.o;
+            return (
+              '<div class="mvrow"><button class="mvgo" data-mv="go-' +
+              esc(o.kind) +
+              "-" +
+              esc(String(o.id)) +
+              '"><i style="background:' +
+              mvColour(o) +
+              '">' +
+              mvIcon(o) +
+              "</i><span><b>" +
+              esc(String(o.n || "Unknown").slice(0, 40)) +
+              '</b><em class="mono">' +
+              esc(mvSub(o)) +
+              '</em></span><small class="mono">' +
+              mvDist(x.km) +
+              "</small></button>" +
+              (o.kind === "plane"
+                ? '<button class="mvpilot" data-mv="pilot-' +
+                  esc(String(o.id)) +
+                  '" aria-label="Pilot view">✈ PILOT</button>'
+                : "") +
+              "</div>"
+            );
+          }).join("")
+        : '<p class="mvnone">Nothing moving in this list yet. ' +
+          (hint.length ? "Turn on a layer above, or move the map." : "Move the map or zoom out.") +
+          "</p>");
+  $("mvsub").textContent = L.length
+    ? L.length + (L.length === MV_MAX ? "+" : "") + " NEAREST THE MIDDLE OF THE MAP"
+    : "";
+  if (h === MV.h) return;
+  MV.h = h;
+  var lst = $("mvlist"),
+    keep = lst.scrollTop;
+  lst.innerHTML = h;
+  lst.scrollTop = top ? 0 : keep;
+}
+
+function mvFind(kind, id) {
+  var a = { plane: PLANES, ship: SHIPS, transit: TRANSIT, sat: SATS }[kind] || [];
+  for (var i = 0; i < a.length; i++) if (String(a[i].id) === id) return a[i];
+  return null;
+}
+
+// Fly to it and open its details.
+function mvGo(o) {
+  mvClose();
+  try {
+    if (T3.on && T3.map)
+      T3.map.flyTo({
+        center: [o.lon, o.lat],
+        zoom: { plane: 10.5, ship: 13, sat: 3.5 }[o.kind] || 14,
+        duration: 1800
+      });
+  } catch (x) {}
+  select(o);
+  if (innerWidth < 1000 && typeof sheetSet === "function" && SHH < 46) sheetSet(46, true);
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-mv]");
+  if (!b) return;
+  var k = b.getAttribute("data-mv");
+  if (k === "x") mvClose();
+  else if (k.indexOf("f-") === 0) {
+    MV.f = k.slice(2);
+    MV.h = "";
+    mvDraw(true);
+  } else if (k.indexOf("on-") === 0) {
+    setLayer(MV_LAYER[k.slice(3)], true);
+    note("Moving", "Loading… the list fills in as they arrive.");
+    setTimeout(mvDraw, 2500);
+  } else if (k.indexOf("go-") === 0) {
+    var m = /^go-([a-z]+)-(.*)$/.exec(k),
+      o = m && mvFind(m[1], m[2]);
+    if (o) mvGo(o);
+  } else if (k.indexOf("pilot-") === 0) {
+    var p = mvFind("plane", k.slice(6));
+    if (!p) return;
+    mvClose();
+    select(p);
+    ckpOpen(p);
   }
 });
 /**

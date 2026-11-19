@@ -21,6 +21,11 @@ var RW_DOCK = [
     "Cameras",
     '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 10.5l5-2.5v8l-5-2.5"/>'
   ],
+  [
+    "moving",
+    "Moving",
+    '<path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>'
+  ],
   ["events", "Events", '<path d="M3 12h4l2.5-6 4 12 2.5-6h5"/>'],
   [
     "conflict",
@@ -99,7 +104,7 @@ function rwDraw() {
     label = "OJOS DE DIOS";
   if (nm && nm.textContent !== label) nm.textContent = label;
   var cf = el.querySelector('.rwdock [data-rw="conflict"]');
-  if (cf) cf.classList.toggle("on", !!WL.conflict);
+  if (cf) cf.classList.toggle("on", !!WLU.conflict);
   var sb = el.querySelector('[data-rw="search"]');
   if (sb) sb.classList.toggle("on", document.body.classList.contains("rwfind"));
 }
@@ -190,6 +195,7 @@ document.addEventListener("click", function (e) {
   } else if (k === "galaxy") galOpen();
   else if (k === "set") brOpen("set");
   else if (k === "cams") cgOpen();
+  else if (k === "moving") mvOpen();
   else if (k === "layers" || k === "events") {
     var g = document.querySelector(".grid");
     if (document.body.classList.contains("sheet") && g && g.getAttribute("data-tab") === k)
@@ -307,7 +313,7 @@ function soloKeys() {
 function soloSnapshot() {
   var o = {};
   soloKeys().forEach(function (k) {
-    o[k] = !!WL[k];
+    o[k] = !!WLU[k];
   });
   return o;
 }
@@ -315,7 +321,7 @@ function soloSnapshot() {
 function soloApply(want) {
   SOLO.busy = true;
   Object.keys(want).forEach(function (k) {
-    if (!!WL[k] !== want[k]) setLayer(k, want[k]);
+    if (!!WLU[k] !== want[k]) setLayer(k, want[k]);
   });
   SOLO.busy = false;
 }

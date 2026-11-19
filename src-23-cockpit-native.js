@@ -361,14 +361,29 @@ function ckpOpen(p) {
   CKP.wxAt = 0;
   CKP.wxPos = null;
   CKP.sc = null;
+  // Nothing from the map view stays over the cockpit.
+  try {
+    ringClose();
+    if (CP.open) cpClose();
+    if (MV.open) mvClose();
+  } catch (x) {}
+  if (!T4.ready) note("Cockpit view", "Opening the cockpit of " + esc(p.n) + "…");
   if (!T4.on) t4Open();
   var n = 0,
     go = function () {
+      // The 3D view starts a moment after it is asked for (from the dashboard it opens in steps), so
+      // wait for it; only if it never opens, or was closed again, does the cockpit give up.
       if (!T4.on) {
+        if (n++ < 20) setTimeout(go, 300);
         return;
       }
       if (!T4.ready || !T4.v) {
         if (n++ < 120) setTimeout(go, 500);
+        else
+          note(
+            "Cockpit view",
+            "The 3D view did not finish loading. Check the connection and try again."
+          );
         return;
       }
       ckpStart();

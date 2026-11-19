@@ -10,6 +10,17 @@ import conflict
 import rovers
 import install_native
 
+GENERATED_GRADLE = """apply plugin: 'com.android.application'
+android {
+    defaultConfig {
+        versionCode 1
+    }
+}
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}
+"""
+
 GENERATED_MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:label="Ojos de Dios">
@@ -63,6 +74,7 @@ class InstallNativeTest(unittest.TestCase):
         (main / "java" / "com" / "ojosdedios" / "app").mkdir(parents=True)
         (main / "java" / "com" / "ojosdedios" / "app" / "MainActivity.java").write_text("generated")
         (main / "AndroidManifest.xml").write_text(GENERATED_MANIFEST)
+        (self.project / "app" / "build.gradle").write_text(GENERATED_GRADLE)
         self.main = main
 
     def tearDown(self) -> None:
@@ -90,6 +102,21 @@ class InstallNativeTest(unittest.TestCase):
         self.assertEqual(once.count("android.permission.VIBRATE"), 1)
         self.assertEqual(install_native.patch_manifest(once), once)
         self.assertLess(once.index(".EmergencyWidget"), once.index("</application>"))
+        # Visual positioning: AR optional, so phones without ARCore still install the app.
+        self.assertIn(".VpsActivity", once)
+        self.assertIn('android:name="com.google.ar.core" android:value="optional"', once)
+        self.assertIn('android.hardware.camera.ar" android:required="false"', once)
+        self.assertIn("android.permission.CAMERA", once)
+        self.assertLess(once.index("android.hardware.camera.ar"), once.index("<application"))
+
+    def test_gradle_patch_adds_the_positioning_libraries_once(self) -> None:
+        once = install_native.patch_gradle(GENERATED_GRADLE)
+        self.assertIn("implementation 'com.google.ar:core:", once)
+        self.assertIn("play-services-location", once)
+        self.assertEqual(install_native.patch_gradle(once), once)
+        self.assertLess(once.index("dependencies {"), once.index("com.google.ar:core"))
+        with self.assertRaises(install_native.InstallError):
+            install_native.patch_gradle("android {}")
 
     def test_install_then_undo_restores_the_generated_project(self) -> None:
         java = self.main / "java" / "com" / "ojosdedios" / "app" / "MainActivity.java"
@@ -103,9 +130,22 @@ class InstallNativeTest(unittest.TestCase):
         with self.assertRaises(install_native.InstallError):
             install_native.install(self.project, self.src)
 
+        gradle = self.project / "app" / "build.gradle"
+        self.assertIn("com.google.ar:core", gradle.read_text())
+        # The build edits both files after installing (location permission, version, signing); undo keeps that.
+        manifest.write_text(manifest.read_text().replace("</manifest>", '    <uses-permission android:name="LOC" />\n</manifest>'))
+        gradle.write_text(gradle.read_text().replace("versionCode 1", "versionCode 57") + "android { signingConfigs {} }\n")
+
         install_native.undo(self.project)
         self.assertEqual(java.read_text(), "generated")
-        self.assertEqual(manifest.read_text(), GENERATED_MANIFEST)
+        self.assertEqual(
+            manifest.read_text(),
+            GENERATED_MANIFEST.replace("</manifest>", '    <uses-permission android:name="LOC" />\n</manifest>'),
+        )
+        self.assertEqual(
+            gradle.read_text(),
+            GENERATED_GRADLE.replace("versionCode 1", "versionCode 57") + "android { signingConfigs {} }\n",
+        )
         self.assertFalse((self.main / "res" / "layout" / "widget_emergency.xml").exists())
         self.assertFalse(test.exists())
         self.assertFalse((self.project / install_native.LEDGER).exists())

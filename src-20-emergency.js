@@ -138,11 +138,14 @@ function emgSet(on) {
   emgPill();
 }
 function emgFix(p) {
+  // A fresh visual-positioning fix (module 49) is not replaced by a rougher GPS reading near it.
+  if (!p.vps && vpsKeeps(p.coords.latitude, p.coords.longitude, p.coords.accuracy)) return;
   var q = {
       lat: p.coords.latitude,
       lon: p.coords.longitude,
       acc: p.coords.accuracy,
       hdg: p.coords.heading,
+      vps: !!p.vps,
       t: Date.now()
     },
     moved = EMG.last ? hav(q.lat, q.lon, EMG.last.lat, EMG.last.lon) : 1e9;
@@ -577,11 +580,51 @@ var EMG_K = {
   fuel: "Fuel",
   water: "Drinking water"
 };
+// The panel is redrawn as position, alerts, radio and news arrive. While the person is touching or
+// scrolling it, a redraw waits until they have stopped for a moment, so it never moves under their finger.
+var EMG_IDLE_MS = 1500;
+function emgBusy(el) {
+  var left = EMG_IDLE_MS - (Date.now() - (el._touched || 0));
+  if (left <= 0) return false;
+  clearTimeout(EMG.drawT);
+  EMG.drawT = setTimeout(emgDraw, left + 30);
+  return true;
+}
+// A heading's distance from the top of the scrolling list, whatever the list's positioning.
+function emgTop(sc, h) {
+  return h.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
+}
+// Where the reader is: the section heading at the top of the view and how far past it they are.
+function emgAnchor(sc) {
+  // Just after a tap, the button tapped is what stays put under the finger.
+  var t =
+    EMG.tapKey &&
+    Date.now() - EMG.tapAt < 3000 &&
+    sc.querySelector('[data-em="' + EMG.tapKey + '"]');
+  if (t) return { sel: '[data-em="' + EMG.tapKey + '"]', off: sc.scrollTop - emgTop(sc, t) };
+  var hs = sc.querySelectorAll("h4"),
+    a = null,
+    best = Infinity;
+  // The heading nearest the top edge of the view, above or below it.
+  for (var i = 0; i < hs.length; i++) {
+    var d = Math.abs(emgTop(sc, hs[i]) - sc.scrollTop);
+    if (d < best) {
+      best = d;
+      a = hs[i];
+    }
+  }
+  return a ? { key: emgKey(a), off: sc.scrollTop - emgTop(sc, a) } : null;
+}
+function emgKey(h) {
+  return (h.textContent || "").split("·")[0].trim();
+}
 function emgDraw() {
   var el = $("emgp");
   if (!el || !EMG.open) return;
+  emgPill();
   if (document.activeElement && /^(emgQ|famN|famP|emgOwn|emgNote)$/.test(document.activeElement.id))
     return;
+  if (emgBusy(el)) return;
   var S = EMG.sit,
     A = S && S.as,
     num = (S && S.num) || emgNum(S && S.cc),
@@ -790,7 +833,9 @@ function emgDraw() {
           EMG.pos.lon.toFixed(5) +
           " · ±" +
           Math.round(EMG.pos.acc || 0) +
-          " M</i>"
+          " M" +
+          (EMG.pos.vps ? " · VISUAL" : "") +
+          "</i>"
         : "") +
       "</div>";
     var grp = {};
@@ -902,6 +947,7 @@ function emgDraw() {
     "</button>" +
     (EMG.chk && done ? '<button data-em="chk0">Clear ticks</button>' : "") +
     "</div>" +
+    '<div class="bra emvps"><button data-vps="pinpoint">📍 Pinpoint me</button><button data-vps="around">◎ What’s around me</button></div>' +
     (go
       ? '<button class="emgo" data-em="go"><b>▶ START ROUTE AND LIVE TRACKING</b><span>' +
         esc(go.n) +
@@ -911,9 +957,23 @@ function emgDraw() {
     '<div class="bra"><button data-em="off">Exit emergency mode</button></div></div>';
   h +=
     '</div><div class="nf mono">PUBLIC SOURCES: NWS · USGS · NASA EONET · GDACS · OPEN-METEO · OPENSTREETMAP · YOUR POSITION STAYS ON THIS PHONE</div>';
+  if (el._h === h) return; // nothing changed: leave the panel exactly as it is
+  var anc = sc ? emgAnchor(sc) : null;
+  el._h = h;
   el.innerHTML = h;
   var s2 = el.querySelector(".nl");
-  if (s2) s2.scrollTop = top;
+  if (!s2) return;
+  // Keep the same section in view even when something above it grew or shrank.
+  var to = top,
+    same = anc && anc.sel && s2.querySelector(anc.sel);
+  if (same) to = emgTop(s2, same) + anc.off;
+  else if (anc && anc.key)
+    [].some.call(s2.querySelectorAll("h4"), function (x) {
+      if (emgKey(x) !== anc.key) return false;
+      to = emgTop(s2, x) + anc.off;
+      return true;
+    });
+  s2.scrollTop = to;
 }
 // What to grab and do before moving: [item, detail]. Ticks are saved on the phone (ojos-emg-chk).
 var EMG_CHK = [
@@ -989,6 +1049,24 @@ function emgOpen() {
     el.id = "emgp";
     el.className = "pn";
     document.body.appendChild(el);
+    // Only scrolling counts: a tap on a button or a tick box still updates the panel straight away.
+    ["touchmove", "wheel"].forEach(function (k) {
+      el.addEventListener(
+        k,
+        function () {
+          el._touched = Date.now();
+        },
+        { passive: true, capture: true }
+      );
+    });
+    // Momentum scrolling goes on after the finger lifts; it counts as reading too.
+    el.addEventListener(
+      "scroll",
+      function () {
+        if (Date.now() - (el._touched || 0) < 4000) el._touched = Date.now();
+      },
+      { passive: true, capture: true }
+    );
   }
   EMG.open = true;
   el.style.display = "flex";
@@ -1007,7 +1085,11 @@ function emgPill() {
   }
   el.style.display = EMG.on && !EMG.open ? "block" : "none";
   var A = EMG.sit && EMG.sit.as;
-  el.textContent = "⚠ " + (A ? A.act : "State of emergency") + " · open";
+  // With no warning in force the pill says only that the mode is on, rather than looking like an alert.
+  el.textContent =
+    A && A.act && !/^No official alert/i.test(A.act)
+      ? "⚠ " + A.act + " · open"
+      : "State of emergency on · open";
 }
 // SOS: the screen flashes ... --- ... with a tone, so the phone can be seen and heard
 function emgSig(on) {
@@ -1169,6 +1251,8 @@ document.addEventListener("click", function (e) {
   var k = b.getAttribute("data-em"),
     S = EMG.sit,
     i = +k.slice(3);
+  EMG.tapKey = k;
+  EMG.tapAt = Date.now();
   if (k === "no") $("emgask").style.display = "none";
   else if (k === "yes") {
     $("emgask").style.display = "none";

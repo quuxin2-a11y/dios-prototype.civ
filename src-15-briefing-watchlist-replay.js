@@ -539,7 +539,12 @@ function brDraw() {
     (SET.cpAuto !== false ? "on" : "") +
     '">' +
     (SET.cpAuto !== false ? "● " : "○ ") +
-    'Camera tiles when zoomed in</button></div><p class="brhint">Zoom into a city and the nearest live cameras appear as tiles beside their spots on the map.</p>' +
+    'Camera tiles when zoomed in</button></div><p class="brhint">Zoom into a city and the nearest live cameras appear as tiles beside their spots on the map. Drag a tile to move it.</p>' +
+    '<h4 class="mono">LAYERS</h4><div class="brt c1"><button data-br="zoomlayers" class="' +
+    (SET.zoomLayers !== false ? "on" : "") +
+    '">' +
+    (SET.zoomLayers !== false ? "● " : "○ ") +
+    'Layers follow the zoom</button></div><p class="brhint">Layers you switch on show only where they are useful: close-up ones like bikes, pharmacies and buildings when zoomed in, worldwide ones like satellites, economy and country facts when zoomed out. Double-tap a layer to show only it, at any zoom.</p>' +
     '<h4 class="mono">DISPLAY</h4><div class="brt c3">' +
     [
       ["globe", "Globe"],
@@ -704,6 +709,11 @@ document.addEventListener("click", function (e) {
       AM.ask = true; // turning it on is the moment to ask for location
       amCheck();
     } else natCall("setAlertWatch", { on: false, places: [] });
+  } else if (k === "zoomlayers") {
+    SET.zoomLayers = SET.zoomLayers === false;
+    setSave();
+    wlZoomCheck();
+    brDraw();
   } else if (k === "cpauto") {
     SET.cpAuto = SET.cpAuto === false;
     setSave();

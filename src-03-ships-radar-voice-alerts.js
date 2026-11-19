@@ -487,7 +487,7 @@ var VLAY = [
   [/\b(property|parcel|parcels|tax)\b/, "parcel", "property records"]
 ];
 function setLayer(k, onv) {
-  if (!!WL[k] !== onv) {
+  if (!!WLU[k] !== onv) {
     var b = document.createElement("button");
     b.setAttribute("data-wl", k);
     b.style.display = "none";

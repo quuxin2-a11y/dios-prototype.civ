@@ -426,7 +426,8 @@ var CP = {
     raf: 0,
     auto: false,
     snooze: false,
-    big: {}
+    big: {},
+    drag: {} // tiles moved by hand: their offset from their camera's spot, so they follow the map
   },
   CP_AUTO_Z = 12.5, // zoomed in this far on the map, the pins appear by themselves
   CP_AUTO_KM = 30, // or, on the app's own globe, with a view narrower than this
@@ -512,6 +513,7 @@ function cpOpen(c, auto) {
     el.innerHTML =
       '<svg class="cplines"></svg><div class="cptiles"></div><div class="cphead"><b class="mono" id="cpname"></b><button data-cp="n" class="mono"></button><button data-cp="x" aria-label="Close">✕</button></div>';
     document.body.appendChild(el);
+    cpDragSetup(el);
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-cp]");
       if (!b) return;
@@ -554,6 +556,7 @@ function cpOpen(c, auto) {
   CP.items = cpNear(c, CP.n);
   CP.pos = [];
   CP.big = {};
+  CP.drag = {};
   el.style.display = "block";
   document.body.classList.add("cp-open");
   $("cpname").textContent = (auto ? "CAMERAS HERE · " : "") + String(c.n || "Camera").toUpperCase();
@@ -608,6 +611,64 @@ function cpTile(c, cls, k, sub) {
   );
 }
 
+// Tiles can be dragged anywhere. A tile moved by hand stays put relative to its camera as the map moves,
+// and the others make room for it; its line still runs to the camera. A short tap still enlarges it.
+function cpDragSetup(el) {
+  var D = null;
+  el.addEventListener("pointerdown", function (e) {
+    var t = e.target.closest(".cpt");
+    if (!t || e.target.closest(".cpopen")) return;
+    var i = [].indexOf.call(el.querySelectorAll(".cpt"), t),
+      p = CP.pos[i];
+    if (i < 0 || !p || p.hide) return;
+    D = {
+      i: i,
+      t: t,
+      id: e.pointerId,
+      x0: e.clientX,
+      y0: e.clientY,
+      px: p.x,
+      py: p.y,
+      moved: false
+    };
+  });
+  el.addEventListener("pointermove", function (e) {
+    if (!D || e.pointerId !== D.id) return;
+    var mx = e.clientX - D.x0,
+      my = e.clientY - D.y0;
+    if (!D.moved && Math.hypot(mx, my) < 8) return;
+    if (!D.moved) {
+      D.moved = true;
+      D.t.classList.add("drag");
+      try {
+        D.t.setPointerCapture(D.id);
+      } catch (x) {}
+    }
+    var p = CP.pos[D.i];
+    if (!p || p.hide) return;
+    CP.drag[D.i] = { dx: D.px + mx - p.a[0], dy: D.py + my - p.a[1] };
+    e.preventDefault();
+  });
+  var end = function (e) {
+    if (!D || e.pointerId !== D.id) return;
+    D.t.classList.remove("drag");
+    if (D.moved) {
+      // The finger lifting after a drag is not a tap.
+      var stop = function (c) {
+        c.stopPropagation();
+        c.preventDefault();
+      };
+      el.addEventListener("click", stop, { capture: true, once: true });
+      setTimeout(function () {
+        el.removeEventListener("click", stop, true);
+      }, 400);
+    }
+    D = null;
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+}
+
 function cpClose() {
   CP.open = false;
   cancelAnimationFrame(CP.raf);
@@ -654,6 +715,8 @@ function cpFrame() {
       h = Math.round(w * 0.625) + 28,
       prev = CP.pos[i];
     if (!a) return { hide: true };
+    var dr = CP.drag[i];
+    if (dr) return { a: a, w: w, h: h, x: a[0] + dr.dx, y: a[1] + dr.dy, pin: true };
     var dx = a[0] - a0[0],
       dy = a[1] - a0[1],
       d = Math.hypot(dx, dy) || 1,
@@ -678,7 +741,9 @@ function cpFrame() {
         var ox = (A.w + B.w) / 2 + 6 - Math.abs(B.x - A.x),
           oy = (A.h + B.h) / 2 + 6 - Math.abs(B.y - A.y);
         if (ox > 0 && oy > 0) {
-          var wa = i === 0 ? 0.15 : 0.5; // the centre tile gives way least
+          if (A.pin && B.pin) continue;
+          // The centre tile gives way least; a tile placed by hand does not give way at all.
+          var wa = A.pin ? 0 : B.pin ? 1 : i === 0 ? 0.15 : 0.5;
           if (ox < oy) {
             var sx = (B.x >= A.x ? 1 : -1) * ox;
             A.x -= sx * wa;
