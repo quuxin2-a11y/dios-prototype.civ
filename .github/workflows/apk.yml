@@ -142,7 +142,7 @@ jobs:
         uses: actions/attest-build-provenance@v3
         with:
           subject-path: ojos-de-dios.apk
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: android
           path: |
@@ -187,7 +187,7 @@ jobs:
           mkdir Payload
           cp -R build/Build/Products/Release-iphoneos/App.app Payload/
           zip -qr ../../../ojos-de-dios-iphone-unsigned.ipa Payload
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: ios
           path: ojos-de-dios-iphone-unsigned.ipa
